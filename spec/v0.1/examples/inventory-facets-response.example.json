@@ -1,0 +1,94 @@
+{
+  "type": "inventory.facets.response",
+  "data": {
+    "makes": [
+      { "value": "Toyota", "count": 142 },
+      { "value": "Honda", "count": 85 },
+      { "value": "Lexus", "count": 47 },
+      { "value": "Ford", "count": 23 },
+      { "value": "BMW", "count": 18 },
+      { "value": "Subaru", "count": 14 },
+      { "value": "Volkswagen", "count": 12 },
+      { "value": "Hyundai", "count": 9 }
+    ],
+    "models": [
+      { "value": "RAV4", "count": 41 },
+      { "value": "Camry", "count": 38 },
+      { "value": "Corolla", "count": 27 },
+      { "value": "Highlander", "count": 19 },
+      { "value": "CR-V", "count": 32 },
+      { "value": "Civic", "count": 24 },
+      { "value": "Accord", "count": 19 },
+      { "value": "RX 350", "count": 16 }
+    ],
+    "trims": [
+      { "value": "LE", "count": 58 },
+      { "value": "XLE", "count": 47 },
+      { "value": "EX-L", "count": 22 },
+      { "value": "Sport", "count": 18 },
+      { "value": "Limited", "count": 14 }
+    ],
+    "years": [
+      { "value": 2026, "count": 12 },
+      { "value": 2025, "count": 64 },
+      { "value": 2024, "count": 81 },
+      { "value": 2023, "count": 92 },
+      { "value": 2022, "count": 51 },
+      { "value": 2021, "count": 28 },
+      { "value": 2020, "count": 15 }
+    ],
+    "conditions": [
+      { "value": "used", "count": 218 },
+      { "value": "certified", "count": 84 },
+      { "value": "new", "count": 48 }
+    ],
+    "transmissions": [
+      { "value": "automatic", "count": 318 },
+      { "value": "cvt", "count": 24 },
+      { "value": "manual", "count": 8 }
+    ],
+    "fuels": [
+      { "value": "gas", "count": 246 },
+      { "value": "hybrid", "count": 78 },
+      { "value": "phev", "count": 14 },
+      { "value": "bev", "count": 12 }
+    ],
+    "drivelines": [
+      { "value": "fwd", "count": 158 },
+      { "value": "awd", "count": 162 },
+      { "value": "rwd", "count": 18 },
+      { "value": "4wd", "count": 12 }
+    ],
+    "body_types": [
+      { "value": "suv", "count": 174 },
+      { "value": "sedan", "count": 102 },
+      { "value": "truck", "count": 28 },
+      { "value": "hatchback", "count": 26 },
+      { "value": "coupe", "count": 14 },
+      { "value": "wagon", "count": 6 }
+    ],
+    "exterior_colors": [
+      { "value": "Magnetic Gray", "count": 48 },
+      { "value": "Super White", "count": 42 },
+      { "value": "Midnight Black", "count": 38 },
+      { "value": "Celestial Silver", "count": 29 },
+      { "value": "Blueprint", "count": 21 }
+    ],
+    "interior_colors": [
+      { "value": "Black", "count": 188 },
+      { "value": "Ash", "count": 86 },
+      { "value": "Macadamia", "count": 32 },
+      { "value": "Cognac", "count": 18 }
+    ],
+    "statuses": [
+      { "value": "In Stock", "count": 287 },
+      { "value": "In Transit", "count": 41 },
+      { "value": "Pending", "count": 18 },
+      { "value": "Reserved", "count": 4 }
+    ],
+    "price_range": { "min": 8995, "max": 89500 },
+    "mileage_range": { "min": 0, "max": 142500 },
+    "year_range": { "min": 2018, "max": 2026 }
+  },
+  "message": "Facets aggregated over 350 active used and certified pre-owned listings, refreshed every 15 minutes."
+}

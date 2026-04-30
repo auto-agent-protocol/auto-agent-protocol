@@ -1,0 +1,12 @@
+{
+  "type": "lead.vehicle.response",
+  "data": {
+    "lead_id": "lead_2026_04_29_00842",
+    "status": "received",
+    "dealer": {
+      "name": "Demo Toyota",
+      "phone": "+14155550100"
+    }
+  },
+  "message": "Thanks, Piotr. We received your inquiry on the 2024 Honda CR-V EX-L (VIN 1HGCY2F57RA000001). A sales advisor will call you at +1 (415) 555-5678 within one business hour with the out-the-door number for ZIP 94107 and a trade-in estimate for your 2020 Passat."
+}

@@ -1,0 +1,81 @@
+{
+  "contract": {
+    "name": "Auto Agent Protocol A2A Automotive Retail Profile",
+    "version": "0.1.0",
+    "uri": "https://autoagentprotocol.org/v0.1/"
+  },
+  "dealer": {
+    "dealer_id": "dealer_demo_toyota",
+    "name": "Demo Toyota",
+    "managed_by": "Lumika AI"
+  },
+  "a2a": {
+    "endpoint": "https://demo-toyota.agents.lumika.ai/a2a",
+    "protocol_binding": "JSONRPC",
+    "skills": [
+      {
+        "id": "dealer.information",
+        "request_schema": "https://autoagentprotocol.org/v0.1/schemas/dealer-information-request.schema.json",
+        "response_schema": "https://autoagentprotocol.org/v0.1/schemas/dealer-information-response.schema.json",
+        "anonymous_allowed": true,
+        "consent_required": false
+      },
+      {
+        "id": "inventory.facets",
+        "request_schema": "https://autoagentprotocol.org/v0.1/schemas/inventory-facets-request.schema.json",
+        "response_schema": "https://autoagentprotocol.org/v0.1/schemas/inventory-facets-response.schema.json",
+        "anonymous_allowed": true,
+        "consent_required": false
+      },
+      {
+        "id": "inventory.search",
+        "request_schema": "https://autoagentprotocol.org/v0.1/schemas/inventory-search-request.schema.json",
+        "response_schema": "https://autoagentprotocol.org/v0.1/schemas/inventory-search-response.schema.json",
+        "anonymous_allowed": true,
+        "consent_required": false
+      },
+      {
+        "id": "inventory.vehicle",
+        "request_schema": "https://autoagentprotocol.org/v0.1/schemas/vehicle-detail-request.schema.json",
+        "response_schema": "https://autoagentprotocol.org/v0.1/schemas/vehicle-detail-response.schema.json",
+        "anonymous_allowed": true,
+        "consent_required": false
+      },
+      {
+        "id": "lead.general",
+        "request_schema": "https://autoagentprotocol.org/v0.1/schemas/general-lead-request.schema.json",
+        "response_schema": "https://autoagentprotocol.org/v0.1/schemas/lead-response.schema.json",
+        "anonymous_allowed": false,
+        "consent_required": true,
+        "adf_compatible": true
+      },
+      {
+        "id": "lead.vehicle",
+        "request_schema": "https://autoagentprotocol.org/v0.1/schemas/vehicle-lead-request.schema.json",
+        "response_schema": "https://autoagentprotocol.org/v0.1/schemas/lead-response.schema.json",
+        "anonymous_allowed": false,
+        "consent_required": true,
+        "adf_compatible": true
+      },
+      {
+        "id": "lead.appointment",
+        "request_schema": "https://autoagentprotocol.org/v0.1/schemas/appointment-lead-request.schema.json",
+        "response_schema": "https://autoagentprotocol.org/v0.1/schemas/appointment-lead-response.schema.json",
+        "anonymous_allowed": false,
+        "consent_required": true,
+        "adf_compatible": true
+      }
+    ]
+  },
+  "auth_type": "bearer",
+  "llm": {
+    "guide_url": "https://demo-toyota.agents.lumika.ai/.well-known/auto-agent-llm-guide.md",
+    "rules": [
+      "Always call inventory.search before lead.vehicle so that the VIN, stock, or vehicle_id you submit is one Demo Toyota actually has in stock or in transit.",
+      "Never submit a lead.* skill without an explicit, verbatim ConsentGrant captured from the user; the consent's allowed_channels MUST be a subset of the channels the user agreed to.",
+      "When quoting price to the user, prefer the FTC-final 'price' field; if you show 'list_price' or 'msrp', clearly label them and mention that taxes and fees apply.",
+      "Treat 'last_verified_at' as the source of truth for availability claims; if it is older than 24 hours, re-fetch via inventory.vehicle before promising the user the unit is still available.",
+      "Respect 'auth_type: bearer' and never invoke skills anonymously when the manifest declares bearer auth; obtain credentials from Lumika AI before retrying."
+    ]
+  }
+}

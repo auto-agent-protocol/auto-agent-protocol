@@ -1,0 +1,13 @@
+{
+  "type": "aap.error",
+  "error_id": "err_01HX9P7Z6ZK4N3D6V5K3W2T7M0",
+  "code": "VEHICLE_NOT_FOUND",
+  "message": "VIN 1HGCY2F57RA000001 was not found in this dealer's inventory. The vehicle may have been sold, transferred, or never listed at Demo Toyota.",
+  "retryable": false,
+  "details": {
+    "vin": "1HGCY2F57RA000001",
+    "dealer_id": "dealer_demo_toyota",
+    "suggestion": "Call inventory.search to find currently available 2024 Honda CR-V EX-L units at this dealer."
+  },
+  "created_at": "2026-04-30T15:22:11Z"
+}

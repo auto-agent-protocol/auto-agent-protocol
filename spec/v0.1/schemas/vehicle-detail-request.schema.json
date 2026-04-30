@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/vehicle-detail-request.schema.json",
+  "title": "VehicleDetailRequest",
+  "description": "Typed AAP request for the `inventory.vehicle` skill. The request MUST identify a specific listing via at least one of `vin`, `stock`, or `vehicle_id`. Carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "inventory.vehicle.request" },
+    "vin": {
+      "type": "string",
+      "pattern": "^[A-HJ-NPR-Z0-9]{17}$",
+      "description": "Vehicle Identification Number. Preferred identifier when known."
+    },
+    "stock": {
+      "type": "string",
+      "description": "Dealer's stock number, used when VIN is not yet assigned (e.g. in-transit units)."
+    },
+    "vehicle_id": {
+      "type": "string",
+      "description": "Dealer-internal vehicle identifier."
+    },
+    "zip_code": {
+      "type": "string",
+      "description": "Optional buyer ZIP/postal code; when provided, the dealer MAY compute the regional offered_price field."
+    }
+  },
+  "required": ["type"],
+  "anyOf": [
+    { "required": ["vin"] },
+    { "required": ["stock"] },
+    { "required": ["vehicle_id"] }
+  ],
+  "additionalProperties": false
+}

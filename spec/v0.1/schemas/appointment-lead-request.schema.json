@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/appointment-lead-request.schema.json",
+  "title": "AppointmentLeadRequest",
+  "description": "Typed AAP request for the `lead.appointment` skill. Submits an appointment request (test drive, showroom visit, vehicle handover, phone call, video call, or trade-in appraisal). The dealer SHOULD respond with status `requested` / `proposed` if confirmation requires manual review, or `confirmed` if the slot is auto-booked. At least one requested time window MUST be provided unless the dealer policy explicitly allows open-ended scheduling. Carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "lead.appointment.request" },
+    "appointment_type": {
+      "type": "string",
+      "enum": ["test_drive", "showroom_visit", "handover", "phone_call", "video_call", "trade_in_appraisal"]
+    },
+    "vehicles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "vin": { "type": "string", "pattern": "^[A-HJ-NPR-Z0-9]{17}$" },
+          "stock": { "type": "string" },
+          "vehicle_id": { "type": "string" }
+        },
+        "anyOf": [
+          { "required": ["vin"] },
+          { "required": ["stock"] },
+          { "required": ["vehicle_id"] }
+        ],
+        "additionalProperties": false
+      },
+      "description": "Vehicles attached to this appointment. REQUIRED when appointment_type is 'test_drive' or 'handover'."
+    },
+    "requested_windows": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "start": { "type": "string", "format": "date-time" },
+          "end": { "type": "string", "format": "date-time" }
+        },
+        "required": ["start"],
+        "additionalProperties": false
+      },
+      "description": "One or more datetime windows the user prefers. The dealer agent MUST honor at least one or respond with 'proposed' alternatives."
+    },
+    "timezone": {
+      "type": "string",
+      "description": "IANA timezone (e.g. 'America/Los_Angeles') interpreting the requested windows."
+    },
+    "duration_minutes": {
+      "type": "integer",
+      "minimum": 15,
+      "description": "Expected duration of the appointment."
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 4000,
+      "description": "Free-text note from the user."
+    },
+    "customer": {
+      "$ref": "./customer.schema.json",
+      "description": "Customer contact info. When present, 'consent' MUST also be present."
+    },
+    "consent": {
+      "$ref": "./consent-grant.schema.json",
+      "description": "Required whenever 'customer' is present. Scope MUST include 'appointment'."
+    },
+    "source_agent": {
+      "type": "string",
+      "description": "Identifier of the buyer agent submitting the request.",
+      "minLength": 1
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["type", "appointment_type", "source_agent"],
+  "allOf": [
+    {
+      "if": {
+        "properties": { "appointment_type": { "enum": ["test_drive", "handover"] } }
+      },
+      "then": { "required": ["vehicles"] }
+    }
+  ],
+  "dependentRequired": {
+    "customer": ["consent"]
+  },
+  "additionalProperties": false
+}

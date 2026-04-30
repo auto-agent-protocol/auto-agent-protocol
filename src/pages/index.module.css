@@ -1,0 +1,89 @@
+.heroBanner {
+  padding: 4rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.heroInner {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.heroText {
+  flex: 1 1 360px;
+}
+
+.heroImage {
+  flex: 1 1 420px;
+  display: flex;
+  justify-content: center;
+}
+
+.heroImage img {
+  width: 100%;
+  max-width: 560px;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
+}
+
+@media (max-width: 768px) {
+  .heroBanner {
+    text-align: center;
+  }
+  .heroImage img {
+    max-width: 100%;
+  }
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.features {
+  display: flex;
+  align-items: center;
+  padding: 3rem 0;
+}
+
+.feature {
+  padding: 1.5rem;
+}
+
+.feature h3 {
+  margin-bottom: 0.5rem;
+}
+
+.skillsSection {
+  padding: 3.5rem 0;
+}
+
+.skillsSection .row {
+  align-items: center;
+}
+
+.pricingSection {
+  padding: 3.5rem 0;
+  background: var(--ifm-color-emphasis-100);
+}
+
+.pricingSection .row {
+  align-items: center;
+}
+
+.fullImage {
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
+}
+
+.protocols {
+  padding: 3rem 0;
+}
+
+.protocols h4 {
+  margin-bottom: 0.5rem;
+}

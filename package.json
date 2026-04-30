@@ -1,0 +1,71 @@
+{
+  "name": "autoagentprotocol",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Auto Agent Protocol — the open contract for AI agents to talk to car dealerships",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "start": "docusaurus start",
+    "build": "pnpm run generate && pnpm run copy-static && docusaurus build",
+    "serve": "docusaurus serve",
+    "clear": "docusaurus clear",
+    "version:new": "docusaurus docs:version",
+    "generate": "pnpm run generate:types && pnpm run generate:openapi && pnpm run generate:field-cards && pnpm run generate:mcp && pnpm run generate:contract",
+    "generate:types": "tsx tools/generate-types.ts",
+    "generate:openapi": "tsx tools/generate-openapi.ts",
+    "generate:field-cards": "tsx tools/generate-field-cards.ts",
+    "generate:mcp": "tsx tools/generate-mcp-manifest.ts",
+    "generate:contract": "tsx tools/generate-contract-manifest.ts",
+    "validate": "pnpm run validate:schemas && pnpm run validate:examples",
+    "validate:schemas": "tsx tools/validate-schemas.ts",
+    "validate:examples": "tsx tools/validate-examples.ts",
+    "freeze-check": "tsx tools/freeze-check.ts",
+    "copy-static": "tsx tools/copy-static.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@docusaurus/core": "^3.7.0",
+    "@docusaurus/plugin-client-redirects": "^3.10.0",
+    "@docusaurus/preset-classic": "^3.7.0",
+    "@docusaurus/theme-mermaid": "^3.10.0",
+    "@easyops-cn/docusaurus-search-local": "^0.55.1",
+    "@mdx-js/react": "^3.0.0",
+    "clsx": "^2.1.0",
+    "prism-react-renderer": "^2.3.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  },
+  "devDependencies": {
+    "@docusaurus/module-type-aliases": "^3.7.0",
+    "@docusaurus/tsconfig": "^3.7.0",
+    "@docusaurus/types": "^3.7.0",
+    "ajv": "^8.17.0",
+    "ajv-formats": "^3.0.0",
+    "glob": "^11.0.0",
+    "json-schema-to-typescript": "^15.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "yaml": "^2.6.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "webpack": "5.97.1"
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.5%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 3 chrome version",
+      "last 3 firefox version",
+      "last 5 safari version"
+    ]
+  }
+}

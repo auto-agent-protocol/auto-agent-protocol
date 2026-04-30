@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/_primitives/address.schema.json",
+  "title": "Address",
+  "description": "Postal address using locale-neutral fields. ISO 3166-1 alpha-2 country code.",
+  "type": "object",
+  "properties": {
+    "line1": {
+      "type": "string",
+      "description": "Primary street line."
+    },
+    "line2": {
+      "type": "string",
+      "description": "Secondary street line (suite, apartment, building)."
+    },
+    "city": {
+      "type": "string",
+      "description": "City or locality."
+    },
+    "region_code": {
+      "type": "string",
+      "description": "State, province, or region code (e.g. CA, NY, BC, MA)."
+    },
+    "postal_code": {
+      "type": "string",
+      "description": "Postal or ZIP code."
+    },
+    "country_code": {
+      "type": "string",
+      "description": "ISO 3166-1 alpha-2 country code, e.g. US, CA, DE, PL.",
+      "minLength": 2,
+      "maxLength": 2,
+      "pattern": "^[A-Z]{2}$"
+    }
+  },
+  "required": ["line1", "city", "region_code", "postal_code", "country_code"],
+  "additionalProperties": false
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/error.schema.json",
+  "title": "Error",
+  "description": "Typed AAP error payload. Returned inside an A2A error envelope (JSON-RPC 'error' member or HTTP 'application/json' error body, per A2A spec sections 9.5 and 11.6). Buyer agents use 'code' and 'retryable' to drive client behavior; humans see 'message'.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "aap.error" },
+    "error_id": {
+      "type": "string",
+      "description": "Unique identifier for this error instance, suitable for support correlation (e.g. UUID)."
+    },
+    "code": {
+      "type": "string",
+      "enum": [
+        "UNSUPPORTED_SKILL",
+        "SCHEMA_VALIDATION_FAILED",
+        "MISSING_REQUIRED_FIELD",
+        "VEHICLE_NOT_FOUND",
+        "VEHICLE_UNAVAILABLE",
+        "CONTACT_CONSENT_REQUIRED",
+        "INVALID_CONSENT",
+        "APPOINTMENT_TIME_UNAVAILABLE",
+        "AUTH_REQUIRED",
+        "RATE_LIMITED",
+        "INTERNAL_ERROR"
+      ],
+      "description": "Machine-readable error code from the AAP error vocabulary."
+    },
+    "message": {
+      "type": "string",
+      "description": "Human-readable error message suitable for end-user display."
+    },
+    "retryable": {
+      "type": "boolean",
+      "description": "Whether the buyer agent SHOULD retry the same request after a backoff."
+    },
+    "details": {
+      "description": "Optional, code-specific details (e.g. validation failure paths). Free shape.",
+      "additionalProperties": true
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["type", "error_id", "code", "message", "retryable", "created_at"],
+  "additionalProperties": false
+}

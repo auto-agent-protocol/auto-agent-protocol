@@ -1,0 +1,66 @@
+name: Validate
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate spec, generate, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate JSON schemas
+        run: pnpm run validate:schemas
+
+      - name: Validate examples
+        run: pnpm run validate:examples
+
+      - name: Generate artifacts
+        run: pnpm run generate
+
+      - name: Freeze-check released versions
+        run: pnpm run freeze-check
+
+      - name: Build site (generate + copy-static + docusaurus build)
+        run: pnpm run build
+
+      - name: Assert build/CNAME points to autoagentprotocol.org
+        run: |
+          set -euo pipefail
+          test -f build/CNAME
+          expected="autoagentprotocol.org"
+          actual="$(tr -d '[:space:]' < build/CNAME)"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error file=static/CNAME::build/CNAME is '$actual', expected '$expected'"
+            exit 1
+          fi
+          echo "build/CNAME = $actual"

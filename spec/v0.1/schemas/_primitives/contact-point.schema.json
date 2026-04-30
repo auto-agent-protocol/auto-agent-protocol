@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/_primitives/contact-point.schema.json",
+  "title": "ContactPoint",
+  "description": "Generic contact channel with optional name, email, phone (E.164), and URL.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Display name for this contact channel (e.g. 'Sales', 'Service')."
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "RFC 5322 email address."
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number in E.164 format, e.g. +14155550123.",
+      "pattern": "^\\+[1-9]\\d{1,14}$"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Public website or contact URL."
+    }
+  },
+  "additionalProperties": false
+}

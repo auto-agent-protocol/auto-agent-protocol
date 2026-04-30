@@ -1,0 +1,29 @@
+{
+  "message": {
+    "messageId": "01HZ9F4M7C0X3K5RN8B3WJTW2P",
+    "role": "ROLE_USER",
+    "parts": [
+      {
+        "data": {
+          "type": "inventory.search.request",
+          "filters": {
+            "make": ["Honda", "BMW"],
+            "model": ["CR-V"],
+            "condition": ["used"],
+            "year_min": 2023,
+            "year_max": 2025,
+            "price_max": 35000,
+            "transmission": ["automatic"]
+          },
+          "pagination": { "skip": 0, "limit": 100 },
+          "sort": { "field": "price", "order": "asc" },
+          "privacy": { "anonymous": true }
+        },
+        "mediaType": "application/vnd.autoagent.inventory-search-request+json"
+      }
+    ]
+  },
+  "configuration": {
+    "acceptedOutputModes": ["application/vnd.autoagent.inventory-search-response+json"]
+  }
+}

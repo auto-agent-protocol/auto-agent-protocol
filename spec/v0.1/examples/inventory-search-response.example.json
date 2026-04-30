@@ -1,0 +1,113 @@
+{
+  "type": "inventory.search.response",
+  "data": {
+    "total": 2,
+    "skip": 0,
+    "limit": 100,
+    "vehicles": [
+      {
+        "dealer_id": "dealer_demo_toyota",
+        "vehicle_id": "veh_dt_2451",
+        "vin": "2HKRW2H89PH123456",
+        "stock": "DT-2451",
+        "year": 2023,
+        "make": "Honda",
+        "model": "CR-V",
+        "trim": "EX",
+        "transmission": "automatic",
+        "exterior_color": "Meteorite Gray Metallic",
+        "interior_color": "Black",
+        "condition": "used",
+        "description": "One-owner 2023 Honda CR-V EX with full service history, AWD, and Honda Sensing safety suite.",
+        "driveline": "awd",
+        "engine": "1.5L Turbo I4",
+        "fuel": "gas",
+        "mpg": { "city": 28, "highway": 34 },
+        "msrp": { "amount": 32450, "currency": "USD" },
+        "list_price": { "amount": 27995, "currency": "USD" },
+        "offered_price": { "amount": 30432, "currency": "USD" },
+        "price": { "amount": 29495, "currency": "USD" },
+        "mileage": 28450,
+        "photos": [
+          "https://cdn.demo-toyota.example.com/inventory/dt-2451/01.jpg",
+          "https://cdn.demo-toyota.example.com/inventory/dt-2451/02.jpg",
+          "https://cdn.demo-toyota.example.com/inventory/dt-2451/03.jpg"
+        ],
+        "vdp_url": "https://demo-toyota.example.com/inventory/used/2023-honda-cr-v-ex-DT-2451",
+        "status": "In Stock",
+        "last_verified_at": "2026-04-30T07:15:00Z"
+      },
+      {
+        "dealer_id": "dealer_demo_toyota",
+        "vehicle_id": "veh_dt_2611",
+        "vin": "1HGCY2F57RA000001",
+        "stock": "DT-2611",
+        "year": 2024,
+        "make": "Honda",
+        "model": "CR-V",
+        "trim": "EX-L",
+        "transmission": "automatic",
+        "exterior_color": "Platinum White Pearl",
+        "interior_color": "Gray Leather",
+        "condition": "used",
+        "description": "Low-mileage 2024 Honda CR-V EX-L with leather, sunroof, and heated front seats. Single previous owner, clean Carfax.",
+        "driveline": "awd",
+        "engine": "1.5L Turbo I4",
+        "fuel": "gas",
+        "mpg": { "city": 27, "highway": 32 },
+        "msrp": { "amount": 35450, "currency": "USD" },
+        "list_price": { "amount": 31495, "currency": "USD" },
+        "offered_price": { "amount": 34239, "currency": "USD" },
+        "price": { "amount": 32995, "currency": "USD" },
+        "mileage": 14820,
+        "photos": [
+          "https://cdn.demo-toyota.example.com/inventory/dt-2611/01.jpg",
+          "https://cdn.demo-toyota.example.com/inventory/dt-2611/02.jpg",
+          "https://cdn.demo-toyota.example.com/inventory/dt-2611/03.jpg",
+          "https://cdn.demo-toyota.example.com/inventory/dt-2611/04.jpg"
+        ],
+        "vdp_url": "https://demo-toyota.example.com/inventory/used/2024-honda-cr-v-ex-l-DT-2611",
+        "status": "In Stock",
+        "last_verified_at": "2026-04-30T08:42:00Z"
+      }
+    ],
+    "facets": {
+      "makes": [
+        { "value": "Honda", "count": 2 }
+      ],
+      "models": [
+        { "value": "CR-V", "count": 2 }
+      ],
+      "trims": [
+        { "value": "EX", "count": 1 },
+        { "value": "EX-L", "count": 1 }
+      ],
+      "years": [
+        { "value": 2024, "count": 1 },
+        { "value": 2023, "count": 1 }
+      ],
+      "conditions": [
+        { "value": "used", "count": 2 }
+      ],
+      "transmissions": [
+        { "value": "automatic", "count": 2 }
+      ],
+      "drivelines": [
+        { "value": "awd", "count": 2 }
+      ],
+      "fuels": [
+        { "value": "gas", "count": 2 }
+      ],
+      "body_types": [
+        { "value": "suv", "count": 2 }
+      ],
+      "statuses": [
+        { "value": "In Stock", "count": 2 }
+      ],
+      "price_range": { "min": 29495, "max": 32995 },
+      "mileage_range": { "min": 14820, "max": 28450 },
+      "year_range": { "min": 2023, "max": 2024 }
+    }
+  },
+  "message": "2 used Honda CR-Vs match your filters. The 'price' field reflects the FTC-final out-the-door amount in California; taxes and fees are already included."
+}

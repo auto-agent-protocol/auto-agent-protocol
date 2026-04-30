@@ -1,0 +1,50 @@
+{
+  "type": "dealer.information.response",
+  "data": {
+    "dealer_id": "dealer_demo_toyota",
+    "legal_name": "Demo Toyota of San Francisco, LLC",
+    "trade_name": "Demo Toyota",
+    "brands": ["Toyota", "Lexus"],
+    "address": {
+      "line1": "1450 Howard Street",
+      "city": "San Francisco",
+      "region_code": "CA",
+      "postal_code": "94103",
+      "country_code": "US"
+    },
+    "geo": {
+      "latitude": 37.7726,
+      "longitude": -122.4099
+    },
+    "phones": [
+      { "name": "Sales", "phone": "+14155550100" },
+      { "name": "Service", "phone": "+14155550101" },
+      { "name": "Parts", "phone": "+14155550102" }
+    ],
+    "emails": [
+      { "name": "Sales", "email": "sales@demo-toyota.example.com" },
+      { "name": "Service", "email": "service@demo-toyota.example.com" }
+    ],
+    "website": "https://demo-toyota.example.com",
+    "schedule": {
+      "monday": { "open": "09:00", "close": "20:00" },
+      "tuesday": { "open": "09:00", "close": "20:00" },
+      "wednesday": { "open": "09:00", "close": "20:00" },
+      "thursday": { "open": "09:00", "close": "20:00" },
+      "friday": { "open": "09:00", "close": "20:00" },
+      "saturday": { "open": "09:00", "close": "18:00" },
+      "sunday": null
+    },
+    "timezone": "America/Los_Angeles",
+    "notes": "Closed on major U.S. federal holidays. Service department closes 30 minutes before sales.",
+    "capabilities": {
+      "test_drive": true,
+      "financing": true,
+      "trade_in": true,
+      "service": true,
+      "delivery": true,
+      "remote_delivery": false
+    }
+  },
+  "message": "Demo Toyota is open Monday through Saturday and closed on Sundays. Sales: +1 (415) 555-0100."
+}

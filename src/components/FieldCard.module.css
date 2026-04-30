@@ -1,0 +1,132 @@
+.card {
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 12px 0;
+  background: var(--ifm-card-background-color);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.name {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ifm-color-primary);
+  background: transparent;
+  padding: 0;
+}
+
+.type {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-700);
+  background: var(--ifm-color-emphasis-200);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.flag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.required {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+}
+
+[data-theme="dark"] .required {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.optional {
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-emphasis-700);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  margin-top: 6px;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metaLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.meta code {
+  background: var(--ifm-color-emphasis-100);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.78rem;
+}
+
+.enumList {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.enumValue {
+  background: var(--ifm-color-emphasis-100);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.78rem;
+}
+
+.description {
+  margin-top: 8px;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--ifm-color-emphasis-800);
+}
+
+.description p {
+  margin: 0;
+}
+
+.example {
+  margin-top: 10px;
+  font-size: 0.85rem;
+}
+
+.example summary {
+  cursor: pointer;
+  color: var(--ifm-color-emphasis-700);
+  font-weight: 500;
+}
+
+.example pre {
+  margin-top: 8px;
+  background: var(--ifm-color-emphasis-100);
+  padding: 10px 12px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  overflow-x: auto;
+}

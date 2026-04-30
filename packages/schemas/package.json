@@ -1,0 +1,33 @@
+{
+  "name": "@autoagentprotocol/schemas",
+  "version": "0.1.0",
+  "description": "JSON Schema 2020-12 files for Auto Agent Protocol v0.1",
+  "license": "Apache-2.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./v0.1/*": "./dist/v0.1/*.json"
+  },
+  "files": ["dist"],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsx src/build.ts",
+    "prepublishOnly": "pnpm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/auto-agent-protocol/auto-agent-protocol.git",
+    "directory": "packages/schemas"
+  },
+  "homepage": "https://autoagentprotocol.org"
+}

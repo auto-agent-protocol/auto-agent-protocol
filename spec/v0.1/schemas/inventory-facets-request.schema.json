@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/inventory-facets-request.schema.json",
+  "title": "InventoryFacetsRequest",
+  "description": "Typed AAP request for the `inventory.facets` skill. An optional `filters` block scopes the facets to a subset of inventory (e.g. `condition: ['used']`). Carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "inventory.facets.request" },
+    "filters": {
+      "$ref": "./inventory-search-request.schema.json#/$defs/filters",
+      "description": "Optional filters to scope facet aggregation. Same shape as inventory.search filters; all fields are optional."
+    }
+  },
+  "required": ["type"],
+  "additionalProperties": false
+}

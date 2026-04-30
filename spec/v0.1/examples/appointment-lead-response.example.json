@@ -1,0 +1,18 @@
+{
+  "type": "lead.appointment.response",
+  "data": {
+    "appointment_id": "appt_2026_04_30_00128",
+    "status": "proposed",
+    "proposed_slots": [
+      { "start": "2026-05-03T16:00:00Z", "end": "2026-05-03T17:00:00Z" },
+      { "start": "2026-05-03T17:30:00Z", "end": "2026-05-03T18:30:00Z" },
+      { "start": "2026-05-03T19:00:00Z", "end": "2026-05-03T20:00:00Z" },
+      { "start": "2026-05-03T20:30:00Z", "end": "2026-05-03T21:30:00Z" }
+    ],
+    "dealer": {
+      "name": "Demo Toyota",
+      "phone": "+14155550100"
+    }
+  },
+  "message": "We're booked solid Sunday morning. The four slots above are open Sunday afternoon and early evening (Pacific time) for the 2024 Honda CR-V EX-L (VIN 1HGCY2F57RA000001). Reply with the slot you prefer, or call +1 (415) 555-0100 to confirm."
+}

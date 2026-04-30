@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/facets.schema.json",
+  "title": "Facets",
+  "description": "Aggregated facet counts and ranges over a dealer's inventory. Returned by the `inventory.facets` AAP skill (wrapped in `inventory.facets.response`) and OPTIONALLY embedded in `inventory.search` responses. Both responses travel inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.",
+  "type": "object",
+  "$defs": {
+    "term_facet": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "value": { "type": ["string", "integer"] },
+          "count": { "type": "integer", "minimum": 0 }
+        },
+        "required": ["value", "count"],
+        "additionalProperties": false
+      }
+    },
+    "range_facet": {
+      "type": "object",
+      "properties": {
+        "min": { "type": "number" },
+        "max": { "type": "number" }
+      },
+      "required": ["min", "max"],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "makes": { "$ref": "#/$defs/term_facet" },
+    "models": { "$ref": "#/$defs/term_facet" },
+    "trims": { "$ref": "#/$defs/term_facet" },
+    "years": { "$ref": "#/$defs/term_facet" },
+    "conditions": { "$ref": "#/$defs/term_facet" },
+    "transmissions": { "$ref": "#/$defs/term_facet" },
+    "fuels": { "$ref": "#/$defs/term_facet" },
+    "drivelines": { "$ref": "#/$defs/term_facet" },
+    "body_types": { "$ref": "#/$defs/term_facet" },
+    "exterior_colors": { "$ref": "#/$defs/term_facet" },
+    "interior_colors": { "$ref": "#/$defs/term_facet" },
+    "statuses": { "$ref": "#/$defs/term_facet" },
+    "price_range": { "$ref": "#/$defs/range_facet" },
+    "mileage_range": { "$ref": "#/$defs/range_facet" },
+    "year_range": { "$ref": "#/$defs/range_facet" }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/inventory-search-request.schema.json",
+  "title": "InventorySearchRequest",
+  "description": "Typed AAP request for the `inventory.search` skill. Filters are FLAT (no nested make/model trees) and multi-value filters are arrays. Pagination uses skip/limit; sort is field+order. `privacy.anonymous` declares whether the buyer agent is sharing user identity. Carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "inventory.search.request" },
+    "filters": {
+      "$ref": "#/$defs/filters",
+      "description": "Optional filter block. All fields optional; absent fields mean 'no constraint'."
+    },
+    "pagination": {
+      "type": "object",
+      "description": "Result paging. Default values are dealer-defined; spec recommends limit defaults <= 50 and limit cap of 100.",
+      "properties": {
+        "skip": { "type": "integer", "minimum": 0, "description": "Number of results to skip from the start of the matching set." },
+        "limit": { "type": "integer", "minimum": 1, "maximum": 1000, "description": "Maximum number of results to return on this page." }
+      },
+      "additionalProperties": false
+    },
+    "sort": {
+      "type": "object",
+      "description": "Result ordering. Default ordering is dealer-defined.",
+      "properties": {
+        "field": {
+          "type": "string",
+          "enum": ["price", "list_price", "offered_price", "msrp", "mileage", "year", "make", "model", "stock", "last_verified_at"],
+          "description": "Field to sort by. Sorting by 'price' uses the FTC-final 'price' field (which dealers MUST keep accurate)."
+        },
+        "order": { "type": "string", "enum": ["asc", "desc"] }
+      },
+      "required": ["field", "order"],
+      "additionalProperties": false
+    },
+    "privacy": {
+      "type": "object",
+      "description": "Privacy hints from the buyer agent. AAP RECOMMENDS anonymous searches by default; user identity is only attached when a lead is submitted.",
+      "properties": {
+        "anonymous": { "type": "boolean", "description": "True when no user-identifying information is included with the request." }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["type"],
+  "additionalProperties": false,
+  "$defs": {
+    "filters": {
+      "type": "object",
+      "description": "Flat filter block. Multi-value filters use arrays; range filters use *_min / *_max.",
+      "properties": {
+        "make": { "type": "array", "items": { "type": "string" }, "description": "Vehicle makes to include (e.g. ['Honda','BMW'])." },
+        "model": { "type": "array", "items": { "type": "string" }, "description": "Vehicle models to include." },
+        "trim": { "type": "array", "items": { "type": "string" }, "description": "Trim levels to include." },
+        "condition": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["new", "used", "certified"] },
+          "description": "Sale conditions to include."
+        },
+        "transmission": { "type": "array", "items": { "type": "string" } },
+        "fuel": { "type": "array", "items": { "type": "string" } },
+        "driveline": { "type": "array", "items": { "type": "string" } },
+        "body_type": { "type": "array", "items": { "type": "string" } },
+        "exterior_color": { "type": "array", "items": { "type": "string" } },
+        "interior_color": { "type": "array", "items": { "type": "string" } },
+        "year_min": { "type": "integer", "minimum": 1900, "maximum": 2100 },
+        "year_max": { "type": "integer", "minimum": 1900, "maximum": 2100 },
+        "price_min": { "type": "number", "minimum": 0, "description": "Minimum price in the dealer's primary currency, applied against the FTC-final 'price' field." },
+        "price_max": { "type": "number", "minimum": 0, "description": "Maximum price applied against the FTC-final 'price' field." },
+        "mileage_max": { "type": "integer", "minimum": 0 },
+        "vin": { "type": "string", "pattern": "^[A-HJ-NPR-Z0-9]{17}$" },
+        "stock": { "type": "string" },
+        "query": { "type": "string", "maxLength": 200, "description": "Optional free-text query." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

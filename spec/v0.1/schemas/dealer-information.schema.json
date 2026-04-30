@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/dealer-information.schema.json",
+  "title": "DealerInformation",
+  "description": "Public dealership profile: identity, location(s), brands carried, hours, contact channels, and high-level service capabilities. Returned by the `dealer.information` AAP skill, wrapped in `dealer.information.response` and carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.",
+  "type": "object",
+  "properties": {
+    "dealer_id": { "type": "string", "description": "Stable dealer identifier." },
+    "legal_name": { "type": "string", "description": "Legal/registered business name." },
+    "trade_name": { "type": "string", "description": "Public-facing trade name (e.g. 'Metro Honda San Francisco')." },
+    "brands": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Vehicle brands the dealer is authorized to sell."
+    },
+    "address": {
+      "$ref": "./_primitives/address.schema.json",
+      "description": "Primary physical address."
+    },
+    "geo": {
+      "type": "object",
+      "description": "Geographic coordinates of the primary location.",
+      "properties": {
+        "latitude": { "type": "number", "minimum": -90, "maximum": 90 },
+        "longitude": { "type": "number", "minimum": -180, "maximum": 180 }
+      },
+      "required": ["latitude", "longitude"],
+      "additionalProperties": false
+    },
+    "phones": {
+      "type": "array",
+      "items": { "$ref": "./_primitives/contact-point.schema.json" },
+      "description": "Phone contact channels (sales, service, parts), each with an E.164 phone number."
+    },
+    "emails": {
+      "type": "array",
+      "items": { "$ref": "./_primitives/contact-point.schema.json" },
+      "description": "Email contact channels."
+    },
+    "website": {
+      "type": "string",
+      "format": "uri",
+      "description": "Dealer's primary public website."
+    },
+    "schedule": {
+      "type": "object",
+      "description": "Weekly business hours, keyed by day. Each day is either an object {open, close} (HH:MM 24h, dealer's local time) or null when closed.",
+      "properties": {
+        "monday": { "$ref": "#/$defs/day_hours" },
+        "tuesday": { "$ref": "#/$defs/day_hours" },
+        "wednesday": { "$ref": "#/$defs/day_hours" },
+        "thursday": { "$ref": "#/$defs/day_hours" },
+        "friday": { "$ref": "#/$defs/day_hours" },
+        "saturday": { "$ref": "#/$defs/day_hours" },
+        "sunday": { "$ref": "#/$defs/day_hours" }
+      },
+      "additionalProperties": false
+    },
+    "timezone": {
+      "type": "string",
+      "description": "IANA timezone identifier for the schedule, e.g. 'America/Los_Angeles'."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-text dealer notes (e.g. 'closed major holidays')."
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "Boolean flags for service capabilities offered by the dealer.",
+      "properties": {
+        "test_drive": { "type": "boolean" },
+        "financing": { "type": "boolean" },
+        "trade_in": { "type": "boolean" },
+        "service": { "type": "boolean" },
+        "delivery": { "type": "boolean" },
+        "remote_delivery": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["dealer_id", "legal_name", "trade_name", "brands", "address"],
+  "additionalProperties": false,
+  "$defs": {
+    "day_hours": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "open": { "type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$" },
+            "close": { "type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$" }
+          },
+          "required": ["open", "close"],
+          "additionalProperties": false
+        },
+        { "type": "null" }
+      ]
+    }
+  }
+}

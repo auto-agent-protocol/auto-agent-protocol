@@ -1,0 +1,94 @@
+version: "0.1"
+extension_uri: https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.1
+schema_base_url: https://autoagentprotocol.org/v0.1/schemas/
+skills:
+  - id: dealer.information
+    name: Dealer Information
+    description: Return dealership profile, locations, brands, business hours, contact policies, and supported services.
+    request_schema: dealer-information-request.schema.json
+    response_schema: dealer-information-response.schema.json
+    request_type: dealer.information.request
+    response_type: dealer.information.response
+    media_type_request: application/vnd.autoagent.dealer-information-request+json
+    media_type_response: application/vnd.autoagent.dealer-information-response+json
+    anonymous_allowed: true
+    consent_required: false
+    adf_compatible: false
+
+  - id: inventory.facets
+    name: Inventory Facets
+    description: Return searchable inventory facets such as makes, models, years, conditions, body styles, price ranges, mileage ranges, drivetrain, fuel type, and locations.
+    request_schema: inventory-facets-request.schema.json
+    response_schema: inventory-facets-response.schema.json
+    request_type: inventory.facets.request
+    response_type: inventory.facets.response
+    media_type_request: application/vnd.autoagent.inventory-facets-request+json
+    media_type_response: application/vnd.autoagent.inventory-facets-response+json
+    anonymous_allowed: true
+    consent_required: false
+    adf_compatible: false
+
+  - id: inventory.search
+    name: Inventory Search
+    description: Search vehicle inventory by query, make, model, trim, year, condition, price, mileage, body style, VIN, stock, features, and availability.
+    request_schema: inventory-search-request.schema.json
+    response_schema: inventory-search-response.schema.json
+    request_type: inventory.search.request
+    response_type: inventory.search.response
+    media_type_request: application/vnd.autoagent.inventory-search-request+json
+    media_type_response: application/vnd.autoagent.inventory-search-response+json
+    anonymous_allowed: true
+    consent_required: false
+    adf_compatible: false
+
+  - id: inventory.vehicle
+    name: Vehicle Detail
+    description: Return details for a specific vehicle by VIN, stock number, or vehicle_id, including availability, pricing disclosure, media, mileage, trim, features, and dealer page URL.
+    request_schema: vehicle-detail-request.schema.json
+    response_schema: vehicle-detail-response.schema.json
+    request_type: inventory.vehicle.request
+    response_type: inventory.vehicle.response
+    media_type_request: application/vnd.autoagent.vehicle-detail-request+json
+    media_type_response: application/vnd.autoagent.vehicle-detail-response+json
+    anonymous_allowed: true
+    consent_required: false
+    adf_compatible: false
+
+  - id: lead.general
+    name: General Dealership Lead
+    description: Submit a consented general dealership inquiry (financing question, trade-in interest, callback request, etc.).
+    request_schema: general-lead-request.schema.json
+    response_schema: lead-response.schema.json
+    request_type: lead.general.request
+    response_type: lead.general.response
+    media_type_request: application/vnd.autoagent.general-lead-request+json
+    media_type_response: application/vnd.autoagent.lead-response+json
+    anonymous_allowed: false
+    consent_required: true
+    adf_compatible: true
+
+  - id: lead.vehicle
+    name: Vehicle Lead
+    description: Submit a consented vehicle-specific inquiry or CRM/ADF-compatible lead for a particular VIN, stock number, or vehicle.
+    request_schema: vehicle-lead-request.schema.json
+    response_schema: lead-response.schema.json
+    request_type: lead.vehicle.request
+    response_type: lead.vehicle.response
+    media_type_request: application/vnd.autoagent.vehicle-lead-request+json
+    media_type_response: application/vnd.autoagent.lead-response+json
+    anonymous_allowed: false
+    consent_required: true
+    adf_compatible: true
+
+  - id: lead.appointment
+    name: Appointment Lead
+    description: Submit a consented appointment request for a test drive, phone call, video call, showroom visit, vehicle handover, or trade-in appraisal.
+    request_schema: appointment-lead-request.schema.json
+    response_schema: appointment-lead-response.schema.json
+    request_type: lead.appointment.request
+    response_type: lead.appointment.response
+    media_type_request: application/vnd.autoagent.appointment-lead-request+json
+    media_type_response: application/vnd.autoagent.appointment-lead-response+json
+    anonymous_allowed: false
+    consent_required: true
+    adf_compatible: true

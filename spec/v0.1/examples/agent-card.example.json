@@ -1,0 +1,201 @@
+{
+  "name": "Lumika Demo Toyota Dealer Agent",
+  "description": "AAP-compliant Auto Agent Protocol dealer agent for Demo Toyota in San Francisco. Exposes inventory search, vehicle detail, dealer profile, and consented lead-submission skills to buyer agents (LLMs and CRMs) over A2A.",
+  "version": "0.1.0",
+  "provider": {
+    "organization": "Lumika AI",
+    "url": "https://lumika.ai"
+  },
+  "documentation_url": "https://autoagentprotocol.org/v0.1/intro",
+  "supported_interfaces": [
+    {
+      "url": "https://demo-toyota.agents.lumika.ai/a2a",
+      "protocol_binding": "JSONRPC",
+      "protocol_version": "1.0"
+    },
+    {
+      "url": "https://demo-toyota.agents.lumika.ai/a2a-rest",
+      "protocol_binding": "HTTP+JSON",
+      "protocol_version": "1.0"
+    }
+  ],
+  "capabilities": {
+    "streaming": false,
+    "push_notifications": true,
+    "extended_agent_card": false,
+    "extensions": [
+      {
+        "uri": "https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.1",
+        "description": "Auto Agent Protocol A2A Automotive Retail Profile v0.1",
+        "required": true,
+        "params": {
+          "profile_name": "AAP A2A Automotive Retail Profile",
+          "profile_version": "0.1.0",
+          "contract_uri": "https://autoagentprotocol.org/v0.1/",
+          "manifest_url": "https://demo-toyota.agents.lumika.ai/.well-known/auto-agent-contract.json",
+          "schema_base_url": "https://autoagentprotocol.org/v0.1/schemas/",
+          "required_skills": [
+            "dealer.information",
+            "inventory.facets",
+            "inventory.search",
+            "inventory.vehicle",
+            "lead.general",
+            "lead.vehicle",
+            "lead.appointment"
+          ],
+          "auth_type": "bearer"
+        }
+      }
+    ]
+  },
+  "default_input_modes": [
+    "text/plain",
+    "application/json",
+    "application/vnd.autoagent+json"
+  ],
+  "default_output_modes": [
+    "text/plain",
+    "application/json",
+    "application/vnd.autoagent+json"
+  ],
+  "skills": [
+    {
+      "id": "dealer.information",
+      "name": "Dealer Information",
+      "description": "Return Demo Toyota's dealership profile: legal/trade name, address, brands carried, business hours, contact channels, and supported services (financing, trade-in, delivery).",
+      "tags": ["dealer", "profile", "hours", "contact"],
+      "examples": [
+        "What time does Demo Toyota open on Saturday?",
+        "Show me Demo Toyota's brands, address, and phone numbers."
+      ],
+      "input_modes": [
+        "application/vnd.autoagent.dealer-information-request+json",
+        "text/plain"
+      ],
+      "output_modes": [
+        "application/vnd.autoagent.dealer-information-response+json",
+        "text/plain"
+      ]
+    },
+    {
+      "id": "inventory.facets",
+      "name": "Inventory Facets",
+      "description": "Return aggregated facets (makes, models, years, conditions, body styles, price/mileage ranges) over Demo Toyota's inventory. Useful for narrowing down a search before calling inventory.search.",
+      "tags": ["inventory", "facets", "search", "aggregation"],
+      "examples": [
+        "How many used vehicles do you have by make?",
+        "What price and mileage ranges cover your certified pre-owned SUVs?"
+      ],
+      "input_modes": [
+        "application/vnd.autoagent.inventory-facets-request+json",
+        "text/plain"
+      ],
+      "output_modes": [
+        "application/vnd.autoagent.inventory-facets-response+json",
+        "text/plain"
+      ]
+    },
+    {
+      "id": "inventory.search",
+      "name": "Inventory Search",
+      "description": "Search Demo Toyota's vehicle inventory by make, model, trim, year, condition, price, mileage, body style, fuel, drivetrain, VIN, stock number, or free-text query. Supports pagination and sort.",
+      "tags": ["inventory", "search", "vehicles", "vin"],
+      "examples": [
+        "Find used Honda CR-Vs under $35,000 from 2023 or newer.",
+        "Show certified pre-owned RAV4 Hybrids with under 30,000 miles."
+      ],
+      "input_modes": [
+        "application/vnd.autoagent.inventory-search-request+json",
+        "text/plain"
+      ],
+      "output_modes": [
+        "application/vnd.autoagent.inventory-search-response+json",
+        "text/plain"
+      ]
+    },
+    {
+      "id": "inventory.vehicle",
+      "name": "Vehicle Detail",
+      "description": "Return full detail for a specific vehicle by VIN, stock number, or vehicle_id, including FTC-compliant pricing fields (msrp, list_price, offered_price, price), photos, equipment, history, warranty, and dealer page URL.",
+      "tags": ["inventory", "vehicle", "detail", "vin", "pricing"],
+      "examples": [
+        "Get full detail for VIN 1HGCY2F57RA000001.",
+        "What's included on stock #DT-2451 with delivery to ZIP 94107?"
+      ],
+      "input_modes": [
+        "application/vnd.autoagent.vehicle-detail-request+json",
+        "text/plain"
+      ],
+      "output_modes": [
+        "application/vnd.autoagent.vehicle-detail-response+json",
+        "text/plain"
+      ]
+    },
+    {
+      "id": "lead.general",
+      "name": "General Dealership Lead",
+      "description": "Submit a consented general dealership inquiry (financing question, trade-in interest, service question, callback request). Customer contact info requires a ConsentGrant with scope 'general_inquiry'.",
+      "tags": ["lead", "general", "inquiry", "consent"],
+      "examples": [
+        "Submit a financing question on behalf of the user.",
+        "Ask Demo Toyota to call the user back about trade-in valuations."
+      ],
+      "input_modes": [
+        "application/vnd.autoagent.general-lead-request+json",
+        "text/plain"
+      ],
+      "output_modes": [
+        "application/vnd.autoagent.lead-response+json",
+        "text/plain"
+      ]
+    },
+    {
+      "id": "lead.vehicle",
+      "name": "Vehicle Lead",
+      "description": "Submit a consented, ADF/CRM-compatible vehicle-specific lead for a particular VIN, stock number, or vehicle. Requires a ConsentGrant with scope 'vehicle_inquiry'.",
+      "tags": ["lead", "vehicle", "adf", "crm", "consent"],
+      "examples": [
+        "Send a buy lead for VIN 1HGCY2F57RA000001 with a trade-in.",
+        "Submit a cash-finance lead for stock #DT-2451."
+      ],
+      "input_modes": [
+        "application/vnd.autoagent.vehicle-lead-request+json",
+        "text/plain"
+      ],
+      "output_modes": [
+        "application/vnd.autoagent.lead-response+json",
+        "text/plain"
+      ]
+    },
+    {
+      "id": "lead.appointment",
+      "name": "Appointment Lead",
+      "description": "Submit a consented appointment request (test drive, showroom visit, handover, phone call, video call, trade-in appraisal). Requires a ConsentGrant with scope 'appointment'.",
+      "tags": ["lead", "appointment", "test-drive", "consent"],
+      "examples": [
+        "Book a test drive for VIN 1HGCY2F57RA000001 next Saturday morning.",
+        "Request a 30-minute video call with a Demo Toyota sales advisor."
+      ],
+      "input_modes": [
+        "application/vnd.autoagent.appointment-lead-request+json",
+        "text/plain"
+      ],
+      "output_modes": [
+        "application/vnd.autoagent.appointment-lead-response+json",
+        "text/plain"
+      ]
+    }
+  ],
+  "security_schemes": {
+    "bearer": {
+      "http_security_scheme": {
+        "scheme": "bearer",
+        "bearer_format": "JWT",
+        "description": "Bearer JWT issued by Lumika AI for authorized buyer agents. Tokens MUST be sent in the 'Authorization: Bearer <token>' header on every request."
+      }
+    }
+  },
+  "security_requirements": [
+    { "bearer": [] }
+  ]
+}

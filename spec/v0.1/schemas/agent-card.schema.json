@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/agent-card.schema.json",
+  "title": "AgentCard",
+  "description": "A2A v1.0-compatible agent card with the AAP automotive retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. The 'capabilities.extensions' array MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.1' for the agent to be a compliant AAP dealer agent.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Human-readable agent name."
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description of what this agent does."
+    },
+    "version": {
+      "type": "string",
+      "description": "Agent version string (semver recommended)."
+    },
+    "provider": {
+      "type": "object",
+      "description": "Organization operating the agent.",
+      "properties": {
+        "organization": { "type": "string" },
+        "url": { "type": "string", "format": "uri" }
+      },
+      "required": ["organization"]
+    },
+    "documentation_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to human-readable documentation describing this agent's behavior."
+    },
+    "supported_interfaces": {
+      "type": "array",
+      "description": "Network endpoints exposed by this agent. Each entry declares one A2A protocol binding. AAP v0.1 supports 'JSONRPC' and 'HTTP+JSON'; gRPC is out of scope.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "format": "uri" },
+          "protocol_binding": {
+            "type": "string",
+            "enum": ["JSONRPC", "HTTP+JSON"],
+            "description": "A2A protocol binding identifier. AAP v0.1 only documents JSONRPC and HTTP+JSON."
+          },
+          "protocol_version": { "type": "string" }
+        },
+        "required": ["url", "protocol_binding"],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "A2A capability flags and extensions.",
+      "properties": {
+        "streaming": { "type": "boolean" },
+        "push_notifications": { "type": "boolean" },
+        "extended_agent_card": { "type": "boolean" },
+        "extensions": {
+          "type": "array",
+          "description": "List of declared A2A extensions. MUST include an AAP automotive retail entry.",
+          "items": { "$ref": "#/$defs/extension" },
+          "contains": {
+            "type": "object",
+            "properties": {
+              "uri": { "const": "https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.1" }
+            },
+            "required": ["uri"]
+          }
+        }
+      },
+      "required": ["extensions"],
+      "additionalProperties": true
+    },
+    "default_input_modes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Default content types accepted by this agent."
+    },
+    "default_output_modes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Default content types produced by this agent."
+    },
+    "skills": {
+      "type": "array",
+      "description": "Skills exposed by this agent. AAP-compliant agents MUST declare all 7 required skills (dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.general, lead.vehicle, lead.appointment).",
+      "items": { "$ref": "#/$defs/skill" }
+    },
+    "security_schemes": {
+      "type": "object",
+      "description": "A2A-style security scheme definitions. AAP v0.1 supports either no scheme (public agent) or a 'bearer' scheme.",
+      "additionalProperties": true
+    },
+    "security_requirements": {
+      "type": "array",
+      "description": "Required security schemes (alternatives, by name). Empty or absent means anonymous access is allowed.",
+      "items": { "type": "object" }
+    }
+  },
+  "required": ["name", "description", "version", "supported_interfaces", "capabilities", "skills"],
+  "additionalProperties": true,
+  "$defs": {
+    "extension": {
+      "type": "object",
+      "properties": {
+        "uri": { "type": "string", "format": "uri" },
+        "description": { "type": "string" },
+        "required": { "type": "boolean" },
+        "params": { "type": "object" }
+      },
+      "required": ["uri"],
+      "additionalProperties": true
+    },
+    "skill": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Skill identifier. AAP required skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.general, lead.vehicle, lead.appointment."
+        },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "examples": { "type": "array", "items": { "type": "string" } },
+        "input_modes": { "type": "array", "items": { "type": "string" } },
+        "output_modes": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["id", "name", "description"],
+      "additionalProperties": true
+    }
+  }
+}

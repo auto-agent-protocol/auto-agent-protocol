@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/dealer-information-request.schema.json",
+  "title": "DealerInformationRequest",
+  "description": "Typed AAP request for the `dealer.information` skill. The request carries no parameters; it asks for the dealer's static profile. Carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "dealer.information.request",
+      "description": "AAP message type. Skill ID plus role."
+    }
+  },
+  "required": ["type"],
+  "additionalProperties": false
+}

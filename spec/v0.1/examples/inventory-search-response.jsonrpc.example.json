@@ -1,0 +1,86 @@
+{
+  "jsonrpc": "2.0",
+  "id": "req_001",
+  "result": {
+    "message": {
+      "messageId": "01HZ9F4N1JZ7QS8VKR2A3B4C5D",
+      "role": "ROLE_AGENT",
+      "parts": [
+        {
+          "data": {
+            "type": "inventory.search.response",
+            "data": {
+              "total": 2,
+              "skip": 0,
+              "limit": 100,
+              "vehicles": [
+                {
+                  "dealer_id": "dealer_demo_toyota",
+                  "vehicle_id": "veh_dt_2451",
+                  "vin": "2HKRW2H89PH123456",
+                  "stock": "DT-2451",
+                  "year": 2023,
+                  "make": "Honda",
+                  "model": "CR-V",
+                  "trim": "EX",
+                  "transmission": "automatic",
+                  "exterior_color": "Meteorite Gray Metallic",
+                  "interior_color": "Black",
+                  "condition": "used",
+                  "driveline": "awd",
+                  "engine": "1.5L Turbo I4",
+                  "fuel": "gas",
+                  "mpg": { "city": 28, "highway": 34 },
+                  "msrp": { "amount": 32450, "currency": "USD" },
+                  "list_price": { "amount": 27995, "currency": "USD" },
+                  "offered_price": { "amount": 30432, "currency": "USD" },
+                  "price": { "amount": 29495, "currency": "USD" },
+                  "mileage": 28450,
+                  "photos": [
+                    "https://cdn.demo-toyota.example.com/inventory/dt-2451/01.jpg",
+                    "https://cdn.demo-toyota.example.com/inventory/dt-2451/02.jpg"
+                  ],
+                  "vdp_url": "https://demo-toyota.example.com/inventory/used/2023-honda-cr-v-ex-DT-2451",
+                  "status": "In Stock",
+                  "last_verified_at": "2026-04-30T07:15:00Z"
+                },
+                {
+                  "dealer_id": "dealer_demo_toyota",
+                  "vehicle_id": "veh_dt_2611",
+                  "vin": "1HGCY2F57RA000001",
+                  "stock": "DT-2611",
+                  "year": 2024,
+                  "make": "Honda",
+                  "model": "CR-V",
+                  "trim": "EX-L",
+                  "transmission": "automatic",
+                  "exterior_color": "Platinum White Pearl",
+                  "interior_color": "Gray Leather",
+                  "condition": "used",
+                  "driveline": "awd",
+                  "engine": "1.5L Turbo I4",
+                  "fuel": "gas",
+                  "mpg": { "city": 27, "highway": 32 },
+                  "msrp": { "amount": 35450, "currency": "USD" },
+                  "list_price": { "amount": 31495, "currency": "USD" },
+                  "offered_price": { "amount": 34239, "currency": "USD" },
+                  "price": { "amount": 32995, "currency": "USD" },
+                  "mileage": 14820,
+                  "photos": [
+                    "https://cdn.demo-toyota.example.com/inventory/dt-2611/01.jpg",
+                    "https://cdn.demo-toyota.example.com/inventory/dt-2611/02.jpg"
+                  ],
+                  "vdp_url": "https://demo-toyota.example.com/inventory/used/2024-honda-cr-v-ex-l-DT-2611",
+                  "status": "In Stock",
+                  "last_verified_at": "2026-04-30T08:42:00Z"
+                }
+              ]
+            },
+            "message": "2 used Honda CR-Vs match your filters."
+          },
+          "mediaType": "application/vnd.autoagent.inventory-search-response+json"
+        }
+      ]
+    }
+  }
+}

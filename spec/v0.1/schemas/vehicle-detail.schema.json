@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/vehicle-detail.schema.json",
+  "title": "VehicleDetail",
+  "description": "Extended vehicle representation returned by inventory.vehicle. Inherits all Vehicle fields and explicitly allows additional dealer-specific properties (e.g. equipment, history reports, certification details).",
+  "allOf": [{ "$ref": "./vehicle.schema.json" }],
+  "additionalProperties": true
+}

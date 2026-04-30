@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/general-lead-request.schema.json",
+  "title": "GeneralLeadRequest",
+  "description": "Typed AAP request for the `lead.general` skill. Open-ended dealership inquiry not tied to a specific vehicle (e.g. financing question, trade-in interest, request for a callback). Customer info is optional but RECOMMENDED; when included, a ConsentGrant is REQUIRED with scope including `general_inquiry`. Carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "lead.general.request" },
+    "lead_intent": {
+      "type": "string",
+      "enum": ["financing_question", "trade_in_interest", "service_question", "general_question", "callback_request", "other"],
+      "description": "High-level reason the user is reaching out."
+    },
+    "message": {
+      "type": "string",
+      "description": "Free-text message from the user.",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "intent": {
+      "type": "object",
+      "description": "Optional structured intent details.",
+      "properties": {
+        "body_type": { "type": "string" },
+        "fuel": { "type": "string" },
+        "budget_max": { "$ref": "./_primitives/money.schema.json" },
+        "timeline": {
+          "type": "string",
+          "enum": ["asap", "1_3_months", "3_6_months", "flexible"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "customer": {
+      "$ref": "./customer.schema.json",
+      "description": "Optional customer contact info. When included, 'consent' MUST also be present."
+    },
+    "consent": {
+      "$ref": "./consent-grant.schema.json",
+      "description": "Required whenever 'customer' is present. Scope MUST include 'general_inquiry'."
+    },
+    "source_agent": {
+      "type": "string",
+      "description": "Identifier of the buyer agent submitting the lead (e.g. 'chatgpt-shopping-agent').",
+      "minLength": 1
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Buyer-agent timestamp at the moment of submission."
+    }
+  },
+  "required": ["type", "message", "source_agent"],
+  "dependentRequired": {
+    "customer": ["consent"]
+  },
+  "additionalProperties": false
+}

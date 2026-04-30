@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/event.schema.json",
+  "title": "Event",
+  "description": "Minimal AAP v0.1 event envelope. Used for asynchronous status updates (e.g. lead status changes, appointment confirmations) delivered via A2A push notifications or task status update events.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "aap.event" },
+    "event_kind": {
+      "type": "string",
+      "enum": ["lead.status_changed", "appointment.status_changed"],
+      "description": "Concrete event kind. v0.1 defines two kinds; future versions may add more."
+    },
+    "entity_id": {
+      "type": "string",
+      "description": "Identifier of the affected entity (lead_id or appointment_id)."
+    },
+    "status": {
+      "type": "string",
+      "description": "New status value for the entity. For 'lead.status_changed', one of: received | duplicate | rejected | working | sold_to | lost. For 'appointment.status_changed', one of: requested | proposed | confirmed | rejected | completed | no_show."
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Optional event-specific payload. Schema is event-kind-dependent and dealer-defined for v0.1.",
+      "additionalProperties": true
+    }
+  },
+  "required": ["type", "event_kind", "entity_id", "status", "occurred_at"],
+  "additionalProperties": false
+}

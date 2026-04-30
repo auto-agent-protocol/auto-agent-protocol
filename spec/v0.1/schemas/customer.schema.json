@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/customer.schema.json",
+  "title": "Customer",
+  "description": "Buyer/customer contact info attached to lead.* AAP request payloads (which travel inside an A2A DataPart). ADF-compatible: at least one of email or phone MUST be present when the customer block is included. When customer is present a ConsentGrant MUST also be present.",
+  "type": "object",
+  "properties": {
+    "first_name": {
+      "type": "string",
+      "description": "Customer's first name."
+    },
+    "last_name": {
+      "type": "string",
+      "description": "Customer's last name."
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "Customer email (RFC 5322)."
+    },
+    "phone": {
+      "type": "string",
+      "pattern": "^\\+[1-9]\\d{1,14}$",
+      "description": "Customer phone in E.164 format, e.g. +14155550123."
+    },
+    "preferred_contact": {
+      "type": "string",
+      "enum": ["email", "phone", "sms", "any"],
+      "description": "Channel preferred for follow-up. 'sms' is treated as text-message via 'phone'."
+    },
+    "address": {
+      "$ref": "./_primitives/address.schema.json",
+      "description": "Optional postal address (used for residency, registration, or remote delivery)."
+    }
+  },
+  "required": ["first_name", "last_name"],
+  "anyOf": [
+    { "required": ["email"] },
+    { "required": ["phone"] }
+  ],
+  "additionalProperties": false
+}

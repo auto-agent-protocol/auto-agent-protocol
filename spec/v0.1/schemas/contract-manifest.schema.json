@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/contract-manifest.schema.json",
+  "title": "ContractManifest",
+  "description": "Machine-readable AAP contract manifest published at /.well-known/auto-agent-contract.json. The agent card points to this manifest via the AAP extension's 'manifest_url' parameter. The manifest enumerates skills, their request/response schemas, and per-skill consent and anonymity rules so buyer agents (including LLM-driven ones) can plan calls deterministically.",
+  "type": "object",
+  "properties": {
+    "contract": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "uri": {
+          "type": "string",
+          "format": "uri",
+          "description": "Stable URI for this contract version."
+        }
+      },
+      "required": ["name", "version", "uri"],
+      "additionalProperties": false
+    },
+    "dealer": {
+      "type": "object",
+      "properties": {
+        "dealer_id": { "type": "string" },
+        "name": { "type": "string" },
+        "managed_by": { "type": "string", "description": "Operator/integrator running this dealer agent on behalf of the dealership." }
+      },
+      "required": ["dealer_id", "name"],
+      "additionalProperties": true
+    },
+    "a2a": {
+      "type": "object",
+      "description": "A2A binding configuration shared across all skills.",
+      "properties": {
+        "endpoint": { "type": "string", "format": "uri" },
+        "protocol_binding": {
+          "type": "string",
+          "enum": ["JSONRPC", "HTTP+JSON"]
+        },
+        "skills": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/skill_binding" }
+        }
+      },
+      "required": ["endpoint", "protocol_binding", "skills"],
+      "additionalProperties": false
+    },
+    "auth_type": {
+      "type": ["string", "null"],
+      "enum": [null, "bearer"],
+      "description": "Authentication mode for invoking skills. 'null' means the agent is publicly callable; 'bearer' means clients MUST send 'Authorization: Bearer <token>'. LLM clients MUST treat 'bearer' as non-public and obtain credentials before invoking skills."
+    },
+    "llm": {
+      "type": "object",
+      "description": "Optional LLM guidance: a free-form rule list and a guide URL the dealer recommends LLM clients follow.",
+      "properties": {
+        "guide_url": { "type": "string", "format": "uri" },
+        "rules": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["contract", "dealer", "a2a", "auth_type"],
+  "additionalProperties": false,
+  "$defs": {
+    "skill_binding": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "enum": [
+            "dealer.information",
+            "inventory.facets",
+            "inventory.search",
+            "inventory.vehicle",
+            "lead.general",
+            "lead.vehicle",
+            "lead.appointment"
+          ]
+        },
+        "request_schema": { "type": "string", "format": "uri" },
+        "response_schema": { "type": "string", "format": "uri" },
+        "anonymous_allowed": { "type": "boolean", "description": "Whether the skill MAY be invoked without authentication or consent." },
+        "consent_required": { "type": "boolean", "description": "Whether the skill REQUIRES a ConsentGrant when customer contact info is included." },
+        "adf_compatible": { "type": "boolean", "description": "Whether this skill emits an ADF/XML-mappable lead (only meaningful for lead.* skills)." }
+      },
+      "required": ["id", "request_schema", "response_schema", "anonymous_allowed", "consent_required"],
+      "additionalProperties": false
+    }
+  }
+}

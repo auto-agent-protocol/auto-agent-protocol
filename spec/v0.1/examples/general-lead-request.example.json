@@ -1,0 +1,27 @@
+{
+  "type": "lead.general.request",
+  "lead_intent": "financing_question",
+  "message": "Hi, I'm comparing financing options for a used SUV in the $30k range and would like to know what APR Demo Toyota is offering this month for buyers with a 740+ credit score, and whether you can pre-qualify me without a hard credit pull.",
+  "intent": {
+    "body_type": "suv",
+    "fuel": "gas",
+    "budget_max": { "amount": 32000, "currency": "USD" },
+    "timeline": "1_3_months"
+  },
+  "customer": {
+    "first_name": "Anna",
+    "last_name": "Kowalska",
+    "email": "anna.kowalska@example.com",
+    "phone": "+14155551234",
+    "preferred_contact": "email"
+  },
+  "consent": {
+    "granted_at": "2026-04-30T10:42:00Z",
+    "allowed_channels": ["email"],
+    "consent_text": "I agree to share my name, email, and phone number with Demo Toyota so a sales representative can answer my financing question by email. I understand I can withdraw consent at any time.",
+    "source_agent": "chatgpt-shopping-agent",
+    "scope": ["general_inquiry"]
+  },
+  "source_agent": "chatgpt-shopping-agent",
+  "submitted_at": "2026-04-30T10:42:05Z"
+}

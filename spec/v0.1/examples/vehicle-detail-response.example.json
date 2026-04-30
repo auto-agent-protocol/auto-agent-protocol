@@ -1,0 +1,60 @@
+{
+  "type": "inventory.vehicle.response",
+  "data": {
+    "dealer_id": "dealer_demo_toyota",
+    "vehicle_id": "veh_dt_2611",
+    "vin": "1HGCY2F57RA000001",
+    "stock": "DT-2611",
+    "year": 2024,
+    "make": "Honda",
+    "model": "CR-V",
+    "trim": "EX-L",
+    "transmission": "automatic",
+    "exterior_color": "Platinum White Pearl",
+    "interior_color": "Gray Leather",
+    "condition": "used",
+    "description": "Low-mileage 2024 Honda CR-V EX-L with leather, sunroof, heated front seats, and Honda Sensing safety suite. Single previous owner, clean Carfax, complete service history.",
+    "driveline": "awd",
+    "engine": "1.5L Turbo I4",
+    "fuel": "gas",
+    "mpg": { "city": 27, "highway": 32 },
+    "msrp": { "amount": 35450, "currency": "USD" },
+    "list_price": { "amount": 31495, "currency": "USD" },
+    "offered_price": { "amount": 34239, "currency": "USD" },
+    "price": { "amount": 32995, "currency": "USD" },
+    "zip_code": "94107",
+    "mileage": 14820,
+    "photos": [
+      "https://cdn.demo-toyota.example.com/inventory/dt-2611/01.jpg",
+      "https://cdn.demo-toyota.example.com/inventory/dt-2611/02.jpg",
+      "https://cdn.demo-toyota.example.com/inventory/dt-2611/03.jpg",
+      "https://cdn.demo-toyota.example.com/inventory/dt-2611/04.jpg",
+      "https://cdn.demo-toyota.example.com/inventory/dt-2611/05.jpg"
+    ],
+    "vdp_url": "https://demo-toyota.example.com/inventory/used/2024-honda-cr-v-ex-l-DT-2611",
+    "status": "In Stock",
+    "notes": "Recently arrived, just completed 150-point reconditioning. Available for test drive at our Howard Street showroom.",
+    "last_verified_at": "2026-04-30T08:42:00Z",
+    "equipment": [
+      "Leather-trimmed seats",
+      "Heated front seats",
+      "Power moonroof",
+      "Honda Sensing (collision mitigation, lane keep, adaptive cruise)",
+      "Apple CarPlay and Android Auto",
+      "9-inch touchscreen infotainment",
+      "Wireless phone charger",
+      "Hands-free power tailgate",
+      "Blind spot monitoring",
+      "Rear cross-traffic alert"
+    ],
+    "carfax_url": "https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=1HGCY2F57RA000001",
+    "warranty": {
+      "type": "Honda Limited Warranty (balance of original)",
+      "expires": "2027-08-15"
+    },
+    "title_status": "clean",
+    "owners": 1,
+    "delivery_options": ["dealer_pickup", "local_home_delivery"]
+  },
+  "message": "Pricing shown reflects FTC-final out-the-door cost for ZIP 94107 in California. The 'offered_price' includes applicable California sales tax; the 'price' field is the total amount after current incentives and required fees."
+}

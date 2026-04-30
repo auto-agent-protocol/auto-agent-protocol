@@ -1,0 +1,56 @@
+{
+  "name": "auto-agent-protocol",
+  "version": "0.1.0",
+  "description": "MCP wrapper exposing AAP automotive skills as MCP tools. Each tool corresponds to one AAP v0.1 skill and accepts/returns the matching AAP request/response payload.",
+  "tools": [
+    {
+      "name": "aap_dealer_information",
+      "description": "Return the dealership profile (legal name, brands, address, hours, contact channels, supported services). Anonymous-safe; no consent required.",
+      "inputSchema": {
+        "$ref": "https://autoagentprotocol.org/v0.1/schemas/dealer-information-request.schema.json"
+      }
+    },
+    {
+      "name": "aap_inventory_facets",
+      "description": "Return aggregated facets (makes, models, years, conditions, price/mileage ranges) over the dealer's inventory. Anonymous-safe; no consent required.",
+      "inputSchema": {
+        "$ref": "https://autoagentprotocol.org/v0.1/schemas/inventory-facets-request.schema.json"
+      }
+    },
+    {
+      "name": "aap_inventory_search",
+      "description": "Search the dealer's inventory by make, model, year, condition, price, mileage, body type, fuel, drivetrain, VIN, stock, or free-text query. Anonymous-safe; no consent required.",
+      "inputSchema": {
+        "$ref": "https://autoagentprotocol.org/v0.1/schemas/inventory-search-request.schema.json"
+      }
+    },
+    {
+      "name": "aap_inventory_vehicle",
+      "description": "Return full detail for a specific vehicle by VIN, stock, or vehicle_id, including FTC-compliant pricing fields and (optionally) regional offered_price for a given ZIP. Anonymous-safe; no consent required.",
+      "inputSchema": {
+        "$ref": "https://autoagentprotocol.org/v0.1/schemas/vehicle-detail-request.schema.json"
+      }
+    },
+    {
+      "name": "aap_lead_general",
+      "description": "Submit a consented general dealership inquiry (financing, trade-in, service, callback). When customer contact info is included, a ConsentGrant with scope 'general_inquiry' is REQUIRED.",
+      "inputSchema": {
+        "$ref": "https://autoagentprotocol.org/v0.1/schemas/general-lead-request.schema.json"
+      }
+    },
+    {
+      "name": "aap_lead_vehicle",
+      "description": "Submit a consented, ADF/CRM-compatible vehicle-specific lead. When customer contact info is included, a ConsentGrant with scope 'vehicle_inquiry' is REQUIRED.",
+      "inputSchema": {
+        "$ref": "https://autoagentprotocol.org/v0.1/schemas/vehicle-lead-request.schema.json"
+      }
+    },
+    {
+      "name": "aap_lead_appointment",
+      "description": "Submit a consented appointment request (test drive, showroom visit, handover, phone call, video call, trade-in appraisal). When customer contact info is included, a ConsentGrant with scope 'appointment' is REQUIRED.",
+      "inputSchema": {
+        "$ref": "https://autoagentprotocol.org/v0.1/schemas/appointment-lead-request.schema.json"
+      }
+    }
+  ]
+}

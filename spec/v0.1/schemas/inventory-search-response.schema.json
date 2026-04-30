@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/inventory-search-response.schema.json",
+  "title": "InventorySearchResponse",
+  "description": "Typed AAP response for the `inventory.search` skill. The `data` block contains pagination metadata, the matched vehicles, and OPTIONALLY an embedded Facets aggregation. Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "inventory.search.response" },
+    "data": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of vehicles matching the request (across all pages)."
+        },
+        "skip": { "type": "integer", "minimum": 0, "description": "Echo of the request's pagination.skip." },
+        "limit": { "type": "integer", "minimum": 0, "description": "Echo of the request's effective pagination.limit." },
+        "vehicles": {
+          "type": "array",
+          "items": { "$ref": "./vehicle.schema.json" },
+          "description": "Vehicles in this page, in the requested order."
+        },
+        "facets": {
+          "$ref": "./facets.schema.json",
+          "description": "Optional aggregated facets over the matching set."
+        }
+      },
+      "required": ["total", "vehicles"],
+      "additionalProperties": false
+    },
+    "message": {
+      "type": "string",
+      "description": "Optional contextual note. MAY be omitted.",
+      "maxLength": 2000
+    }
+  },
+  "required": ["type", "data"],
+  "additionalProperties": false
+}

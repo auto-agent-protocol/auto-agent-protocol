@@ -1,0 +1,17 @@
+node_modules/
+.docusaurus/
+build/
+.env
+.DS_Store
+*.log
+.idea/
+.vscode/
+*.tsbuildinfo
+dist/
+
+# Auto-generated artifacts. Source of truth lives in spec/v0.1/.
+# These are produced at build time by `pnpm run generate && pnpm run copy-static`.
+generated/
+static/v0.1/
+static/latest/
+docs/schemas/_partials/
