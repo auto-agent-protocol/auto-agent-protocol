@@ -98,7 +98,7 @@
       "fuels": [
         { "value": "gas", "count": 2 }
       ],
-      "body_types": [
+      "bodies": [
         { "value": "suv", "count": 2 }
       ],
       "statuses": [

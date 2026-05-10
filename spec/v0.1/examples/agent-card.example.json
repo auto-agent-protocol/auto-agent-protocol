@@ -1,6 +1,6 @@
 {
   "name": "Lumika Demo Toyota Dealer Agent",
-  "description": "AAP-compliant Auto Agent Protocol dealer agent for Demo Toyota in San Francisco. Exposes inventory search, vehicle detail, dealer profile, and consented lead-submission skills to buyer agents (LLMs and CRMs) over A2A.",
+  "description": "AAP-compliant Auto Agent Protocol dealer agent for Demo Toyota in San Francisco. Exposes inventory search, vehicle detail, dealer profile, and a unified consented lead-submission skill to buyer agents (LLMs and CRMs) over A2A.",
   "version": "0.1.0",
   "provider": {
     "organization": "Lumika AI",
@@ -34,14 +34,19 @@
           "contract_uri": "https://autoagentprotocol.org/v0.1/",
           "manifest_url": "https://demo-toyota.agents.lumika.ai/.well-known/auto-agent-contract.json",
           "schema_base_url": "https://autoagentprotocol.org/v0.1/schemas/",
-          "required_skills": [
+          "aap_skill_ids": [
             "dealer.information",
             "inventory.facets",
             "inventory.search",
             "inventory.vehicle",
-            "lead.general",
-            "lead.vehicle",
-            "lead.appointment"
+            "lead.submit"
+          ],
+          "implemented_skills": [
+            "dealer.information",
+            "inventory.facets",
+            "inventory.search",
+            "inventory.vehicle",
+            "lead.submit"
           ],
           "auth_type": "bearer"
         }
@@ -132,56 +137,21 @@
       ]
     },
     {
-      "id": "lead.general",
-      "name": "General Dealership Lead",
-      "description": "Submit a consented general dealership inquiry (financing question, trade-in interest, service question, callback request). Customer contact info requires a ConsentGrant with scope 'general_inquiry'.",
-      "tags": ["lead", "general", "inquiry", "consent"],
+      "id": "lead.submit",
+      "name": "Submit Lead",
+      "description": "Submit a consented lead carrying customer info plus any combination of vehicle of interest, trade-in, and appointment request. Replaces the legacy lead.general / lead.vehicle / lead.appointment trio with a single unified contract that matches how dealerships actually take leads.",
+      "tags": ["lead", "submit", "vehicle", "trade-in", "appointment", "consent", "adf"],
       "examples": [
-        "Submit a financing question on behalf of the user.",
-        "Ask Demo Toyota to call the user back about trade-in valuations."
+        "Send a buy lead for VIN 1HGCY2F57RA000001 with a 2020 Passat trade-in and a Sunday test drive.",
+        "Submit a financing question on behalf of the user (no vehicle).",
+        "Book a test drive for VIN 1HGCY2F57RA000001 next Saturday morning."
       ],
       "input_modes": [
-        "application/vnd.autoagent.general-lead-request+json",
+        "application/vnd.autoagent.lead-submit-request+json",
         "text/plain"
       ],
       "output_modes": [
-        "application/vnd.autoagent.lead-response+json",
-        "text/plain"
-      ]
-    },
-    {
-      "id": "lead.vehicle",
-      "name": "Vehicle Lead",
-      "description": "Submit a consented, ADF/CRM-compatible vehicle-specific lead for a particular VIN, stock number, or vehicle. Requires a ConsentGrant with scope 'vehicle_inquiry'.",
-      "tags": ["lead", "vehicle", "adf", "crm", "consent"],
-      "examples": [
-        "Send a buy lead for VIN 1HGCY2F57RA000001 with a trade-in.",
-        "Submit a cash-finance lead for stock #DT-2451."
-      ],
-      "input_modes": [
-        "application/vnd.autoagent.vehicle-lead-request+json",
-        "text/plain"
-      ],
-      "output_modes": [
-        "application/vnd.autoagent.lead-response+json",
-        "text/plain"
-      ]
-    },
-    {
-      "id": "lead.appointment",
-      "name": "Appointment Lead",
-      "description": "Submit a consented appointment request (test drive, showroom visit, handover, phone call, video call, trade-in appraisal). Requires a ConsentGrant with scope 'appointment'.",
-      "tags": ["lead", "appointment", "test-drive", "consent"],
-      "examples": [
-        "Book a test drive for VIN 1HGCY2F57RA000001 next Saturday morning.",
-        "Request a 30-minute video call with a Demo Toyota sales advisor."
-      ],
-      "input_modes": [
-        "application/vnd.autoagent.appointment-lead-request+json",
-        "text/plain"
-      ],
-      "output_modes": [
-        "application/vnd.autoagent.appointment-lead-response+json",
+        "application/vnd.autoagent.lead-submit-response+json",
         "text/plain"
       ]
     }

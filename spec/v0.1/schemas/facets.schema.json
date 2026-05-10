@@ -36,7 +36,7 @@
     "transmissions": { "$ref": "#/$defs/term_facet" },
     "fuels": { "$ref": "#/$defs/term_facet" },
     "drivelines": { "$ref": "#/$defs/term_facet" },
-    "body_types": { "$ref": "#/$defs/term_facet" },
+    "bodies": { "$ref": "#/$defs/term_facet", "description": "Body-style facets, matching the `body` field on Vehicle and `filters.body` on InventorySearchRequest." },
     "exterior_colors": { "$ref": "#/$defs/term_facet" },
     "interior_colors": { "$ref": "#/$defs/term_facet" },
     "statuses": { "$ref": "#/$defs/term_facet" },

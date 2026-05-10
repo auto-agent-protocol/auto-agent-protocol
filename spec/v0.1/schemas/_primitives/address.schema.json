@@ -2,37 +2,29 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://autoagentprotocol.org/v0.1/schemas/_primitives/address.schema.json",
   "title": "Address",
-  "description": "Postal address using locale-neutral fields. ISO 3166-1 alpha-2 country code.",
+  "description": "US postal address. v0.1 is intentionally US-only; international support (country code, alternate postal formats) is deferred to a later version.\n\nAll fields are OPTIONAL by design — the buyer agent should pass through whatever pieces of the address the customer actually provided (e.g. just a ZIP for regional pricing, or just city+state, or the full street address). The dealer is responsible for handling partial addresses gracefully.",
   "type": "object",
   "properties": {
-    "line1": {
+    "address_line_1": {
       "type": "string",
-      "description": "Primary street line."
+      "description": "Primary street line (e.g. '1280 Howard Street')."
     },
-    "line2": {
+    "address_line_2": {
       "type": "string",
-      "description": "Secondary street line (suite, apartment, building)."
+      "description": "Secondary street line (suite, apartment, building, floor)."
     },
     "city": {
       "type": "string",
-      "description": "City or locality."
+      "description": "City or locality (e.g. 'San Francisco')."
     },
-    "region_code": {
+    "state": {
       "type": "string",
-      "description": "State, province, or region code (e.g. CA, NY, BC, MA)."
+      "description": "US state code or full name (e.g. 'CA' or 'California')."
     },
-    "postal_code": {
+    "zip": {
       "type": "string",
-      "description": "Postal or ZIP code."
-    },
-    "country_code": {
-      "type": "string",
-      "description": "ISO 3166-1 alpha-2 country code, e.g. US, CA, DE, PL.",
-      "minLength": 2,
-      "maxLength": 2,
-      "pattern": "^[A-Z]{2}$"
+      "description": "US ZIP code, 5 digits or ZIP+4 (e.g. '94103' or '94103-1234')."
     }
   },
-  "required": ["line1", "city", "region_code", "postal_code", "country_code"],
   "additionalProperties": false
 }

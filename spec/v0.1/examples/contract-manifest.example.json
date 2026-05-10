@@ -42,25 +42,9 @@
         "consent_required": false
       },
       {
-        "id": "lead.general",
-        "request_schema": "https://autoagentprotocol.org/v0.1/schemas/general-lead-request.schema.json",
-        "response_schema": "https://autoagentprotocol.org/v0.1/schemas/lead-response.schema.json",
-        "anonymous_allowed": false,
-        "consent_required": true,
-        "adf_compatible": true
-      },
-      {
-        "id": "lead.vehicle",
-        "request_schema": "https://autoagentprotocol.org/v0.1/schemas/vehicle-lead-request.schema.json",
-        "response_schema": "https://autoagentprotocol.org/v0.1/schemas/lead-response.schema.json",
-        "anonymous_allowed": false,
-        "consent_required": true,
-        "adf_compatible": true
-      },
-      {
-        "id": "lead.appointment",
-        "request_schema": "https://autoagentprotocol.org/v0.1/schemas/appointment-lead-request.schema.json",
-        "response_schema": "https://autoagentprotocol.org/v0.1/schemas/appointment-lead-response.schema.json",
+        "id": "lead.submit",
+        "request_schema": "https://autoagentprotocol.org/v0.1/schemas/lead-submit-request.schema.json",
+        "response_schema": "https://autoagentprotocol.org/v0.1/schemas/lead-submit-response.schema.json",
         "anonymous_allowed": false,
         "consent_required": true,
         "adf_compatible": true
@@ -71,10 +55,11 @@
   "llm": {
     "guide_url": "https://demo-toyota.agents.lumika.ai/.well-known/auto-agent-llm-guide.md",
     "rules": [
-      "Always call inventory.search before lead.vehicle so that the VIN, stock, or vehicle_id you submit is one Demo Toyota actually has in stock or in transit.",
-      "Never submit a lead.* skill without an explicit, verbatim ConsentGrant captured from the user; the consent's allowed_channels MUST be a subset of the channels the user agreed to.",
+      "Always call inventory.search or inventory.vehicle before lead.submit so that the VIN, stock, or vehicle_id you put in vehicle_of_interest is one Demo Toyota actually has in stock or in transit.",
+      "Never invoke lead.submit without an explicit, verbatim ConsentGrant captured from the user; the consent's allowed_channels MUST be a subset of the channels the user agreed to, and consent.scope MUST be ['lead_submission'].",
       "When quoting price to the user, prefer the FTC-final 'price' field; if you show 'list_price' or 'msrp', clearly label them and mention that taxes and fees apply.",
       "Treat 'last_verified_at' as the source of truth for availability claims; if it is older than 24 hours, re-fetch via inventory.vehicle before promising the user the unit is still available.",
+      "vehicle_of_interest.condition MUST be one of new|used|cpo. trade_in.condition MUST be one of excellent|good|fair|poor. Buyer agents MUST NOT mix the two vocabularies.",
       "Respect 'auth_type: bearer' and never invoke skills anonymously when the manifest declares bearer auth; obtain credentials from Lumika AI before retrying."
     ]
   }

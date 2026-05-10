@@ -54,13 +54,13 @@
         "trim": { "type": "array", "items": { "type": "string" }, "description": "Trim levels to include." },
         "condition": {
           "type": "array",
-          "items": { "type": "string", "enum": ["new", "used", "certified"] },
-          "description": "Sale conditions to include."
+          "items": { "type": "string", "enum": ["new", "used", "cpo"] },
+          "description": "Sale conditions to include. Inventory uses the sale-condition vocabulary (`new` | `used` | `cpo`)."
         },
         "transmission": { "type": "array", "items": { "type": "string" } },
         "fuel": { "type": "array", "items": { "type": "string" } },
         "driveline": { "type": "array", "items": { "type": "string" } },
-        "body_type": { "type": "array", "items": { "type": "string" } },
+        "body": { "type": "array", "items": { "type": "string" }, "description": "Body styles to include (e.g. ['sedan','suv','truck'])." },
         "exterior_color": { "type": "array", "items": { "type": "string" } },
         "interior_color": { "type": "array", "items": { "type": "string" } },
         "year_min": { "type": "integer", "minimum": 1900, "maximum": 2100 },

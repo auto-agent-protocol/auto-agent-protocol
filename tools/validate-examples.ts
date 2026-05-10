@@ -66,10 +66,12 @@ async function main() {
       const example = JSON.parse(readFileSync(examplePath, "utf-8"));
       const exampleName = basename(ef, ".example.json");
 
-      // For lead-response example, dispatch by the example's `type` field.
+      // Variant examples (e.g. `lead-submit-request.minimal`) use a suffixed
+      // basename and validate against the base schema.
       let candidate = exampleName;
-      if (exampleName === "lead-response" && example?.type) {
-        candidate = "lead-response";
+      const variantMatch = exampleName.match(/^([a-z][a-z0-9-]+(?:request|response))\./);
+      if (variantMatch) {
+        candidate = variantMatch[1];
       }
 
       const schema = schemasByName.get(candidate);

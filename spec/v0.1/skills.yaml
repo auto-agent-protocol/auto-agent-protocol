@@ -54,41 +54,15 @@ skills:
     consent_required: false
     adf_compatible: false
 
-  - id: lead.general
-    name: General Dealership Lead
-    description: Submit a consented general dealership inquiry (financing question, trade-in interest, callback request, etc.).
-    request_schema: general-lead-request.schema.json
-    response_schema: lead-response.schema.json
-    request_type: lead.general.request
-    response_type: lead.general.response
-    media_type_request: application/vnd.autoagent.general-lead-request+json
-    media_type_response: application/vnd.autoagent.lead-response+json
-    anonymous_allowed: false
-    consent_required: true
-    adf_compatible: true
-
-  - id: lead.vehicle
-    name: Vehicle Lead
-    description: Submit a consented vehicle-specific inquiry or CRM/ADF-compatible lead for a particular VIN, stock number, or vehicle.
-    request_schema: vehicle-lead-request.schema.json
-    response_schema: lead-response.schema.json
-    request_type: lead.vehicle.request
-    response_type: lead.vehicle.response
-    media_type_request: application/vnd.autoagent.vehicle-lead-request+json
-    media_type_response: application/vnd.autoagent.lead-response+json
-    anonymous_allowed: false
-    consent_required: true
-    adf_compatible: true
-
-  - id: lead.appointment
-    name: Appointment Lead
-    description: Submit a consented appointment request for a test drive, phone call, video call, showroom visit, vehicle handover, or trade-in appraisal.
-    request_schema: appointment-lead-request.schema.json
-    response_schema: appointment-lead-response.schema.json
-    request_type: lead.appointment.request
-    response_type: lead.appointment.response
-    media_type_request: application/vnd.autoagent.appointment-lead-request+json
-    media_type_response: application/vnd.autoagent.appointment-lead-response+json
+  - id: lead.submit
+    name: Submit Lead
+    description: Submit a consented lead carrying customer info plus any combination of vehicle of interest, trade-in, and appointment request. Replaces the previous lead.general / lead.vehicle / lead.appointment trio with a single unified contract that matches how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).
+    request_schema: lead-submit-request.schema.json
+    response_schema: lead-submit-response.schema.json
+    request_type: lead.submit.request
+    response_type: lead.submit.response
+    media_type_request: application/vnd.autoagent.lead-submit-request+json
+    media_type_response: application/vnd.autoagent.lead-submit-response+json
     anonymous_allowed: false
     consent_required: true
     adf_compatible: true

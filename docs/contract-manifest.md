@@ -12,7 +12,7 @@ Every AAP-compliant dealer agent publishes a second well-known file alongside it
 GET https://{dealer-domain}/.well-known/auto-agent-contract.json
 ```
 
-This file is the **contract manifest**. The agent card points to it via `capabilities.extensions[].params.manifest_url`. The manifest enumerates the seven required skills, their request/response schema URLs, and per-skill `anonymous_allowed` / `consent_required` flags. It also declares the agent's `auth_type` and OPTIONAL LLM guidance.
+This file is the **contract manifest**. The agent card points to it via `capabilities.extensions[].params.manifest_url`. The manifest enumerates the AAP skills the agent actually implements (one or more from the v0.1 vocabulary of five), their request/response schema URLs, and per-skill `anonymous_allowed` / `consent_required` flags. It also declares the agent's `auth_type` and OPTIONAL LLM guidance.
 
 A buyer agent — especially an LLM-driven one — uses the manifest to plan calls deterministically: which skills can be called anonymously, which require customer consent, and exactly which JSON Schema version to validate a request against.
 
@@ -23,7 +23,7 @@ The A2A agent card is generic. It tells a buyer agent that an agent exists, what
 - Which exact JSON Schema URL describes each skill's request body for this version.
 - Which skills allow anonymous use.
 - Which skills require an explicit `ConsentGrant` when customer info is included.
-- Whether the lead skills emit ADF-mappable payloads.
+- Whether the lead skill emits ADF-mappable payloads.
 - What free-form rules the dealer would like LLM clients to follow.
 
 The contract manifest carries all of that. It is small, deterministic, and cacheable — exactly the shape a planning LLM needs.
@@ -44,7 +44,7 @@ For each skill the buyer agent intends to call, it:
 1. Looks up the entry in `a2a.skills[]` by `id`.
 2. Validates its outgoing AAP request payload against `request_schema` (URL is absolute and version-pinned).
 3. Honors the booleans:
-   - `anonymous_allowed: false` means the skill will reject calls without a `customer` block (e.g. lead.* skills).
+   - `anonymous_allowed: false` means the skill will reject calls without a `customer` block (e.g. `lead.submit`).
    - `consent_required: true` means whenever a `customer` block is present, a `consent` (`ConsentGrant`) MUST be present too.
 4. If the manifest's top-level `auth_type` is `"bearer"`, attaches `Authorization: Bearer <token>` to every call.
 5. Optionally reads `llm.rules[]` and `llm.guide_url` for natural-language policy hints.
@@ -98,25 +98,9 @@ Below is a complete, valid AAP v0.1 contract manifest for a public dealer agent 
         "consent_required": false
       },
       {
-        "id": "lead.general",
-        "request_schema": "https://autoagentprotocol.org/v0.1/schemas/general-lead-request.schema.json",
-        "response_schema": "https://autoagentprotocol.org/v0.1/schemas/lead-response.schema.json",
-        "anonymous_allowed": false,
-        "consent_required": true,
-        "adf_compatible": true
-      },
-      {
-        "id": "lead.vehicle",
-        "request_schema": "https://autoagentprotocol.org/v0.1/schemas/vehicle-lead-request.schema.json",
-        "response_schema": "https://autoagentprotocol.org/v0.1/schemas/lead-response.schema.json",
-        "anonymous_allowed": false,
-        "consent_required": true,
-        "adf_compatible": true
-      },
-      {
-        "id": "lead.appointment",
-        "request_schema": "https://autoagentprotocol.org/v0.1/schemas/appointment-lead-request.schema.json",
-        "response_schema": "https://autoagentprotocol.org/v0.1/schemas/appointment-lead-response.schema.json",
+        "id": "lead.submit",
+        "request_schema": "https://autoagentprotocol.org/v0.1/schemas/lead-submit-request.schema.json",
+        "response_schema": "https://autoagentprotocol.org/v0.1/schemas/lead-submit-response.schema.json",
         "anonymous_allowed": false,
         "consent_required": true,
         "adf_compatible": true
@@ -128,9 +112,9 @@ Below is a complete, valid AAP v0.1 contract manifest for a public dealer agent 
     "guide_url": "https://demo-toyota.example.com/.well-known/auto-agent-llm-guide.md",
     "rules": [
       "Use inventory.search or inventory.vehicle before submitting a lead if the user is still researching.",
-      "Do not submit lead.general, lead.vehicle, or lead.appointment unless the user explicitly consents to share contact information with this dealer.",
-      "Use lead.vehicle for vehicle-specific CRM/ADF leads.",
-      "Use lead.appointment for test drive, call, video call, showroom visit, or trade-in appraisal appointment requests.",
+      "Do not submit lead.submit unless the user explicitly consents to share contact information with this dealer.",
+      "Use lead.submit's vehicle_of_interest for VIN/stock-specific CRM/ADF leads, trade_in for the user's existing vehicle, and appointment for test drive / call / showroom visit / handover / trade-in appraisal scheduling — all in the same request when applicable.",
+      "vehicle_of_interest.condition MUST be one of new|used|cpo. trade_in.condition MUST be one of excellent|good|fair|poor. Never mix the two vocabularies.",
       "Never invent VIN, stock number, price, availability, or consent."
     ]
   }
@@ -161,18 +145,18 @@ Below is a complete, valid AAP v0.1 contract manifest for a public dealer agent 
 |---|---|---|
 | `endpoint` | URI | Base A2A endpoint URL. The full `message:send` URL is binding-specific. |
 | `protocol_binding` | enum | `JSONRPC` or `HTTP+JSON`. |
-| `skills[]` | array | One entry per AAP skill (all 7 are required). |
+| `skills[]` | array | One entry per AAP skill the agent implements. v0.1 defines five standard skill IDs (`dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`); an agent MAY declare any subset (one or more). |
 
 Each `skills[]` entry:
 
 | Field | Type | Description |
 |---|---|---|
-| `id` | enum | One of the seven AAP skill ids. |
+| `id` | enum | One of the five AAP standard skill IDs. The agent's manifest only lists skills it actually implements. |
 | `request_schema` | URI | Absolute URL to the JSON Schema for the AAP request body. |
 | `response_schema` | URI | Absolute URL to the JSON Schema for the AAP response body. |
 | `anonymous_allowed` | boolean | Whether the skill MAY be invoked without authentication or consent. |
 | `consent_required` | boolean | Whether the skill REQUIRES a `ConsentGrant` when customer info is included. |
-| `adf_compatible` | boolean | Only meaningful for `lead.*` skills; indicates the dealer can ingest the lead as ADF/XML. |
+| `adf_compatible` | boolean | Only meaningful for `lead.submit`; indicates the dealer can ingest the lead as ADF/XML. |
 
 ### Top-level fields
 

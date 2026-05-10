@@ -14,7 +14,7 @@ Every AAP-compliant dealer agent publishes an A2A v1.0 agent card at the well-kn
 GET https://{dealer-domain}/.well-known/agent-card.json
 ```
 
-The card MUST declare the AAP extension and list the seven required skills. The buyer agent uses the card to confirm AAP compliance, select a protocol binding, and (if `auth_type` is `bearer`) negotiate credentials before calling any skill.
+The card MUST declare the AAP extension and list the AAP skills the agent implements (one or more from the v0.1 vocabulary of five). The buyer agent uses the card to confirm AAP compliance, discover which skills are actually available, select a protocol binding, and (if `auth_type` is `bearer`) negotiate credentials before calling any skill.
 
 ## Required AAP additions to the A2A agent card
 
@@ -28,21 +28,25 @@ A2A leaves discovery flexible; AAP narrows it. An AAP-compliant agent card MUST 
 
 2. That extension entry SHOULD set `params.manifest_url` to the absolute URL of the agent's contract manifest (`/.well-known/auto-agent-contract.json`).
 
-3. That extension entry SHOULD set `params.required_skills` to the literal AAP v0.1 list:
+3. That extension entry SHOULD set `params.aap_skill_ids` to the AAP v0.1 vocabulary, and `params.implemented_skills` to the subset this agent actually supports:
 
    ```json
-   [
-     "dealer.information",
-     "inventory.facets",
-     "inventory.search",
-     "inventory.vehicle",
-     "lead.general",
-     "lead.vehicle",
-     "lead.appointment"
-   ]
+   {
+     "aap_skill_ids": [
+       "dealer.information",
+       "inventory.facets",
+       "inventory.search",
+       "inventory.vehicle",
+       "lead.submit"
+     ],
+     "implemented_skills": [
+       "inventory.search",
+       "lead.submit"
+     ]
+   }
    ```
 
-4. `skills[]` contains entries for all seven required skill ids.
+4. `skills[]` contains one entry per AAP skill the agent implements (one or more). Buyer agents discover capability from `skills[]`, not from the AAP extension URI alone. AAP RECOMMENDS that an agent expose at least `inventory.search` + `lead.submit` for a meaningful shopping experience, but no single skill is individually required.
 
 5. `supported_interfaces[]` lists at least one entry whose `protocol_binding` is `JSONRPC` or `HTTP+JSON`.
 
@@ -96,14 +100,19 @@ This is a complete, valid AAP v0.1 agent card for a public dealer agent that exp
         "required": true,
         "params": {
           "manifest_url": "https://demo-toyota.example.com/.well-known/auto-agent-contract.json",
-          "required_skills": [
+          "aap_skill_ids": [
             "dealer.information",
             "inventory.facets",
             "inventory.search",
             "inventory.vehicle",
-            "lead.general",
-            "lead.vehicle",
-            "lead.appointment"
+            "lead.submit"
+          ],
+          "implemented_skills": [
+            "dealer.information",
+            "inventory.facets",
+            "inventory.search",
+            "inventory.vehicle",
+            "lead.submit"
           ]
         }
       }
@@ -139,22 +148,10 @@ This is a complete, valid AAP v0.1 agent card for a public dealer agent that exp
       "tags": ["inventory", "vehicle"]
     },
     {
-      "id": "lead.general",
-      "name": "General Dealership Lead",
-      "description": "Submit a consented general dealership inquiry (financing question, trade-in interest, callback request).",
-      "tags": ["lead", "general"]
-    },
-    {
-      "id": "lead.vehicle",
-      "name": "Vehicle Lead",
-      "description": "Submit a consented vehicle-specific inquiry (ADF/XML-mappable).",
-      "tags": ["lead", "vehicle", "adf"]
-    },
-    {
-      "id": "lead.appointment",
-      "name": "Appointment Lead",
-      "description": "Submit a consented appointment request (test drive, showroom visit, handover, phone/video call, trade-in appraisal).",
-      "tags": ["lead", "appointment"]
+      "id": "lead.submit",
+      "name": "Submit Lead",
+      "description": "Submit a consented lead carrying customer info plus any combination of vehicle of interest, trade-in, and appointment request.",
+      "tags": ["lead", "submit", "vehicle", "trade-in", "appointment", "consent", "adf"]
     }
   ],
   "security_schemes": {},

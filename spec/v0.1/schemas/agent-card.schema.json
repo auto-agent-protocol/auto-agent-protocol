@@ -85,7 +85,7 @@
     },
     "skills": {
       "type": "array",
-      "description": "Skills exposed by this agent. AAP-compliant agents MUST declare all 7 required skills (dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.general, lead.vehicle, lead.appointment).",
+      "description": "Skills the agent actually exposes. AAP defines 5 standard skill IDs (`dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`); a compliant agent declares the subset it implements — anything from a single skill (e.g. just `inventory.search`) up to all five. AAP RECOMMENDS at least `inventory.search` plus `lead.submit` to deliver an end-to-end shopping flow, but neither is mandatory. Buyer agents MUST inspect `skills[]` to discover what is supported and MUST NOT assume any particular skill is implemented based solely on the AAP extension URI being present.",
       "items": { "$ref": "#/$defs/skill" }
     },
     "security_schemes": {
@@ -118,7 +118,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "description": "Skill identifier. AAP required skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.general, lead.vehicle, lead.appointment."
+          "description": "Skill identifier. AAP standard skill IDs (the v0.1 vocabulary): `dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`. Agents MAY declare any subset of these (one or more); they MAY also declare additional non-AAP skill IDs alongside, which buyer agents will treat as agent-specific extensions."
         },
         "name": { "type": "string" },
         "description": { "type": "string" },

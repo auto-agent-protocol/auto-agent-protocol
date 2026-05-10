@@ -38,33 +38,31 @@ export interface ContactPoint {
 }
 
 /**
- * Postal address using locale-neutral fields. ISO 3166-1 alpha-2 country code.
+ * US postal address. v0.1 is intentionally US-only; international support (country code, alternate postal formats) is deferred to a later version.
+ *
+ * All fields are OPTIONAL by design — the buyer agent should pass through whatever pieces of the address the customer actually provided (e.g. just a ZIP for regional pricing, or just city+state, or the full street address). The dealer is responsible for handling partial addresses gracefully.
  */
 export interface Address {
   /**
-   * Primary street line.
+   * Primary street line (e.g. '1280 Howard Street').
    */
-  line1: string;
+  address_line_1?: string;
   /**
-   * Secondary street line (suite, apartment, building).
+   * Secondary street line (suite, apartment, building, floor).
    */
-  line2?: string;
+  address_line_2?: string;
   /**
-   * City or locality.
+   * City or locality (e.g. 'San Francisco').
    */
-  city: string;
+  city?: string;
   /**
-   * State, province, or region code (e.g. CA, NY, BC, MA).
+   * US state code or full name (e.g. 'CA' or 'California').
    */
-  region_code: string;
+  state?: string;
   /**
-   * Postal or ZIP code.
+   * US ZIP code, 5 digits or ZIP+4 (e.g. '94103' or '94103-1234').
    */
-  postal_code: string;
-  /**
-   * ISO 3166-1 alpha-2 country code, e.g. US, CA, DE, PL.
-   */
-  country_code: string;
+  zip?: string;
 }
 
 /**
@@ -89,59 +87,82 @@ export interface AapMessage {
 }
 
 /**
- * Minimal representation of a single vehicle as exposed by inventory.search results. The same shape is the base type for inventory.vehicle responses (VehicleDetail), which freely allows additional dealer-specific properties. Carried inside the typed AAP response payload (`inventory.search.response` and `inventory.vehicle.response`) which itself rides inside an A2A `Message.parts[].data` DataPart.
+ * Unified vehicle interface used everywhere a vehicle is referenced — inventory results, vehicle_of_interest, and trade_in. The same shape covers both 'a vehicle the buyer wants to purchase' and 'a vehicle the buyer wants to trade in' so buyer agents reuse one type.
+ *
+ * Field semantics differ by context:
+ * - For vehicle_of_interest, `condition` MUST be one of `new`, `used`, `cpo`. Pricing fields (`msrp`, `list_price`, `offered_price`, `price`) describe the dealer's listing.
+ * - For trade_in, `condition` MUST be one of `excellent`, `good`, `fair`, `poor`. Pricing fields are typically absent on the request side and may be populated by the dealer's appraisal response.
+ *
+ * Context-dependent constraints (which condition values are valid, which identification fields are required) are enforced at the using request schema (e.g. `lead.submit.request`).
+ *
+ * No fields are required at this base schema. `additionalProperties: true` allows inventory.vehicle responses to carry richer dealer-specific fields (drivetrain, fuel, photos, VDP URL, etc.) without schema changes.
  */
 export interface Vehicle {
   /**
-   * Stable identifier of the dealer that owns this listing.
-   */
-  dealer_id: string;
-  /**
-   * Optional dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).
-   */
-  vehicle_id?: string;
-  /**
-   * Vehicle Identification Number (17 chars, ISO 3779).
+   * Vehicle Identification Number (17 chars, ISO 3779). Optional on trade-ins; recommended on inventory listings of used vehicles.
    */
   vin?: string;
   /**
-   * Dealer's stock number for this unit.
+   * Model year (e.g. 2024).
    */
-  stock?: string;
+  year?: number;
   /**
-   * Model year.
+   * Vehicle make / manufacturer brand (e.g. 'Honda', 'BMW', 'Ford').
    */
-  year: number;
+  make?: string;
   /**
-   * Vehicle make / manufacturer brand (e.g. Honda, BMW, Ford).
+   * Vehicle model name (e.g. 'CR-V', '3 Series', 'F-150').
    */
-  make: string;
+  model?: string;
   /**
-   * Vehicle model name (e.g. CR-V, 3 Series, F-150).
-   */
-  model: string;
-  /**
-   * Trim level (e.g. EX-L, M Sport, Lariat).
+   * Trim level (e.g. 'EX-L', 'M Sport', 'Lariat').
    */
   trim?: string;
   /**
-   * Transmission type as text (e.g. 'automatic', 'manual', '8-speed automatic').
+   * Combined condition enum spanning both sale-condition and trade-in-condition vocabularies. For vehicle_of_interest use one of `new` | `used` | `cpo` (Certified Pre-Owned). For trade_in use one of `excellent` | `good` | `fair` | `poor`. The using request schema enforces the correct subset by context.
+   */
+  condition?: "new" | "used" | "cpo" | "excellent" | "good" | "fair" | "poor";
+  msrp?: Money;
+  price?: Money1;
+  list_price?: Money2;
+  offered_price?: Money3;
+  /**
+   * Buyer ZIP code used to compute regional pricing fields (`offered_price`). Optional; when absent, regional pricing fields MUST be omitted.
+   */
+  zip?: string;
+  /**
+   * Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts.
+   */
+  stock?: string;
+  /**
+   * Odometer reading in miles. Required for trade-ins; typical on used inventory.
+   */
+  mileage?: number;
+  /**
+   * Body style as text (e.g. 'sedan', 'suv', 'truck', 'coupe', 'hatchback', 'wagon', 'minivan', 'convertible').
+   */
+  body?: string;
+  /**
+   * Transmission type as text (e.g. 'automatic', 'manual', '8-speed automatic', 'cvt').
    */
   transmission?: string;
+  [k: string]: any;
+}
+
+/**
+ * Extended vehicle representation returned by `inventory.vehicle`. Inherits all base Vehicle fields and explicitly declares the rich, dealer-side properties that go beyond the unified Vehicle interface used in lead.submit. `additionalProperties: true` lets dealers carry further site-specific equipment, history-report links, or certification details without schema changes.
+ */
+export type VehicleDetail = Vehicle & {
   /**
-   * Free-text exterior color name.
+   * Stable identifier of the dealer that owns this listing.
    */
-  exterior_color?: string;
+  dealer_id?: string;
   /**
-   * Free-text interior color or upholstery name.
+   * Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).
    */
-  interior_color?: string;
+  vehicle_id?: string;
   /**
-   * Sale condition. 'certified' implies a manufacturer-backed certified pre-owned program.
-   */
-  condition: "new" | "used" | "certified";
-  /**
-   * Optional human-readable description / dealer notes for marketing copy.
+   * Human-readable description / dealer marketing copy.
    */
   description?: string;
   /**
@@ -167,18 +188,14 @@ export interface Vehicle {
    * Estimated electric range in miles, for BEV and PHEV vehicles.
    */
   electric_range_mi?: number;
-  msrp?: Money;
-  list_price?: Money1;
-  offered_price?: Money2;
-  price?: Money3;
   /**
-   * Buyer ZIP/postal code used to compute regional pricing fields (offered_price). Optional; when absent, regional pricing fields MUST be omitted.
+   * Free-text exterior color name.
    */
-  zip_code?: string;
+  exterior_color?: string;
   /**
-   * Odometer reading in miles.
+   * Free-text interior color or upholstery name.
    */
-  mileage?: number;
+  interior_color?: string;
   /**
    * Public URLs of vehicle photos, ordered by relevance.
    */
@@ -188,98 +205,19 @@ export interface Vehicle {
    */
   vdp_url?: string;
   /**
-   * Free-text availability status (e.g. 'In Stock', 'In Transit', 'Pending', 'Sold', 'Reserved'). Spec recommends but does not enforce a controlled vocabulary.
+   * Free-text availability status (e.g. 'In Stock', 'In Transit', 'Pending', 'Sold', 'Reserved'). Recommended but not enforced as a controlled vocabulary.
    */
-  status: string;
+  status?: string;
   /**
    * Dealer notes (e.g. 'recently arrived', 'service history available').
    */
   notes?: string;
   /**
-   * Timestamp at which the dealer last verified availability/price/status of this listing. REQUIRED when the agent makes availability claims.
+   * ISO 8601 / RFC 3339 timestamp (with timezone offset) at which the dealer last verified availability/price/status of this listing. REQUIRED when the agent makes availability claims (e.g. '2026-04-30T08:42:00Z').
    */
   last_verified_at?: string;
   [k: string]: any;
-}
-
-/**
- * Typed AAP request for the `lead.vehicle` skill. Vehicle-specific inquiry; designed to be losslessly mappable to ADF/XML so that legacy dealer CRMs can ingest it directly. The `vehicles` array MUST contain at least one vehicle reference (vin / stock / vehicle_id, or year+make+model). When `customer` is present, `consent` is REQUIRED with scope including `vehicle_inquiry`. Carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.
- */
-export interface VehicleLeadRequest {
-  type: "lead.vehicle.request";
-  /**
-   * Vehicles the user is interested in. At minimum one identifier (VIN, stock, vehicle_id) or year+make+model trio.
-   *
-   * @minItems 1
-   */
-  vehicles: [
-    (
-      | {
-          [k: string]: any;
-        }
-      | {
-          [k: string]: any;
-        }
-      | {
-          [k: string]: any;
-        }
-      | {
-          [k: string]: any;
-        }
-    ),
-    ...(
-      | {
-          [k: string]: any;
-        }
-      | {
-          [k: string]: any;
-        }
-      | {
-          [k: string]: any;
-        }
-      | {
-          [k: string]: any;
-        }
-    )[]
-  ];
-  /**
-   * Purchase intent. Mapped to ADF '<vehicle interest>' attribute.
-   */
-  intent?: "buy" | "lease" | "trade_in" | "test_drive";
-  /**
-   * Optional financing preference. Mapped to ADF '<finance><method>'.
-   */
-  finance_type?: "cash" | "finance" | "lease";
-  timeline?: "asap" | "1_3_months" | "3_6_months" | "flexible";
-  /**
-   * Optional trade-in vehicle details.
-   */
-  trade_in?: {
-    year?: number;
-    make?: string;
-    model?: string;
-    mileage?: number;
-  };
-  /**
-   * Free-text message from the user.
-   */
-  message?: string;
-  customer?: Customer;
-  consent?: ConsentGrant;
-  /**
-   * Identifier of the buyer agent submitting the lead.
-   */
-  source_agent: string;
-  /**
-   * Buyer-agent timestamp at submission. Mapped to ADF '<requestdate>'.
-   */
-  submitted_at?: string;
-}
-
-/**
- * Extended vehicle representation returned by inventory.vehicle. Inherits all Vehicle fields and explicitly allows additional dealer-specific properties (e.g. equipment, history reports, certification details).
- */
-export type VehicleDetail = Vehicle;
+};
 
 /**
  * Typed AAP response for the `inventory.vehicle` skill. The `data` field is a VehicleDetail (Vehicle + arbitrary additional dealer-specific properties). Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
@@ -313,41 +251,140 @@ export type VehicleDetailRequest = {
    */
   vehicle_id?: string;
   /**
-   * Optional buyer ZIP/postal code; when provided, the dealer MAY compute the regional offered_price field.
+   * Optional buyer ZIP code; when provided, the dealer MAY compute the regional offered_price field.
    */
-  zip_code?: string;
+  zip?: string;
 };
 
 /**
- * Typed AAP response for `lead.general` and `lead.vehicle`. Use AppointmentLeadResponse for `lead.appointment`. Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
+ * Dealer agent's response to a `lead.submit.request`. Carries the assigned `lead_id` and overall lead `status`, plus an optional appointment block when the request included an `appointment` (the dealer can confirm the requested window, propose alternatives, leave it as merely requested for human follow-up, or reject the appointment while still accepting the lead). Carried inside an A2A `Message.parts[].data` DataPart via `SendMessage`.
  */
-export interface LeadResponse {
+export interface LeadSubmitResponse {
   /**
-   * Concrete response type (general or vehicle).
+   * AAP message type discriminator.
    */
-  type: "lead.general.response" | "lead.vehicle.response";
+  type: "lead.submit.response";
   data: {
     /**
-     * Stable identifier assigned by the dealer for this lead.
+     * Dealer-assigned identifier for this lead.
      */
     lead_id: string;
     /**
-     * Lead disposition. 'duplicate' means an equivalent lead already exists for this customer/vehicle. 'rejected' means the lead was not accepted (e.g. consent missing, channel not allowed); details in 'message' or returned via Error.
+     * Overall lead status. `duplicate` indicates the dealer recognized the same buyer/vehicle combination from a recent prior submission and merged it. `rejected` indicates the dealer did not accept the lead (e.g. consent invalid, vehicle no longer available, dealer not serving the buyer's region).
      */
     status: "received" | "duplicate" | "rejected";
     /**
-     * Convenience contact summary the buyer agent can show the user.
+     * Present iff the request included an `appointment` block AND the dealer is acknowledging it (whether confirming, proposing alternatives, leaving it as requested for staff follow-up, or rejecting).
+     */
+    appointment?: {
+      /**
+       * Dealer-assigned identifier for this appointment.
+       */
+      appointment_id: string;
+      /**
+       * Appointment status. `requested` = received but not yet scheduled (staff will follow up). `proposed` = dealer cannot honor any of the requested windows but is offering alternatives in `proposed_slots`. `confirmed` = dealer scheduled the appointment for `confirmed_window`. `rejected` = dealer cannot host this appointment (e.g. service unavailable).
+       */
+      status: "requested" | "proposed" | "confirmed" | "rejected";
+      /**
+       * Present iff `status` is `confirmed`. `start` and `end` are ISO 8601 / RFC 3339 timestamps with timezone offsets.
+       */
+      confirmed_window?: {
+        /**
+         * ISO 8601 / RFC 3339 confirmed-window start with timezone offset.
+         */
+        start: string;
+        /**
+         * ISO 8601 / RFC 3339 confirmed-window end with timezone offset.
+         */
+        end?: string;
+      };
+      /**
+       * Present iff `status` is `proposed`. Time slots the dealer offers as alternatives. Each slot's `start` and `end` are ISO 8601 / RFC 3339 timestamps with timezone offsets.
+       *
+       * @minItems 1
+       */
+      proposed_slots?: [
+        {
+          /**
+           * ISO 8601 / RFC 3339 proposed-slot start with timezone offset.
+           */
+          start: string;
+          /**
+           * ISO 8601 / RFC 3339 proposed-slot end with timezone offset.
+           */
+          end?: string;
+        },
+        ...{
+          /**
+           * ISO 8601 / RFC 3339 proposed-slot start with timezone offset.
+           */
+          start: string;
+          /**
+           * ISO 8601 / RFC 3339 proposed-slot end with timezone offset.
+           */
+          end?: string;
+        }[]
+      ];
+    };
+    /**
+     * Convenience contact summary for the buyer agent to surface follow-up details to the user.
      */
     dealer?: {
       name?: string;
+      /**
+       * E.164 phone number for buyer follow-up.
+       */
       phone?: string;
     };
   };
   /**
-   * Optional contextual note from the dealer (e.g. 'A sales rep will email Anna within 1 business day.').
+   * Contextual note from the dealer (e.g. 'A salesperson will call within 1 business hour.', 'We are unable to honor your requested time; please pick from the alternatives.').
    */
   message?: string;
 }
+
+/**
+ * Unified lead submission for the `lead.submit` AAP skill. Replaces the v0.1-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment`. A single request carries the consented customer plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment` — matching how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).
+ *
+ * Design principle: capture whatever the customer actually provided. `vehicle_of_interest`, `trade_in`, and `appointment` are entirely optional, and within them no individual field is required at the schema level — the buyer agent should pass through whatever pieces of information the user shared (a VIN, a make+model, just a year, mileage only — anything is welcome). The dealer is responsible for handling partial input gracefully.
+ *
+ * Validation rules:
+ * - `customer` and `consent` are always required (lead is never anonymous; consent is always required).
+ * - If `vehicle_of_interest.condition` is set, it MUST be one of `new`, `used`, `cpo`.
+ * - If `trade_in.condition` is set, it MUST be one of `excellent`, `good`, `fair`, `poor`.
+ * - `consent.scope` MUST be `["lead_submission"]`.
+ *
+ * Carried inside an A2A `Message.parts[].data` DataPart via `SendMessage` (JSON-RPC 2.0 or HTTP+JSON binding).
+ */
+export type LeadSubmitRequest = {
+  [k: string]: any;
+} & {
+  /**
+   * AAP message type discriminator.
+   */
+  type: "lead.submit.request";
+  customer: Customer;
+  consent: ConsentGrant;
+  vehicle_of_interest?: Vehicle;
+  trade_in?: Vehicle1;
+  appointment?: Appointment;
+  /**
+   * Optional free-text message from the buyer to the dealer.
+   */
+  message?: string;
+  /**
+   * Identifier of the buyer agent that originated this lead (e.g. 'chatgpt-shopping', 'gemini-assistant', 'lumika-bdc'). Used for analytics and consent attribution.
+   */
+  source_agent: string;
+  /**
+   * ISO 8601 / RFC 3339 timestamp at which the buyer agent finalized this submission (e.g. '2026-04-30T11:05:08Z').
+   */
+  submitted_at?: string;
+  /**
+   * Optional client-generated key (UUID recommended) the dealer agent uses to dedupe retried submissions. Two requests carrying the same `idempotency_key` MUST produce the same response (the dealer returns the original `lead_id` and status). Strongly RECOMMENDED for production buyer agents that retry on network failure.
+   */
+  idempotency_key?: string;
+};
 
 /**
  * Typed AAP response for the `inventory.search` skill. The `data` block contains pagination metadata, the matched vehicles, and OPTIONALLY an embedded Facets aggregation. Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
@@ -450,46 +487,6 @@ export interface InventoryFacetsRequest {
 }
 
 /**
- * Typed AAP request for the `lead.general` skill. Open-ended dealership inquiry not tied to a specific vehicle (e.g. financing question, trade-in interest, request for a callback). Customer info is optional but RECOMMENDED; when included, a ConsentGrant is REQUIRED with scope including `general_inquiry`. Carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.
- */
-export interface GeneralLeadRequest {
-  type: "lead.general.request";
-  /**
-   * High-level reason the user is reaching out.
-   */
-  lead_intent?:
-    | "financing_question"
-    | "trade_in_interest"
-    | "service_question"
-    | "general_question"
-    | "callback_request"
-    | "other";
-  /**
-   * Free-text message from the user.
-   */
-  message: string;
-  /**
-   * Optional structured intent details.
-   */
-  intent?: {
-    body_type?: string;
-    fuel?: string;
-    budget_max?: Money;
-    timeline?: "asap" | "1_3_months" | "3_6_months" | "flexible";
-  };
-  customer?: Customer;
-  consent?: ConsentGrant;
-  /**
-   * Identifier of the buyer agent submitting the lead (e.g. 'chatgpt-shopping-agent').
-   */
-  source_agent: string;
-  /**
-   * Buyer-agent timestamp at the moment of submission.
-   */
-  submitted_at?: string;
-}
-
-/**
  * Aggregated facet counts and ranges over a dealer's inventory. Returned by the `inventory.facets` AAP skill (wrapped in `inventory.facets.response`) and OPTIONALLY embedded in `inventory.search` responses. Both responses travel inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.
  */
 export interface Facets {
@@ -501,7 +498,7 @@ export interface Facets {
   transmissions?: TermFacet;
   fuels?: TermFacet;
   drivelines?: TermFacet;
-  body_types?: TermFacet;
+  bodies?: TermFacet1;
   exterior_colors?: TermFacet;
   interior_colors?: TermFacet;
   statuses?: TermFacet;
@@ -527,6 +524,9 @@ export interface Event {
    * New status value for the entity. For 'lead.status_changed', one of: received | duplicate | rejected | working | sold_to | lost. For 'appointment.status_changed', one of: requested | proposed | confirmed | rejected | completed | no_show.
    */
   status: string;
+  /**
+   * ISO 8601 / RFC 3339 timestamp at which the event occurred (e.g. '2026-04-30T10:15:30Z'). MUST include a timezone offset (Z or ±HH:MM).
+   */
   occurred_at: string;
   /**
    * Optional event-specific payload. Schema is event-kind-dependent and dealer-defined for v0.1.
@@ -552,6 +552,7 @@ export interface Error {
     | "UNSUPPORTED_SKILL"
     | "SCHEMA_VALIDATION_FAILED"
     | "MISSING_REQUIRED_FIELD"
+    | "INVALID_CONDITION"
     | "VEHICLE_NOT_FOUND"
     | "VEHICLE_UNAVAILABLE"
     | "CONTACT_CONSENT_REQUIRED"
@@ -574,6 +575,9 @@ export interface Error {
   details?: {
     [k: string]: any;
   };
+  /**
+   * ISO 8601 / RFC 3339 timestamp at which the dealer agent generated this error (e.g. '2026-04-30T10:15:30Z'). MUST include a timezone offset (Z or ±HH:MM).
+   */
   created_at: string;
 }
 
@@ -673,7 +677,7 @@ export interface DealerInformationRequest {
 }
 
 /**
- * Buyer/customer contact info attached to lead.* AAP request payloads (which travel inside an A2A DataPart). ADF-compatible: at least one of email or phone MUST be present when the customer block is included. When customer is present a ConsentGrant MUST also be present.
+ * Buyer/customer contact info attached to a `lead.submit.request` (which travels inside an A2A `Message.parts[].data` DataPart). At least one of email or phone MUST be present. When customer is present a ConsentGrant MUST also be present.
  */
 export type Customer = {
   [k: string]: any;
@@ -747,11 +751,11 @@ export interface ContractManifest {
 }
 
 /**
- * Explicit consent record for a single lead submission. Required whenever a `lead.*` AAP request payload (carried inside an A2A DataPart) includes customer contact info. Provides an auditable record of what the user authorized, when, and through which channels. A dealer agent MUST reject lead submissions with `CONTACT_CONSENT_REQUIRED` if a requested contact channel is not permitted by this grant.
+ * Explicit consent record for a single `lead.submit` submission. Required whenever a `lead.submit.request` includes customer contact info (which is always — `customer` is required on the unified lead). Provides an auditable record of what the user authorized, when, through which channels, and via which buyer agent. A dealer agent MUST reject lead submissions with `CONTACT_CONSENT_REQUIRED` if a contact channel it intends to use is not present in `allowed_channels`.
  */
 export interface ConsentGrant {
   /**
-   * Timestamp at which the user authorized this share.
+   * ISO 8601 / RFC 3339 timestamp at which the user authorized this share (e.g. '2026-04-30T11:05:00Z'). MUST include a timezone offset (Z or ±HH:MM).
    */
   granted_at: string;
   /**
@@ -769,98 +773,66 @@ export interface ConsentGrant {
    */
   source_agent: string;
   /**
-   * Scope of the consent. 'vehicle_inquiry' covers lead.vehicle, 'appointment' covers lead.appointment, 'general_inquiry' covers lead.general.
+   * Scope of the consent. v0.1 has a single value `lead_submission` covering the unified `lead.submit` skill (which spans general inquiries, vehicle interest, trade-in, and appointments). The request body itself shows what was actually submitted; the meaningful audit granularity is `allowed_channels`.
    *
    * @minItems 1
+   * @maxItems 1
    */
-  scope: [
-    "general_inquiry" | "vehicle_inquiry" | "appointment",
-    ...("general_inquiry" | "vehicle_inquiry" | "appointment")[]
-  ];
-}
-
-/**
- * Typed AAP response for the `lead.appointment` skill. `requested` / `proposed` indicate non-confirmed states; `confirmed` indicates an auto-booked appointment. When the dealer cannot honor any of the user's windows, `proposed_slots` MAY be populated with alternatives. Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
- */
-export interface AppointmentLeadResponse {
-  type: "lead.appointment.response";
-  data: {
-    appointment_id: string;
-    status: "requested" | "proposed" | "confirmed" | "rejected";
-    /**
-     * Present when status is 'confirmed'.
-     */
-    confirmed_window?: {
-      start: string;
-      end?: string;
-    };
-    /**
-     * Alternative dealer-proposed slots when status is 'proposed'.
-     */
-    proposed_slots?: {
-      start: string;
-      end?: string;
-    }[];
-    dealer?: {
-      name?: string;
-      phone?: string;
-    };
-  };
+  scope: ["lead_submission"];
   /**
-   * Optional contextual note from the dealer.
+   * Optional ISO 8601 / RFC 3339 timestamp after which this consent grant is no longer valid (e.g. '2027-04-30T11:05:00Z'). Useful for jurisdictions with mandatory re-consent windows (some US state TCPA-style rules cap consent at ~12 months for SMS). The dealer MUST reject `lead.submit` with `INVALID_CONSENT` if `expires_at` is in the past at the time the dealer would use the contact data.
    */
-  message?: string;
+  expires_at?: string;
 }
 
 /**
- * Typed AAP request for the `lead.appointment` skill. Submits an appointment request (test drive, showroom visit, vehicle handover, phone call, video call, or trade-in appraisal). The dealer SHOULD respond with status `requested` / `proposed` if confirmation requires manual review, or `confirmed` if the slot is auto-booked. At least one requested time window MUST be provided unless the dealer policy explicitly allows open-ended scheduling. Carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.
+ * An appointment request piggybacked on a `lead.submit.request`. The vehicle reference for the appointment is IMPLICIT — it is whatever is in the parent `vehicle_of_interest`. A standalone showroom visit can omit any vehicle. For a trade-in appraisal, the parent's `trade_in` is the vehicle being appraised.
  */
-export type AppointmentLeadRequest = {
-  [k: string]: any;
-} & {
-  type: "lead.appointment.request";
+export interface Appointment {
+  /**
+   * Kind of appointment the buyer is requesting.
+   */
   appointment_type: "test_drive" | "showroom_visit" | "handover" | "phone_call" | "video_call" | "trade_in_appraisal";
   /**
-   * Vehicles attached to this appointment. REQUIRED when appointment_type is 'test_drive' or 'handover'.
-   */
-  vehicles?: {
-    [k: string]: any;
-  }[];
-  /**
-   * One or more datetime windows the user prefers. The dealer agent MUST honor at least one or respond with 'proposed' alternatives.
+   * One or more time windows the buyer is available. Dealer agent MAY choose any (returning a `confirmed` appointment) or propose alternatives (returning a `proposed` appointment with `proposed_slots`). Each window's `start` and `end` are ISO 8601 / RFC 3339 timestamps and MUST include a timezone offset (Z or ±HH:MM).
    *
    * @minItems 1
    */
   requested_windows?: [
     {
+      /**
+       * ISO 8601 / RFC 3339 window start with timezone offset (e.g. '2026-05-03T18:00:00Z' or '2026-05-03T11:00:00-07:00').
+       */
       start: string;
+      /**
+       * Optional ISO 8601 / RFC 3339 window end. When omitted, the dealer infers the end from `duration_minutes` or its own default.
+       */
       end?: string;
     },
     ...{
+      /**
+       * ISO 8601 / RFC 3339 window start with timezone offset (e.g. '2026-05-03T18:00:00Z' or '2026-05-03T11:00:00-07:00').
+       */
       start: string;
+      /**
+       * Optional ISO 8601 / RFC 3339 window end. When omitted, the dealer infers the end from `duration_minutes` or its own default.
+       */
       end?: string;
     }[]
   ];
   /**
-   * IANA timezone (e.g. 'America/Los_Angeles') interpreting the requested windows.
+   * IANA timezone identifier (e.g. 'America/Los_Angeles') for interpreting `requested_windows`. Recommended when the buyer agent's locale differs from the dealer's.
    */
   timezone?: string;
   /**
-   * Expected duration of the appointment.
+   * Expected appointment duration in minutes. If omitted, the dealer applies its default for `appointment_type`.
    */
   duration_minutes?: number;
   /**
-   * Free-text note from the user.
+   * Free-text note from the buyer (e.g. 'I'd like to bring my partner', 'parking instructions please').
    */
-  message?: string;
-  customer?: Customer;
-  consent?: ConsentGrant;
-  /**
-   * Identifier of the buyer agent submitting the request.
-   */
-  source_agent: string;
-  submitted_at?: string;
-};
+  notes?: string;
+}
 
 /**
  * A2A v1.0-compatible agent card with the AAP automotive retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. The 'capabilities.extensions' array MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.1' for the agent to be a compliant AAP dealer agent.
@@ -935,7 +907,7 @@ export interface AgentCard {
    */
   default_output_modes?: string[];
   /**
-   * Skills exposed by this agent. AAP-compliant agents MUST declare all 7 required skills (dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.general, lead.vehicle, lead.appointment).
+   * Skills the agent actually exposes. AAP defines 5 standard skill IDs (`dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`); a compliant agent declares the subset it implements — anything from a single skill (e.g. just `inventory.search`) up to all five. AAP RECOMMENDS at least `inventory.search` plus `lead.submit` to deliver an end-to-end shopping flow, but neither is mandatory. Buyer agents MUST inspect `skills[]` to discover what is supported and MUST NOT assume any particular skill is implemented based solely on the AAP extension URI being present.
    */
   skills: Skill[];
   /**

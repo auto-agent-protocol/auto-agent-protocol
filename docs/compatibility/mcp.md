@@ -6,9 +6,9 @@ description: How AAP skills map to Model Context Protocol tools so an LLM client
 
 # MCP compatibility
 
-![MCP server wrapping all 7 AAP skills as MCP tools, sitting between an LLM client and the dealer agent](/img/mcp-wrapper.png)
+![MCP server wrapping all 5 AAP skills as MCP tools, sitting between an LLM client and the dealer agent](/img/mcp-wrapper.png)
 
-[Model Context Protocol](https://modelcontextprotocol.io) (MCP) is a tool layer between an LLM client and a host application. AAP exposes its seven skills as MCP tools so any MCP-compatible LLM client (Claude Desktop, an MCP-aware IDE, or a custom orchestrator) can call a dealer agent without learning the A2A wire format directly.
+[Model Context Protocol](https://modelcontextprotocol.io) (MCP) is a tool layer between an LLM client and a host application. AAP exposes its five skills as MCP tools so any MCP-compatible LLM client (Claude Desktop, an MCP-aware IDE, or a custom orchestrator) can call a dealer agent without learning the A2A wire format directly.
 
 The MCP server acts as a thin adapter: it accepts an MCP `tools/call` request whose `arguments` is exactly an AAP request payload, wraps it as a typed `DataPart` inside an A2A `Message`, and forwards it to the dealer agent's A2A endpoint. The MCP tool's `inputSchema` is the AAP request schema by URL — no extra wrapping, no field renaming.
 
@@ -28,9 +28,7 @@ Dots become underscores. The mapping is fixed for v0.1:
 | `inventory.facets` | `aap_inventory_facets` |
 | `inventory.search` | `aap_inventory_search` |
 | `inventory.vehicle` | `aap_inventory_vehicle` |
-| `lead.general` | `aap_lead_general` |
-| `lead.vehicle` | `aap_lead_vehicle` |
-| `lead.appointment` | `aap_lead_appointment` |
+| `lead.submit` | `aap_lead_submit` |
 
 ## Tool input is the AAP request payload
 
@@ -45,7 +43,7 @@ The MCP tool result is the AAP response payload (the same thing the dealer retur
 
 ## MCP manifest structure
 
-A complete MCP server descriptor that exposes all seven AAP skills as tools:
+A complete MCP server descriptor that exposes all five AAP skills as tools:
 
 ```json
 {
@@ -82,7 +80,7 @@ A complete MCP server descriptor that exposes all seven AAP skills as tools:
     },
     {
       "name": "aap_inventory_search",
-      "description": "Search vehicle inventory by query, make, model, trim, year, condition, price, mileage, body style, VIN, stock, features, and availability.",
+      "description": "Search vehicle inventory by query, make, model, trim, year, condition, price, mileage, body, VIN, stock, features, and availability.",
       "inputSchema": {
         "$ref": "https://autoagentprotocol.org/v0.1/schemas/inventory-search-request.schema.json"
       },
@@ -107,49 +105,23 @@ A complete MCP server descriptor that exposes all seven AAP skills as tools:
       }
     },
     {
-      "name": "aap_lead_general",
-      "description": "Submit a consented general dealership inquiry (financing question, trade-in interest, callback request, etc.).",
+      "name": "aap_lead_submit",
+      "description": "Submit a consented lead carrying customer info plus any combination of vehicle of interest, trade-in, and appointment request. Replaces the legacy lead.general / lead.vehicle / lead.appointment trio.",
       "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v0.1/schemas/general-lead-request.schema.json"
+        "$ref": "https://autoagentprotocol.org/v0.1/schemas/lead-submit-request.schema.json"
       },
       "annotations": {
-        "aap_skill_id": "lead.general",
-        "aap_request_type": "lead.general.request",
-        "aap_response_type": "lead.general.response",
-        "aap_response_schema": "https://autoagentprotocol.org/v0.1/schemas/lead-response.schema.json"
-      }
-    },
-    {
-      "name": "aap_lead_vehicle",
-      "description": "Submit a consented vehicle-specific inquiry or CRM/ADF-compatible lead for a particular VIN, stock number, or vehicle.",
-      "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v0.1/schemas/vehicle-lead-request.schema.json"
-      },
-      "annotations": {
-        "aap_skill_id": "lead.vehicle",
-        "aap_request_type": "lead.vehicle.request",
-        "aap_response_type": "lead.vehicle.response",
-        "aap_response_schema": "https://autoagentprotocol.org/v0.1/schemas/lead-response.schema.json"
-      }
-    },
-    {
-      "name": "aap_lead_appointment",
-      "description": "Submit a consented appointment request for a test drive, phone call, video call, showroom visit, vehicle handover, or trade-in appraisal.",
-      "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v0.1/schemas/appointment-lead-request.schema.json"
-      },
-      "annotations": {
-        "aap_skill_id": "lead.appointment",
-        "aap_request_type": "lead.appointment.request",
-        "aap_response_type": "lead.appointment.response",
-        "aap_response_schema": "https://autoagentprotocol.org/v0.1/schemas/appointment-lead-response.schema.json"
+        "aap_skill_id": "lead.submit",
+        "aap_request_type": "lead.submit.request",
+        "aap_response_type": "lead.submit.response",
+        "aap_response_schema": "https://autoagentprotocol.org/v0.1/schemas/lead-submit-response.schema.json"
       }
     }
   ]
 }
 ```
 
-A reference manifest is generated from `spec/v0.1/skills.yaml` at build time and published as `generated/v0.1/mcp.json`.
+A reference manifest is generated from `spec/v0.1/skills.yaml` at build time and published as `generated/v0.1/mcp-manifest.json`.
 
 ## Calling a tool
 
@@ -166,7 +138,7 @@ An MCP client invokes `tools/call` with the AAP request as `arguments`:
       "type": "inventory.search.request",
       "filters": {
         "make": ["Honda"],
-        "condition": ["used", "certified"],
+        "condition": ["used", "cpo"],
         "year_min": 2020,
         "price_max": 30000
       },

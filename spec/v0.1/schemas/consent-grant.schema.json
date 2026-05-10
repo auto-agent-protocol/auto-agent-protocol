@@ -2,13 +2,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://autoagentprotocol.org/v0.1/schemas/consent-grant.schema.json",
   "title": "ConsentGrant",
-  "description": "Explicit consent record for a single lead submission. Required whenever a `lead.*` AAP request payload (carried inside an A2A DataPart) includes customer contact info. Provides an auditable record of what the user authorized, when, and through which channels. A dealer agent MUST reject lead submissions with `CONTACT_CONSENT_REQUIRED` if a requested contact channel is not permitted by this grant.",
+  "description": "Explicit consent record for a single `lead.submit` submission. Required whenever a `lead.submit.request` includes customer contact info (which is always — `customer` is required on the unified lead). Provides an auditable record of what the user authorized, when, through which channels, and via which buyer agent. A dealer agent MUST reject lead submissions with `CONTACT_CONSENT_REQUIRED` if a contact channel it intends to use is not present in `allowed_channels`.",
   "type": "object",
   "properties": {
     "granted_at": {
       "type": "string",
       "format": "date-time",
-      "description": "Timestamp at which the user authorized this share."
+      "description": "ISO 8601 / RFC 3339 timestamp at which the user authorized this share (e.g. '2026-04-30T11:05:00Z'). MUST include a timezone offset (Z or ±HH:MM)."
     },
     "allowed_channels": {
       "type": "array",
@@ -31,12 +31,18 @@
     "scope": {
       "type": "array",
       "minItems": 1,
+      "maxItems": 1,
       "uniqueItems": true,
       "items": {
         "type": "string",
-        "enum": ["general_inquiry", "vehicle_inquiry", "appointment"]
+        "enum": ["lead_submission"]
       },
-      "description": "Scope of the consent. 'vehicle_inquiry' covers lead.vehicle, 'appointment' covers lead.appointment, 'general_inquiry' covers lead.general."
+      "description": "Scope of the consent. v0.1 has a single value `lead_submission` covering the unified `lead.submit` skill (which spans general inquiries, vehicle interest, trade-in, and appointments). The request body itself shows what was actually submitted; the meaningful audit granularity is `allowed_channels`."
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Optional ISO 8601 / RFC 3339 timestamp after which this consent grant is no longer valid (e.g. '2027-04-30T11:05:00Z'). Useful for jurisdictions with mandatory re-consent windows (some US state TCPA-style rules cap consent at ~12 months for SMS). The dealer MUST reject `lead.submit` with `INVALID_CONSENT` if `expires_at` is in the past at the time the dealer would use the contact data."
     }
   },
   "required": ["granted_at", "allowed_channels", "consent_text", "source_agent", "scope"],

@@ -26,9 +26,7 @@ const sidebars: SidebarsConfig = {
         "skills/inventory-facets",
         "skills/inventory-search",
         "skills/inventory-vehicle",
-        "skills/lead-general",
-        "skills/lead-vehicle",
-        "skills/lead-appointment",
+        "skills/lead-submit",
       ],
     },
     {

@@ -22,7 +22,7 @@
     "list_price": { "amount": 31495, "currency": "USD" },
     "offered_price": { "amount": 34239, "currency": "USD" },
     "price": { "amount": 32995, "currency": "USD" },
-    "zip_code": "94107",
+    "zip": "94107",
     "mileage": 14820,
     "photos": [
       "https://cdn.demo-toyota.example.com/inventory/dt-2611/01.jpg",

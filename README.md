@@ -4,21 +4,21 @@
 
 **The A2A v1.0 Automotive Retail Profile.**
 
-AAP is the open A2A profile that lets AI agents discover dealerships, browse inventory, and submit consented leads through typed automotive messages riding on top of [A2A v1.0](https://a2a-protocol.org). A compliant dealer agent is an A2A agent that publishes an `agent-card.json` with the AAP automotive extension URI (`https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.1`) and implements the seven required automotive skills. Buyer agents can use either A2A binding — JSON-RPC 2.0 or HTTP+JSON — to invoke the same skills with identical payloads.
+AAP is the open A2A profile that lets AI agents discover dealerships, browse inventory, and submit consented leads through typed automotive messages riding on top of [A2A v1.0](https://a2a-protocol.org). A compliant dealer agent is an A2A agent that publishes an `agent-card.json` with the AAP automotive extension URI (`https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.1`) and implements **one or more** of the five standard AAP automotive skills (a tiny used-car lot might only do `inventory.search` + `lead.submit`; a franchise dealership might do all five). Buyer agents can use either A2A binding — JSON-RPC 2.0 or HTTP+JSON — to invoke the same skills with identical payloads.
 
-![agent-card.json — the contract every AAP dealership exposes, advertising A2A v1.0 compliance, the AAP automotive extension, the seven required skills, and supported bindings](static/img/agent-card-passport.png)
+![agent-card.json — the contract every AAP dealership exposes, advertising A2A v1.0 compliance, the AAP automotive extension, the subset of AAP skills the agent implements, and supported bindings](static/img/agent-card-passport.png)
 
 ## v0.1 Scope
 
 - **Discovery** via `/.well-known/agent-card.json` (A2A-compatible)
 - **Inventory**: facets, search, vehicle detail
 - **Dealership information**: name, address, contacts, schedule, capabilities
-- **Leads**: general inquiry, vehicle-specific, appointment request
+- **Leads**: a single unified `lead.submit` accepting a consented customer plus any combination of vehicle of interest, trade-in, and appointment
 - **ADF/XML mapping** documented for legacy CRM compatibility
 
-v0.1 does **not** cover: authentication, payments, financing, RFQ/quote flows, trade-in valuations, or reservations.
+v0.1 does **not** cover: authentication beyond bearer, payments, financing, RFQ/quote flows, trade-in valuations, reservations, or international addresses (US-only).
 
-![How an AI agent buys a car — discover via /.well-known/agent-card.json, browse with inventory.search, inspect with inventory.vehicle, schedule with lead.appointment, and hand off to a CRM via lead.vehicle](static/img/buyer-journey.png)
+![How an AI agent buys a car — discover via /.well-known/agent-card.json, browse with inventory.search, inspect with inventory.vehicle, and submit a unified lead.submit carrying customer + vehicle of interest + trade-in + appointment](static/img/buyer-journey.png)
 
 ## Quick links
 
@@ -26,6 +26,16 @@ v0.1 does **not** cover: authentication, payments, financing, RFQ/quote flows, t
 - **JSON Schemas**: [`spec/v0.1/schemas/`](spec/v0.1/schemas/)
 - **Examples**: [`spec/v0.1/examples/`](spec/v0.1/examples/)
 - **OpenAPI 3.1** (built at deploy time): `https://autoagentprotocol.org/v0.1/openapi-jsonrpc.yaml`, `https://autoagentprotocol.org/v0.1/openapi-rest.yaml`
+
+## The five skills
+
+| Skill | Purpose |
+|---|---|
+| `dealer.information` | Dealership profile, address, hours, capabilities |
+| `inventory.facets` | Aggregated counts and ranges over the dealer's inventory |
+| `inventory.search` | Filtered, paginated inventory queries |
+| `inventory.vehicle` | Detail view of one specific vehicle (by VIN, stock, or vehicle_id) |
+| `lead.submit` | Unified consented lead — customer + optional(vehicle of interest, trade-in, appointment) |
 
 ## Packages
 
@@ -89,7 +99,7 @@ Released versions are immutable. The `latest` URL always points to the highest r
 |---|---|---|
 | Transport / data model (BASE) | **[A2A v1.0](https://a2a-protocol.org)** | The base protocol AAP profiles. Every AAP message travels inside `Message.parts[].data` as a typed `DataPart`. AAP does not invent a wire format. |
 | Adjacent / complementary | **ACP** (Agentic Commerce), **MCP** (Model Context Protocol) | ACP covers commerce checkout (out of scope for AAP). MCP can expose AAP skills as LLM tools — AAP ships an official MCP manifest in [`@autoagentprotocol/schemas`](packages/schemas). |
-| Legacy / target system | **ADF/XML** | The 25-year-old dealer-CRM lead format. `lead.vehicle` is field-by-field mappable to ADF/XML so existing CRMs ingest AAP leads without code changes. |
+| Legacy / target system | **ADF/XML** | The 25-year-old dealer-CRM lead format. `lead.submit` is field-by-field mappable to ADF/XML so existing CRMs ingest AAP leads without code changes. |
 
 ## License
 

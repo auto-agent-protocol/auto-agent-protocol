@@ -2,139 +2,74 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://autoagentprotocol.org/v0.1/schemas/vehicle.schema.json",
   "title": "Vehicle",
-  "description": "Minimal representation of a single vehicle as exposed by inventory.search results. The same shape is the base type for inventory.vehicle responses (VehicleDetail), which freely allows additional dealer-specific properties. Carried inside the typed AAP response payload (`inventory.search.response` and `inventory.vehicle.response`) which itself rides inside an A2A `Message.parts[].data` DataPart.",
+  "description": "Unified vehicle interface used everywhere a vehicle is referenced — inventory results, vehicle_of_interest, and trade_in. The same shape covers both 'a vehicle the buyer wants to purchase' and 'a vehicle the buyer wants to trade in' so buyer agents reuse one type.\n\nField semantics differ by context:\n- For vehicle_of_interest, `condition` MUST be one of `new`, `used`, `cpo`. Pricing fields (`msrp`, `list_price`, `offered_price`, `price`) describe the dealer's listing.\n- For trade_in, `condition` MUST be one of `excellent`, `good`, `fair`, `poor`. Pricing fields are typically absent on the request side and may be populated by the dealer's appraisal response.\n\nContext-dependent constraints (which condition values are valid, which identification fields are required) are enforced at the using request schema (e.g. `lead.submit.request`).\n\nNo fields are required at this base schema. `additionalProperties: true` allows inventory.vehicle responses to carry richer dealer-specific fields (drivetrain, fuel, photos, VDP URL, etc.) without schema changes.",
   "type": "object",
   "properties": {
-    "dealer_id": {
-      "type": "string",
-      "description": "Stable identifier of the dealer that owns this listing."
-    },
-    "vehicle_id": {
-      "type": "string",
-      "description": "Optional dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit)."
-    },
     "vin": {
       "type": "string",
       "pattern": "^[A-HJ-NPR-Z0-9]{17}$",
-      "description": "Vehicle Identification Number (17 chars, ISO 3779)."
-    },
-    "stock": {
-      "type": "string",
-      "description": "Dealer's stock number for this unit."
+      "description": "Vehicle Identification Number (17 chars, ISO 3779). Optional on trade-ins; recommended on inventory listings of used vehicles."
     },
     "year": {
       "type": "integer",
       "minimum": 1900,
       "maximum": 2100,
-      "description": "Model year."
+      "description": "Model year (e.g. 2024)."
     },
     "make": {
       "type": "string",
-      "description": "Vehicle make / manufacturer brand (e.g. Honda, BMW, Ford)."
+      "description": "Vehicle make / manufacturer brand (e.g. 'Honda', 'BMW', 'Ford')."
     },
     "model": {
       "type": "string",
-      "description": "Vehicle model name (e.g. CR-V, 3 Series, F-150)."
+      "description": "Vehicle model name (e.g. 'CR-V', '3 Series', 'F-150')."
     },
     "trim": {
       "type": "string",
-      "description": "Trim level (e.g. EX-L, M Sport, Lariat)."
-    },
-    "transmission": {
-      "type": "string",
-      "description": "Transmission type as text (e.g. 'automatic', 'manual', '8-speed automatic')."
-    },
-    "exterior_color": {
-      "type": "string",
-      "description": "Free-text exterior color name."
-    },
-    "interior_color": {
-      "type": "string",
-      "description": "Free-text interior color or upholstery name."
+      "description": "Trim level (e.g. 'EX-L', 'M Sport', 'Lariat')."
     },
     "condition": {
       "type": "string",
-      "enum": ["new", "used", "certified"],
-      "description": "Sale condition. 'certified' implies a manufacturer-backed certified pre-owned program."
-    },
-    "description": {
-      "type": "string",
-      "description": "Optional human-readable description / dealer notes for marketing copy."
-    },
-    "driveline": {
-      "type": "string",
-      "description": "Drivetrain layout (e.g. 'fwd', 'rwd', 'awd', '4wd')."
-    },
-    "engine": {
-      "type": "string",
-      "description": "Engine description (e.g. '2.0L Turbo I4', '3.5L V6 Hybrid')."
-    },
-    "fuel": {
-      "type": "string",
-      "description": "Fuel type (e.g. 'gas', 'diesel', 'hybrid', 'phev', 'bev')."
-    },
-    "mpg": {
-      "type": "object",
-      "description": "Fuel economy estimates. Omit for fully electric vehicles or use 'electric_range_mi' instead.",
-      "properties": {
-        "city": { "type": "number" },
-        "highway": { "type": "number" }
-      },
-      "additionalProperties": false
-    },
-    "electric_range_mi": {
-      "type": "number",
-      "description": "Estimated electric range in miles, for BEV and PHEV vehicles."
+      "enum": ["new", "used", "cpo", "excellent", "good", "fair", "poor"],
+      "description": "Combined condition enum spanning both sale-condition and trade-in-condition vocabularies. For vehicle_of_interest use one of `new` | `used` | `cpo` (Certified Pre-Owned). For trade_in use one of `excellent` | `good` | `fair` | `poor`. The using request schema enforces the correct subset by context."
     },
     "msrp": {
       "$ref": "./_primitives/money.schema.json",
-      "description": "Manufacturer's Suggested Retail Price (sticker price)."
-    },
-    "list_price": {
-      "$ref": "./_primitives/money.schema.json",
-      "description": "Dealer's advertised list price; the base price of the vehicle BEFORE incentives, taxes, or fees."
-    },
-    "offered_price": {
-      "$ref": "./_primitives/money.schema.json",
-      "description": "Regional price equal to list_price plus applicable taxes for the buyer's zip_code, when the dealer enables desking. Present only if a zip_code is supplied AND the dealer supports desking."
+      "description": "Manufacturer's Suggested Retail Price (sticker price). Inventory context."
     },
     "price": {
       "$ref": "./_primitives/money.schema.json",
-      "description": "FTC-emphasized FINAL out-the-door price after all incentives, mandatory fees, and required add-ons. Per FTC enforcement (2026 dealership warnings + CARS Rule), this field MUST reflect the total amount the buyer would pay; advertising a 'price' that excludes required fees, conditions on dealer financing, or omits required add-ons is a violation."
+      "description": "FTC-emphasized FINAL out-the-door price after all incentives, mandatory fees, and required add-ons. Per FTC enforcement (CARS Rule), this field MUST reflect the total amount the buyer would pay; advertising a 'price' that excludes required fees or omits required add-ons is a violation. Inventory context."
     },
-    "zip_code": {
+    "list_price": {
+      "$ref": "./_primitives/money.schema.json",
+      "description": "Dealer's advertised list price; the base price BEFORE incentives, taxes, or fees. Inventory context."
+    },
+    "offered_price": {
+      "$ref": "./_primitives/money.schema.json",
+      "description": "Regional price equal to list_price plus applicable taxes for the buyer's `zip`, when the dealer enables desking. Present only if a `zip` is supplied AND the dealer supports regional pricing. Inventory context."
+    },
+    "zip": {
       "type": "string",
-      "description": "Buyer ZIP/postal code used to compute regional pricing fields (offered_price). Optional; when absent, regional pricing fields MUST be omitted."
+      "description": "Buyer ZIP code used to compute regional pricing fields (`offered_price`). Optional; when absent, regional pricing fields MUST be omitted."
+    },
+    "stock": {
+      "type": "string",
+      "description": "Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts."
     },
     "mileage": {
       "type": "integer",
       "minimum": 0,
-      "description": "Odometer reading in miles."
+      "description": "Odometer reading in miles. Required for trade-ins; typical on used inventory."
     },
-    "photos": {
-      "type": "array",
-      "items": { "type": "string", "format": "uri" },
-      "description": "Public URLs of vehicle photos, ordered by relevance."
-    },
-    "vdp_url": {
+    "body": {
       "type": "string",
-      "format": "uri",
-      "description": "Public Vehicle Detail Page (VDP) URL on the dealer's website."
+      "description": "Body style as text (e.g. 'sedan', 'suv', 'truck', 'coupe', 'hatchback', 'wagon', 'minivan', 'convertible')."
     },
-    "status": {
+    "transmission": {
       "type": "string",
-      "description": "Free-text availability status (e.g. 'In Stock', 'In Transit', 'Pending', 'Sold', 'Reserved'). Spec recommends but does not enforce a controlled vocabulary."
-    },
-    "notes": {
-      "type": "string",
-      "description": "Dealer notes (e.g. 'recently arrived', 'service history available')."
-    },
-    "last_verified_at": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Timestamp at which the dealer last verified availability/price/status of this listing. REQUIRED when the agent makes availability claims."
+      "description": "Transmission type as text (e.g. 'automatic', 'manual', '8-speed automatic', 'cvt')."
     }
   },
-  "required": ["dealer_id", "year", "make", "model", "condition", "status"],
   "additionalProperties": true
 }

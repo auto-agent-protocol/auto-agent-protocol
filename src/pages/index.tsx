@@ -45,9 +45,9 @@ const features = [
       "AAP is a strict A2A v1.0 profile: typed automotive messages ride on top of A2A's data layer. Use the JSON-RPC or HTTP+JSON binding — both work identically.",
   },
   {
-    title: "Seven Skills",
+    title: "Five Skills",
     description:
-      "dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.general, lead.vehicle, lead.appointment. Everything a BDC needs.",
+      "dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit. Everything a BDC needs in one unified contract.",
   },
   {
     title: "FTC-Aware Pricing",
@@ -62,7 +62,7 @@ const features = [
   {
     title: "ADF-Mappable Leads",
     description:
-      "lead.vehicle is field-by-field convertible to ADF/XML, so any compliant lead drops cleanly into existing dealer CRMs without bespoke integration.",
+      "lead.submit is field-by-field convertible to ADF/XML, so any compliant lead drops cleanly into existing dealer CRMs without bespoke integration.",
   },
   {
     title: "MCP Ready",
@@ -94,13 +94,14 @@ function Skills() {
       <div className="container">
         <div className="row">
           <div className="col col--5">
-            <h2>Seven skills, one contract</h2>
+            <h2>Five skills, one contract</h2>
             <p>
-              AAP standardizes the seven skills every dealership BDC actually
-              needs — from anonymous inventory queries to ADF-mappable
-              vehicle-specific leads to test-drive appointment requests. No
-              quotes, no checkout, no payment scope. Just the read-and-lead
-              lifecycle, typed and validated.
+              AAP standardizes the five skills every dealership BDC actually
+              needs — anonymous inventory queries plus a single unified{" "}
+              <code>lead.submit</code> that bundles vehicle interest, trade-in,
+              and appointment scheduling in one consented call. No quotes, no
+              checkout, no payment scope. Just the read-and-lead lifecycle,
+              typed and validated.
             </p>
             <Link to="/docs/v0.1/intro" className="button button--primary">
               Browse the skills
@@ -109,7 +110,7 @@ function Skills() {
           <div className="col col--7">
             <img
               src="/img/skills-overview.png"
-              alt="Honeycomb of seven AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.general, lead.vehicle, lead.appointment"
+              alt="Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit"
               className={styles.fullImage}
             />
           </div>
@@ -183,7 +184,7 @@ function Protocols() {
           <div className="col col--3">
             <h4>ADF/XML</h4>
             <p>
-              Legacy bridge. <code>lead.vehicle</code> maps field-by-field to
+              Legacy bridge. <code>lead.submit</code> maps field-by-field to
               ADF/XML for existing dealer CRMs.
             </p>
           </div>

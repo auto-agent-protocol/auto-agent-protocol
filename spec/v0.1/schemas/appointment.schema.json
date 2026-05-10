@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/appointment.schema.json",
+  "title": "Appointment",
+  "description": "An appointment request piggybacked on a `lead.submit.request`. The vehicle reference for the appointment is IMPLICIT — it is whatever is in the parent `vehicle_of_interest`. A standalone showroom visit can omit any vehicle. For a trade-in appraisal, the parent's `trade_in` is the vehicle being appraised.",
+  "type": "object",
+  "properties": {
+    "appointment_type": {
+      "type": "string",
+      "enum": ["test_drive", "showroom_visit", "handover", "phone_call", "video_call", "trade_in_appraisal"],
+      "description": "Kind of appointment the buyer is requesting."
+    },
+    "requested_windows": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One or more time windows the buyer is available. Dealer agent MAY choose any (returning a `confirmed` appointment) or propose alternatives (returning a `proposed` appointment with `proposed_slots`). Each window's `start` and `end` are ISO 8601 / RFC 3339 timestamps and MUST include a timezone offset (Z or ±HH:MM).",
+      "items": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 / RFC 3339 window start with timezone offset (e.g. '2026-05-03T18:00:00Z' or '2026-05-03T11:00:00-07:00')."
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Optional ISO 8601 / RFC 3339 window end. When omitted, the dealer infers the end from `duration_minutes` or its own default."
+          }
+        },
+        "required": ["start"],
+        "additionalProperties": false
+      }
+    },
+    "timezone": {
+      "type": "string",
+      "description": "IANA timezone identifier (e.g. 'America/Los_Angeles') for interpreting `requested_windows`. Recommended when the buyer agent's locale differs from the dealer's."
+    },
+    "duration_minutes": {
+      "type": "integer",
+      "minimum": 15,
+      "description": "Expected appointment duration in minutes. If omitted, the dealer applies its default for `appointment_type`."
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Free-text note from the buyer (e.g. 'I'd like to bring my partner', 'parking instructions please')."
+    }
+  },
+  "required": ["appointment_type"],
+  "additionalProperties": false
+}

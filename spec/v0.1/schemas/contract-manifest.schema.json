@@ -78,9 +78,7 @@
             "inventory.facets",
             "inventory.search",
             "inventory.vehicle",
-            "lead.general",
-            "lead.vehicle",
-            "lead.appointment"
+            "lead.submit"
           ]
         },
         "request_schema": { "type": "string", "format": "uri" },

@@ -53,7 +53,7 @@ When `filters` is absent, facets are aggregated over the dealer's entire invento
     "transmissions":   [{ "value": "string", "count": 0 }],
     "fuels":           [{ "value": "string", "count": 0 }],
     "drivelines":      [{ "value": "string", "count": 0 }],
-    "body_types":      [{ "value": "string", "count": 0 }],
+    "bodies":          [{ "value": "string", "count": 0 }],
     "exterior_colors": [{ "value": "string", "count": 0 }],
     "interior_colors": [{ "value": "string", "count": 0 }],
     "statuses":        [{ "value": "string", "count": 0 }],

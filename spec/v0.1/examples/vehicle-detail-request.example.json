@@ -1,5 +1,5 @@
 {
   "type": "inventory.vehicle.request",
   "vin": "1HGCY2F57RA000001",
-  "zip_code": "94107"
+  "zip": "94107"
 }

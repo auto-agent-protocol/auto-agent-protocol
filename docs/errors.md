@@ -44,6 +44,7 @@ The 11 codes, their meaning, recommended HTTP status, recommended JSON-RPC code,
 | `UNSUPPORTED_SKILL` | The agent does not implement this skill. | 404 | -32601 (Method not found) | `false` |
 | `SCHEMA_VALIDATION_FAILED` | Request body fails JSON Schema validation. | 422 | -32602 (Invalid params) | `false` |
 | `MISSING_REQUIRED_FIELD` | A specifically required field is absent. | 422 | -32602 (Invalid params) | `false` |
+| `INVALID_CONDITION` | `vehicle_of_interest.condition` is in the trade-in vocabulary, or `trade_in.condition` is in the sale-condition vocabulary. | 422 | -32602 (Invalid params) | `false` |
 | `VEHICLE_NOT_FOUND` | The supplied `vin` / `stock` / `vehicle_id` does not match any listing. | 404 | -32000 (Server error) | `false` |
 | `VEHICLE_UNAVAILABLE` | The vehicle exists but is no longer available (e.g. sold). | 409 | -32000 (Server error) | `false` |
 | `CONTACT_CONSENT_REQUIRED` | `customer` info present without `consent`, or follow-up channel not in `consent.allowed_channels`. | 403 | -32000 (Server error) | `false` |
@@ -59,7 +60,7 @@ The 11 codes, their meaning, recommended HTTP status, recommended JSON-RPC code,
 
 ### `UNSUPPORTED_SKILL`
 
-Returned when a buyer agent calls a skill id the dealer agent does not implement. AAP-compliant dealers implement all seven skills, so this code is rare in practice. It is intended for forward-compat scenarios where future AAP versions add skills not present in v0.1.
+Returned when a buyer agent calls a skill id the dealer agent does not implement. AAP-compliant dealers implement all five skills, so this code is rare in practice. It is intended for forward-compat scenarios where future AAP versions add skills not present in v0.1.
 
 ### `SCHEMA_VALIDATION_FAILED`
 
@@ -67,11 +68,15 @@ Returned when the request body does not satisfy the AAP request schema (missing 
 
 ### `MISSING_REQUIRED_FIELD`
 
-Returned when a specifically required field is absent. This overlaps with `SCHEMA_VALIDATION_FAILED`; dealer agents MAY use either, but `MISSING_REQUIRED_FIELD` is preferred when the issue is a single missing required field rather than a structural validation problem (e.g. a `lead.appointment` of type `test_drive` with no `vehicles[]`).
+Returned when a specifically required field is absent. This overlaps with `SCHEMA_VALIDATION_FAILED`; dealer agents MAY use either, but `MISSING_REQUIRED_FIELD` is preferred when the issue is a single missing required field rather than a structural validation problem (e.g. a `lead.submit` request whose `appointment.appointment_type` is `test_drive` but no `vehicle_of_interest` is provided).
+
+### `INVALID_CONDITION`
+
+Returned when the `condition` value is set to an item from the wrong vocabulary for its context: `vehicle_of_interest.condition` MUST be one of `new` | `used` | `cpo`, and `trade_in.condition` MUST be one of `excellent` | `good` | `fair` | `poor`. The base `Vehicle` schema accepts the union of both vocabularies because the same shape is used in inventory results too; `lead.submit` enforces the per-context subset and rejects with `INVALID_CONDITION` when violated.
 
 ### `VEHICLE_NOT_FOUND`
 
-Returned by `inventory.vehicle` (or by `lead.vehicle` / `lead.appointment` when a vehicle reference does not match) when none of the supplied identifiers (`vin`, `stock`, `vehicle_id`, year+make+model) match a listing.
+Returned by `inventory.vehicle` (or by `lead.submit` when `vehicle_of_interest` does not match) when none of the supplied identifiers (`vin`, `stock`, `vehicle_id`, year+make+model) match a listing.
 
 ### `VEHICLE_UNAVAILABLE`
 
@@ -79,15 +84,15 @@ Returned when the listing existed but is no longer available — e.g. status cha
 
 ### `CONTACT_CONSENT_REQUIRED`
 
-Returned when a `lead.*` request includes `customer` but no `consent`, or when the `consent.allowed_channels[]` does not include the channel the dealer's process needs to use for follow-up. See [Behavior rules](./behavior-rules.md).
+Returned when a `lead.submit` request omits `consent`, or when the `consent.allowed_channels[]` does not include the channel the dealer's process needs to use for follow-up. See [Behavior rules](./behavior-rules.md).
 
 ### `INVALID_CONSENT`
 
-Returned when `consent` is structurally present but unusable: e.g. `consent.scope[]` does not include the required scope (`general_inquiry` for `lead.general`, `vehicle_inquiry` for `lead.vehicle`, `appointment` for `lead.appointment`), or `consent.granted_at` is in the future, or `consent_text` is empty.
+Returned when `consent` is structurally present but unusable: e.g. `consent.scope[]` is not exactly `["lead_submission"]`, or `consent.granted_at` is in the future, or `consent_text` is empty.
 
 ### `APPOINTMENT_TIME_UNAVAILABLE`
 
-Returned by `lead.appointment` when none of the user's `requested_windows[]` can be honored AND the dealer has no `proposed_slots` to offer. Dealers SHOULD prefer `status: "proposed"` with alternative slots over this error whenever possible.
+Returned by `lead.submit` when an `appointment` block was included, none of the user's `requested_windows[]` can be honored, AND the dealer has no `proposed_slots` to offer. Dealers SHOULD prefer `data.appointment.status: "proposed"` with alternative slots over this error whenever possible. The lead itself MAY still be `received` even when the appointment portion fails.
 
 ### `AUTH_REQUIRED`
 
@@ -170,18 +175,18 @@ Content-Type: application/json
 
 ### Consent-required example
 
-A `lead.vehicle` request with `customer` but no `consent`:
+A `lead.submit` request with `customer` but no `consent`:
 
 ```json
 {
   "type": "aap.error",
   "error_id": "err_01HZ9CONSENT01",
   "code": "CONTACT_CONSENT_REQUIRED",
-  "message": "Customer info present but no ConsentGrant. Provide a 'consent' block with scope including 'vehicle_inquiry'.",
+  "message": "Customer info present but no ConsentGrant. Provide a 'consent' block with scope ['lead_submission'].",
   "retryable": false,
   "details": {
     "missing": "consent",
-    "expected_scope": "vehicle_inquiry"
+    "expected_scope": "lead_submission"
   },
   "created_at": "2026-04-30T10:15:45Z"
 }
