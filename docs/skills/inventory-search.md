@@ -32,11 +32,11 @@ AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi
 | `make` | string[] | yes | — | Vehicle makes (e.g. `["Honda", "BMW"]`). |
 | `model` | string[] | yes | — | Vehicle models. |
 | `trim` | string[] | yes | — | Trim levels. |
-| `condition` | enum[] | yes | — | Subset of `["new", "used", "certified"]`. |
+| `condition` | enum[] | yes | — | Subset of `["new", "used", "cpo"]`. |
 | `transmission` | string[] | yes | — | Free-text transmission types. |
 | `fuel` | string[] | yes | — | Free-text fuel types. |
 | `driveline` | string[] | yes | — | Drivetrain layouts. |
-| `body_type` | string[] | yes | — | Body types (e.g. sedan, suv). |
+| `body` | string[] | yes | — | Body types (e.g. sedan, suv). |
 | `exterior_color` | string[] | yes | — | Free-text colors. |
 | `interior_color` | string[] | yes | — | Free-text colors. |
 | `year_min` / `year_max` | integer | — | yes | Inclusive year range. |
@@ -106,7 +106,7 @@ AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi
 | `data.vehicles[]` | `Vehicle[]` | yes | Listings in the requested order. |
 | `data.facets` | `Facets` | no | OPTIONAL embedded aggregation over the matching set. |
 
-Each `Vehicle` MUST include `dealer_id`, `year`, `make`, `model`, `condition`, and `status`. `vin`, `stock`, and `vehicle_id` SHOULD be present (and a vehicle detail response SHOULD include `vin` or `stock`). `last_verified_at` MUST be present whenever the dealer is making availability claims — see [Behavior rules](../behavior-rules.md). Vehicle `status` is **free-text** (e.g. "In Stock", "In Transit", "Pending", "Sold", "Reserved"); known-sold vehicles MUST NOT be returned by `inventory.search`.
+Each `Vehicle` MAY include `dealer_id`, `vehicle_id`, `vin`, `stock`, `year`, `make`, `model`, `trim`, `condition` (`new` | `used` | `cpo` for inventory contexts), `body`, `transmission`, `mileage`, `msrp`, `list_price`, `offered_price`, `price`, `zip`, and `status`. The base Vehicle schema declares all of these as optional and `additionalProperties: true`, so inventory responses MAY also include rich fields like `photos`, `vdp_url`, `driveline`, `engine`, `fuel`, `mpg`, `electric_range_mi`, `exterior_color`, `interior_color`, `description`, `notes`, and `last_verified_at` (documented on `VehicleDetail`). `last_verified_at` MUST be present whenever the dealer is making availability claims — see [Behavior rules](../behavior-rules.md). Vehicle `status` is **free-text** (e.g. "In Stock", "In Transit", "Pending", "Sold", "Reserved"); known-sold vehicles MUST NOT be returned by `inventory.search`.
 
 ## Full example
 
@@ -119,7 +119,7 @@ A buyer agent searches for certified or used Hondas from 2020 onward, under $30,
   "type": "inventory.search.request",
   "filters": {
     "make": ["Honda"],
-    "condition": ["used", "certified"],
+    "condition": ["used", "cpo"],
     "year_min": 2020,
     "price_max": 30000
   },
@@ -147,11 +147,11 @@ A buyer agent searches for certified or used Hondas from 2020 onward, under $30,
         "make": "Honda",
         "model": "Civic",
         "trim": "EX",
-        "condition": "certified",
+        "condition": "cpo",
         "transmission": "automatic",
         "fuel": "gas",
         "driveline": "fwd",
-        "body_type": "sedan",
+        "body": "sedan",
         "exterior_color": "Crystal Black Pearl",
         "mileage": 22150,
         "list_price": { "amount": 24990, "currency": "USD" },
@@ -175,7 +175,7 @@ A buyer agent searches for certified or used Hondas from 2020 onward, under $30,
         "transmission": "automatic",
         "fuel": "hybrid",
         "driveline": "fwd",
-        "body_type": "sedan",
+        "body": "sedan",
         "list_price": { "amount": 27990, "currency": "USD" },
         "price":      { "amount": 29990, "currency": "USD" },
         "status": "In Transit",
@@ -196,4 +196,4 @@ Note that vehicle 2 has only `stock` and `vehicle_id` (no VIN yet, since it is i
 
 ## Anonymous search by default
 
-AAP RECOMMENDS that buyer agents send `privacy.anonymous: true` on every `inventory.search` call. User identity is reserved for the moment a lead is actually submitted (see [`lead.vehicle`](./lead-vehicle.md)). Dealers MUST support anonymous `inventory.search` unless their agent card and contract manifest explicitly state otherwise.
+AAP RECOMMENDS that buyer agents send `privacy.anonymous: true` on every `inventory.search` call. User identity is reserved for the moment a lead is actually submitted (see [`lead.submit`](./lead-submit.md)). Dealers MUST support anonymous `inventory.search` unless their agent card and contract manifest explicitly state otherwise.

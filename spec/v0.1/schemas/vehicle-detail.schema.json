@@ -2,7 +2,78 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://autoagentprotocol.org/v0.1/schemas/vehicle-detail.schema.json",
   "title": "VehicleDetail",
-  "description": "Extended vehicle representation returned by inventory.vehicle. Inherits all Vehicle fields and explicitly allows additional dealer-specific properties (e.g. equipment, history reports, certification details).",
+  "description": "Extended vehicle representation returned by `inventory.vehicle`. Inherits all base Vehicle fields and explicitly declares the rich, dealer-side properties that go beyond the unified Vehicle interface used in lead.submit. `additionalProperties: true` lets dealers carry further site-specific equipment, history-report links, or certification details without schema changes.",
   "allOf": [{ "$ref": "./vehicle.schema.json" }],
+  "type": "object",
+  "properties": {
+    "dealer_id": {
+      "type": "string",
+      "description": "Stable identifier of the dealer that owns this listing."
+    },
+    "vehicle_id": {
+      "type": "string",
+      "description": "Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit)."
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description / dealer marketing copy."
+    },
+    "driveline": {
+      "type": "string",
+      "description": "Drivetrain layout (e.g. 'fwd', 'rwd', 'awd', '4wd')."
+    },
+    "engine": {
+      "type": "string",
+      "description": "Engine description (e.g. '2.0L Turbo I4', '3.5L V6 Hybrid')."
+    },
+    "fuel": {
+      "type": "string",
+      "description": "Fuel type (e.g. 'gas', 'diesel', 'hybrid', 'phev', 'bev')."
+    },
+    "mpg": {
+      "type": "object",
+      "description": "Fuel economy estimates. Omit for fully electric vehicles or use 'electric_range_mi' instead.",
+      "properties": {
+        "city": { "type": "number" },
+        "highway": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "electric_range_mi": {
+      "type": "number",
+      "description": "Estimated electric range in miles, for BEV and PHEV vehicles."
+    },
+    "exterior_color": {
+      "type": "string",
+      "description": "Free-text exterior color name."
+    },
+    "interior_color": {
+      "type": "string",
+      "description": "Free-text interior color or upholstery name."
+    },
+    "photos": {
+      "type": "array",
+      "items": { "type": "string", "format": "uri" },
+      "description": "Public URLs of vehicle photos, ordered by relevance."
+    },
+    "vdp_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Public Vehicle Detail Page (VDP) URL on the dealer's website."
+    },
+    "status": {
+      "type": "string",
+      "description": "Free-text availability status (e.g. 'In Stock', 'In Transit', 'Pending', 'Sold', 'Reserved'). Recommended but not enforced as a controlled vocabulary."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Dealer notes (e.g. 'recently arrived', 'service history available')."
+    },
+    "last_verified_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339 timestamp (with timezone offset) at which the dealer last verified availability/price/status of this listing. REQUIRED when the agent makes availability claims (e.g. '2026-04-30T08:42:00Z')."
+    }
+  },
   "additionalProperties": true
 }

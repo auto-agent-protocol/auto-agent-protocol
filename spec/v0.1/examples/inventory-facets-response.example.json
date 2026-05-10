@@ -39,7 +39,7 @@
     ],
     "conditions": [
       { "value": "used", "count": 218 },
-      { "value": "certified", "count": 84 },
+      { "value": "cpo", "count": 84 },
       { "value": "new", "count": 48 }
     ],
     "transmissions": [
@@ -59,7 +59,7 @@
       { "value": "rwd", "count": 18 },
       { "value": "4wd", "count": 12 }
     ],
-    "body_types": [
+    "bodies": [
       { "value": "suv", "count": 174 },
       { "value": "sedan", "count": 102 },
       { "value": "truck", "count": 28 },

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://autoagentprotocol.org/v0.1/schemas/customer.schema.json",
   "title": "Customer",
-  "description": "Buyer/customer contact info attached to lead.* AAP request payloads (which travel inside an A2A DataPart). ADF-compatible: at least one of email or phone MUST be present when the customer block is included. When customer is present a ConsentGrant MUST also be present.",
+  "description": "Buyer/customer contact info attached to a `lead.submit.request` (which travels inside an A2A `Message.parts[].data` DataPart). At least one of email or phone MUST be present. When customer is present a ConsentGrant MUST also be present.",
   "type": "object",
   "properties": {
     "first_name": {
@@ -30,7 +30,7 @@
     },
     "address": {
       "$ref": "./_primitives/address.schema.json",
-      "description": "Optional postal address (used for residency, registration, or remote delivery)."
+      "description": "Optional postal address (US-only in v0.1; used for residency, registration, or remote delivery)."
     }
   },
   "required": ["first_name", "last_name"],

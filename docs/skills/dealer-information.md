@@ -101,11 +101,10 @@ A complete response from a public dealer:
     "trade_name": "Demo Toyota",
     "brands": ["Toyota"],
     "address": {
-      "line1": "100 Market St",
+      "address_line_1": "100 Market St",
       "city": "San Francisco",
-      "region_code": "CA",
-      "postal_code": "94105",
-      "country_code": "US"
+      "state": "CA",
+      "zip": "94105"
     },
     "geo": { "latitude": 37.7935, "longitude": -122.3946 },
     "phones": [

@@ -39,7 +39,7 @@ A2A clients and servers can mix and match: any abstract operation can be called 
 
 AAP is a layer 1 profile. It defines:
 
-1. **Required skills.** Seven `skills[].id` values an AAP-compliant agent card MUST advertise: `dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.general`, `lead.vehicle`, `lead.appointment`.
+1. **Standard skill vocabulary.** Five canonical `skills[].id` values an AAP-compliant agent card draws from: `dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`. An agent declares the subset it actually implements (one or more); none is individually mandatory. AAP RECOMMENDS at least `inventory.search` + `lead.submit` for an end-to-end shopping flow.
 2. **Typed `DataPart` payloads.** For each skill, an exact request and response JSON Schema. Each payload includes a `type` field whose value is `<scope>.<thing>.request` or `<scope>.<thing>.response` (e.g. `inventory.search.request`). The AAP version is announced once via the agent-card extension URI; it is not repeated on the wire.
 3. **An extension URI.** `https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.1`, declared in `capabilities.extensions[]` of the agent card.
 4. **A machine-readable contract manifest.** Published at `/.well-known/auto-agent-contract.json`, linked from the agent card via the extension's `params.manifest_url`.
@@ -85,7 +85,7 @@ A full A2A `Message` carrying an AAP request:
         "type": "inventory.search.request",
         "filters": {
           "make": ["Honda"],
-          "condition": ["used", "certified"],
+          "condition": ["used", "cpo"],
           "year_min": 2020,
           "price_max": 30000
         },
@@ -122,7 +122,7 @@ The dealer agent replies with an A2A `Message` containing the AAP response:
               "make": "Honda",
               "model": "Civic",
               "trim": "EX",
-              "condition": "certified",
+              "condition": "cpo",
               "list_price": { "amount": 24990, "currency": "USD" },
               "price": { "amount": 26780, "currency": "USD" },
               "status": "In Stock",
@@ -156,7 +156,7 @@ AAP layers two more pieces on top of the base A2A surface:
 
 | Piece | Where it lives | Purpose |
 |---|---|---|
-| Agent card with AAP extension | `/.well-known/agent-card.json` | A2A discovery; declares the AAP extension URI and lists the seven required skills. |
+| Agent card with AAP extension | `/.well-known/agent-card.json` | A2A discovery; declares the AAP extension URI and lists the subset of AAP skills the agent implements. |
 | Contract manifest | `/.well-known/auto-agent-contract.json` | Machine-readable per-skill schema URLs and consent/anonymous policy for buyer-agent planning. |
 | Binding sections | A2A Sections 9 and 11 | How AAP DataParts ride inside JSON-RPC 2.0 and HTTP+JSON envelopes. |
 

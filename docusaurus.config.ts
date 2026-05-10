@@ -124,7 +124,7 @@ const config: Config = {
             { label: "JSON-RPC binding", to: "/docs/v0.1/bindings/json-rpc" },
             { label: "REST binding", to: "/docs/v0.1/bindings/rest" },
             { label: "Inventory search", to: "/docs/v0.1/skills/inventory-search" },
-            { label: "Vehicle lead", to: "/docs/v0.1/skills/lead-vehicle" },
+            { label: "Submit lead", to: "/docs/v0.1/skills/lead-submit" },
           ],
         },
         {

@@ -35,7 +35,7 @@ Concretely:
 
 - `https://autoagentprotocol.org/v0.1/schemas/<file>.schema.json` does not change after release.
 - `https://autoagentprotocol.org/v0.1/openapi.yaml` does not change after release.
-- The set of `data.type` identifiers defined in v0.1 (e.g. `inventory.search.request`, `lead.appointment.response`) does not grow or change.
+- The set of `data.type` identifiers defined in v0.1 (e.g. `inventory.search.request`, `lead.submit.response`) does not grow or change.
 - Documentation prose at `https://autoagentprotocol.org/docs/v0.1/` MAY receive editorial fixes, but cannot change normative content.
 
 ## The `latest` alias

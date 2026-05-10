@@ -19,9 +19,9 @@
       "type": "string",
       "description": "Dealer-internal vehicle identifier."
     },
-    "zip_code": {
+    "zip": {
       "type": "string",
-      "description": "Optional buyer ZIP/postal code; when provided, the dealer MAY compute the regional offered_price field."
+      "description": "Optional buyer ZIP code; when provided, the dealer MAY compute the regional offered_price field."
     }
   },
   "required": ["type"],

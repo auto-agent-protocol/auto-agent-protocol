@@ -18,13 +18,13 @@ The extension is identified by a single URI:
 https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.1
 ```
 
-A dealer agent declares itself AAP-compliant by listing this URI in `capabilities.extensions[]` of its A2A agent card and by implementing the seven required AAP skills.
+A dealer agent declares itself AAP-compliant by listing this URI in `capabilities.extensions[]` of its A2A agent card and by implementing **one or more** of the five standard AAP automotive skills. Agents pick the subset they support; AAP RECOMMENDS at least `inventory.search` + `lead.submit` for an end-to-end shopping flow, but neither is mandatory.
 
 ## What AAP standardizes
 
-![Honeycomb of seven AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.general, lead.vehicle, lead.appointment](/img/skills-overview.png)
+![Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit](/img/skills-overview.png)
 
-AAP v0.1 standardizes seven skills that cover the read-and-lead lifecycle of automotive retail:
+AAP v0.1 defines a **vocabulary** of five standard skill IDs that cover the read-and-lead lifecycle of automotive retail. A dealer agent picks whichever subset matches its capabilities — none of the five is individually mandatory.
 
 | Skill | Purpose |
 |---|---|
@@ -32,9 +32,7 @@ AAP v0.1 standardizes seven skills that cover the read-and-lead lifecycle of aut
 | `inventory.facets` | Aggregated counts and ranges over the dealer's inventory |
 | `inventory.search` | Filtered, paginated inventory queries |
 | `inventory.vehicle` | Detail view of one specific vehicle (by VIN, stock, or vehicle_id) |
-| `lead.general` | Open-ended dealership inquiry (financing, trade-in, callback) |
-| `lead.vehicle` | ADF-mappable vehicle-specific lead |
-| `lead.appointment` | Test drive, showroom visit, handover, phone/video call, trade-in appraisal |
+| `lead.submit` | Unified consented lead carrying customer info plus optional vehicle of interest, trade-in, and appointment |
 
 It does NOT cover authentication beyond `bearer`, payments, financing approval, RFQ/quote workflows, trade-in valuations, or reservations. Future versions MAY extend this surface; v0.1 is intentionally minimal.
 
@@ -132,11 +130,10 @@ The dealer agent replies with an A2A `Message` whose first `DataPart.data` is an
             "trade_name": "Demo Toyota",
             "brands": ["Toyota"],
             "address": {
-              "line1": "100 Market St",
+              "address_line_1": "100 Market St",
               "city": "San Francisco",
-              "region_code": "CA",
-              "postal_code": "94105",
-              "country_code": "US"
+              "state": "CA",
+              "zip": "94105"
             }
           }
         },

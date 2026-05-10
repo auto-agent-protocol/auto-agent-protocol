@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/lead-submit-response.schema.json",
+  "title": "LeadSubmitResponse",
+  "description": "Dealer agent's response to a `lead.submit.request`. Carries the assigned `lead_id` and overall lead `status`, plus an optional appointment block when the request included an `appointment` (the dealer can confirm the requested window, propose alternatives, leave it as merely requested for human follow-up, or reject the appointment while still accepting the lead). Carried inside an A2A `Message.parts[].data` DataPart via `SendMessage`.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "lead.submit.response",
+      "description": "AAP message type discriminator."
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "lead_id": {
+          "type": "string",
+          "description": "Dealer-assigned identifier for this lead."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["received", "duplicate", "rejected"],
+          "description": "Overall lead status. `duplicate` indicates the dealer recognized the same buyer/vehicle combination from a recent prior submission and merged it. `rejected` indicates the dealer did not accept the lead (e.g. consent invalid, vehicle no longer available, dealer not serving the buyer's region)."
+        },
+        "appointment": {
+          "type": "object",
+          "description": "Present iff the request included an `appointment` block AND the dealer is acknowledging it (whether confirming, proposing alternatives, leaving it as requested for staff follow-up, or rejecting).",
+          "properties": {
+            "appointment_id": {
+              "type": "string",
+              "description": "Dealer-assigned identifier for this appointment."
+            },
+            "status": {
+              "type": "string",
+              "enum": ["requested", "proposed", "confirmed", "rejected"],
+              "description": "Appointment status. `requested` = received but not yet scheduled (staff will follow up). `proposed` = dealer cannot honor any of the requested windows but is offering alternatives in `proposed_slots`. `confirmed` = dealer scheduled the appointment for `confirmed_window`. `rejected` = dealer cannot host this appointment (e.g. service unavailable)."
+            },
+            "confirmed_window": {
+              "type": "object",
+              "description": "Present iff `status` is `confirmed`. `start` and `end` are ISO 8601 / RFC 3339 timestamps with timezone offsets.",
+              "properties": {
+                "start": { "type": "string", "format": "date-time", "description": "ISO 8601 / RFC 3339 confirmed-window start with timezone offset." },
+                "end": { "type": "string", "format": "date-time", "description": "ISO 8601 / RFC 3339 confirmed-window end with timezone offset." }
+              },
+              "required": ["start"],
+              "additionalProperties": false
+            },
+            "proposed_slots": {
+              "type": "array",
+              "description": "Present iff `status` is `proposed`. Time slots the dealer offers as alternatives. Each slot's `start` and `end` are ISO 8601 / RFC 3339 timestamps with timezone offsets.",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "start": { "type": "string", "format": "date-time", "description": "ISO 8601 / RFC 3339 proposed-slot start with timezone offset." },
+                  "end": { "type": "string", "format": "date-time", "description": "ISO 8601 / RFC 3339 proposed-slot end with timezone offset." }
+                },
+                "required": ["start"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": ["appointment_id", "status"],
+          "additionalProperties": false
+        },
+        "dealer": {
+          "type": "object",
+          "description": "Convenience contact summary for the buyer agent to surface follow-up details to the user.",
+          "properties": {
+            "name": { "type": "string" },
+            "phone": {
+              "type": "string",
+              "pattern": "^\\+[1-9]\\d{1,14}$",
+              "description": "E.164 phone number for buyer follow-up."
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["lead_id", "status"],
+      "additionalProperties": false
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Contextual note from the dealer (e.g. 'A salesperson will call within 1 business hour.', 'We are unable to honor your requested time; please pick from the alternatives.')."
+    }
+  },
+  "required": ["type", "data"],
+  "additionalProperties": false
+}

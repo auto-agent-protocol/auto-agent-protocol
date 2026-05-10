@@ -6,11 +6,10 @@
     "trade_name": "Demo Toyota",
     "brands": ["Toyota", "Lexus"],
     "address": {
-      "line1": "1450 Howard Street",
+      "address_line_1": "1450 Howard Street",
       "city": "San Francisco",
-      "region_code": "CA",
-      "postal_code": "94103",
-      "country_code": "US"
+      "state": "CA",
+      "zip": "94103"
     },
     "geo": {
       "latitude": 37.7726,

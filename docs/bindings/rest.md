@@ -81,7 +81,7 @@ The response is an A2A `Message` wrapped in a top-level `message` key:
 }
 ```
 
-The remainder of this page shows a `curl` invocation for each of the seven skills.
+The remainder of this page shows a `curl` invocation for each of the five skills.
 
 ## `dealer.information`
 
@@ -147,7 +147,7 @@ curl -X POST https://demo-toyota.example.com/a2a/message:send \
             "type": "inventory.search.request",
             "filters": {
               "make": ["Honda"],
-              "condition": ["used", "certified"],
+              "condition": ["used", "cpo"],
               "year_min": 2020,
               "price_max": 30000
             },
@@ -179,7 +179,7 @@ curl -X POST https://demo-toyota.example.com/a2a/message:send \
           "data": {
             "type": "inventory.vehicle.request",
             "vin": "1HGCY2F57RA000001",
-            "zip_code": "94105"
+            "zip": "94105"
           },
           "mediaType": "application/vnd.autoagent.vehicle-detail-request+json"
         }
@@ -191,7 +191,9 @@ curl -X POST https://demo-toyota.example.com/a2a/message:send \
   }'
 ```
 
-## `lead.general` (bearer auth example)
+## `lead.submit` (bearer auth example)
+
+The unified lead carries customer info plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment`. Below: a single test-drive lead that also queues the buyer's trade-in for in-person appraisal.
 
 ```bash
 curl -X POST https://demo-toyota.example.com/a2a/message:send \
@@ -204,125 +206,55 @@ curl -X POST https://demo-toyota.example.com/a2a/message:send \
       "parts": [
         {
           "data": {
-            "type": "lead.general.request",
-            "lead_intent": "financing_question",
-            "message": "Do you offer 0% APR on certified used Civics?",
+            "type": "lead.submit.request",
             "customer": {
               "first_name": "Anna",
               "last_name": "Lee",
               "email": "anna@example.com",
               "phone": "+14155550123",
-              "preferred_contact": "email"
-            },
-            "consent": {
-              "granted_at": "2026-04-30T10:14:00Z",
-              "allowed_channels": ["email"],
-              "consent_text": "I agree to share my name and email with Demo Toyota to receive a financing answer.",
-              "source_agent": "chatgpt-shopping",
-              "scope": ["general_inquiry"]
-            },
-            "source_agent": "chatgpt-shopping",
-            "submitted_at": "2026-04-30T10:14:30Z"
-          },
-          "mediaType": "application/vnd.autoagent.general-lead-request+json"
-        }
-      ]
-    },
-    "configuration": {
-      "acceptedOutputModes": ["application/vnd.autoagent.lead-response+json"]
-    }
-  }'
-```
-
-## `lead.vehicle`
-
-```bash
-curl -X POST https://demo-toyota.example.com/a2a/message:send \
-  -H "Content-Type: application/json" \
-  -d '{
-    "message": {
-      "messageId": "01HZ9M9S2H5C8R0XT3G8BQZA7V",
-      "role": "ROLE_USER",
-      "parts": [
-        {
-          "data": {
-            "type": "lead.vehicle.request",
-            "vehicles": [{ "vin": "1HGCY2F57RA000001" }],
-            "intent": "buy",
-            "finance_type": "finance",
-            "timeline": "1_3_months",
-            "message": "Interested in this Civic; is it still available?",
-            "customer": {
-              "first_name": "Anna",
-              "last_name": "Lee",
-              "email": "anna@example.com",
-              "phone": "+14155550123",
-              "preferred_contact": "email"
-            },
-            "consent": {
-              "granted_at": "2026-04-30T10:15:00Z",
-              "allowed_channels": ["email", "phone"],
-              "consent_text": "I agree to share my contact info with Demo Toyota about this 2022 Honda Civic.",
-              "source_agent": "chatgpt-shopping",
-              "scope": ["vehicle_inquiry"]
-            },
-            "source_agent": "chatgpt-shopping",
-            "submitted_at": "2026-04-30T10:15:10Z"
-          },
-          "mediaType": "application/vnd.autoagent.vehicle-lead-request+json"
-        }
-      ]
-    },
-    "configuration": {
-      "acceptedOutputModes": ["application/vnd.autoagent.lead-response+json"]
-    }
-  }'
-```
-
-## `lead.appointment`
-
-```bash
-curl -X POST https://demo-toyota.example.com/a2a/message:send \
-  -H "Content-Type: application/json" \
-  -d '{
-    "message": {
-      "messageId": "01HZ9N0T3J6D9S1YV4H9CRABCDV",
-      "role": "ROLE_USER",
-      "parts": [
-        {
-          "data": {
-            "type": "lead.appointment.request",
-            "appointment_type": "test_drive",
-            "vehicles": [{ "vin": "1HGCY2F57RA000001" }],
-            "requested_windows": [
-              { "start": "2026-05-02T17:00:00Z", "end": "2026-05-02T18:00:00Z" },
-              { "start": "2026-05-03T16:00:00Z", "end": "2026-05-03T17:00:00Z" }
-            ],
-            "timezone": "America/Los_Angeles",
-            "duration_minutes": 60,
-            "customer": {
-              "first_name": "Anna",
-              "last_name": "Lee",
-              "email": "anna@example.com",
-              "phone": "+14155550123",
-              "preferred_contact": "phone"
+              "preferred_contact": "phone",
+              "address": {
+                "address_line_1": "200 Folsom St",
+                "city": "San Francisco",
+                "state": "CA",
+                "zip": "94105"
+              }
             },
             "consent": {
               "granted_at": "2026-04-30T10:16:00Z",
-              "allowed_channels": ["phone", "email"],
-              "consent_text": "I agree to share my contact info with Demo Toyota to schedule a test drive.",
+              "allowed_channels": ["email", "phone"],
+              "consent_text": "I agree to share my contact info with Demo Toyota about VIN 1HGCY2F57RA000001, my Saturday test drive, and the trade-in of my 2014 Toyota Corolla.",
               "source_agent": "chatgpt-shopping",
-              "scope": ["appointment"]
+              "scope": ["lead_submission"]
             },
+            "vehicle_of_interest": {
+              "vin": "1HGCY2F57RA000001",
+              "year": 2022, "make": "Honda", "model": "Civic", "trim": "EX",
+              "condition": "cpo"
+            },
+            "trade_in": {
+              "year": 2014, "make": "Toyota", "model": "Corolla",
+              "condition": "good",
+              "mileage": 96000
+            },
+            "appointment": {
+              "appointment_type": "test_drive",
+              "requested_windows": [
+                { "start": "2026-05-02T17:00:00Z", "end": "2026-05-02T18:00:00Z" }
+              ],
+              "timezone": "America/Los_Angeles",
+              "duration_minutes": 60
+            },
+            "message": "Interested in this Civic; please appraise my Corolla at the same visit.",
             "source_agent": "chatgpt-shopping",
             "submitted_at": "2026-04-30T10:16:05Z"
           },
-          "mediaType": "application/vnd.autoagent.appointment-lead-request+json"
+          "mediaType": "application/vnd.autoagent.lead-submit-request+json"
         }
       ]
     },
     "configuration": {
-      "acceptedOutputModes": ["application/vnd.autoagent.appointment-lead-response+json"]
+      "acceptedOutputModes": ["application/vnd.autoagent.lead-submit-response+json"]
     }
   }'
 ```

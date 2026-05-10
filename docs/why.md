@@ -6,7 +6,7 @@ description: The gap AAP fills against A2A, ACP, MCP, and ADF — and why it is 
 
 # Why automotive needs AAP
 
-![Seven AAP skills covering the read-and-lead lifecycle](/img/skills-overview.png)
+![Five AAP skills covering the read-and-lead lifecycle](/img/skills-overview.png)
 
 Automotive retail has unusual constraints that no general-purpose agent protocol addresses end-to-end:
 
@@ -31,7 +31,7 @@ AAP does not replace any of these. It complements them.
 - **AAP IS an A2A profile.** Every AAP message is an A2A `DataPart`. A buyer agent that already speaks A2A can call an AAP dealer agent without learning a new transport.
 - **AAP COMPLEMENTS ACP.** ACP is built around payment + checkout. Vehicles are typically not transacted that way — the dealer's lead system, financing, F&I, and trade-in conversation happen out of band. AAP covers the lead step that precedes (or replaces) checkout.
 - **AAP COMPLEMENTS MCP.** A buyer agent's host LLM can expose AAP skills as MCP tools. The [MCP compatibility page](./compatibility/mcp.md) shows the one-to-one mapping.
-- **AAP MAPS TO ADF.** Every `lead.vehicle` request can be losslessly converted to an ADF/XML payload so a dealer's existing CRM accepts it without changes. See the [ADF mapping page](./compatibility/adf-mapping.md).
+- **AAP MAPS TO ADF.** Every `lead.submit` request can be losslessly converted to an ADF/XML payload so a dealer's existing CRM accepts it without changes. See the [ADF mapping page](./compatibility/adf-mapping.md).
 
 ## What AAP adds that A2A alone does not
 
@@ -39,7 +39,7 @@ A2A standardizes how agents exchange messages, not what is in them. Two A2A-comp
 
 AAP fixes the field names, types, and required behavior:
 
-- **Seven canonical skills** every dealer agent MUST implement.
+- **Five canonical skill IDs** form the AAP v0.1 vocabulary; dealer agents implement whichever subset matches their capabilities.
 - **Strict typed `DataParts`** (`<scope>.<thing>.request`, `<scope>.<thing>.response`) so a buyer agent can validate before sending.
 - **Four explicit pricing fields** (`msrp`, `list_price`, `offered_price`, `price`) where `price` is the FTC-final out-the-door amount — see [Pricing and FTC compliance](./pricing-and-ftc.md).
 - **`ConsentGrant`** structure required when a lead carries customer contact info, with explicit `allowed_channels` and `scope`.

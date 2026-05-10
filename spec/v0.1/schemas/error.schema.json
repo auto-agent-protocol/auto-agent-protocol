@@ -16,6 +16,7 @@
         "UNSUPPORTED_SKILL",
         "SCHEMA_VALIDATION_FAILED",
         "MISSING_REQUIRED_FIELD",
+        "INVALID_CONDITION",
         "VEHICLE_NOT_FOUND",
         "VEHICLE_UNAVAILABLE",
         "CONTACT_CONSENT_REQUIRED",
@@ -41,7 +42,8 @@
     },
     "created_at": {
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339 timestamp at which the dealer agent generated this error (e.g. '2026-04-30T10:15:30Z'). MUST include a timezone offset (Z or ±HH:MM)."
     }
   },
   "required": ["type", "error_id", "code", "message", "retryable", "created_at"],

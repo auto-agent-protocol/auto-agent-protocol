@@ -19,7 +19,7 @@
     },
     {
       "name": "aap_inventory_search",
-      "description": "Search the dealer's inventory by make, model, year, condition, price, mileage, body type, fuel, drivetrain, VIN, stock, or free-text query. Anonymous-safe; no consent required.",
+      "description": "Search the dealer's inventory by make, model, year, condition, price, mileage, body, fuel, drivetrain, VIN, stock, or free-text query. Anonymous-safe; no consent required.",
       "inputSchema": {
         "$ref": "https://autoagentprotocol.org/v0.1/schemas/inventory-search-request.schema.json"
       }
@@ -32,24 +32,10 @@
       }
     },
     {
-      "name": "aap_lead_general",
-      "description": "Submit a consented general dealership inquiry (financing, trade-in, service, callback). When customer contact info is included, a ConsentGrant with scope 'general_inquiry' is REQUIRED.",
+      "name": "aap_lead_submit",
+      "description": "Submit a consented lead carrying customer info plus any combination of vehicle_of_interest, trade_in, and appointment. Replaces the legacy lead.general / lead.vehicle / lead.appointment trio. ConsentGrant with scope ['lead_submission'] is REQUIRED.",
       "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v0.1/schemas/general-lead-request.schema.json"
-      }
-    },
-    {
-      "name": "aap_lead_vehicle",
-      "description": "Submit a consented, ADF/CRM-compatible vehicle-specific lead. When customer contact info is included, a ConsentGrant with scope 'vehicle_inquiry' is REQUIRED.",
-      "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v0.1/schemas/vehicle-lead-request.schema.json"
-      }
-    },
-    {
-      "name": "aap_lead_appointment",
-      "description": "Submit a consented appointment request (test drive, showroom visit, handover, phone call, video call, trade-in appraisal). When customer contact info is included, a ConsentGrant with scope 'appointment' is REQUIRED.",
-      "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v0.1/schemas/appointment-lead-request.schema.json"
+        "$ref": "https://autoagentprotocol.org/v0.1/schemas/lead-submit-request.schema.json"
       }
     }
   ]

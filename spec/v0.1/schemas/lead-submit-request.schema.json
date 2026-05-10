@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.1/schemas/lead-submit-request.schema.json",
+  "title": "LeadSubmitRequest",
+  "description": "Unified lead submission for the `lead.submit` AAP skill. Replaces the v0.1-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment`. A single request carries the consented customer plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment` — matching how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).\n\nDesign principle: capture whatever the customer actually provided. `vehicle_of_interest`, `trade_in`, and `appointment` are entirely optional, and within them no individual field is required at the schema level — the buyer agent should pass through whatever pieces of information the user shared (a VIN, a make+model, just a year, mileage only — anything is welcome). The dealer is responsible for handling partial input gracefully.\n\nValidation rules:\n- `customer` and `consent` are always required (lead is never anonymous; consent is always required).\n- If `vehicle_of_interest.condition` is set, it MUST be one of `new`, `used`, `cpo`.\n- If `trade_in.condition` is set, it MUST be one of `excellent`, `good`, `fair`, `poor`.\n- `consent.scope` MUST be `[\"lead_submission\"]`.\n\nCarried inside an A2A `Message.parts[].data` DataPart via `SendMessage` (JSON-RPC 2.0 or HTTP+JSON binding).",
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "lead.submit.request",
+      "description": "AAP message type discriminator."
+    },
+    "customer": {
+      "$ref": "./customer.schema.json",
+      "description": "Buyer contact info. Required."
+    },
+    "consent": {
+      "$ref": "./consent-grant.schema.json",
+      "description": "Consent record covering this submission. Required. `scope` MUST be [\"lead_submission\"]."
+    },
+    "vehicle_of_interest": {
+      "$ref": "./vehicle.schema.json",
+      "description": "The vehicle the buyer is interested in purchasing. Optional. Pass through whatever the customer provided (VIN alone, year+make+model, just a model name, etc.) — no individual field is required. When `condition` is set it MUST be one of `new` | `used` | `cpo`."
+    },
+    "trade_in": {
+      "$ref": "./vehicle.schema.json",
+      "description": "The vehicle the buyer wants to trade in. Optional. Pass through whatever the customer provided (just a make+model and a mileage is a perfectly valid trade-in lead). When `condition` is set it MUST be one of `excellent` | `good` | `fair` | `poor`. Pricing fields are typically absent on the request side and are populated by the dealer's appraisal response."
+    },
+    "appointment": {
+      "$ref": "./appointment.schema.json",
+      "description": "An appointment request the buyer wants scheduled alongside this lead. Optional. The vehicle for the appointment is implicit: `vehicle_of_interest` for test drives / handover, `trade_in` for trade-in appraisals."
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 4000,
+      "description": "Optional free-text message from the buyer to the dealer."
+    },
+    "source_agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier of the buyer agent that originated this lead (e.g. 'chatgpt-shopping', 'gemini-assistant', 'lumika-bdc'). Used for analytics and consent attribution."
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339 timestamp at which the buyer agent finalized this submission (e.g. '2026-04-30T11:05:08Z')."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Optional client-generated key (UUID recommended) the dealer agent uses to dedupe retried submissions. Two requests carrying the same `idempotency_key` MUST produce the same response (the dealer returns the original `lead_id` and status). Strongly RECOMMENDED for production buyer agents that retry on network failure."
+    }
+  },
+  "required": ["type", "customer", "consent", "source_agent"],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "vehicle_of_interest.condition (when set) must be in the sale-condition vocabulary",
+      "if": {
+        "type": "object",
+        "required": ["vehicle_of_interest"],
+        "properties": {
+          "vehicle_of_interest": {
+            "type": "object",
+            "required": ["condition"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "vehicle_of_interest": {
+            "properties": {
+              "condition": { "enum": ["new", "used", "cpo"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "trade_in.condition (when set) must be in the wear-condition vocabulary",
+      "if": {
+        "type": "object",
+        "required": ["trade_in"],
+        "properties": {
+          "trade_in": {
+            "type": "object",
+            "required": ["condition"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "trade_in": {
+            "properties": {
+              "condition": { "enum": ["excellent", "good", "fair", "poor"] }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
