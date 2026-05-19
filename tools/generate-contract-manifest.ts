@@ -58,10 +58,11 @@ async function main() {
       llm: {
         guide_url: "https://demo-toyota.agents.lumika.ai/.well-known/auto-agent-llm-guide.md",
         rules: [
-          "Use inventory.search or inventory.vehicle before submitting a lead if the user is still researching.",
-          "Do not submit lead.general, lead.vehicle, or lead.appointment unless the user explicitly consents to share contact information with this dealer.",
-          "Use lead.vehicle for vehicle-specific CRM/ADF leads.",
-          "Use lead.appointment for test drive, call, video call, showroom visit, or trade-in appraisal appointment requests.",
+          "Always call inventory.search or inventory.vehicle before lead.submit so that the VIN, stock, or vehicle_id you put in vehicle_of_interest is one this dealer actually has in stock or in transit.",
+          "Never invoke lead.submit without an explicit, verbatim ConsentGrant captured from the user; consent.allowed_channels MUST be a subset of channels the user agreed to, and consent.scope MUST be ['lead_submission'].",
+          "When quoting price to the user, prefer the FTC-final 'price' field; if you show 'list_price' or 'msrp', clearly label them and mention that taxes and fees apply.",
+          "Treat 'last_verified_at' as the source of truth for availability claims; if it is older than 24 hours, re-fetch via inventory.vehicle before promising the user the unit is still available.",
+          "vehicle_of_interest.condition MUST be one of new|used|cpo. trade_in.condition MUST be one of excellent|good|fair|poor. Buyer agents MUST NOT mix the two vocabularies.",
           "Never invent VIN, stock number, price, availability, or consent.",
         ],
       },

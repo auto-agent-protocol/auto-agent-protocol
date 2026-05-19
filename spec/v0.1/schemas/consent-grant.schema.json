@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://autoagentprotocol.org/v0.1/schemas/consent-grant.schema.json",
   "title": "ConsentGrant",
-  "description": "Explicit consent record for a single `lead.submit` submission. Required whenever a `lead.submit.request` includes customer contact info (which is always — `customer` is required on the unified lead). Provides an auditable record of what the user authorized, when, through which channels, and via which buyer agent. A dealer agent MUST reject lead submissions with `CONTACT_CONSENT_REQUIRED` if a contact channel it intends to use is not present in `allowed_channels`.",
+  "description": "Explicit consent record for a single `lead.submit` submission. Required whenever a `lead.submit.request` includes customer contact info (which is always — `customer` is required on the unified lead). Provides an auditable record of what the user authorized, when, through which channels, and via which buyer agent.\n\nError-code mapping: a dealer agent MUST reject lead submissions with `CONTACT_CONSENT_REQUIRED` if `consent` is missing entirely; with `INVALID_CONSENT` if the grant is malformed, `expires_at` has passed at the time the dealer would use the contact data, or the dealer intends to use a contact channel not present in `allowed_channels`.",
   "type": "object",
   "properties": {
     "granted_at": {
@@ -22,10 +22,12 @@
     },
     "consent_text": {
       "type": "string",
-      "description": "Verbatim text the user agreed to (e.g. the disclosure shown by the buyer agent)."
+      "minLength": 1,
+      "description": "Verbatim text the user agreed to (e.g. the disclosure shown by the buyer agent). MUST be non-empty — this is the audit trail of what the user actually saw."
     },
     "source_agent": {
       "type": "string",
+      "minLength": 1,
       "description": "Identifier of the buyer agent that captured the consent (e.g. 'chatgpt-shopping', 'gemini-assistant', 'lumika-bdc')."
     },
     "scope": {

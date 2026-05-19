@@ -6,6 +6,11 @@
   "allOf": [{ "$ref": "./vehicle.schema.json" }],
   "type": "object",
   "properties": {
+    "condition": {
+      "type": "string",
+      "enum": ["new", "used", "cpo"],
+      "description": "Sale-condition vocabulary only. VehicleDetail is always an inventory listing, never a trade-in, so `condition` is constrained to `new`|`used`|`cpo`."
+    },
     "dealer_id": {
       "type": "string",
       "description": "Stable identifier of the dealer that owns this listing."

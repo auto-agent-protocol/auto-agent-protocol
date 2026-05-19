@@ -18,8 +18,17 @@
         "limit": { "type": "integer", "minimum": 0, "description": "Echo of the request's effective pagination.limit." },
         "vehicles": {
           "type": "array",
-          "items": { "$ref": "./vehicle.schema.json" },
-          "description": "Vehicles in this page, in the requested order."
+          "description": "Vehicles in this page, in the requested order. Each item is a Vehicle whose `condition` (when present) is constrained to the sale-condition vocabulary (`new`|`used`|`cpo`) — inventory listings never carry trade-in wear values.",
+          "items": {
+            "allOf": [
+              { "$ref": "./vehicle.schema.json" },
+              {
+                "properties": {
+                  "condition": { "enum": ["new", "used", "cpo"] }
+                }
+              }
+            ]
+          }
         },
         "facets": {
           "$ref": "./facets.schema.json",

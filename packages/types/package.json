@@ -1,6 +1,6 @@
 {
   "name": "@autoagentprotocol/types",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TypeScript types for Auto Agent Protocol v0.1",
   "license": "Apache-2.0",
   "main": "./dist/index.js",
@@ -8,15 +8,11 @@
   "files": ["dist"],
   "sideEffects": false,
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "mkdir -p dist && cp src/index.d.ts dist/index.d.ts && printf '' > dist/index.js",
     "prepublishOnly": "pnpm run build"
-  },
-  "devDependencies": {
-    "typescript": "^5.7.0"
   },
   "repository": {
     "type": "git",

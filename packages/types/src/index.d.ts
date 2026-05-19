@@ -127,7 +127,7 @@ export interface Vehicle {
   list_price?: Money2;
   offered_price?: Money3;
   /**
-   * Buyer ZIP code used to compute regional pricing fields (`offered_price`). Optional; when absent, regional pricing fields MUST be omitted.
+   * Buyer ZIP code used to compute regional pricing fields (`offered_price`). US ZIP, 5 digits or ZIP+4. Optional; when absent, regional pricing fields MUST be omitted.
    */
   zip?: string;
   /**
@@ -153,6 +153,10 @@ export interface Vehicle {
  * Extended vehicle representation returned by `inventory.vehicle`. Inherits all base Vehicle fields and explicitly declares the rich, dealer-side properties that go beyond the unified Vehicle interface used in lead.submit. `additionalProperties: true` lets dealers carry further site-specific equipment, history-report links, or certification details without schema changes.
  */
 export type VehicleDetail = Vehicle & {
+  /**
+   * Sale-condition vocabulary only. VehicleDetail is always an inventory listing, never a trade-in, so `condition` is constrained to `new`|`used`|`cpo`.
+   */
+  condition?: "new" | "used" | "cpo";
   /**
    * Stable identifier of the dealer that owns this listing.
    */
@@ -405,9 +409,12 @@ export interface InventorySearchResponse {
      */
     limit?: number;
     /**
-     * Vehicles in this page, in the requested order.
+     * Vehicles in this page, in the requested order. Each item is a Vehicle whose `condition` (when present) is constrained to the sale-condition vocabulary (`new`|`used`|`cpo`) — inventory listings never carry trade-in wear values.
      */
-    vehicles: Vehicle[];
+    vehicles: (Vehicle & {
+      condition?: "new" | "used" | "cpo";
+      [k: string]: any;
+    })[];
     facets?: Facets;
   };
   /**
@@ -510,7 +517,9 @@ export interface Facets {
 /**
  * Minimal AAP v0.1 event envelope. Used for asynchronous status updates (e.g. lead status changes, appointment confirmations) delivered via A2A push notifications or task status update events.
  */
-export interface Event {
+export type Event = {
+  [k: string]: any;
+} & {
   type: "aap.event";
   /**
    * Concrete event kind. v0.1 defines two kinds; future versions may add more.
@@ -521,7 +530,7 @@ export interface Event {
    */
   entity_id: string;
   /**
-   * New status value for the entity. For 'lead.status_changed', one of: received | duplicate | rejected | working | sold_to | lost. For 'appointment.status_changed', one of: requested | proposed | confirmed | rejected | completed | no_show.
+   * New status value for the entity. For 'lead.status_changed', one of: received | duplicate | rejected | working | sold_to | lost. For 'appointment.status_changed', one of: requested | proposed | confirmed | rejected | completed | no_show. Conditional `if/then` clauses below enforce the right subset for each `event_kind`.
    */
   status: string;
   /**
@@ -534,7 +543,7 @@ export interface Event {
   payload?: {
     [k: string]: any;
   };
-}
+};
 
 /**
  * Typed AAP error payload. Returned inside an A2A error envelope (JSON-RPC 'error' member or HTTP 'application/json' error body, per A2A spec sections 9.5 and 11.6). Buyer agents use 'code' and 'retryable' to drive client behavior; humans see 'message'.
@@ -558,6 +567,7 @@ export interface Error {
     | "CONTACT_CONSENT_REQUIRED"
     | "INVALID_CONSENT"
     | "APPOINTMENT_TIME_UNAVAILABLE"
+    | "IDEMPOTENCY_CONFLICT"
     | "AUTH_REQUIRED"
     | "RATE_LIMITED"
     | "INTERNAL_ERROR";
@@ -751,7 +761,9 @@ export interface ContractManifest {
 }
 
 /**
- * Explicit consent record for a single `lead.submit` submission. Required whenever a `lead.submit.request` includes customer contact info (which is always — `customer` is required on the unified lead). Provides an auditable record of what the user authorized, when, through which channels, and via which buyer agent. A dealer agent MUST reject lead submissions with `CONTACT_CONSENT_REQUIRED` if a contact channel it intends to use is not present in `allowed_channels`.
+ * Explicit consent record for a single `lead.submit` submission. Required whenever a `lead.submit.request` includes customer contact info (which is always — `customer` is required on the unified lead). Provides an auditable record of what the user authorized, when, through which channels, and via which buyer agent.
+ *
+ * Error-code mapping: a dealer agent MUST reject lead submissions with `CONTACT_CONSENT_REQUIRED` if `consent` is missing entirely; with `INVALID_CONSENT` if the grant is malformed, `expires_at` has passed at the time the dealer would use the contact data, or the dealer intends to use a contact channel not present in `allowed_channels`.
  */
 export interface ConsentGrant {
   /**
@@ -765,7 +777,7 @@ export interface ConsentGrant {
    */
   allowed_channels: ["email" | "phone" | "sms", ...("email" | "phone" | "sms")[]];
   /**
-   * Verbatim text the user agreed to (e.g. the disclosure shown by the buyer agent).
+   * Verbatim text the user agreed to (e.g. the disclosure shown by the buyer agent). MUST be non-empty — this is the audit trail of what the user actually saw.
    */
   consent_text: string;
   /**

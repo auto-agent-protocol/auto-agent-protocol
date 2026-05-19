@@ -1,7 +1,7 @@
 import Ajv, { type ValidateFunction, type ErrorObject } from "ajv";
 import addFormats from "ajv-formats";
-import { readdirSync, readFileSync } from "fs";
-import { resolve, basename } from "path";
+import { readdirSync, readFileSync, statSync } from "fs";
+import { dirname, resolve, basename, join, sep } from "path";
 
 export interface ValidationResult {
   valid: boolean;
@@ -17,22 +17,57 @@ export class AAPValidator {
     addFormats(this.ajv);
   }
 
+  /**
+   * Load the schemas bundled with @autoagentprotocol/schemas. Works in Node
+   * runtimes that can resolve the peer package; throws if it cannot. Browsers
+   * and edge runtimes should use `loadSchemas(dir)` with their own path.
+   */
+  loadDefaults(): void {
+    // Resolve the schemas package's main entry (dist/index.js) and walk down
+    // to its v0.1 directory of JSON Schema files.
+    const mainEntry = require.resolve("@autoagentprotocol/schemas");
+    const dir = resolve(dirname(mainEntry), "v0.1");
+    this.loadSchemas(dir);
+  }
+
   loadSchemas(schemasDir: string): void {
-    const files = readdirSync(schemasDir).filter((f) =>
-      f.endsWith(".schema.json")
-    );
-    for (const file of files) {
-      const schema = JSON.parse(
-        readFileSync(resolve(schemasDir, file), "utf-8")
-      );
+    const schemaFiles = this.findSchemaFiles(schemasDir);
+
+    // Pre-register all schemas so cross-file $refs resolve at compile time.
+    const loaded: Array<{ file: string; name: string; schema: any }> = [];
+    for (const file of schemaFiles) {
+      const schema = JSON.parse(readFileSync(file, "utf-8"));
       const name = basename(file, ".schema.json");
       try {
-        const validate = this.ajv.compile(schema);
-        this.validators.set(name, validate);
+        this.ajv.addSchema(schema);
       } catch {
-        // Skip schemas that can't compile standalone (cross-refs)
+        // Duplicate $id — fine; first wins.
+      }
+      loaded.push({ file, name, schema });
+    }
+
+    // Compile each top-level schema. Skip primitives (under _primitives/) since
+    // they're only referenced, not validated directly.
+    const primitiveSegment = `${sep}_primitives${sep}`;
+    for (const { file, name, schema } of loaded) {
+      if (file.includes(primitiveSegment)) continue;
+      const validate = this.ajv.compile(schema);
+      this.validators.set(name, validate);
+    }
+  }
+
+  private findSchemaFiles(dir: string): string[] {
+    const out: string[] = [];
+    for (const entry of readdirSync(dir)) {
+      const full = join(dir, entry);
+      const st = statSync(full);
+      if (st.isDirectory()) {
+        out.push(...this.findSchemaFiles(full));
+      } else if (entry.endsWith(".schema.json")) {
+        out.push(full);
       }
     }
+    return out;
   }
 
   validate(schemaName: string, data: unknown): ValidationResult {

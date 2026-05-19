@@ -17,7 +17,7 @@
     },
     "status": {
       "type": "string",
-      "description": "New status value for the entity. For 'lead.status_changed', one of: received | duplicate | rejected | working | sold_to | lost. For 'appointment.status_changed', one of: requested | proposed | confirmed | rejected | completed | no_show."
+      "description": "New status value for the entity. For 'lead.status_changed', one of: received | duplicate | rejected | working | sold_to | lost. For 'appointment.status_changed', one of: requested | proposed | confirmed | rejected | completed | no_show. Conditional `if/then` clauses below enforce the right subset for each `event_kind`."
     },
     "occurred_at": {
       "type": "string",
@@ -31,5 +31,37 @@
     }
   },
   "required": ["type", "event_kind", "entity_id", "status", "occurred_at"],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "lead.status_changed restricts status to the lead-status vocabulary",
+      "if": {
+        "type": "object",
+        "properties": { "event_kind": { "const": "lead.status_changed" } },
+        "required": ["event_kind"]
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": ["received", "duplicate", "rejected", "working", "sold_to", "lost"]
+          }
+        }
+      }
+    },
+    {
+      "description": "appointment.status_changed restricts status to the appointment-status vocabulary",
+      "if": {
+        "type": "object",
+        "properties": { "event_kind": { "const": "appointment.status_changed" } },
+        "required": ["event_kind"]
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": ["requested", "proposed", "confirmed", "rejected", "completed", "no_show"]
+          }
+        }
+      }
+    }
+  ]
 }

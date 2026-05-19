@@ -18,13 +18,13 @@ function main() {
   const schemas = readdirSync(resolve(ROOT, "spec/v0.1/schemas"))
     .filter((f) => f.endsWith(".schema.json"));
 
-  let indexContent = "// Auto-generated schema index\n";
+  let indexContent = "// Auto-generated schema index\n\"use strict\";\n";
   for (const schema of schemas) {
     const name = basename(schema, ".schema.json")
       .split("-")
       .map((s, i) => (i === 0 ? s : s.charAt(0).toUpperCase() + s.slice(1)))
       .join("");
-    indexContent += `export const ${name}Schema = require("./v0.1/${schema}");\n`;
+    indexContent += `exports.${name}Schema = require("./v0.1/${schema}");\n`;
   }
 
   writeFileSync(resolve(OUT, "index.js"), indexContent);

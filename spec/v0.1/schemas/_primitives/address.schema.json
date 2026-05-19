@@ -23,6 +23,7 @@
     },
     "zip": {
       "type": "string",
+      "pattern": "^\\d{5}(-\\d{4})?$",
       "description": "US ZIP code, 5 digits or ZIP+4 (e.g. '94103' or '94103-1234')."
     }
   },

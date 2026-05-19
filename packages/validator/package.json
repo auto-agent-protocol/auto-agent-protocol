@@ -1,6 +1,6 @@
 {
   "name": "@autoagentprotocol/validator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Ajv-based validators for Auto Agent Protocol v0.1",
   "license": "Apache-2.0",
   "main": "./dist/index.js",
@@ -8,8 +8,7 @@
   "files": ["dist"],
   "sideEffects": false,
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   },
   "scripts": {
     "build": "tsc",

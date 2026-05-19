@@ -1,6 +1,6 @@
 {
   "name": "autoagentprotocol",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Auto Agent Protocol — the open contract for AI agents to talk to car dealerships",
   "license": "Apache-2.0",
