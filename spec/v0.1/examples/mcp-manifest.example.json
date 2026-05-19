@@ -1,6 +1,6 @@
 {
   "name": "auto-agent-protocol",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP wrapper exposing AAP automotive skills as MCP tools. Each tool corresponds to one AAP v0.1 skill and accepts/returns the matching AAP request/response payload.",
   "tools": [
     {

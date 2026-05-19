@@ -76,7 +76,7 @@ The contract manifest's `contract.uri` is also version-pinned:
 ```json
 "contract": {
   "name": "Auto Agent Protocol A2A Automotive Retail Profile",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "uri": "https://autoagentprotocol.org/v0.1/"
 }
 ```

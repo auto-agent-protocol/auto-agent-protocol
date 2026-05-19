@@ -57,7 +57,7 @@ Below is a complete, valid AAP v0.1 contract manifest for a public dealer agent 
 {
   "contract": {
     "name": "Auto Agent Protocol A2A Automotive Retail Profile",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "uri": "https://autoagentprotocol.org/v0.1/"
   },
   "dealer": {
@@ -128,7 +128,7 @@ Below is a complete, valid AAP v0.1 contract manifest for a public dealer agent 
 | Field | Type | Description |
 |---|---|---|
 | `name` | string | Human name of the contract. AAP v0.1 uses `Auto Agent Protocol A2A Automotive Retail Profile`. |
-| `version` | string | Contract version (e.g. `0.1.0`). |
+| `version` | string | Contract version (e.g. `0.1.1`). |
 | `uri` | URI | Stable URI for this contract version (e.g. `https://autoagentprotocol.org/v0.1/`). |
 
 ### `dealer`

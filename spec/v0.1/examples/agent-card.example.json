@@ -1,7 +1,7 @@
 {
   "name": "Lumika Demo Toyota Dealer Agent",
   "description": "AAP-compliant Auto Agent Protocol dealer agent for Demo Toyota in San Francisco. Exposes inventory search, vehicle detail, dealer profile, and a unified consented lead-submission skill to buyer agents (LLMs and CRMs) over A2A.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "provider": {
     "organization": "Lumika AI",
     "url": "https://lumika.ai"
@@ -30,7 +30,7 @@
         "required": true,
         "params": {
           "profile_name": "AAP A2A Automotive Retail Profile",
-          "profile_version": "0.1.0",
+          "profile_version": "0.1.1",
           "contract_uri": "https://autoagentprotocol.org/v0.1/",
           "manifest_url": "https://demo-toyota.agents.lumika.ai/.well-known/auto-agent-contract.json",
           "schema_base_url": "https://autoagentprotocol.org/v0.1/schemas/",
