@@ -53,7 +53,8 @@
   padding: 1.5rem;
 }
 
-.feature h3 {
+.feature h2 {
+  font-size: 1.5rem;
   margin-bottom: 0.5rem;
 }
 
@@ -84,6 +85,7 @@
   padding: 3rem 0;
 }
 
-.protocols h4 {
+.protocols h3 {
+  font-size: 1.25rem;
   margin-bottom: 0.5rem;
 }

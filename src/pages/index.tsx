@@ -78,7 +78,7 @@ function Features() {
         <div className="row">
           {features.map((f, idx) => (
             <div key={idx} className={clsx("col col--4", styles.feature)}>
-              <h3>{f.title}</h3>
+              <h2>{f.title}</h2>
               <p>{f.description}</p>
             </div>
           ))}
@@ -161,28 +161,28 @@ function Protocols() {
         </h2>
         <div className="row">
           <div className="col col--3">
-            <h4>A2A</h4>
+            <h3>A2A</h3>
             <p>
               <strong>The base.</strong> AAP is a strict A2A v1.0 profile.
               Every AAP message rides inside an A2A <code>DataPart</code>.
             </p>
           </div>
           <div className="col col--3">
-            <h4>ACP / UCP</h4>
+            <h3>ACP / UCP</h3>
             <p>
               Complementary. AAP focuses on automotive leads and appointments,
               not commerce checkout flows.
             </p>
           </div>
           <div className="col col--3">
-            <h4>MCP</h4>
+            <h3>MCP</h3>
             <p>
               Complementary. AAP ships an official MCP wrapper that exposes
               every skill as an MCP tool.
             </p>
           </div>
           <div className="col col--3">
-            <h4>ADF/XML</h4>
+            <h3>ADF/XML</h3>
             <p>
               Legacy bridge. <code>lead.submit</code> maps field-by-field to
               ADF/XML for existing dealer CRMs.
