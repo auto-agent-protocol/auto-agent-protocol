@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="static/img/logo-white.png">
+  <img src="static/img/logo.png" alt="Auto Agent Protocol logo" width="120">
+</picture>
+
 # Auto Agent Protocol (AAP)
 
 ![Auto Agent Protocol — the A2A v1.0 Automotive Retail Profile](static/img/aap-hero-banner.png)
