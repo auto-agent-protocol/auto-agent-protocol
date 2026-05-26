@@ -83,6 +83,10 @@ const config: Config = {
   themeConfig: {
     navbar: {
       title: "Auto Agent Protocol",
+      logo: {
+        alt: "Auto Agent Protocol logo",
+        src: "img/logo.png",
+      },
       items: [
         {
           type: "docSidebar",
