@@ -43,6 +43,12 @@
   margin-top: 2rem;
 }
 
+.heroGithubButton {
+  margin-left: 1rem;
+  color: white;
+  border-color: white;
+}
+
 .features {
   display: flex;
   align-items: center;

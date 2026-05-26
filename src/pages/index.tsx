@@ -21,9 +21,8 @@ function Hero() {
                 Read the Spec
               </Link>
               <Link
-                className="button button--outline button--lg"
+                className={clsx("button button--outline button--lg", styles.heroGithubButton)}
                 to="https://github.com/auto-agent-protocol/auto-agent-protocol"
-                style={{ marginLeft: "1rem", color: "white", borderColor: "white" }}
               >
                 GitHub
               </Link>
