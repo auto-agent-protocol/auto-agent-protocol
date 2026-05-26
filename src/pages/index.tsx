@@ -29,7 +29,13 @@ function Hero() {
             </div>
           </div>
           <div className={styles.heroImage}>
-            <img src="/img/hero.png" alt="A buyer agent and a dealership digital storefront connected by typed AAP messages" />
+            <img
+              src="/img/hero.png"
+              alt="A buyer agent and a dealership digital storefront connected by typed AAP messages"
+              width="1376"
+              height="768"
+              fetchpriority="high"
+            />
           </div>
         </div>
       </div>
@@ -111,6 +117,10 @@ function Skills() {
               src="/img/skills-overview.png"
               alt="Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit"
               className={styles.fullImage}
+              width="1376"
+              height="768"
+              loading="lazy"
+              decoding="async"
             />
           </div>
         </div>
@@ -129,6 +139,10 @@ function Pricing() {
               src="/img/pricing-ladder.png"
               alt="Vehicle pricing ladder: msrp, list_price, offered_price, and the FTC-final price"
               className={styles.fullImage}
+              width="1376"
+              height="768"
+              loading="lazy"
+              decoding="async"
             />
           </div>
           <div className="col col--5">

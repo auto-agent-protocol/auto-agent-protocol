@@ -23,6 +23,7 @@
 
 .heroImage img {
   width: 100%;
+  height: auto;
   max-width: 560px;
   border-radius: 12px;
   box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
@@ -83,6 +84,7 @@
 
 .fullImage {
   width: 100%;
+  height: auto;
   border-radius: 10px;
   box-shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
 }
