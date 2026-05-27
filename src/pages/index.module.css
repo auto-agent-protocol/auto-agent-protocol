@@ -23,6 +23,7 @@
 
 .heroImage img {
   width: 100%;
+  height: auto;
   max-width: 560px;
   border-radius: 12px;
   box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
@@ -43,6 +44,12 @@
   margin-top: 2rem;
 }
 
+.heroGithubButton {
+  margin-left: 1rem;
+  color: white;
+  border-color: white;
+}
+
 .features {
   display: flex;
   align-items: center;
@@ -53,7 +60,8 @@
   padding: 1.5rem;
 }
 
-.feature h3 {
+.feature h2 {
+  font-size: 1.5rem;
   margin-bottom: 0.5rem;
 }
 
@@ -76,6 +84,7 @@
 
 .fullImage {
   width: 100%;
+  height: auto;
   border-radius: 10px;
   box-shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
 }
@@ -84,6 +93,7 @@
   padding: 3rem 0;
 }
 
-.protocols h4 {
+.protocols h3 {
+  font-size: 1.25rem;
   margin-bottom: 0.5rem;
 }
