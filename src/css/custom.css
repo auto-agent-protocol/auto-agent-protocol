@@ -30,3 +30,13 @@
   max-width: 600px;
   margin: 0 auto;
 }
+
+.hero--primary,
+.hero--primary .hero__title,
+.hero--primary .hero__subtitle {
+  color: white;
+}
+
+[data-theme="dark"] .navbar__logo img {
+  filter: brightness(0) invert(1);
+}
