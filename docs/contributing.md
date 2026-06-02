@@ -56,7 +56,7 @@ Documentation prose under `docs/` may receive editorial fixes (typos, clarificat
 
 The following are intentionally out of scope for v0.2; pull requests adding them to v0.2 will not be accepted:
 
-- Authentication beyond no-scheme (public) and `bearer`. (mTLS, OAuth flows, signed requests.)
+- Authentication flows. AAP defines none; agents are public by default and auth is left to A2A's native `securitySchemes` / `securityRequirements`.
 - Payments / checkout / financing approval. (See ACP for commerce checkout.)
 - RFQ / quote / desking flows beyond `offered_price`.
 - Trade-in valuation pricing logic.

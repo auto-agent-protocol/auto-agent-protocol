@@ -51,10 +51,7 @@
   },
   "appointment": {
     "appointment_type": "test_drive",
-    "requested_windows": [
-      { "start": "2026-05-03T18:00:00Z", "end": "2026-05-03T19:00:00Z" }
-    ],
-    "timezone": "America/Los_Angeles",
+    "appointment_at": "2026-05-03T18:00:00Z",
     "duration_minutes": 60,
     "notes": "I'd like to test the CR-V and have my Passat appraised in the same visit."
   },

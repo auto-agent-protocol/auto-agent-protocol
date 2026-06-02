@@ -34,7 +34,7 @@ AAP v0.2 defines a **vocabulary** of five standard skill IDs that cover the read
 | `inventory.vehicle` | Detail view of one specific vehicle (by VIN, stock, or vehicle_id) |
 | `lead.submit` | Unified consented lead carrying customer info plus optional vehicle of interest, trade-in, and appointment |
 
-It does NOT cover authentication beyond `bearer`, payments, financing approval, RFQ/quote workflows, trade-in valuations, or reservations. Future versions MAY extend this surface; v0.2 is intentionally minimal.
+It does NOT define authentication (v0.2 agents are public by default; auth is left to A2A), payments, financing approval, RFQ/quote workflows, trade-in valuations, or reservations. Future versions MAY extend this surface; v0.2 is intentionally minimal.
 
 ## Layered architecture
 
@@ -78,7 +78,7 @@ Fetch the A2A agent card at the dealer's well-known URL:
 curl https://demo-toyota.example.com/.well-known/agent-card.json
 ```
 
-Confirm the card lists the AAP extension URI under `capabilities.extensions[].uri` and exposes at least one `supported_interfaces[]` entry whose `protocol_binding` is `JSONRPC` or `HTTP+JSON`.
+Confirm the card lists the AAP extension URI under `capabilities.extensions[].uri` and exposes at least one `supportedInterfaces[]` entry whose `protocolBinding` is `JSONRPC` or `HTTP+JSON`.
 
 ### 2. Pick a binding
 

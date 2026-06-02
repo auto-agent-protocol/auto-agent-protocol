@@ -23,7 +23,6 @@
         "INVALID_CONSENT",
         "APPOINTMENT_TIME_UNAVAILABLE",
         "IDEMPOTENCY_CONFLICT",
-        "AUTH_REQUIRED",
         "RATE_LIMITED",
         "INTERNAL_ERROR"
       ],

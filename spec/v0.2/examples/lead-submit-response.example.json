@@ -6,10 +6,7 @@
     "appointment": {
       "appointment_id": "appt_2026_04_30_00128",
       "status": "confirmed",
-      "confirmed_window": {
-        "start": "2026-05-03T18:00:00Z",
-        "end": "2026-05-03T19:00:00Z"
-      }
+      "confirmed_at": "2026-05-03T18:00:00Z"
     },
     "dealer": {
       "name": "Demo Toyota",

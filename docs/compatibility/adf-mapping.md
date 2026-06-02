@@ -32,8 +32,8 @@ This page documents the field-by-field translation. The dealer agent (or the dea
 | `vehicle_of_interest.transmission` | `<vehicle interest="buy"><transmission>...</transmission></vehicle>` | Optional. ADF expects `A` or `M`; the mapper folds `automatic`/`manual` (and variants like `8-speed automatic`) accordingly. |
 | `vehicle_of_interest.mileage` | `<vehicle interest="buy"><odometer units="mi">...</odometer></vehicle>` | Optional; typical for used. |
 | `vehicle_of_interest.price` | `<vehicle interest="buy"><price type="quote" currency="USD">...</price></vehicle>` | Mapped from the AAP integer dollar amount (whole US dollars). |
-| `appointment.appointment_type` | Implicit on the parent vehicle's `interest`: `test_drive` → `<vehicle interest="test-drive">`; `handover` → no native ADF value, mapped as `<vehicle interest="buy">` with `<comments>handover scheduled</comments>`; otherwise (showroom_visit, phone_call, video_call, trade_in_appraisal) the appointment lives in `<comments>` of the customer block. | ADF predates structured appointments. |
-| `appointment.requested_windows[]` + `appointment.timezone` | `<customer><comments>Requested time windows: 2026-05-03 11:00–12:00 PT</comments></customer>` | Free-text in `<comments>`; CRMs route to the appointment desk. |
+| `appointment.appointment_type` | Implicit on the parent vehicle's `interest`: `test_drive` → `<vehicle interest="test-drive">`; `trade_in` → the `<vehicle interest="trade-in">` block; `sales` / `service` → the appointment lives in `<comments>` of the customer block. | ADF predates structured appointments. |
+| `appointment.appointment_at` | `<customer><comments>Requested appointment: 2026-05-03 11:00 PT</comments></customer>` | Free-text in `<comments>`; CRMs route to the appointment desk. |
 | `submitted_at` | `<requestdate>...</requestdate>` | ISO 8601 (e.g. `2026-04-30T10:15:10Z`). |
 | `message` | `<customer><comments>...</comments></customer>` | Free-text user message. |
 | `source_agent` | `<provider><name part="full">{source_agent}</name></provider>` | Identifies the buyer-agent provider (e.g. `chatgpt-shopping`). |
@@ -86,10 +86,7 @@ Given a [`lead.submit`](../skills/lead-submit.md) request bundling a vehicle of 
   },
   "appointment": {
     "appointment_type": "test_drive",
-    "requested_windows": [
-      { "start": "2026-05-03T18:00:00Z", "end": "2026-05-03T19:00:00Z" }
-    ],
-    "timezone": "America/Los_Angeles"
+    "appointment_at": "2026-05-03T18:00:00Z"
   },
   "message": "Interested in this Civic; can you confirm availability and best price with my trade?",
   "source_agent": "chatgpt-shopping",
@@ -137,7 +134,7 @@ The dealer-side ADF/XML payload is:
           <country>US</country>
         </address>
       </contact>
-      <comments>Interested in this Civic; can you confirm availability and best price with my trade? Requested test-drive window: 2026-05-03 11:00–12:00 PT.</comments>
+      <comments>Interested in this Civic; can you confirm availability and best price with my trade? Requested test-drive: 2026-05-03 11:00 PT.</comments>
     </customer>
 
     <provider>
@@ -155,9 +152,9 @@ Note:
 
 - `condition: "cpo"` becomes `<vehicle status="used">` PLUS `<comments>certified pre-owned</comments>`. Plain ADF has no certified value.
 - `appointment.appointment_type: "test_drive"` becomes `interest="test-drive"` on the `vehicle_of_interest` block. AAP `trade_in` maps to a second `<vehicle interest="trade-in">`.
-- `appointment.requested_windows[]` are folded into the customer `<comments>` since ADF has no native time-window element.
+- `appointment.appointment_at` is folded into the customer `<comments>` since ADF has no native appointment element.
 - The dealer name `Demo Toyota` is filled from the dealer agent's own profile, not from the buyer agent's request.
-- The user `message` and the appointment window land in customer `<comments>`.
+- The user `message` and the appointment time land in customer `<comments>`.
 
 ## What does NOT map to ADF
 

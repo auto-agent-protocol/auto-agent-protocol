@@ -25,15 +25,11 @@
   },
   "appointment": {
     "appointment_type": "test_drive",
-    "requested_windows": [
-      { "start": "2026-05-03T18:00:00Z", "end": "2026-05-03T19:00:00Z" },
-      { "start": "2026-05-03T19:30:00Z", "end": "2026-05-03T20:30:00Z" }
-    ],
-    "timezone": "America/Los_Angeles",
+    "appointment_at": "2026-05-03T18:00:00Z",
     "duration_minutes": 60,
     "notes": "I have a valid California driver's license and will bring proof of insurance."
   },
-  "message": "I'd like to test-drive the 2024 Honda CR-V EX-L (VIN 1HGCY2F57RA000001) Sunday afternoon, May 3, in either of the windows above (Pacific time).",
+  "message": "I'd like to test-drive the 2024 Honda CR-V EX-L (VIN 1HGCY2F57RA000001) on Sunday May 3 at 11:00 AM Pacific.",
   "source_agent": "gemini-assistant",
   "submitted_at": "2026-04-30T11:12:04Z"
 }

@@ -243,7 +243,7 @@ export type VehicleDetailRequest = {
 };
 
 /**
- * Dealer agent's response to a `lead.submit.request`. Carries the assigned `lead_id` and overall lead `status`, plus an optional appointment block when the request included an `appointment` (the dealer can confirm the requested window, propose alternatives, leave it as merely requested for human follow-up, or reject the appointment while still accepting the lead). Carried inside an A2A `Message.parts[].data` DataPart via `SendMessage`.
+ * Dealer agent's response to a `lead.submit.request`. Carries the assigned `lead_id` and overall lead `status`, plus an optional appointment block when the request included an `appointment` (the dealer can confirm the requested time, propose alternatives, leave it as merely requested for human follow-up, or reject the appointment while still accepting the lead). Carried inside an A2A `Message.parts[].data` DataPart via `SendMessage`.
  */
 export interface LeadSubmitResponse {
   /**
@@ -268,49 +268,19 @@ export interface LeadSubmitResponse {
        */
       appointment_id: string;
       /**
-       * Appointment status. `requested` = received but not yet scheduled (staff will follow up). `proposed` = dealer cannot honor any of the requested windows but is offering alternatives in `proposed_slots`. `confirmed` = dealer scheduled the appointment for `confirmed_window`. `rejected` = dealer cannot host this appointment (e.g. service unavailable).
+       * Appointment status. `requested` = received but not yet scheduled (staff will follow up). `proposed` = dealer cannot honor the requested time but is offering alternatives in `proposed_times`. `confirmed` = dealer scheduled the appointment for `confirmed_at`. `rejected` = dealer cannot host this appointment (e.g. service unavailable).
        */
       status: "requested" | "proposed" | "confirmed" | "rejected";
       /**
-       * Present iff `status` is `confirmed`. `start` and `end` are ISO 8601 / RFC 3339 timestamps with timezone offsets.
+       * Present iff `status` is `confirmed`. The scheduled start time as an ISO 8601 / RFC 3339 timestamp with timezone offset.
        */
-      confirmed_window?: {
-        /**
-         * ISO 8601 / RFC 3339 confirmed-window start with timezone offset.
-         */
-        start: string;
-        /**
-         * ISO 8601 / RFC 3339 confirmed-window end with timezone offset.
-         */
-        end?: string;
-      };
+      confirmed_at?: string;
       /**
-       * Present iff `status` is `proposed`. Time slots the dealer offers as alternatives. Each slot's `start` and `end` are ISO 8601 / RFC 3339 timestamps with timezone offsets.
+       * Present iff `status` is `proposed`. Alternative start times the dealer offers, each an ISO 8601 / RFC 3339 timestamp with timezone offset.
        *
        * @minItems 1
        */
-      proposed_slots?: [
-        {
-          /**
-           * ISO 8601 / RFC 3339 proposed-slot start with timezone offset.
-           */
-          start: string;
-          /**
-           * ISO 8601 / RFC 3339 proposed-slot end with timezone offset.
-           */
-          end?: string;
-        },
-        ...{
-          /**
-           * ISO 8601 / RFC 3339 proposed-slot start with timezone offset.
-           */
-          start: string;
-          /**
-           * ISO 8601 / RFC 3339 proposed-slot end with timezone offset.
-           */
-          end?: string;
-        }[]
-      ];
+      proposed_times?: [string, ...string[]];
     };
     /**
      * Convenience contact summary for the buyer agent to surface follow-up details to the user.
@@ -550,7 +520,6 @@ export interface Error {
     | "INVALID_CONSENT"
     | "APPOINTMENT_TIME_UNAVAILABLE"
     | "IDEMPOTENCY_CONFLICT"
-    | "AUTH_REQUIRED"
     | "RATE_LIMITED"
     | "INTERNAL_ERROR";
   /**
@@ -682,44 +651,17 @@ export interface ConsentGrant {
 }
 
 /**
- * An appointment request piggybacked on a `lead.submit.request`. The vehicle reference for the appointment is IMPLICIT — it is whatever is in the parent `vehicle_of_interest`. A standalone showroom visit can omit any vehicle. For a trade-in appraisal, the parent's `trade_in` is the vehicle being appraised.
+ * An appointment request piggybacked on a `lead.submit.request`. The vehicle reference for the appointment is IMPLICIT — it is whatever is in the parent `vehicle_of_interest` (or `trade_in` for a trade-in appraisal). A standalone sales or service visit can omit any vehicle.
  */
 export interface Appointment {
   /**
    * Kind of appointment the buyer is requesting.
    */
-  appointment_type: "test_drive" | "showroom_visit" | "handover" | "phone_call" | "video_call" | "trade_in_appraisal";
+  appointment_type: "sales" | "service" | "test_drive" | "trade_in";
   /**
-   * One or more time windows the buyer is available. Dealer agent MAY choose any (returning a `confirmed` appointment) or propose alternatives (returning a `proposed` appointment with `proposed_slots`). Each window's `start` and `end` are ISO 8601 / RFC 3339 timestamps and MUST include a timezone offset (Z or ±HH:MM).
-   *
-   * @minItems 1
+   * Requested start time of the appointment as an ISO 8601 / RFC 3339 timestamp that MUST include a timezone offset (Z or ±HH:MM), e.g. '2026-05-03T11:00:00-07:00'. Optional — when omitted, the dealer follows up to schedule a time.
    */
-  requested_windows?: [
-    {
-      /**
-       * ISO 8601 / RFC 3339 window start with timezone offset (e.g. '2026-05-03T18:00:00Z' or '2026-05-03T11:00:00-07:00').
-       */
-      start: string;
-      /**
-       * Optional ISO 8601 / RFC 3339 window end. When omitted, the dealer infers the end from `duration_minutes` or its own default.
-       */
-      end?: string;
-    },
-    ...{
-      /**
-       * ISO 8601 / RFC 3339 window start with timezone offset (e.g. '2026-05-03T18:00:00Z' or '2026-05-03T11:00:00-07:00').
-       */
-      start: string;
-      /**
-       * Optional ISO 8601 / RFC 3339 window end. When omitted, the dealer infers the end from `duration_minutes` or its own default.
-       */
-      end?: string;
-    }[]
-  ];
-  /**
-   * IANA timezone identifier (e.g. 'America/Los_Angeles') for interpreting `requested_windows`. Recommended when the buyer agent's locale differs from the dealer's.
-   */
-  timezone?: string;
+  appointment_at?: string;
   /**
    * Expected appointment duration in minutes. If omitted, the dealer applies its default for `appointment_type`.
    */
@@ -728,96 +670,5 @@ export interface Appointment {
    * Free-text note from the buyer (e.g. 'I'd like to bring my partner', 'parking instructions please').
    */
   notes?: string;
-}
-
-/**
- * A2A v1.0-compatible agent card with the AAP automotive retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. The 'capabilities.extensions' array MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.2' for the agent to be a compliant AAP dealer agent.
- */
-export interface AgentCard {
-  /**
-   * Human-readable agent name.
-   */
-  name: string;
-  /**
-   * Short description of what this agent does.
-   */
-  description: string;
-  /**
-   * Agent version string (semver recommended).
-   */
-  version: string;
-  /**
-   * Organization operating the agent.
-   */
-  provider?: {
-    organization: string;
-    url?: string;
-    [k: string]: any;
-  };
-  /**
-   * URL to human-readable documentation describing this agent's behavior.
-   */
-  documentation_url?: string;
-  /**
-   * Network endpoints exposed by this agent. Each entry declares one A2A protocol binding. AAP supports 'JSONRPC' and 'HTTP+JSON'; gRPC is out of scope.
-   *
-   * @minItems 1
-   */
-  supported_interfaces: [
-    {
-      url: string;
-      /**
-       * A2A protocol binding identifier. AAP only documents JSONRPC and HTTP+JSON.
-       */
-      protocol_binding: "JSONRPC" | "HTTP+JSON";
-      protocol_version?: string;
-    },
-    ...{
-      url: string;
-      /**
-       * A2A protocol binding identifier. AAP only documents JSONRPC and HTTP+JSON.
-       */
-      protocol_binding: "JSONRPC" | "HTTP+JSON";
-      protocol_version?: string;
-    }[]
-  ];
-  /**
-   * A2A capability flags and extensions.
-   */
-  capabilities: {
-    streaming?: boolean;
-    push_notifications?: boolean;
-    extended_agent_card?: boolean;
-    /**
-     * List of declared A2A extensions. MUST include an AAP automotive retail entry.
-     */
-    extensions: Extension[];
-    [k: string]: any;
-  };
-  /**
-   * Default content types accepted by this agent.
-   */
-  default_input_modes?: string[];
-  /**
-   * Default content types produced by this agent.
-   */
-  default_output_modes?: string[];
-  /**
-   * Skills the agent actually exposes. AAP defines 5 standard skill IDs (`dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`); a compliant agent declares the subset it implements — anything from a single skill (e.g. just `inventory.search`) up to all five. AAP RECOMMENDS at least `inventory.search` plus `lead.submit` to deliver an end-to-end shopping flow, but neither is mandatory. Buyer agents MUST inspect `skills[]` to discover what is supported and MUST NOT assume any particular skill is implemented based solely on the AAP extension URI being present.
-   */
-  skills: Skill[];
-  /**
-   * A2A-style security scheme definitions. AAP supports either no scheme (public agent) or a 'bearer' scheme.
-   */
-  security_schemes?: {
-    [k: string]: any;
-  };
-  /**
-   * Required security schemes (alternatives, by name). Empty or absent means anonymous access is allowed.
-   */
-  security_requirements?: {
-    [k: string]: any;
-  }[];
-  [k: string]: any;
 }
 

@@ -11,9 +11,6 @@ skills:
     response_type: dealer.information.response
     media_type_request: application/vnd.autoagent.dealer-information-request+json
     media_type_response: application/vnd.autoagent.dealer-information-response+json
-    anonymous_allowed: true
-    consent_required: false
-    adf_compatible: false
 
   - id: inventory.facets
     name: Inventory Facets
@@ -24,9 +21,6 @@ skills:
     response_type: inventory.facets.response
     media_type_request: application/vnd.autoagent.inventory-facets-request+json
     media_type_response: application/vnd.autoagent.inventory-facets-response+json
-    anonymous_allowed: true
-    consent_required: false
-    adf_compatible: false
 
   - id: inventory.search
     name: Inventory Search
@@ -37,9 +31,6 @@ skills:
     response_type: inventory.search.response
     media_type_request: application/vnd.autoagent.inventory-search-request+json
     media_type_response: application/vnd.autoagent.inventory-search-response+json
-    anonymous_allowed: true
-    consent_required: false
-    adf_compatible: false
 
   - id: inventory.vehicle
     name: Vehicle Detail
@@ -50,9 +41,6 @@ skills:
     response_type: inventory.vehicle.response
     media_type_request: application/vnd.autoagent.vehicle-detail-request+json
     media_type_response: application/vnd.autoagent.vehicle-detail-response+json
-    anonymous_allowed: true
-    consent_required: false
-    adf_compatible: false
 
   - id: lead.submit
     name: Submit Lead
@@ -63,6 +51,3 @@ skills:
     response_type: lead.submit.response
     media_type_request: application/vnd.autoagent.lead-submit-request+json
     media_type_response: application/vnd.autoagent.lead-submit-response+json
-    anonymous_allowed: false
-    consent_required: true
-    adf_compatible: true

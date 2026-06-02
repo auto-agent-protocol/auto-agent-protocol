@@ -17,9 +17,6 @@ interface Skill {
   response_type: string;
   media_type_request: string;
   media_type_response: string;
-  anonymous_allowed: boolean;
-  consent_required: boolean;
-  adf_compatible: boolean;
 }
 
 interface SkillsManifest {

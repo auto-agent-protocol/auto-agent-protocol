@@ -27,7 +27,7 @@
     },
     "appointment": {
       "$ref": "./appointment.schema.json",
-      "description": "An appointment request the buyer wants scheduled alongside this lead. Optional. The vehicle for the appointment is implicit: `vehicle_of_interest` for test drives / handover, `trade_in` for trade-in appraisals."
+      "description": "An appointment request the buyer wants scheduled alongside this lead. Optional. `appointment_type` is one of `sales` | `service` | `test_drive` | `trade_in`, and `appointment_at` is the requested start time. The vehicle for the appointment is implicit: `vehicle_of_interest` for a test drive, `trade_in` for a trade-in appraisal."
     },
     "message": {
       "type": "string",

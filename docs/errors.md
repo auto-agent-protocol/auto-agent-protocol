@@ -49,8 +49,7 @@ The 11 codes, their meaning, recommended HTTP status, recommended JSON-RPC code,
 | `VEHICLE_UNAVAILABLE` | The vehicle exists but its `status` is no longer one of `available` \| `intransit` \| `pending`. | 409 | -32000 (Server error) | `false` |
 | `CONTACT_CONSENT_REQUIRED` | `customer` info present without `consent`, or follow-up channel not in `consent.allowed_channels`. | 403 | -32000 (Server error) | `false` |
 | `INVALID_CONSENT` | `consent` is present but malformed, expired, or its scope does not cover the called skill. | 403 | -32000 (Server error) | `false` |
-| `APPOINTMENT_TIME_UNAVAILABLE` | None of the requested windows can be honored AND the dealer has no proposed alternatives. | 409 | -32000 (Server error) | `false` |
-| `AUTH_REQUIRED` | Bearer token missing or invalid. | 401 | -32001 (Server error reserved) | `false` |
+| `APPOINTMENT_TIME_UNAVAILABLE` | The requested `appointment_at` cannot be honored AND the dealer has no proposed alternatives. | 409 | -32000 (Server error) | `false` |
 | `RATE_LIMITED` | Client has exceeded the dealer's rate limit. | 429 | -32002 (Server error reserved) | **`true`** |
 | `INTERNAL_ERROR` | Unhandled dealer-side error. | 500 | -32603 (Internal error) | `true` |
 
@@ -92,11 +91,7 @@ Returned when `consent` is structurally present but unusable: e.g. `consent.scop
 
 ### `APPOINTMENT_TIME_UNAVAILABLE`
 
-Returned by `lead.submit` when an `appointment` block was included, none of the user's `requested_windows[]` can be honored, AND the dealer has no `proposed_slots` to offer. Dealers SHOULD prefer `data.appointment.status: "proposed"` with alternative slots over this error whenever possible. The lead itself MAY still be `received` even when the appointment portion fails.
-
-### `AUTH_REQUIRED`
-
-Returned when the agent's `security_requirements` is non-empty and the request is missing a valid `Authorization: Bearer <token>` header. The buyer agent SHOULD obtain credentials and retry; the error itself is `retryable: false` because retrying the same unauthenticated request would fail identically.
+Returned by `lead.submit` when an `appointment` block was included, the requested `appointment_at` cannot be honored, AND the dealer has no `proposed_times` to offer. Dealers SHOULD prefer `data.appointment.status: "proposed"` with alternative times over this error whenever possible. The lead itself MAY still be `received` even when the appointment portion fails.
 
 ### `RATE_LIMITED`
 

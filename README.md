@@ -23,13 +23,14 @@ v0.2 is a **simplification** of v0.1: a single `agent-card.json` is the only fil
 - **Leads**: a single unified `lead.submit` accepting a consented customer plus any combination of vehicle of interest, trade-in, and appointment
 - **ADF/XML mapping** documented for legacy CRM compatibility
 
-v0.2 does **not** cover: authentication beyond bearer, payments, financing approval, RFQ/quote flows, trade-in valuations, or reservations.
+v0.2 does **not** cover: authentication (agents are public by default; auth is left to A2A's native `securitySchemes`), payments, financing approval, RFQ/quote flows, trade-in valuations, or reservations.
 
 ![How an AI agent buys a car — discover via /.well-known/agent-card.json, browse with inventory.search, inspect with inventory.vehicle, and submit a unified lead.submit carrying customer + vehicle of interest + trade-in + appointment](static/img/buyer-journey.png)
 
 ## Quick links
 
 - **Specification**: [autoagentprotocol.org](https://autoagentprotocol.org)
+- **Example agent card** (the single file a dealer deploys): [`spec/v0.2/examples/agent-card.example.json`](spec/v0.2/examples/agent-card.example.json)
 - **JSON Schemas**: [`spec/v0.2/schemas/`](spec/v0.2/schemas/)
 - **Examples**: [`spec/v0.2/examples/`](spec/v0.2/examples/)
 - **OpenAPI 3.1** (built at deploy time): `https://autoagentprotocol.org/v0.2/openapi-jsonrpc.yaml`, `https://autoagentprotocol.org/v0.2/openapi-rest.yaml`

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://autoagentprotocol.org/v0.2/schemas/lead-submit-response.schema.json",
   "title": "LeadSubmitResponse",
-  "description": "Dealer agent's response to a `lead.submit.request`. Carries the assigned `lead_id` and overall lead `status`, plus an optional appointment block when the request included an `appointment` (the dealer can confirm the requested window, propose alternatives, leave it as merely requested for human follow-up, or reject the appointment while still accepting the lead). Carried inside an A2A `Message.parts[].data` DataPart via `SendMessage`.",
+  "description": "Dealer agent's response to a `lead.submit.request`. Carries the assigned `lead_id` and overall lead `status`, plus an optional appointment block when the request included an `appointment` (the dealer can confirm the requested time, propose alternatives, leave it as merely requested for human follow-up, or reject the appointment while still accepting the lead). Carried inside an A2A `Message.parts[].data` DataPart via `SendMessage`.",
   "type": "object",
   "properties": {
     "type": {
@@ -32,31 +32,18 @@
             "status": {
               "type": "string",
               "enum": ["requested", "proposed", "confirmed", "rejected"],
-              "description": "Appointment status. `requested` = received but not yet scheduled (staff will follow up). `proposed` = dealer cannot honor any of the requested windows but is offering alternatives in `proposed_slots`. `confirmed` = dealer scheduled the appointment for `confirmed_window`. `rejected` = dealer cannot host this appointment (e.g. service unavailable)."
+              "description": "Appointment status. `requested` = received but not yet scheduled (staff will follow up). `proposed` = dealer cannot honor the requested time but is offering alternatives in `proposed_times`. `confirmed` = dealer scheduled the appointment for `confirmed_at`. `rejected` = dealer cannot host this appointment (e.g. service unavailable)."
             },
-            "confirmed_window": {
-              "type": "object",
-              "description": "Present iff `status` is `confirmed`. `start` and `end` are ISO 8601 / RFC 3339 timestamps with timezone offsets.",
-              "properties": {
-                "start": { "type": "string", "format": "date-time", "description": "ISO 8601 / RFC 3339 confirmed-window start with timezone offset." },
-                "end": { "type": "string", "format": "date-time", "description": "ISO 8601 / RFC 3339 confirmed-window end with timezone offset." }
-              },
-              "required": ["start"],
-              "additionalProperties": false
+            "confirmed_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Present iff `status` is `confirmed`. The scheduled start time as an ISO 8601 / RFC 3339 timestamp with timezone offset."
             },
-            "proposed_slots": {
+            "proposed_times": {
               "type": "array",
-              "description": "Present iff `status` is `proposed`. Time slots the dealer offers as alternatives. Each slot's `start` and `end` are ISO 8601 / RFC 3339 timestamps with timezone offsets.",
+              "description": "Present iff `status` is `proposed`. Alternative start times the dealer offers, each an ISO 8601 / RFC 3339 timestamp with timezone offset.",
               "minItems": 1,
-              "items": {
-                "type": "object",
-                "properties": {
-                  "start": { "type": "string", "format": "date-time", "description": "ISO 8601 / RFC 3339 proposed-slot start with timezone offset." },
-                  "end": { "type": "string", "format": "date-time", "description": "ISO 8601 / RFC 3339 proposed-slot end with timezone offset." }
-                },
-                "required": ["start"],
-                "additionalProperties": false
-              }
+              "items": { "type": "string", "format": "date-time" }
             }
           },
           "required": ["appointment_id", "status"],

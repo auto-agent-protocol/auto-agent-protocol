@@ -24,17 +24,11 @@ A2A v1.0 reshaped the JSON-RPC wire format. AAP examples on this page reflect th
 
 ## Endpoint and method
 
-A dealer agent advertises one or more JSON-RPC endpoints under `supported_interfaces[]` of its [agent card](../discovery.md). Each entry has `protocol_binding: "JSONRPC"` and a `url`.
+A dealer agent advertises one or more JSON-RPC endpoints under `supportedInterfaces[]` of its [agent card](../discovery.md). Each entry has `protocolBinding: "JSONRPC"` and a `url`.
 
 ```
 POST {jsonrpc-url}
 Content-Type: application/json
-```
-
-If the agent card declares a bearer scheme via `security_schemes` + `security_requirements`, every request MUST also send:
-
-```
-Authorization: Bearer <token>
 ```
 
 All AAP skills use a single JSON-RPC method:
@@ -448,11 +442,7 @@ The unified lead carries customer info plus any combination of `vehicle_of_inter
             },
             "appointment": {
               "appointment_type": "test_drive",
-              "requested_windows": [
-                { "start": "2026-05-02T17:00:00Z", "end": "2026-05-02T18:00:00Z" },
-                { "start": "2026-05-03T16:00:00Z", "end": "2026-05-03T17:00:00Z" }
-              ],
-              "timezone": "America/Los_Angeles",
+              "appointment_at": "2026-05-02T17:00:00Z",
               "duration_minutes": 60
             },
             "message": "Interested in this Civic; is it still available? Please appraise my Corolla at the same visit.",
@@ -490,10 +480,7 @@ The unified lead carries customer info plus any combination of `vehicle_of_inter
               "appointment": {
                 "appointment_id": "appt_2026_04_30_anna_001",
                 "status": "confirmed",
-                "confirmed_window": {
-                  "start": "2026-05-02T17:00:00Z",
-                  "end": "2026-05-02T18:00:00Z"
-                }
+                "confirmed_at": "2026-05-02T17:00:00Z"
               },
               "dealer": {
                 "name": "Demo Toyota",
@@ -549,7 +536,6 @@ Recommended JSON-RPC code mapping:
 | `CONTACT_CONSENT_REQUIRED` | -32000 | Application error. |
 | `INVALID_CONSENT` | -32000 | Application error. |
 | `APPOINTMENT_TIME_UNAVAILABLE` | -32000 | Application error. |
-| `AUTH_REQUIRED` | -32001 | Reserved server-error range; AAP-specific. |
 | `RATE_LIMITED` | -32002 | Reserved server-error range; AAP-specific. |
 | `INTERNAL_ERROR` | -32603 | JSON-RPC "Internal error". |
 
