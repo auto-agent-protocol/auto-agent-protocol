@@ -32,7 +32,7 @@ POST {base_url}/message:send
 Content-Type: application/json
 ```
 
-If the agent declares `auth_type: "bearer"`, every request MUST also send:
+If the agent card's `security_requirements` references the `bearer` scheme in `security_schemes`, every request MUST also send:
 
 ```
 Authorization: Bearer <token>

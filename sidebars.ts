@@ -6,7 +6,6 @@ const sidebars: SidebarsConfig = {
     "why",
     "a2a-profile",
     "discovery",
-    "contract-manifest",
     "pricing-and-ftc",
     {
       type: "category",

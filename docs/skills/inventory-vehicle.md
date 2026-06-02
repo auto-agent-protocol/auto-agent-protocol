@@ -45,20 +45,20 @@ The request MUST include **at least one** of `vin`, `stock`, or `vehicle_id` (`a
 
 ## Response shape
 
-The response wraps a `VehicleDetail` object — a `Vehicle` plus arbitrary additional dealer-specific properties (`additionalProperties: true`).
+The response wraps a `Vehicle` object — a `Vehicle` plus arbitrary additional dealer-specific properties (`additionalProperties: true`).
 
 ```json
 {
   "type": "inventory.vehicle.response",
   "data": {
     "...Vehicle (all fields)": "...",
-    "...optional extra dealer-specific fields": "e.g. equipment[], history[], certification, warranty"
+    "...optional extra dealer-specific fields": "e.g. carfax_url, warranty, title_status"
   },
   "message": "Optional contextual note."
 }
 ```
 
-`data` SHOULD include `vin` or `stock` (recommended for any availability claim) and the identification fields `year`, `make`, `model` to be useful. `condition` (when present) MUST be one of `new` | `used` | `cpo`. `data` MUST include `last_verified_at` whenever the agent is making availability claims about this listing — see [Behavior rules](../behavior-rules.md).
+`data` SHOULD include `vin` or `stock` (recommended for any availability claim) and the identification fields `year`, `make`, `model` to be useful. `condition` (when present) MUST be one of `new` | `used` | `cpo`. `data` MUST include `updated_at` whenever the agent is making availability claims about this listing — see [Behavior rules](../behavior-rules.md).
 
 Pricing fields:
 
@@ -102,36 +102,37 @@ Pricing fields:
     "driveline": "fwd",
     "engine": "2.0L I4",
     "fuel": "gas",
-    "mpg": { "city": 32, "highway": 42 },
-    "msrp":          { "amount": 26500, "currency": "USD" },
-    "list_price":    { "amount": 24990, "currency": "USD" },
-    "offered_price": { "amount": 26615, "currency": "USD" },
-    "price":         { "amount": 26780, "currency": "USD" },
+    "city_mpg": 32,
+    "highway_mpg": 42,
+    "msrp": 26500,
+    "list_price": 24990,
+    "offered_price": 26615,
+    "price": 26780,
     "zip": "94105",
     "mileage": 22150,
+    "rooftop": "Demo Toyota San Francisco",
     "photos": [
       "https://demo-toyota.example.com/photos/T12345-1.jpg",
       "https://demo-toyota.example.com/photos/T12345-2.jpg"
     ],
     "vdp_url": "https://demo-toyota.example.com/inventory/T12345",
-    "status": "In Stock",
+    "status": "available",
     "notes": "Honda CPO eligible.",
-    "last_verified_at": "2026-04-30T10:15:00Z",
-    "equipment": [
+    "inventory_date": "2026-04-12",
+    "updated_at": "2026-04-30T10:15:00Z",
+    "features": [
       "Adaptive Cruise Control",
       "Lane Keeping Assist",
       "Apple CarPlay",
       "Heated Front Seats"
     ],
-    "certification": {
-      "program": "Honda True Certified+",
-      "warranty_remaining_months": 60
-    }
+    "carfax_url": "https://demo-toyota.example.com/carfax/T12345",
+    "warranty": "Honda True Certified+, 60 months remaining"
   }
 }
 ```
 
-The response includes two extra dealer-specific properties (`equipment`, `certification`) that are not part of the base Vehicle schema. AAP allows them via `VehicleDetail`'s `additionalProperties: true`.
+`features` is a declared field on the unified `Vehicle`. The response above also includes extra dealer-specific properties (`carfax_url`, `warranty`) that are not part of the base Vehicle schema; AAP allows them via the Vehicle's `additionalProperties: true` (other common extras include `title_status`).
 
 ## Without `zip`
 
@@ -147,6 +148,6 @@ If `zip` is omitted from the request, the response MUST omit `offered_price`. `p
 ## Errors
 
 - `VEHICLE_NOT_FOUND` — none of the supplied identifiers match a listing.
-- `VEHICLE_UNAVAILABLE` — the listing exists but is no longer available (e.g. status set to "Sold").
+- `VEHICLE_UNAVAILABLE` — the listing exists but is no longer available (e.g. its status is no longer one of `available` | `intransit` | `pending`).
 
 See [Errors](../errors.md) for full semantics.

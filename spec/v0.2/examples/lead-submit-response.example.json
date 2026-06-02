@@ -1,0 +1,20 @@
+{
+  "type": "lead.submit.response",
+  "data": {
+    "lead_id": "lead_2026_04_30_00842",
+    "status": "received",
+    "appointment": {
+      "appointment_id": "appt_2026_04_30_00128",
+      "status": "confirmed",
+      "confirmed_window": {
+        "start": "2026-05-03T18:00:00Z",
+        "end": "2026-05-03T19:00:00Z"
+      }
+    },
+    "dealer": {
+      "name": "Demo Toyota",
+      "phone": "+14155550100"
+    }
+  },
+  "message": "Thanks, Piotr. We received your inquiry on the 2024 Honda CR-V EX-L (VIN 1HGCY2F57RA000001), confirmed your test drive for Sunday May 3 at 11:00 AM Pacific, and queued your 2020 Passat for an in-person appraisal at the same visit. A sales advisor will call +1 (415) 555-5678 within one business hour with the out-the-door number for ZIP 94107 and a preliminary trade-in estimate."
+}

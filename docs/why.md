@@ -39,13 +39,12 @@ A2A standardizes how agents exchange messages, not what is in them. Two A2A-comp
 
 AAP fixes the field names, types, and required behavior:
 
-- **Five canonical skill IDs** form the AAP v0.1 vocabulary; dealer agents implement whichever subset matches their capabilities.
+- **Five canonical skill IDs** form the AAP v0.2 vocabulary; dealer agents implement whichever subset matches their capabilities.
 - **Strict typed `DataParts`** (`<scope>.<thing>.request`, `<scope>.<thing>.response`) so a buyer agent can validate before sending.
-- **Four explicit pricing fields** (`msrp`, `list_price`, `offered_price`, `price`) where `price` is the FTC-final out-the-door amount — see [Pricing and FTC compliance](./pricing-and-ftc.md).
+- **Four explicit pricing fields** (`msrp`, `list_price`, `offered_price`, `price`), each an integer in whole US dollars, where `price` is the FTC-final out-the-door amount — see [Pricing and FTC compliance](./pricing-and-ftc.md).
 - **`ConsentGrant`** structure required when a lead carries customer contact info, with explicit `allowed_channels` and `scope`.
-- **Free-text vehicle `status`** (so each dealer keeps its own inventory vocabulary like "In Stock", "In Transit", "Pending", "Sold") combined with a hard MUST that known-sold vehicles are not returned as available — see [behavior rules](./behavior-rules.md).
-- **A machine-readable contract manifest** at `/.well-known/auto-agent-contract.json` so an LLM-driven buyer agent can plan calls deterministically — see the [contract manifest](./contract-manifest.md).
+- **A controlled vehicle `status` enum** (`available`, `intransit`, `pending`) — these are the only statuses that appear in an inventory feed; a vehicle in any other state (sold, reserved, in service, etc.) is out of stock and is omitted by the dealer and ignored by the buyer — see [behavior rules](./behavior-rules.md).
 
 ## First automotive-specific A2A profile
 
-AAP v0.1 is the first published A2A profile written specifically for the automotive retail vertical. Its goal is narrow: a buyer agent should be able to talk to any compliant dealer agent — Toyota, Honda, an independent used-car lot, a CDK/Reynolds-backed group — through identical typed messages, with consent, pricing, and ADF compatibility built in from day one.
+AAP v0.2 is the first published A2A profile written specifically for the automotive retail vertical. Its goal is narrow: a buyer agent should be able to talk to any compliant dealer agent — Toyota, Honda, an independent used-car lot, a CDK/Reynolds-backed group — through identical typed messages, with consent, pricing, and ADF compatibility built in from day one.

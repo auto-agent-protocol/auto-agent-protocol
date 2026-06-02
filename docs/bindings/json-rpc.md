@@ -31,7 +31,7 @@ POST {jsonrpc-url}
 Content-Type: application/json
 ```
 
-If the agent declares `auth_type: "bearer"`, every request MUST also send:
+If the agent card declares a bearer scheme via `security_schemes` + `security_requirements`, every request MUST also send:
 
 ```
 Authorization: Bearer <token>
@@ -147,16 +147,26 @@ The remainder of this page shows the full envelope for each of the five skills.
           "data": {
             "type": "dealer.information.response",
             "data": {
-              "dealer_id": "dealer_demo_toyota",
-              "legal_name": "Demo Toyota of San Francisco, LLC",
-              "trade_name": "Demo Toyota",
-              "brands": ["Toyota"],
-              "address": {
-                "address_line_1": "100 Market St",
-                "city": "San Francisco",
-                "state": "CA",
-                "zip": "94105"
-              }
+              "name": "Demo Auto Group",
+              "rooftops": [
+                {
+                  "name": "Demo Toyota San Francisco",
+                  "legal_name": "Demo Toyota of San Francisco, LLC",
+                  "website": "https://demo-toyota.example.com",
+                  "geo": { "latitude": 37.77, "longitude": -122.41 },
+                  "emails": [{ "name": "Sales", "value": "sales@demo-toyota.example.com" }],
+                  "phones": [{ "name": "Sales", "value": "+14155550100" }],
+                  "address": {
+                    "country": "US",
+                    "state": "CA",
+                    "city": "San Francisco",
+                    "address_line_1": "100 Market St",
+                    "zip": "94105"
+                  },
+                  "timezone": "America/Los_Angeles",
+                  "capabilities": ["sales", "service", "financing", "trade_in"]
+                }
+              ]
             }
           },
           "mediaType": "application/vnd.autoagent.dealer-information-response+json"
@@ -292,10 +302,12 @@ The remainder of this page shows the full envelope for each of the five skills.
                   "model": "Civic",
                   "trim": "EX",
                   "condition": "cpo",
-                  "list_price": { "amount": 24990, "currency": "USD" },
-                  "price": { "amount": 26780, "currency": "USD" },
-                  "status": "In Stock",
-                  "last_verified_at": "2026-04-30T10:15:00Z"
+                  "list_price": 24990,
+                  "price": 26780,
+                  "status": "available",
+                  "rooftop": "Demo Toyota San Francisco",
+                  "inventory_date": "2026-04-12",
+                  "updated_at": "2026-04-30T10:15:00Z"
                 }
               ]
             }
@@ -362,14 +374,19 @@ The remainder of this page shows the full envelope for each of the five skills.
               "model": "Civic",
               "trim": "EX",
               "condition": "cpo",
-              "msrp":          { "amount": 26500, "currency": "USD" },
-              "list_price":    { "amount": 24990, "currency": "USD" },
-              "offered_price": { "amount": 26615, "currency": "USD" },
-              "price":         { "amount": 26780, "currency": "USD" },
+              "msrp": 26500,
+              "list_price": 24990,
+              "offered_price": 26615,
+              "price": 26780,
               "zip": "94105",
-              "status": "In Stock",
+              "status": "available",
+              "rooftop": "Demo Toyota San Francisco",
+              "city_mpg": 31,
+              "highway_mpg": 40,
+              "features": ["Adaptive Cruise Control", "Apple CarPlay", "Lane Keep Assist"],
               "vdp_url": "https://demo-toyota.example.com/inventory/T12345",
-              "last_verified_at": "2026-04-30T10:15:00Z"
+              "inventory_date": "2026-04-12",
+              "updated_at": "2026-04-30T10:15:00Z"
             }
           },
           "mediaType": "application/vnd.autoagent.vehicle-detail-response+json"

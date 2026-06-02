@@ -27,7 +27,7 @@ function toMcpToolName(skillId: string): string {
 }
 
 async function main() {
-  const versions = ["v0.1"];
+  const versions = ["v0.1", "v0.2"];
 
   for (const version of versions) {
     const skillsFile = resolve(ROOT, "spec", version, "skills.yaml");

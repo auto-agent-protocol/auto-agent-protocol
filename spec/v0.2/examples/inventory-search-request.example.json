@@ -1,0 +1,15 @@
+{
+  "type": "inventory.search.request",
+  "filters": {
+    "make": ["Honda", "BMW"],
+    "model": ["CR-V"],
+    "condition": ["used"],
+    "year_min": 2023,
+    "year_max": 2025,
+    "price_max": 35000,
+    "transmission": ["automatic"]
+  },
+  "pagination": { "skip": 0, "limit": 100 },
+  "sort": { "field": "price", "order": "asc" },
+  "privacy": { "anonymous": true }
+}

@@ -40,7 +40,7 @@ AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi
 | `exterior_color` | string[] | yes | — | Free-text colors. |
 | `interior_color` | string[] | yes | — | Free-text colors. |
 | `year_min` / `year_max` | integer | — | yes | Inclusive year range. |
-| `price_min` / `price_max` | number | — | yes | Inclusive price range. **Applied against the FTC-final `price` field.** See [Pricing and FTC compliance](../pricing-and-ftc.md). |
+| `price_min` / `price_max` | integer | — | yes | Inclusive price range, in whole US dollars. **Applied against the FTC-final `price` field.** See [Pricing and FTC compliance](../pricing-and-ftc.md). |
 | `mileage_max` | integer | — | — | Maximum odometer reading. |
 | `vin` | string | — | — | Exact VIN match (17 chars, ISO 3779). |
 | `stock` | string | — | — | Exact dealer stock number. |
@@ -59,7 +59,7 @@ AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi
 ```
 
 - `pagination.skip` and `pagination.limit` are integers. AAP recommends defaults of `skip=0`, `limit=20`, and a hard cap of `100`.
-- `sort.field` accepts: `price`, `list_price`, `offered_price`, `msrp`, `mileage`, `year`, `make`, `model`, `stock`, `last_verified_at`. `sort.order` is `asc` or `desc`. **Sorting by `price` uses the FTC-final `price` field** that dealers MUST keep accurate.
+- `sort.field` accepts: `price`, `list_price`, `offered_price`, `msrp`, `mileage`, `year`, `make`, `model`, `stock`, `updated_at`. `sort.order` is `asc` or `desc`. **Sorting by `price` uses the FTC-final `price` field** that dealers MUST keep accurate.
 - `privacy.anonymous: true` indicates the buyer agent is not attaching user identity to this search. AAP RECOMMENDS anonymous searches by default; user identity is attached only when a lead is submitted.
 
 ## Request shape
@@ -106,7 +106,7 @@ AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi
 | `data.vehicles[]` | `Vehicle[]` | yes | Listings in the requested order. |
 | `data.facets` | `Facets` | no | OPTIONAL embedded aggregation over the matching set. |
 
-Each `Vehicle` MAY include `dealer_id`, `vehicle_id`, `vin`, `stock`, `year`, `make`, `model`, `trim`, `condition` (`new` | `used` | `cpo` for inventory contexts), `body`, `transmission`, `mileage`, `msrp`, `list_price`, `offered_price`, `price`, `zip`, and `status`. The base Vehicle schema declares all of these as optional and `additionalProperties: true`, so inventory responses MAY also include rich fields like `photos`, `vdp_url`, `driveline`, `engine`, `fuel`, `mpg`, `electric_range_mi`, `exterior_color`, `interior_color`, `description`, `notes`, and `last_verified_at` (documented on `VehicleDetail`). `last_verified_at` MUST be present whenever the dealer is making availability claims — see [Behavior rules](../behavior-rules.md). Vehicle `status` is **free-text** (e.g. "In Stock", "In Transit", "Pending", "Sold", "Reserved"); known-sold vehicles MUST NOT be returned by `inventory.search`.
+Each `Vehicle` MAY include `dealer_id`, `vehicle_id`, `vin`, `stock`, `year`, `make`, `model`, `trim`, `condition` (`new` | `used` | `cpo` for inventory contexts), `rooftop`, `body`, `transmission`, `mileage`, `msrp`, `list_price`, `offered_price`, `price`, `zip`, and `status`. The unified Vehicle schema declares all of these as optional and `additionalProperties: true`, so inventory responses MAY also include rich fields like `photos`, `vdp_url`, `driveline`, `engine`, `fuel`, `city_mpg`, `highway_mpg`, `electric_range_mi`, `exterior_color`, `interior_color`, `features`, `description`, `notes`, `inventory_date`, and `updated_at`. `updated_at` MUST be present whenever the dealer is making availability claims — see [Behavior rules](../behavior-rules.md). Vehicle `status` is **REQUIRED** on inventory listings and is a controlled enum: exactly `available` | `intransit` | `pending`. Only these three statuses appear in inventory feeds; a vehicle in any other state is OUT OF STOCK and MUST be omitted by the dealer (and ignored by the buyer if encountered).
 
 ## Full example
 
@@ -148,20 +148,22 @@ A buyer agent searches for certified or used Hondas from 2020 onward, under $30,
         "model": "Civic",
         "trim": "EX",
         "condition": "cpo",
+        "rooftop": "Demo Toyota San Francisco",
         "transmission": "automatic",
         "fuel": "gas",
         "driveline": "fwd",
         "body": "sedan",
         "exterior_color": "Crystal Black Pearl",
         "mileage": 22150,
-        "list_price": { "amount": 24990, "currency": "USD" },
-        "price":      { "amount": 26780, "currency": "USD" },
+        "list_price": 24990,
+        "price": 26780,
         "photos": [
           "https://demo-toyota.example.com/photos/T12345-1.jpg"
         ],
         "vdp_url": "https://demo-toyota.example.com/inventory/T12345",
-        "status": "In Stock",
-        "last_verified_at": "2026-04-30T10:15:00Z"
+        "status": "available",
+        "inventory_date": "2026-04-12",
+        "updated_at": "2026-04-30T10:15:00Z"
       },
       {
         "dealer_id": "dealer_demo_toyota",
@@ -172,28 +174,30 @@ A buyer agent searches for certified or used Hondas from 2020 onward, under $30,
         "model": "Civic",
         "trim": "Touring",
         "condition": "new",
+        "rooftop": "Demo Toyota San Francisco",
         "transmission": "automatic",
         "fuel": "hybrid",
         "driveline": "fwd",
         "body": "sedan",
-        "list_price": { "amount": 27990, "currency": "USD" },
-        "price":      { "amount": 29990, "currency": "USD" },
-        "status": "In Transit",
-        "last_verified_at": "2026-04-30T08:00:00Z"
+        "list_price": 27990,
+        "price": 29990,
+        "status": "intransit",
+        "inventory_date": "2026-04-28",
+        "updated_at": "2026-04-30T08:00:00Z"
       }
     ]
   }
 }
 ```
 
-Note that vehicle 2 has only `stock` and `vehicle_id` (no VIN yet, since it is in transit), and its `status` is the free-text "In Transit". Both listings include `last_verified_at`.
+Note that vehicle 2 has only `stock` and `vehicle_id` (no VIN yet, since it is in transit), and its `status` is the enum value `intransit`. Both listings include `updated_at`.
 
 ## Sort considerations
 
 - Sorting by `price` (default for price-comparison flows) sorts on the FTC-final out-the-door amount. This is what buyer agents SHOULD use to honestly compare offers.
 - Sorting by `list_price`, `offered_price`, or `msrp` is allowed for users who want a different perspective; the dealer SHOULD still publish accurate `price` for FTC compliance.
-- Sorting by `last_verified_at desc` is the recommended freshness ordering when buyers care about which listings the dealer has most recently re-confirmed.
+- Sorting by `updated_at desc` is the recommended freshness ordering when buyers care about which listings the dealer has most recently re-confirmed.
 
 ## Anonymous search by default
 
-AAP RECOMMENDS that buyer agents send `privacy.anonymous: true` on every `inventory.search` call. User identity is reserved for the moment a lead is actually submitted (see [`lead.submit`](./lead-submit.md)). Dealers MUST support anonymous `inventory.search` unless their agent card and contract manifest explicitly state otherwise.
+AAP RECOMMENDS that buyer agents send `privacy.anonymous: true` on every `inventory.search` call. User identity is reserved for the moment a lead is actually submitted (see [`lead.submit`](./lead-submit.md)). Dealers MUST support anonymous `inventory.search` unless their agent card explicitly states otherwise.

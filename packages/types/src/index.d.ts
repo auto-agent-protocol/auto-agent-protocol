@@ -1,48 +1,22 @@
 // Auto-generated from JSON Schema — do not edit
-// Auto Agent Protocol v0.1
+// Auto Agent Protocol v0.2
 
 /**
- * A monetary amount expressed as a decimal value plus an ISO 4217 currency code.
- */
-export interface Money {
-  /**
-   * Decimal amount. Use the smallest natural unit of the currency (e.g. dollars, not cents).
-   */
-  amount: number;
-  /**
-   * ISO 4217 three-letter currency code, e.g. USD, EUR, CAD.
-   */
-  currency: string;
-}
-
-/**
- * Generic contact channel with optional name, email, phone (E.164), and URL.
- */
-export interface ContactPoint {
-  /**
-   * Display name for this contact channel (e.g. 'Sales', 'Service').
-   */
-  name?: string;
-  /**
-   * RFC 5322 email address.
-   */
-  email?: string;
-  /**
-   * Phone number in E.164 format, e.g. +14155550123.
-   */
-  phone?: string;
-  /**
-   * Public website or contact URL.
-   */
-  url?: string;
-}
-
-/**
- * US postal address. v0.1 is intentionally US-only; international support (country code, alternate postal formats) is deferred to a later version.
- *
- * All fields are OPTIONAL by design — the buyer agent should pass through whatever pieces of the address the customer actually provided (e.g. just a ZIP for regional pricing, or just city+state, or the full street address). The dealer is responsible for handling partial addresses gracefully.
+ * Postal address. All fields are OPTIONAL by design — the buyer agent should pass through whatever pieces of the address are available (e.g. just a ZIP for regional pricing, or just city+state, or the full street address). The dealer is responsible for handling partial addresses gracefully.
  */
 export interface Address {
+  /**
+   * Country code or name (e.g. 'US'). Optional; defaults to 'US' when omitted.
+   */
+  country?: string;
+  /**
+   * State / region code or full name (e.g. 'CA' or 'California').
+   */
+  state?: string;
+  /**
+   * City or locality (e.g. 'San Francisco').
+   */
+  city?: string;
   /**
    * Primary street line (e.g. '1280 Howard Street').
    */
@@ -52,21 +26,13 @@ export interface Address {
    */
   address_line_2?: string;
   /**
-   * City or locality (e.g. 'San Francisco').
-   */
-  city?: string;
-  /**
-   * US state code or full name (e.g. 'CA' or 'California').
-   */
-  state?: string;
-  /**
-   * US ZIP code, 5 digits or ZIP+4 (e.g. '94103' or '94103-1234').
+   * Postal / ZIP code (e.g. '94103' or '94103-1234').
    */
   zip?: string;
 }
 
 /**
- * Abstract base shape for every typed Auto Agent Protocol payload that travels inside an A2A DataPart. Concrete request and response schemas restrict 'type' to a constant skill-id-shaped value (e.g. inventory.search.request, lead.appointment.response). The AAP version is announced once via the agent-card extension URI ('https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.1') and reflected in schema $id URLs; it is NOT repeated on the wire. Responses additionally carry a 'data' object and an optional 'message' note. Errors use the Error schema instead.
+ * Abstract base shape for every typed Auto Agent Protocol payload that travels inside an A2A DataPart. Concrete request and response schemas restrict 'type' to a constant skill-id-shaped value (e.g. inventory.search.request, lead.appointment.response). The AAP version is announced once via the agent-card extension URI ('https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.2') and reflected in schema $id URLs; it is NOT repeated on the wire. Responses additionally carry a 'data' object and an optional 'message' note. Errors use the Error schema instead.
  */
 export interface AapMessage {
   /**
@@ -87,15 +53,14 @@ export interface AapMessage {
 }
 
 /**
- * Unified vehicle interface used everywhere a vehicle is referenced — inventory results, vehicle_of_interest, and trade_in. The same shape covers both 'a vehicle the buyer wants to purchase' and 'a vehicle the buyer wants to trade in' so buyer agents reuse one type.
+ * The single vehicle interface used everywhere a vehicle is referenced — inventory.search results, inventory.vehicle detail, vehicle_of_interest, and trade_in. v0.2 merges the former Vehicle + VehicleDetail split into one shape: there is now exactly one vehicle type.
  *
  * Field semantics differ by context:
- * - For vehicle_of_interest, `condition` MUST be one of `new`, `used`, `cpo`. Pricing fields (`msrp`, `list_price`, `offered_price`, `price`) describe the dealer's listing.
+ * - For inventory listings (inventory.search / inventory.vehicle) `condition` MUST be one of `new`, `used`, `cpo` and `status` MUST be one of `available`, `intransit`, `pending`. Pricing fields describe the dealer's listing.
+ * - For vehicle_of_interest, `condition` MUST be one of `new`, `used`, `cpo`.
  * - For trade_in, `condition` MUST be one of `excellent`, `good`, `fair`, `poor`. Pricing fields are typically absent on the request side and may be populated by the dealer's appraisal response.
  *
- * Context-dependent constraints (which condition values are valid, which identification fields are required) are enforced at the using request schema (e.g. `lead.submit.request`).
- *
- * No fields are required at this base schema. `additionalProperties: true` allows inventory.vehicle responses to carry richer dealer-specific fields (drivetrain, fuel, photos, VDP URL, etc.) without schema changes.
+ * All prices are plain integers in whole US dollars (v0.2 dropped the nested {amount, currency} Money object). Context-dependent constraints are enforced at the using request/response schema. No fields are required at this base schema; `additionalProperties: true` lets inventory responses carry richer dealer-specific fields without schema changes.
  */
 export interface Vehicle {
   /**
@@ -119,13 +84,33 @@ export interface Vehicle {
    */
   trim?: string;
   /**
-   * Combined condition enum spanning both sale-condition and trade-in-condition vocabularies. For vehicle_of_interest use one of `new` | `used` | `cpo` (Certified Pre-Owned). For trade_in use one of `excellent` | `good` | `fair` | `poor`. The using request schema enforces the correct subset by context.
+   * Combined condition enum spanning both sale-condition and trade-in-condition vocabularies. For inventory listings and vehicle_of_interest use one of `new` | `used` | `cpo` (Certified Pre-Owned). For trade_in use one of `excellent` | `good` | `fair` | `poor`. The using schema enforces the correct subset by context.
    */
   condition?: "new" | "used" | "cpo" | "excellent" | "good" | "fair" | "poor";
-  msrp?: Money;
-  price?: Money1;
-  list_price?: Money2;
-  offered_price?: Money3;
+  /**
+   * Inventory availability. v0.2 supports exactly three values: `available` (in stock now), `intransit` (allocated / en route to the dealership), `pending` (deal in progress). A vehicle in any other state is OUT OF STOCK and MUST NOT appear in inventory feeds — dealers omit it and buyer agents ignore any item missing or carrying an unknown status. Required on inventory listings; omitted on vehicle_of_interest and trade_in.
+   */
+  status?: "available" | "intransit" | "pending";
+  /**
+   * Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer.information. Nullable; single-rooftop dealers MAY leave it null.
+   */
+  rooftop?: string | null;
+  /**
+   * Manufacturer's Suggested Retail Price (sticker price), whole US dollars. Inventory context.
+   */
+  msrp?: number;
+  /**
+   * FTC-emphasized FINAL out-the-door price after all incentives, mandatory fees, and required add-ons, in whole US dollars. Per FTC enforcement (CARS Rule), this field MUST reflect the total amount the buyer would pay; advertising a 'price' that excludes required fees or omits required add-ons is a violation. Inventory context.
+   */
+  price?: number;
+  /**
+   * Dealer's advertised list price; the base price BEFORE incentives, taxes, or fees, in whole US dollars. Inventory context.
+   */
+  list_price?: number;
+  /**
+   * Regional price equal to list_price plus applicable taxes for the buyer's `zip`, in whole US dollars, when the dealer enables desking. Present only if a `zip` is supplied AND the dealer supports regional pricing. Inventory context.
+   */
+  offered_price?: number;
   /**
    * Buyer ZIP code used to compute regional pricing fields (`offered_price`). US ZIP, 5 digits or ZIP+4. Optional; when absent, regional pricing fields MUST be omitted.
    */
@@ -134,6 +119,14 @@ export interface Vehicle {
    * Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts.
    */
   stock?: string;
+  /**
+   * Stable identifier of the dealer that owns this listing. Inventory context.
+   */
+  dealer_id?: string;
+  /**
+   * Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).
+   */
+  vehicle_id?: string;
   /**
    * Odometer reading in miles. Required for trade-ins; typical on used inventory.
    */
@@ -146,29 +139,6 @@ export interface Vehicle {
    * Transmission type as text (e.g. 'automatic', 'manual', '8-speed automatic', 'cvt').
    */
   transmission?: string;
-  [k: string]: any;
-}
-
-/**
- * Extended vehicle representation returned by `inventory.vehicle`. Inherits all base Vehicle fields and explicitly declares the rich, dealer-side properties that go beyond the unified Vehicle interface used in lead.submit. `additionalProperties: true` lets dealers carry further site-specific equipment, history-report links, or certification details without schema changes.
- */
-export type VehicleDetail = Vehicle & {
-  /**
-   * Sale-condition vocabulary only. VehicleDetail is always an inventory listing, never a trade-in, so `condition` is constrained to `new`|`used`|`cpo`.
-   */
-  condition?: "new" | "used" | "cpo";
-  /**
-   * Stable identifier of the dealer that owns this listing.
-   */
-  dealer_id?: string;
-  /**
-   * Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).
-   */
-  vehicle_id?: string;
-  /**
-   * Human-readable description / dealer marketing copy.
-   */
-  description?: string;
   /**
    * Drivetrain layout (e.g. 'fwd', 'rwd', 'awd', '4wd').
    */
@@ -182,12 +152,13 @@ export type VehicleDetail = Vehicle & {
    */
   fuel?: string;
   /**
-   * Fuel economy estimates. Omit for fully electric vehicles or use 'electric_range_mi' instead.
+   * EPA city fuel-economy estimate in miles per gallon. Omit for fully electric vehicles (use `electric_range_mi`).
    */
-  mpg?: {
-    city?: number;
-    highway?: number;
-  };
+  city_mpg?: number;
+  /**
+   * EPA highway fuel-economy estimate in miles per gallon. Omit for fully electric vehicles (use `electric_range_mi`).
+   */
+  highway_mpg?: number;
   /**
    * Estimated electric range in miles, for BEV and PHEV vehicles.
    */
@@ -201,6 +172,10 @@ export type VehicleDetail = Vehicle & {
    */
   interior_color?: string;
   /**
+   * Notable equipment and options as free-text strings (e.g. 'Adaptive Cruise Control', 'Apple CarPlay', 'Heated Front Seats'). v0.2 uses one flat list and does not separate option packages, factory equipment, or installed accessories.
+   */
+  features?: string[];
+  /**
    * Public URLs of vehicle photos, ordered by relevance.
    */
   photos?: string[];
@@ -209,26 +184,33 @@ export type VehicleDetail = Vehicle & {
    */
   vdp_url?: string;
   /**
-   * Free-text availability status (e.g. 'In Stock', 'In Transit', 'Pending', 'Sold', 'Reserved'). Recommended but not enforced as a controlled vocabulary.
+   * Human-readable description / dealer marketing copy.
    */
-  status?: string;
+  description?: string;
   /**
    * Dealer notes (e.g. 'recently arrived', 'service history available').
    */
   notes?: string;
   /**
-   * ISO 8601 / RFC 3339 timestamp (with timezone offset) at which the dealer last verified availability/price/status of this listing. REQUIRED when the agent makes availability claims (e.g. '2026-04-30T08:42:00Z').
+   * Date (RFC 3339 full-date, e.g. '2026-04-21') the vehicle first appeared in the dealership's inventory.
    */
-  last_verified_at?: string;
+  inventory_date?: string;
+  /**
+   * ISO 8601 / RFC 3339 timestamp (with timezone offset) of the last update to this vehicle's availability, price, or status (e.g. '2026-04-30T08:42:00Z'). Buyer agents treat this as the freshness signal for availability claims.
+   */
+  updated_at?: string;
   [k: string]: any;
-};
+}
 
 /**
- * Typed AAP response for the `inventory.vehicle` skill. The `data` field is a VehicleDetail (Vehicle + arbitrary additional dealer-specific properties). Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
+ * Typed AAP response for the `inventory.vehicle` skill. The `data` field is a Vehicle (v0.2 unified the former Vehicle + VehicleDetail into one type). Because it is always an inventory listing, `condition` is constrained to `new` | `used` | `cpo` and `status` (one of `available` | `intransit` | `pending`) is required. Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
  */
 export interface VehicleDetailResponse {
   type: "inventory.vehicle.response";
-  data: VehicleDetail;
+  data: Vehicle & {
+    condition?: "new" | "used" | "cpo";
+    [k: string]: any;
+  };
   /**
    * Optional contextual note. MAY be omitted.
    */
@@ -348,7 +330,7 @@ export interface LeadSubmitResponse {
 }
 
 /**
- * Unified lead submission for the `lead.submit` AAP skill. Replaces the v0.1-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment`. A single request carries the consented customer plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment` — matching how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).
+ * Unified lead submission for the `lead.submit` AAP skill. A single request carries the consented customer plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment` — matching how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).
  *
  * Design principle: capture whatever the customer actually provided. `vehicle_of_interest`, `trade_in`, and `appointment` are entirely optional, and within them no individual field is required at the schema level — the buyer agent should pass through whatever pieces of information the user shared (a VIN, a make+model, just a year, mileage only — anything is welcome). The dealer is responsible for handling partial input gracefully.
  *
@@ -409,7 +391,7 @@ export interface InventorySearchResponse {
      */
     limit?: number;
     /**
-     * Vehicles in this page, in the requested order. Each item is a Vehicle whose `condition` (when present) is constrained to the sale-condition vocabulary (`new`|`used`|`cpo`) — inventory listings never carry trade-in wear values.
+     * Vehicles in this page, in the requested order. Each item is a Vehicle constrained to the sale-condition vocabulary (`new`|`used`|`cpo`) — inventory listings never carry trade-in wear values — and MUST carry a `status` of `available`, `intransit`, or `pending`. Out-of-stock vehicles are never returned.
      */
     vehicles: (Vehicle & {
       condition?: "new" | "used" | "cpo";
@@ -447,7 +429,7 @@ export interface InventorySearchRequest {
    */
   sort?: {
     /**
-     * Field to sort by. Sorting by 'price' uses the FTC-final 'price' field (which dealers MUST keep accurate).
+     * Field to sort by. Sorting by 'price' uses the FTC-final 'price' field (which dealers MUST keep accurate); 'updated_at' sorts by listing freshness.
      */
     field:
       | "price"
@@ -459,7 +441,7 @@ export interface InventorySearchRequest {
       | "make"
       | "model"
       | "stock"
-      | "last_verified_at";
+      | "updated_at";
     order: "asc" | "desc";
   };
   /**
@@ -515,14 +497,14 @@ export interface Facets {
 }
 
 /**
- * Minimal AAP v0.1 event envelope. Used for asynchronous status updates (e.g. lead status changes, appointment confirmations) delivered via A2A push notifications or task status update events.
+ * Minimal AAP event envelope. Used for asynchronous status updates (e.g. lead status changes, appointment confirmations) delivered via A2A push notifications or task status update events.
  */
 export type Event = {
   [k: string]: any;
 } & {
   type: "aap.event";
   /**
-   * Concrete event kind. v0.1 defines two kinds; future versions may add more.
+   * Concrete event kind. v0.2 defines two kinds; future versions may add more.
    */
   event_kind: "lead.status_changed" | "appointment.status_changed";
   /**
@@ -538,7 +520,7 @@ export type Event = {
    */
   occurred_at: string;
   /**
-   * Optional event-specific payload. Schema is event-kind-dependent and dealer-defined for v0.1.
+   * Optional event-specific payload. Schema is event-kind-dependent and dealer-defined.
    */
   payload?: {
     [k: string]: any;
@@ -592,76 +574,23 @@ export interface Error {
 }
 
 /**
- * Public dealership profile: identity, location(s), brands carried, hours, contact channels, and high-level service capabilities. Returned by the `dealer.information` AAP skill, wrapped in `dealer.information.response` and carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.
+ * Public dealership profile. v0.2 reduces this to the minimum: a dealer group `name`, an optional `welcome_message`, and one or more `rooftops` (physical locations). Per-location identity, address, geo, contacts, hours, and service capabilities live on each rooftop. Vehicles reference the rooftop that holds them via `Vehicle.rooftop` = the rooftop's `name`. Returned by the `dealer.information` AAP skill, wrapped in `dealer.information.response` and carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.
  */
 export interface DealerInformation {
   /**
-   * Stable dealer identifier.
+   * Dealer group / business name shown to buyers (e.g. 'Demo Auto Group').
    */
-  dealer_id: string;
+  name: string;
   /**
-   * Legal/registered business name.
+   * Optional greeting a buyer agent MAY surface to the user (e.g. 'Welcome to Demo Auto Group — happy to help by phone, video, or in person.').
    */
-  legal_name: string;
+  welcome_message?: string;
   /**
-   * Public-facing trade name (e.g. 'Metro Honda San Francisco').
+   * One or more dealership locations (rooftops). A single-location dealer has one entry; a multi-rooftop group lists each store.
+   *
+   * @minItems 1
    */
-  trade_name: string;
-  /**
-   * Vehicle brands the dealer is authorized to sell.
-   */
-  brands: string[];
-  address: Address;
-  /**
-   * Geographic coordinates of the primary location.
-   */
-  geo?: {
-    latitude: number;
-    longitude: number;
-  };
-  /**
-   * Phone contact channels (sales, service, parts), each with an E.164 phone number.
-   */
-  phones?: ContactPoint[];
-  /**
-   * Email contact channels.
-   */
-  emails?: ContactPoint[];
-  /**
-   * Dealer's primary public website.
-   */
-  website?: string;
-  /**
-   * Weekly business hours, keyed by day. Each day is either an object {open, close} (HH:MM 24h, dealer's local time) or null when closed.
-   */
-  schedule?: {
-    monday?: DayHours;
-    tuesday?: DayHours;
-    wednesday?: DayHours;
-    thursday?: DayHours;
-    friday?: DayHours;
-    saturday?: DayHours;
-    sunday?: DayHours;
-  };
-  /**
-   * IANA timezone identifier for the schedule, e.g. 'America/Los_Angeles'.
-   */
-  timezone?: string;
-  /**
-   * Free-text dealer notes (e.g. 'closed major holidays').
-   */
-  notes?: string;
-  /**
-   * Boolean flags for service capabilities offered by the dealer.
-   */
-  capabilities?: {
-    test_drive?: boolean;
-    financing?: boolean;
-    trade_in?: boolean;
-    service?: boolean;
-    delivery?: boolean;
-    remote_delivery?: boolean;
-  };
+  rooftops: [Rooftop, ...Rooftop[]];
 }
 
 /**
@@ -716,51 +645,6 @@ export type Customer = {
 };
 
 /**
- * Machine-readable AAP contract manifest published at /.well-known/auto-agent-contract.json. The agent card points to this manifest via the AAP extension's 'manifest_url' parameter. The manifest enumerates skills, their request/response schemas, and per-skill consent and anonymity rules so buyer agents (including LLM-driven ones) can plan calls deterministically.
- */
-export interface ContractManifest {
-  contract: {
-    name: string;
-    version: string;
-    /**
-     * Stable URI for this contract version.
-     */
-    uri: string;
-  };
-  dealer: {
-    dealer_id: string;
-    name: string;
-    /**
-     * Operator/integrator running this dealer agent on behalf of the dealership.
-     */
-    managed_by?: string;
-    [k: string]: any;
-  };
-  /**
-   * A2A binding configuration shared across all skills.
-   */
-  a2a: {
-    endpoint: string;
-    protocol_binding: "JSONRPC" | "HTTP+JSON";
-    /**
-     * @minItems 1
-     */
-    skills: [SkillBinding, ...SkillBinding[]];
-  };
-  /**
-   * Authentication mode for invoking skills. 'null' means the agent is publicly callable; 'bearer' means clients MUST send 'Authorization: Bearer <token>'. LLM clients MUST treat 'bearer' as non-public and obtain credentials before invoking skills.
-   */
-  auth_type: null | "bearer";
-  /**
-   * Optional LLM guidance: a free-form rule list and a guide URL the dealer recommends LLM clients follow.
-   */
-  llm?: {
-    guide_url?: string;
-    rules?: string[];
-  };
-}
-
-/**
  * Explicit consent record for a single `lead.submit` submission. Required whenever a `lead.submit.request` includes customer contact info (which is always — `customer` is required on the unified lead). Provides an auditable record of what the user authorized, when, through which channels, and via which buyer agent.
  *
  * Error-code mapping: a dealer agent MUST reject lead submissions with `CONTACT_CONSENT_REQUIRED` if `consent` is missing entirely; with `INVALID_CONSENT` if the grant is malformed, `expires_at` has passed at the time the dealer would use the contact data, or the dealer intends to use a contact channel not present in `allowed_channels`.
@@ -785,7 +669,7 @@ export interface ConsentGrant {
    */
   source_agent: string;
   /**
-   * Scope of the consent. v0.1 has a single value `lead_submission` covering the unified `lead.submit` skill (which spans general inquiries, vehicle interest, trade-in, and appointments). The request body itself shows what was actually submitted; the meaningful audit granularity is `allowed_channels`.
+   * Scope of the consent. AAP defines a single value `lead_submission` covering the unified `lead.submit` skill (which spans general inquiries, vehicle interest, trade-in, and appointments). The request body itself shows what was actually submitted; the meaningful audit granularity is `allowed_channels`.
    *
    * @minItems 1
    * @maxItems 1
@@ -847,7 +731,7 @@ export interface Appointment {
 }
 
 /**
- * A2A v1.0-compatible agent card with the AAP automotive retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. The 'capabilities.extensions' array MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.1' for the agent to be a compliant AAP dealer agent.
+ * A2A v1.0-compatible agent card with the AAP automotive retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. The 'capabilities.extensions' array MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.2' for the agent to be a compliant AAP dealer agent.
  */
 export interface AgentCard {
   /**
@@ -875,7 +759,7 @@ export interface AgentCard {
    */
   documentation_url?: string;
   /**
-   * Network endpoints exposed by this agent. Each entry declares one A2A protocol binding. AAP v0.1 supports 'JSONRPC' and 'HTTP+JSON'; gRPC is out of scope.
+   * Network endpoints exposed by this agent. Each entry declares one A2A protocol binding. AAP supports 'JSONRPC' and 'HTTP+JSON'; gRPC is out of scope.
    *
    * @minItems 1
    */
@@ -883,7 +767,7 @@ export interface AgentCard {
     {
       url: string;
       /**
-       * A2A protocol binding identifier. AAP v0.1 only documents JSONRPC and HTTP+JSON.
+       * A2A protocol binding identifier. AAP only documents JSONRPC and HTTP+JSON.
        */
       protocol_binding: "JSONRPC" | "HTTP+JSON";
       protocol_version?: string;
@@ -891,7 +775,7 @@ export interface AgentCard {
     ...{
       url: string;
       /**
-       * A2A protocol binding identifier. AAP v0.1 only documents JSONRPC and HTTP+JSON.
+       * A2A protocol binding identifier. AAP only documents JSONRPC and HTTP+JSON.
        */
       protocol_binding: "JSONRPC" | "HTTP+JSON";
       protocol_version?: string;
@@ -923,7 +807,7 @@ export interface AgentCard {
    */
   skills: Skill[];
   /**
-   * A2A-style security scheme definitions. AAP v0.1 supports either no scheme (public agent) or a 'bearer' scheme.
+   * A2A-style security scheme definitions. AAP supports either no scheme (public agent) or a 'bearer' scheme.
    */
   security_schemes?: {
     [k: string]: any;

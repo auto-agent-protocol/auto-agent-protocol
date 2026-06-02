@@ -12,9 +12,9 @@ This skill is invoked through A2A's `SendMessage` operation (`SendMessage` JSON-
 
 ![Consent gate: anonymous browsing on the left, ConsentGrant in the middle, consented lead on the right](/img/consent-gate.png)
 
-The `lead.submit` skill is the **single, unified** lead-capture entry point in AAP v0.1. A buyer agent submits one request containing the consented `customer` plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment`. This matches how dealerships actually take leads: a shopper test-driving a new car often wants their old car appraised in the same visit.
+The `lead.submit` skill is the **single, unified** lead-capture entry point in AAP v0.2. A buyer agent submits one request containing the consented `customer` plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment`. This matches how dealerships actually take leads: a shopper test-driving a new car often wants their old car appraised in the same visit.
 
-`lead.submit` replaces the v0.1-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment` with a single contract.
+`lead.submit` replaces the early-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment` with a single contract.
 
 | Property | Value |
 |---|---|
@@ -55,7 +55,7 @@ For the field-by-field ADF/XML mapping, see [ADF mapping](../compatibility/adf-m
 | `source_agent` | string | yes | Buyer agent identifier (e.g. `chatgpt-shopping`, `gemini-assistant`). |
 | `submitted_at` | date-time | no | Buyer-agent timestamp at submission. |
 
-The unified `Vehicle` interface is the same shape used by `inventory.search` results — see the [Vehicle schema source](https://autoagentprotocol.org/v0.1/schemas/vehicle.schema.json). Both `vehicle_of_interest` and `trade_in` use this shape; only the valid `condition` enum subset differs.
+The unified `Vehicle` interface is the same shape used by `inventory.search` results — see the [Vehicle schema source](https://autoagentprotocol.org/v0.2/schemas/vehicle.schema.json). Both `vehicle_of_interest` and `trade_in` use this shape; only the valid `condition` enum subset differs.
 
 ## Response shape
 
@@ -124,7 +124,7 @@ A user wants to test-drive a 2024 Honda CR-V, trade in their 2020 Passat, and bo
     "body": "suv",
     "transmission": "automatic",
     "mileage": 14820,
-    "price": { "amount": 32995, "currency": "USD" },
+    "price": 32995,
     "zip": "94107"
   },
   "trade_in": {
@@ -233,7 +233,7 @@ Real shopping flows naturally bundle the inquiry, the trade-in, and the appointm
 - **Consent friction** — users sign off 3 disclosures for one decision.
 - **Race conditions** — the appointment may be booked before the lead arrives, or vice-versa.
 
-A single `lead.submit` lets the dealer transactionally accept the lead, queue the trade-in for appraisal, and confirm or propose the appointment in one round trip. v0.1 keeps the contract tight by NOT supporting multi-vehicle leads (one `vehicle_of_interest` per submission); send N requests for N vehicles.
+A single `lead.submit` lets the dealer transactionally accept the lead, queue the trade-in for appraisal, and confirm or propose the appointment in one round trip. v0.2 keeps the contract tight by NOT supporting multi-vehicle leads (one `vehicle_of_interest` per submission); send N requests for N vehicles.
 
 ## Consent and channel rules
 

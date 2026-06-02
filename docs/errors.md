@@ -46,7 +46,7 @@ The 11 codes, their meaning, recommended HTTP status, recommended JSON-RPC code,
 | `MISSING_REQUIRED_FIELD` | A specifically required field is absent. | 422 | -32602 (Invalid params) | `false` |
 | `INVALID_CONDITION` | `vehicle_of_interest.condition` is in the trade-in vocabulary, or `trade_in.condition` is in the sale-condition vocabulary. | 422 | -32602 (Invalid params) | `false` |
 | `VEHICLE_NOT_FOUND` | The supplied `vin` / `stock` / `vehicle_id` does not match any listing. | 404 | -32000 (Server error) | `false` |
-| `VEHICLE_UNAVAILABLE` | The vehicle exists but is no longer available (e.g. sold). | 409 | -32000 (Server error) | `false` |
+| `VEHICLE_UNAVAILABLE` | The vehicle exists but its `status` is no longer one of `available` \| `intransit` \| `pending`. | 409 | -32000 (Server error) | `false` |
 | `CONTACT_CONSENT_REQUIRED` | `customer` info present without `consent`, or follow-up channel not in `consent.allowed_channels`. | 403 | -32000 (Server error) | `false` |
 | `INVALID_CONSENT` | `consent` is present but malformed, expired, or its scope does not cover the called skill. | 403 | -32000 (Server error) | `false` |
 | `APPOINTMENT_TIME_UNAVAILABLE` | None of the requested windows can be honored AND the dealer has no proposed alternatives. | 409 | -32000 (Server error) | `false` |
@@ -60,7 +60,7 @@ The 11 codes, their meaning, recommended HTTP status, recommended JSON-RPC code,
 
 ### `UNSUPPORTED_SKILL`
 
-Returned when a buyer agent calls a skill id the dealer agent does not implement. AAP-compliant dealers implement all five skills, so this code is rare in practice. It is intended for forward-compat scenarios where future AAP versions add skills not present in v0.1.
+Returned when a buyer agent calls a skill id the dealer agent does not implement. AAP-compliant dealers implement all five skills, so this code is rare in practice. It is intended for forward-compat scenarios where future AAP versions add skills not present in v0.2.
 
 ### `SCHEMA_VALIDATION_FAILED`
 
@@ -80,7 +80,7 @@ Returned by `inventory.vehicle` (or by `lead.submit` when `vehicle_of_interest` 
 
 ### `VEHICLE_UNAVAILABLE`
 
-Returned when the listing existed but is no longer available — e.g. status changed to "Sold" between an `inventory.search` snapshot and a follow-up `inventory.vehicle` call. Buyer agents SHOULD recompute search results and surface the change to the user.
+Returned when the listing existed but is no longer available — e.g. its `status` moved out of the `available` | `intransit` | `pending` set between an `inventory.search` snapshot and a follow-up `inventory.vehicle` call. Buyer agents SHOULD recompute search results and surface the change to the user.
 
 ### `CONTACT_CONSENT_REQUIRED`
 

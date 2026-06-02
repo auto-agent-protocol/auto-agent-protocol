@@ -9,9 +9,10 @@ build/
 *.tsbuildinfo
 dist/
 
-# Auto-generated artifacts. Source of truth lives in spec/v0.1/.
+# Auto-generated artifacts. Source of truth lives in spec/<version>/.
 # These are produced at build time by `pnpm run generate && pnpm run copy-static`.
 generated/
 static/v0.1/
+static/v0.2/
 static/latest/
 docs/schemas/_partials/

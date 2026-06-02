@@ -41,10 +41,9 @@ AAP is a layer 1 profile. It defines:
 
 1. **Standard skill vocabulary.** Five canonical `skills[].id` values an AAP-compliant agent card draws from: `dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`. An agent declares the subset it actually implements (one or more); none is individually mandatory. AAP RECOMMENDS at least `inventory.search` + `lead.submit` for an end-to-end shopping flow.
 2. **Typed `DataPart` payloads.** For each skill, an exact request and response JSON Schema. Each payload includes a `type` field whose value is `<scope>.<thing>.request` or `<scope>.<thing>.response` (e.g. `inventory.search.request`). The AAP version is announced once via the agent-card extension URI; it is not repeated on the wire.
-3. **An extension URI.** `https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.1`, declared in `capabilities.extensions[]` of the agent card.
-4. **A machine-readable contract manifest.** Published at `/.well-known/auto-agent-contract.json`, linked from the agent card via the extension's `params.manifest_url`.
+3. **An extension URI.** `https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.2`, declared in `capabilities.extensions[]` of the agent card.
 
-AAP does NOT redefine layer 2 (abstract operations) or layer 3 (protocol bindings). All AAP skills are invoked via standard A2A `SendMessage` (which maps to the `POST /message:send` URL on the HTTP+JSON binding). The agent card lists either the JSON-RPC 2.0 binding, the HTTP+JSON binding, or both. gRPC is not in scope for AAP v0.1.
+AAP does NOT redefine layer 2 (abstract operations) or layer 3 (protocol bindings). All AAP skills are invoked via standard A2A `SendMessage` (which maps to the `POST /message:send` URL on the HTTP+JSON binding). The agent card lists either the JSON-RPC 2.0 binding, the HTTP+JSON binding, or both. gRPC is not in scope for AAP v0.2.
 
 ## The typed `DataPart` pattern
 
@@ -65,7 +64,7 @@ A `DataPart` looks like this in A2A v1.0:
 }
 ```
 
-The `type` field is the AAP-typed identifier. Every AAP request and response carries a `type` matching the regex `^org\.autoagent\.[a-z_]+\.v[0-9]+$`. This lets a buyer agent or middleware validate the payload against the right schema without inspecting the surrounding A2A envelope. The `mediaType` field on the part advertises the AAP media type so generic A2A middleware can route or filter parts without parsing the inner `data`.
+The `type` field is the AAP-typed identifier (e.g. `inventory.search.request`). Every AAP request and response carries a `type` matching the regex `^[a-z_]+(\.[a-z_]+){1,2}$`. This lets a buyer agent or middleware validate the payload against the right schema without inspecting the surrounding A2A envelope. The `mediaType` field on the part advertises the AAP media type so generic A2A middleware can route or filter parts without parsing the inner `data`.
 
 :::note A2A v1.0 wire format
 A2A v1.0 [removed the `kind` discriminator](https://a2a-protocol.org/latest/specification/#a21-breaking-change-kind-discriminator-removed) on parts and switched roles to protobuf enum strings. AAP uses `role: "ROLE_USER"` for buyer-agent messages and `role: "ROLE_AGENT"` for dealer responses, and every `Message` carries a unique `messageId`.
@@ -123,10 +122,11 @@ The dealer agent replies with an A2A `Message` containing the AAP response:
               "model": "Civic",
               "trim": "EX",
               "condition": "cpo",
-              "list_price": { "amount": 24990, "currency": "USD" },
-              "price": { "amount": 26780, "currency": "USD" },
-              "status": "In Stock",
-              "last_verified_at": "2026-04-30T10:15:00Z"
+              "status": "available",
+              "list_price": 24990,
+              "price": 26780,
+              "inventory_date": "2026-04-12",
+              "updated_at": "2026-04-30T10:15:00Z"
             }
           ]
         }
@@ -150,18 +150,16 @@ An AI agent could in principle stuff a search query into a `TextPart` and let th
 
 A buyer agent MAY include free-text `TextParts` in the same `Message` for human-readable context. AAP defines no semantics for them — only the typed `DataPart` is normative.
 
-## Discovery, manifest, and bindings: the rest of the profile
+## Discovery and bindings: the rest of the profile
 
-AAP layers two more pieces on top of the base A2A surface:
+AAP layers one more piece on top of the base A2A surface:
 
 | Piece | Where it lives | Purpose |
 |---|---|---|
 | Agent card with AAP extension | `/.well-known/agent-card.json` | A2A discovery; declares the AAP extension URI and lists the subset of AAP skills the agent implements. |
-| Contract manifest | `/.well-known/auto-agent-contract.json` | Machine-readable per-skill schema URLs and consent/anonymous policy for buyer-agent planning. |
 | Binding sections | A2A Sections 9 and 11 | How AAP DataParts ride inside JSON-RPC 2.0 and HTTP+JSON envelopes. |
 
 See:
 
 - [Discovery](./discovery.md) for the agent card.
-- [Contract manifest](./contract-manifest.md) for the per-skill manifest.
 - [JSON-RPC binding](./bindings/json-rpc.md) and [REST binding](./bindings/rest.md) for the wire format of each binding.

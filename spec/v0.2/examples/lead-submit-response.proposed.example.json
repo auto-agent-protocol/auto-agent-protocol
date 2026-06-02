@@ -1,0 +1,22 @@
+{
+  "type": "lead.submit.response",
+  "data": {
+    "lead_id": "lead_2026_04_30_00843",
+    "status": "received",
+    "appointment": {
+      "appointment_id": "appt_2026_04_30_00129",
+      "status": "proposed",
+      "proposed_slots": [
+        { "start": "2026-05-03T20:00:00Z", "end": "2026-05-03T21:00:00Z" },
+        { "start": "2026-05-03T21:30:00Z", "end": "2026-05-03T22:30:00Z" },
+        { "start": "2026-05-04T16:00:00Z", "end": "2026-05-04T17:00:00Z" },
+        { "start": "2026-05-04T17:30:00Z", "end": "2026-05-04T18:30:00Z" }
+      ]
+    },
+    "dealer": {
+      "name": "Demo Toyota",
+      "phone": "+14155550100"
+    }
+  },
+  "message": "Thanks, Piotr. We received your inquiry but Sunday afternoon is fully booked. The four slots above are open Sunday evening and Monday afternoon (Pacific time) for the test drive of VIN 1HGCY2F57RA000001. Reply with the slot you prefer, or call +1 (415) 555-0100 to confirm."
+}
