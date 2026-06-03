@@ -13,7 +13,8 @@
             "year_min": 2023,
             "year_max": 2025,
             "price_max": 35000,
-            "transmission": ["automatic"]
+            "transmission": ["automatic"],
+            "rooftops": ["Demo Toyota San Francisco"]
           },
           "pagination": { "skip": 0, "limit": 100 },
           "sort": { "field": "price", "order": "asc" },

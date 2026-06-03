@@ -63,6 +63,7 @@
         "body": { "type": "array", "items": { "type": "string" }, "description": "Body styles to include (e.g. ['sedan','suv','truck'])." },
         "exterior_color": { "type": "array", "items": { "type": "string" } },
         "interior_color": { "type": "array", "items": { "type": "string" } },
+        "rooftops": { "type": "array", "items": { "type": "string" }, "description": "Rooftop names to include, matching `Vehicle.rooftop` and the rooftop `name` from `dealer.information`. For multi-rooftop dealerships; omit to search across all rooftops." },
         "year_min": { "type": "integer", "minimum": 1900, "maximum": 2100 },
         "year_max": { "type": "integer", "minimum": 1900, "maximum": 2100 },
         "price_min": { "type": "integer", "minimum": 0, "description": "Minimum price in whole US dollars, applied against the FTC-final 'price' field." },

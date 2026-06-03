@@ -39,6 +39,7 @@
     "bodies": { "$ref": "#/$defs/term_facet", "description": "Body-style facets, matching the `body` field on Vehicle and `filters.body` on InventorySearchRequest." },
     "exterior_colors": { "$ref": "#/$defs/term_facet" },
     "interior_colors": { "$ref": "#/$defs/term_facet" },
+    "rooftops": { "$ref": "#/$defs/term_facet", "description": "Rooftop facets — vehicle counts per dealership location, matching `Vehicle.rooftop` and `filters.rooftops`." },
     "statuses": { "$ref": "#/$defs/term_facet" },
     "price_range": { "$ref": "#/$defs/range_facet" },
     "mileage_range": { "$ref": "#/$defs/range_facet" },

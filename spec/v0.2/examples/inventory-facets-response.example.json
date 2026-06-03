@@ -80,6 +80,10 @@
       { "value": "Macadamia", "count": 32 },
       { "value": "Cognac", "count": 18 }
     ],
+    "rooftops": [
+      { "value": "Demo Toyota San Francisco", "count": 236 },
+      { "value": "Demo Honda Oakland", "count": 114 }
+    ],
     "statuses": [
       { "value": "available", "count": 287 },
       { "value": "intransit", "count": 41 },

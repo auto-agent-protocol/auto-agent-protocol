@@ -39,6 +39,7 @@ AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi
 | `body` | string[] | yes | — | Body types (e.g. sedan, suv). |
 | `exterior_color` | string[] | yes | — | Free-text colors. |
 | `interior_color` | string[] | yes | — | Free-text colors. |
+| `rooftops` | string[] | yes | — | Rooftop names to include, matching `Vehicle.rooftop` and the rooftop `name` from [`dealer.information`](./dealer-information.md). For multi-rooftop dealerships; omit to search across all rooftops. |
 | `year_min` / `year_max` | integer | — | yes | Inclusive year range. |
 | `price_min` / `price_max` | integer | — | yes | Inclusive price range, in whole US dollars. **Applied against the FTC-final `price` field.** See [Pricing and FTC compliance](../pricing-and-ftc.md). |
 | `mileage_max` | integer | — | — | Maximum odometer reading. |

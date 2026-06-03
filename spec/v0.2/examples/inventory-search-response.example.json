@@ -107,6 +107,9 @@
       "bodies": [
         { "value": "suv", "count": 2 }
       ],
+      "rooftops": [
+        { "value": "Demo Toyota San Francisco", "count": 2 }
+      ],
       "statuses": [
         { "value": "available", "count": 2 }
       ],

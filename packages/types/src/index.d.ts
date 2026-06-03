@@ -460,6 +460,7 @@ export interface Facets {
   bodies?: TermFacet1;
   exterior_colors?: TermFacet;
   interior_colors?: TermFacet;
+  rooftops?: TermFacet2;
   statuses?: TermFacet;
   price_range?: RangeFacet;
   mileage_range?: RangeFacet;

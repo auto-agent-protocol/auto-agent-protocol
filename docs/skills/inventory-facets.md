@@ -56,6 +56,7 @@ When `filters` is absent, facets are aggregated over the dealer's entire invento
     "bodies":          [{ "value": "string", "count": 0 }],
     "exterior_colors": [{ "value": "string", "count": 0 }],
     "interior_colors": [{ "value": "string", "count": 0 }],
+    "rooftops":        [{ "value": "string", "count": 0 }],
     "statuses":        [{ "value": "available | intransit | pending", "count": 0 }],
     "price_range":   { "min": 0, "max": 0 },
     "mileage_range": { "min": 0, "max": 0 },
