@@ -11,7 +11,7 @@
 
 AAP is the open A2A profile that lets AI agents discover dealerships, browse inventory, and submit consented leads through typed automotive messages riding on top of [A2A v1.0](https://a2a-protocol.org). A compliant dealer agent is an A2A agent that publishes an `agent-card.json` with the AAP automotive extension URI (`https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.2`) and implements **one or more** of the five standard AAP automotive skills (a tiny used-car lot might only do `inventory.search` + `lead.submit`; a franchise dealership might do all five). Buyer agents can use either A2A binding — JSON-RPC 2.0 or HTTP+JSON — to invoke the same skills with identical payloads.
 
-![agent-card.json — the contract every AAP dealership exposes, advertising A2A v1.0 compliance, the AAP automotive extension, the subset of AAP skills the agent implements, and supported bindings](static/img/agent-card-passport.png)
+![agent-card.json — the contract every AAP dealership exposes, advertising A2A v1.0 compliance, the AAP automotive extension, the subset of AAP skills the agent implements, and supported bindings](static/img/v0.2/agent-card-passport.png)
 
 ## v0.2 Scope
 

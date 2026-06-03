@@ -114,7 +114,7 @@ function Skills() {
           </div>
           <div className="col col--7">
             <img
-              src="/img/skills-overview.png"
+              src="/img/v0.2/skills-overview.png"
               alt="Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit"
               className={styles.fullImage}
               width="1376"

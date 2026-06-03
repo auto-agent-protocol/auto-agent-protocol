@@ -22,7 +22,7 @@ A dealer agent declares itself AAP-compliant by listing this URI in `capabilitie
 
 ## What AAP standardizes
 
-![Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit](/img/skills-overview.png)
+![Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit](/img/v0.2/skills-overview.png)
 
 AAP v0.2 defines a **vocabulary** of five standard skill IDs that cover the read-and-lead lifecycle of automotive retail. A dealer agent picks whichever subset matches its capabilities — none of the five is individually mandatory.
 

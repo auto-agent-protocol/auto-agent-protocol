@@ -10,7 +10,7 @@ description: Search vehicle inventory with a flat filter block, pagination, sort
 This skill is invoked through A2A's `SendMessage` operation (`SendMessage` JSON-RPC method or `POST /message:send` over HTTP+JSON), not a dedicated REST URL. The same payload travels on either A2A binding — see [JSON-RPC binding](../bindings/json-rpc.md) or [REST binding](../bindings/rest.md). AAP only defines what goes inside `Message.parts[].data`.
 :::
 
-![Inventory search flow: filters block flowing into a paginated vehicles list with facets](/img/inventory-search-flow.png)
+![Inventory search flow: filters block flowing into a paginated vehicles list with facets](/img/v0.2/inventory-search-flow.png)
 
 The `inventory.search` skill is the primary inventory discovery surface. A buyer agent submits a flat filter block, optional pagination, optional sort, and optional privacy hints; the dealer agent returns matching `Vehicle` listings together with a total count and OPTIONAL aggregated facets.
 

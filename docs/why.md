@@ -6,7 +6,7 @@ description: The gap AAP fills against A2A, ACP, MCP, and ADF — and why it is 
 
 # Why automotive needs AAP
 
-![Five AAP skills covering the read-and-lead lifecycle](/img/skills-overview.png)
+![Five AAP skills covering the read-and-lead lifecycle](/img/v0.2/skills-overview.png)
 
 Automotive retail has unusual constraints that no general-purpose agent protocol addresses end-to-end:
 

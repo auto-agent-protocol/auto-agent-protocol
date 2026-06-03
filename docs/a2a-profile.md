@@ -47,7 +47,7 @@ AAP does NOT redefine layer 2 (abstract operations) or layer 3 (protocol binding
 
 ## The typed `DataPart` pattern
 
-![Anatomy of an A2A v1.0 Message: messageId, role: ROLE_USER, and a typed DataPart with data + mediaType](/img/datapart-anatomy.png)
+![Anatomy of an A2A v1.0 Message: messageId, role: ROLE_USER, and a typed DataPart with data + mediaType](/img/v0.2/datapart-anatomy.png)
 
 A2A messages are composed of one or more `parts`. Each part identifies its kind by the member it carries — a part with a `text` member is a `TextPart`, with a `file` member is a `FilePart`, with a `data` member is a `DataPart`. AAP only uses `DataParts` — it never relies on free-text natural-language parsing for protocol semantics.
 

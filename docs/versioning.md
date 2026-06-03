@@ -6,7 +6,7 @@ description: SemVer policy. Released versions are immutable, "latest" aliases th
 
 # Versioning
 
-![Versioning timeline: v0.1 (current), v0.2 (future), v1.0 (unreleased), with the latest arrow pointing at the highest released version](/img/versioning-timeline.png)
+![Versioning timeline: v0.1 (current), v0.2 (future), v1.0 (unreleased), with the latest arrow pointing at the highest released version](/img/v0.2/versioning-timeline.png)
 
 Auto Agent Protocol uses [Semantic Versioning](https://semver.org/) (SemVer) for the published specification, schemas, and contract identifiers. The rules below are normative.
 
