@@ -1,0 +1,53 @@
+version: "0.2"
+extension_uri: https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.2
+schema_base_url: https://autoagentprotocol.org/v0.2/schemas/
+skills:
+  - id: dealer.information
+    name: Dealer Information
+    description: Return the dealership profile — group name, welcome message, and one or more rooftops (locations) with their address, geo, contacts, business hours, timezone, and service capabilities.
+    request_schema: dealer-information-request.schema.json
+    response_schema: dealer-information-response.schema.json
+    request_type: dealer.information.request
+    response_type: dealer.information.response
+    media_type_request: application/vnd.autoagent.dealer-information-request+json
+    media_type_response: application/vnd.autoagent.dealer-information-response+json
+
+  - id: inventory.facets
+    name: Inventory Facets
+    description: Return searchable inventory facets such as makes, models, years, conditions, body styles, price ranges, mileage ranges, drivetrain, fuel type, and statuses.
+    request_schema: inventory-facets-request.schema.json
+    response_schema: inventory-facets-response.schema.json
+    request_type: inventory.facets.request
+    response_type: inventory.facets.response
+    media_type_request: application/vnd.autoagent.inventory-facets-request+json
+    media_type_response: application/vnd.autoagent.inventory-facets-response+json
+
+  - id: inventory.search
+    name: Inventory Search
+    description: Search vehicle inventory by query, make, model, trim, year, condition, price, mileage, body style, VIN, stock, features, and availability.
+    request_schema: inventory-search-request.schema.json
+    response_schema: inventory-search-response.schema.json
+    request_type: inventory.search.request
+    response_type: inventory.search.response
+    media_type_request: application/vnd.autoagent.inventory-search-request+json
+    media_type_response: application/vnd.autoagent.inventory-search-response+json
+
+  - id: inventory.vehicle
+    name: Vehicle Detail
+    description: Return details for a specific vehicle by VIN, stock number, or vehicle_id, including status, pricing disclosure, photos, mileage, trim, features, fuel economy, and dealer page URL.
+    request_schema: vehicle-detail-request.schema.json
+    response_schema: vehicle-detail-response.schema.json
+    request_type: inventory.vehicle.request
+    response_type: inventory.vehicle.response
+    media_type_request: application/vnd.autoagent.vehicle-detail-request+json
+    media_type_response: application/vnd.autoagent.vehicle-detail-response+json
+
+  - id: lead.submit
+    name: Submit Lead
+    description: Submit a consented lead carrying customer info plus any combination of vehicle of interest, trade-in, and appointment request — a single unified contract that matches how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).
+    request_schema: lead-submit-request.schema.json
+    response_schema: lead-submit-response.schema.json
+    request_type: lead.submit.request
+    response_type: lead.submit.response
+    media_type_request: application/vnd.autoagent.lead-submit-request+json
+    media_type_response: application/vnd.autoagent.lead-submit-response+json

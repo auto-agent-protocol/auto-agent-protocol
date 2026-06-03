@@ -6,7 +6,7 @@ description: SemVer policy. Released versions are immutable, "latest" aliases th
 
 # Versioning
 
-![Versioning timeline: v0.1 (current), v0.2 (future), v1.0 (unreleased), with the latest arrow pointing at the highest released version](/img/versioning-timeline.png)
+![Versioning timeline: v0.1 (current), v0.2 (future), v1.0 (unreleased), with the latest arrow pointing at the highest released version](/img/v0.2/versioning-timeline.png)
 
 Auto Agent Protocol uses [Semantic Versioning](https://semver.org/) (SemVer) for the published specification, schemas, and contract identifiers. The rules below are normative.
 
@@ -25,7 +25,9 @@ Each released version of AAP has a major.minor version number (v0.1, v0.2, v1.0,
 | Changing the agent-card extension URI (e.g. `extensions/a2a-automotive-retail/v0.1` -> `.../v0.2`) | major |
 | Documentation-only correction with no schema change | patch |
 
-The AAP version lives in exactly one place on the wire: the agent-card extension URI (e.g. `https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.1`) and the schema `$id` URLs (`https://autoagentprotocol.org/v0.1/schemas/...`). Per-message `data.type` and `mediaType` are intentionally version-free; the dealer's agent-card pins the active version once per session.
+The table above describes the policy once AAP reaches 1.0. **While AAP is pre-1.0 (the `0.x` series), a minor bump MAY carry breaking changes** — per SemVer's 0.x allowance. v0.2 is exactly such a bump: it removes and renames fields, flattens prices to integers, narrows `status` to an enum, and drops the separate contract manifest, all relative to v0.1. Pin to the exact version a dealer advertises.
+
+The AAP version lives in exactly one place on the wire: the agent-card extension URI (e.g. `https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.2`) and the schema `$id` URLs (`https://autoagentprotocol.org/v0.2/schemas/...`). Per-message `data.type` and `mediaType` are intentionally version-free; the dealer's agent-card pins the active version once per session.
 
 ## Released versions are immutable
 
@@ -40,18 +42,19 @@ Concretely:
 
 ## The `latest` alias
 
-The path `https://autoagentprotocol.org/latest/` always aliases the highest released version. It is intended for browsing convenience, not for production wire pinning. Production agents SHOULD pin to a specific version (e.g. `v0.1`).
+The path `https://autoagentprotocol.org/latest/` always aliases the highest released version. It is intended for browsing convenience, not for production wire pinning. Production agents SHOULD pin to a specific version (e.g. `v0.2`).
 
 How it is wired up today:
 
-- **Documentation**: `https://autoagentprotocol.org/docs/latest/<page>` redirects (HTTP 200 client-side) to `/docs/v0.1/<page>` via the Docusaurus client-redirects plugin. Every page reachable under `/docs/v0.1/` is also reachable under `/docs/latest/`.
-- **Schemas, examples, OpenAPI, MCP manifest**: also served at `https://autoagentprotocol.org/latest/...` because the build pipeline mirrors `static/v0.1/` into `static/latest/`. Both URLs return identical bytes today; on v0.2 release the mirror flips to v0.2.
+- **Documentation**: `https://autoagentprotocol.org/docs/latest/<page>` redirects (HTTP 200 client-side) to `/docs/v0.2/<page>` via the Docusaurus client-redirects plugin. Every page reachable under `/docs/v0.2/` is also reachable under `/docs/latest/`. The frozen v0.1 docs remain served at `/docs/v0.1/<page>`.
+- **Schemas, examples, OpenAPI, MCP manifest**: also served at `https://autoagentprotocol.org/latest/...` because the build pipeline mirrors `static/v0.2/` into `static/latest/`. The frozen v0.1 artifacts remain served at `https://autoagentprotocol.org/v0.1/...`.
 
 | URL form | Stability | Use case |
 |---|---|---|
-| `https://autoagentprotocol.org/v0.1/...` | Frozen | Production pinning. |
-| `https://autoagentprotocol.org/latest/...` | Tracks the highest released version | Documentation browsing, not wire pinning. |
-| `https://autoagentprotocol.org/next/...` | Reserved | Will appear once v0.1 is cut as a real release and `current` becomes the next-version preview. Not live yet. |
+| `https://autoagentprotocol.org/v0.2/...` | Frozen | Production pinning. |
+| `https://autoagentprotocol.org/v0.1/...` | Frozen (historical) | Production pinning for agents still on v0.1; still served. |
+| `https://autoagentprotocol.org/latest/...` | Tracks the highest released version (now v0.2) | Documentation browsing, not wire pinning. |
+| `https://autoagentprotocol.org/next/...` | Reserved | The current `docs/` is now v0.2; `next` will hold the next-version preview once v0.2 is cut as a release. |
 
 ## Schema URL convention
 
@@ -61,62 +64,49 @@ Every AAP JSON Schema lives at a version-pinned URL:
 https://autoagentprotocol.org/v{version}/schemas/{filename}
 ```
 
-Example for v0.1:
+Example for v0.2:
 
-- `https://autoagentprotocol.org/v0.1/schemas/inventory-search-request.schema.json`
-- `https://autoagentprotocol.org/v0.1/schemas/vehicle.schema.json`
-- `https://autoagentprotocol.org/v0.1/schemas/_primitives/money.schema.json`
+- `https://autoagentprotocol.org/v0.2/schemas/inventory-search-request.schema.json`
+- `https://autoagentprotocol.org/v0.2/schemas/vehicle.schema.json`
 
 The `$id` inside each schema file matches its public URL. Schema cross-references (`$ref`) use relative paths within the same version directory.
 
-## Contract URI
-
-The contract manifest's `contract.uri` is also version-pinned:
-
-```json
-"contract": {
-  "name": "Auto Agent Protocol A2A Automotive Retail Profile",
-  "version": "0.1.1",
-  "uri": "https://autoagentprotocol.org/v0.1/"
-}
-```
-
-A buyer agent that successfully calls a dealer whose manifest declares `contract.uri: https://autoagentprotocol.org/v0.1/` can cache the schema URLs forever.
+The AAP version is announced only via the agent-card extension URI and the schema `$id` URLs. There is no separate contract document; a buyer agent reads the extension URI to learn the version and then validates against the version-pinned schema URLs published by AAP.
 
 ## Extension URI
 
 The A2A extension URI is version-pinned per major.minor:
 
 ```
-https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.1
+https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.2
 ```
 
-A future minor version (v0.2) introduces a new extension URI. Dealer agents that support multiple AAP minor versions MAY declare multiple extension entries on their A2A agent card; buyer agents pick the highest version they understand.
+A future minor version introduces a new extension URI. Dealer agents that support multiple AAP minor versions MAY declare multiple extension entries on their A2A agent card; buyer agents pick the highest version they understand.
 
 ## Side-by-side versioning
 
-Dealer agents MAY run multiple AAP minor versions in parallel during a transition. Each version is exposed by a separate extension URI on the agent card, and each version corresponds to a separate contract manifest URL (e.g. `/.well-known/auto-agent-contract.json` for the canonical version, `/.well-known/auto-agent-contract.v0.2.json` for a parallel preview). AAP v0.1 does not standardize the parallel-version path; it is a dealer-side convention.
+Dealer agents MAY run multiple AAP minor versions in parallel during a transition. Each version is exposed by a separate extension URI on the agent card; a dealer that speaks both v0.1 and v0.2 declares both extension URIs on its single agent card, and buyer agents pick the highest version they understand.
 
 ## Release process
 
 Each AAP release goes through three stages:
 
-1. **`next`** — in-flight pre-release work in `spec/next/` and `https://autoagentprotocol.org/next/`. Schemas and prose may change without warning.
+1. **Current (working)** — in-flight work lives in the current version directory (`spec/v0.2/`) and the Docusaurus `current` docs (`docs/`, served at `/docs/v0.2/`). Schemas and prose may change while the version is unreleased.
 2. **`v{version}` (release candidate)** — schemas are frozen, prose may receive editorial polish.
-3. **`v{version}` (released)** — schemas, prose, examples, and OpenAPI are immutable. The `latest` alias is updated to point here.
+3. **`v{version}` (released)** — schemas, prose, examples, and OpenAPI are immutable. The `latest` alias is updated to point here, and the docs are snapshotted into `versioned_docs/version-v{version}/`.
 
-The repository runs a `freeze-check` tool over released directories on every PR to prevent accidental modification.
+The repository runs a `freeze-check` tool over released directories (`spec/v0.1/`, `versioned_docs/version-v0.1/`) on every PR to prevent accidental modification.
 
 ## What this means for buyer agents
 
-- Pin to a specific version (`https://autoagentprotocol.org/v0.1/`) in production.
-- Read the contract manifest's `contract.version` and `contract.uri` to learn which AAP minor version the dealer agent speaks.
-- Validate against the per-skill `request_schema` URL the manifest gives you — that URL is version-pinned.
-- Treat AAP as forward-compatible: a v0.2 dealer SHOULD accept v0.1 requests because v0.1 schemas are a strict subset (only optional additions allowed in minor versions). Verify by reading the `contract.version`.
+- Pin to a specific version (`https://autoagentprotocol.org/v0.2/`) in production.
+- Read the agent-card extension URI to learn the AAP version the dealer agent speaks.
+- Validate against the version-pinned schema URLs published by AAP — those URLs are version-pinned.
+- Do NOT assume cross-version compatibility. While AAP is pre-1.0, a minor bump MAY change shapes (v0.2 removes fields, flattens prices, and narrows `status` relative to v0.1). Speak the exact version a dealer advertises via its extension URI; a dealer that supports both declares both extension URIs.
 
 ## What this means for dealer agents
 
 - Once you publish, freeze. Do not edit released schemas in place.
-- Add new optional fields in the `next` channel; release them as a minor bump.
-- Bump the major version (and the agent-card extension URI's `v{major}.{minor}` suffix) for any breaking change.
+- Develop changes against the current version directory (`spec/v0.2/`); cut them into a new version directory when you release.
+- Bump the version (and the agent-card extension URI's `v{major}.{minor}` suffix) for any breaking change.
 - Maintain the `latest` alias on your documentation host so casual browsers always land on the most recent published version.

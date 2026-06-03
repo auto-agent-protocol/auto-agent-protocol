@@ -17,9 +17,6 @@ interface Skill {
   response_type: string;
   media_type_request: string;
   media_type_response: string;
-  anonymous_allowed: boolean;
-  consent_required: boolean;
-  adf_compatible: boolean;
 }
 
 interface SkillsManifest {
@@ -45,13 +42,11 @@ const REQUEST_MESSAGE_IDS: Record<string, string> = {
   "inventory.facets": "01HZ9H6P9E2Z5N7TQ0D5YMWX4R",
   "inventory.search": "01HZ9F4M7C0X3K5RN8B3WJTW2P",
   "inventory.vehicle": "01HZ9J7Q0F3A6P8VR1E6ZNXY5S",
-  "lead.general": "01HZ9K8R1G4B7Q9WS2F7APYZ6T",
-  "lead.vehicle": "01HZ9M9S2H5C8R0XT3G8BQZA7V",
-  "lead.appointment": "01HZ9N0T3J6D9S1YV4H9CRABCDV",
+  "lead.submit": "01HZ9K8R1G4B7Q9WS2F7APYZ6T",
 };
 
 async function main() {
-  const versions = ["v0.1"];
+  const versions = ["v0.1", "v0.2"];
 
   for (const version of versions) {
     const specDir = resolve(ROOT, "spec", version);
@@ -84,7 +79,7 @@ async function main() {
       info: {
         title: "Auto Agent Protocol — A2A JSON-RPC binding",
         description:
-          "Auto Agent Protocol v0.1 documented over the A2A JSON-RPC 2.0 binding (A2A spec, Section 9). Every skill is invoked as an A2A `SendMessage` JSON-RPC call carrying a typed AAP DataPart. Reflects the A2A v1.0 wire format (no `kind` discriminator, ROLE_USER/ROLE_AGENT enum strings, required `messageId`, `mediaType` per part).",
+          `Auto Agent Protocol ${version} documented over the A2A JSON-RPC 2.0 binding (A2A spec, Section 9). Every skill is invoked as an A2A \`SendMessage\` JSON-RPC call carrying a typed AAP DataPart. Reflects the A2A v1.0 wire format (no \`kind\` discriminator, ROLE_USER/ROLE_AGENT enum strings, required \`messageId\`, \`mediaType\` per part).`,
         version,
         license: {
           name: "Apache-2.0",
@@ -241,7 +236,7 @@ async function main() {
       info: {
         title: "Auto Agent Protocol — A2A HTTP+JSON binding",
         description:
-          "Auto Agent Protocol v0.1 documented over the A2A HTTP+JSON binding (A2A spec, Section 11). All AAP skills are invoked via `POST /message:send`; the skill is dispatched by the typed DataPart payload. Reflects the A2A v1.0 body shape (no `kind` discriminator, ROLE_USER/ROLE_AGENT enum strings, required `messageId`, `mediaType` per part).",
+          `Auto Agent Protocol ${version} documented over the A2A HTTP+JSON binding (A2A spec, Section 11). All AAP skills are invoked via \`POST /message:send\`; the skill is dispatched by the typed DataPart payload. Reflects the A2A v1.0 body shape (no \`kind\` discriminator, ROLE_USER/ROLE_AGENT enum strings, required \`messageId\`, \`mediaType\` per part).`,
         version,
         license: {
           name: "Apache-2.0",

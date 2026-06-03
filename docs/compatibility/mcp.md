@@ -20,7 +20,7 @@ Each AAP skill maps to one MCP tool. The tool name pattern is:
 aap_<skill_id_with_underscores>
 ```
 
-Dots become underscores. The mapping is fixed for v0.1:
+Dots become underscores. The mapping is fixed for v0.2:
 
 | AAP skill id | MCP tool name |
 |---|---|
@@ -48,80 +48,80 @@ A complete MCP server descriptor that exposes all five AAP skills as tools:
 ```json
 {
   "name": "auto-agent-protocol",
-  "version": "0.1",
+  "version": "0.2",
   "description": "MCP server descriptor that exposes Auto Agent Protocol automotive skills as MCP tools. Each tool's input matches the corresponding AAP request schema; the wrapper invokes the dealer's A2A endpoint with the same payload as a typed DataPart.",
   "protocolVersion": "2025-06-18",
   "tools": [
     {
       "name": "aap_dealer_information",
-      "description": "Return dealership profile, locations, brands, business hours, contact policies, and supported services.",
+      "description": "Return dealership profile, rooftops, business hours, contact policies, and supported capabilities.",
       "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v0.1/schemas/dealer-information-request.schema.json"
+        "$ref": "https://autoagentprotocol.org/v0.2/schemas/dealer-information-request.schema.json"
       },
       "annotations": {
         "aap_skill_id": "dealer.information",
         "aap_request_type": "dealer.information.request",
         "aap_response_type": "dealer.information.response",
-        "aap_response_schema": "https://autoagentprotocol.org/v0.1/schemas/dealer-information-response.schema.json"
+        "aap_response_schema": "https://autoagentprotocol.org/v0.2/schemas/dealer-information-response.schema.json"
       }
     },
     {
       "name": "aap_inventory_facets",
       "description": "Return aggregated facets (makes, models, years, conditions, body styles, price ranges, mileage ranges, drivetrain, fuel type) over the dealer's inventory.",
       "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v0.1/schemas/inventory-facets-request.schema.json"
+        "$ref": "https://autoagentprotocol.org/v0.2/schemas/inventory-facets-request.schema.json"
       },
       "annotations": {
         "aap_skill_id": "inventory.facets",
         "aap_request_type": "inventory.facets.request",
         "aap_response_type": "inventory.facets.response",
-        "aap_response_schema": "https://autoagentprotocol.org/v0.1/schemas/inventory-facets-response.schema.json"
+        "aap_response_schema": "https://autoagentprotocol.org/v0.2/schemas/inventory-facets-response.schema.json"
       }
     },
     {
       "name": "aap_inventory_search",
       "description": "Search vehicle inventory by query, make, model, trim, year, condition, price, mileage, body, VIN, stock, features, and availability.",
       "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v0.1/schemas/inventory-search-request.schema.json"
+        "$ref": "https://autoagentprotocol.org/v0.2/schemas/inventory-search-request.schema.json"
       },
       "annotations": {
         "aap_skill_id": "inventory.search",
         "aap_request_type": "inventory.search.request",
         "aap_response_type": "inventory.search.response",
-        "aap_response_schema": "https://autoagentprotocol.org/v0.1/schemas/inventory-search-response.schema.json"
+        "aap_response_schema": "https://autoagentprotocol.org/v0.2/schemas/inventory-search-response.schema.json"
       }
     },
     {
       "name": "aap_inventory_vehicle",
       "description": "Return details for a specific vehicle by VIN, stock number, or vehicle_id, including availability, pricing disclosure, media, mileage, trim, features, and dealer page URL.",
       "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v0.1/schemas/vehicle-detail-request.schema.json"
+        "$ref": "https://autoagentprotocol.org/v0.2/schemas/vehicle-detail-request.schema.json"
       },
       "annotations": {
         "aap_skill_id": "inventory.vehicle",
         "aap_request_type": "inventory.vehicle.request",
         "aap_response_type": "inventory.vehicle.response",
-        "aap_response_schema": "https://autoagentprotocol.org/v0.1/schemas/vehicle-detail-response.schema.json"
+        "aap_response_schema": "https://autoagentprotocol.org/v0.2/schemas/vehicle-detail-response.schema.json"
       }
     },
     {
       "name": "aap_lead_submit",
       "description": "Submit a consented lead carrying customer info plus any combination of vehicle of interest, trade-in, and appointment request. Replaces the legacy lead.general / lead.vehicle / lead.appointment trio.",
       "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v0.1/schemas/lead-submit-request.schema.json"
+        "$ref": "https://autoagentprotocol.org/v0.2/schemas/lead-submit-request.schema.json"
       },
       "annotations": {
         "aap_skill_id": "lead.submit",
         "aap_request_type": "lead.submit.request",
         "aap_response_type": "lead.submit.response",
-        "aap_response_schema": "https://autoagentprotocol.org/v0.1/schemas/lead-submit-response.schema.json"
+        "aap_response_schema": "https://autoagentprotocol.org/v0.2/schemas/lead-submit-response.schema.json"
       }
     }
   ]
 }
 ```
 
-A reference manifest is generated from `spec/v0.1/skills.yaml` at build time and published as `generated/v0.1/mcp-manifest.json`.
+A reference manifest is generated from `spec/v0.2/skills.yaml` at build time and published as `generated/v0.2/mcp-manifest.json`.
 
 ## Calling a tool
 

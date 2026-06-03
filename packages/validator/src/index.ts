@@ -24,9 +24,9 @@ export class AAPValidator {
    */
   loadDefaults(): void {
     // Resolve the schemas package's main entry (dist/index.js) and walk down
-    // to its v0.1 directory of JSON Schema files.
+    // to its v0.2 directory of JSON Schema files.
     const mainEntry = require.resolve("@autoagentprotocol/schemas");
-    const dir = resolve(dirname(mainEntry), "v0.1");
+    const dir = resolve(dirname(mainEntry), "v0.2");
     this.loadSchemas(dir);
   }
 

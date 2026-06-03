@@ -16,7 +16,7 @@ function Hero() {
             <div className={styles.buttons}>
               <Link
                 className="button button--secondary button--lg"
-                to="/docs/v0.1/intro"
+                to="/docs/v0.2/intro"
               >
                 Read the Spec
               </Link>
@@ -108,13 +108,13 @@ function Skills() {
               checkout, no payment scope. Just the read-and-lead lifecycle,
               typed and validated.
             </p>
-            <Link to="/docs/v0.1/intro" className="button button--primary">
+            <Link to="/docs/v0.2/intro" className="button button--primary">
               Browse the skills
             </Link>
           </div>
           <div className="col col--7">
             <img
-              src="/img/skills-overview.png"
+              src="/img/v0.2/skills-overview.png"
               alt="Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit"
               className={styles.fullImage}
               width="1376"
@@ -155,7 +155,7 @@ function Pricing() {
               sit beside it, so AI agents can give honest answers and dealers
               can stay on the right side of recent FTC enforcement.
             </p>
-            <Link to="/docs/v0.1/pricing-and-ftc" className="button button--primary">
+            <Link to="/docs/v0.2/pricing-and-ftc" className="button button--primary">
               Read the pricing semantics
             </Link>
           </div>

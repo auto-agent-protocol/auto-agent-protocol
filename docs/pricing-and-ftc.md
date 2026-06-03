@@ -8,7 +8,7 @@ description: The four pricing fields (msrp, list_price, offered_price, price), w
 
 ![Vehicle pricing ladder from msrp to the FTC-final price](/img/pricing-ladder.png)
 
-AAP v0.1 standardizes four explicit pricing fields on every vehicle. The single most important rule:
+AAP standardizes four explicit pricing fields on every vehicle. The single most important rule:
 
 > **`price` is the FTC-final out-the-door amount.** It is the total amount the buyer would pay for this specific vehicle, including all required fees, mandatory add-ons, and any conditions on dealer financing. Anything less is a violation of FTC enforcement policy.
 
@@ -25,7 +25,7 @@ AAP's `price` field is the protocol-level expression of that rule. Buyer agents 
 
 ## The four pricing fields
 
-Every `Vehicle` object in AAP MAY carry four `Money` values. Each has a precise meaning.
+Every `Vehicle` object in AAP MAY carry four integer price fields (whole US dollars). Each has a precise meaning.
 
 | Field | Required? | Meaning | Includes regional taxes? | Includes mandatory fees / add-ons? | Notes |
 |---|---|---|---|---|---|
@@ -34,10 +34,10 @@ Every `Vehicle` object in AAP MAY carry four `Money` values. Each has a precise 
 | `offered_price` | optional, conditional | Regional price equal to `list_price` plus applicable taxes for the buyer's `zip`. | yes (for the supplied `zip`) | no | Present only if `zip` is supplied AND the dealer enables desking. |
 | `price` | RECOMMENDED | **FTC-final out-the-door price** after all incentives, mandatory fees, and required add-ons. | yes | yes | The single number a buyer agent uses for comparison and the only one used by `inventory.search` `price_min` / `price_max` filters and `sort.field: "price"`. |
 
-All four are `Money` objects:
+Each is a plain integer in whole US dollars:
 
 ```json
-{ "amount": 26780, "currency": "USD" }
+26780
 ```
 
 ### How the fields relate
@@ -64,19 +64,20 @@ A 2022 Honda Civic listed by a California dealer:
   "make": "Honda",
   "model": "Civic",
   "condition": "cpo",
-  "msrp":          { "amount": 26500, "currency": "USD" },
-  "list_price":    { "amount": 24990, "currency": "USD" },
-  "offered_price": { "amount": 26615, "currency": "USD" },
-  "price":         { "amount": 26780, "currency": "USD" },
+  "msrp": 26500,
+  "list_price": 24990,
+  "offered_price": 26615,
+  "price": 26780,
   "zip": "94105",
-  "status": "In Stock",
-  "last_verified_at": "2026-04-30T10:15:00Z"
+  "status": "available",
+  "inventory_date": "2026-04-12",
+  "updated_at": "2026-04-30T10:15:00Z"
 }
 ```
 
 What the buyer is actually being asked to pay: **$26,780**. That is the FTC-final out-the-door figure. The other three fields are descriptive context. A buyer agent shopping for a Civic at "under $27,000" should match this listing on `price`, not `list_price`.
 
-If the same dealer lists the same VIN with `price: { amount: 24990 }` while charging the customer $26,780 at the dealership, that is the exact pattern the FTC's 2026 warnings target.
+If the same dealer lists the same VIN with `price: 24990` while charging the customer $26,780 at the dealership, that is the exact pattern the FTC's 2026 warnings target.
 
 ## How `zip` and desking work
 

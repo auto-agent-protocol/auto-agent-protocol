@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.2/schemas/appointment.schema.json",
+  "title": "Appointment",
+  "description": "An appointment request piggybacked on a `lead.submit.request`. The vehicle reference for the appointment is IMPLICIT — it is whatever is in the parent `vehicle_of_interest` (or `trade_in` for a trade-in appraisal). A standalone sales or service visit can omit any vehicle.",
+  "type": "object",
+  "properties": {
+    "appointment_type": {
+      "type": "string",
+      "enum": ["sales", "service", "test_drive", "trade_in"],
+      "description": "Kind of appointment the buyer is requesting."
+    },
+    "appointment_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Requested start time of the appointment as an ISO 8601 / RFC 3339 timestamp that MUST include a timezone offset (Z or ±HH:MM), e.g. '2026-05-03T11:00:00-07:00'. Optional — when omitted, the dealer follows up to schedule a time."
+    },
+    "duration_minutes": {
+      "type": "integer",
+      "minimum": 15,
+      "description": "Expected appointment duration in minutes. If omitted, the dealer applies its default for `appointment_type`."
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Free-text note from the buyer (e.g. 'I'd like to bring my partner', 'parking instructions please')."
+    }
+  },
+  "required": ["appointment_type"],
+  "additionalProperties": false
+}

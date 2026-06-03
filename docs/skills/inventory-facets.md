@@ -56,7 +56,8 @@ When `filters` is absent, facets are aggregated over the dealer's entire invento
     "bodies":          [{ "value": "string", "count": 0 }],
     "exterior_colors": [{ "value": "string", "count": 0 }],
     "interior_colors": [{ "value": "string", "count": 0 }],
-    "statuses":        [{ "value": "string", "count": 0 }],
+    "rooftops":        [{ "value": "string", "count": 0 }],
+    "statuses":        [{ "value": "available | intransit | pending", "count": 0 }],
     "price_range":   { "min": 0, "max": 0 },
     "mileage_range": { "min": 0, "max": 0 },
     "year_range":    { "min": 0, "max": 0 }
@@ -64,7 +65,7 @@ When `filters` is absent, facets are aggregated over the dealer's entire invento
 }
 ```
 
-Each `*_facet` array entry is `{ value, count }` where `value` is the facet term (string or integer) and `count` is the number of matching listings. The three `*_range` fields are `{ min, max }` numeric ranges.
+Each facet array entry is `{ value, count }` where `value` is the facet term (string or integer) and `count` is the number of matching listings. The `statuses` facet's `value` is drawn from the controlled vehicle status enum — `available`, `intransit`, or `pending` — since those are the only statuses that appear in inventory feeds. The three `*_range` fields are `{ min, max }` integer ranges (`price_range` in whole US dollars).
 
 `price_range` aggregates the FTC-final `price` field (see [Pricing and FTC compliance](../pricing-and-ftc.md)).
 
@@ -99,6 +100,11 @@ Used-only facets:
     ],
     "conditions": [
       { "value": "used", "count": 39 }
+    ],
+    "statuses": [
+      { "value": "available", "count": 34 },
+      { "value": "intransit", "count": 3 },
+      { "value": "pending",   "count": 2 }
     ],
     "year_range":    { "min": 2015, "max": 2024 },
     "price_range":   { "min": 9990, "max": 38990 },

@@ -25,17 +25,11 @@ A2A v1.0 reshaped the body of `POST /message:send`. The URL path stays the same;
 
 ## Endpoint
 
-A dealer agent advertises one or more HTTP+JSON endpoints under `supported_interfaces[]` of its [agent card](../discovery.md). Each entry has `protocol_binding: "HTTP+JSON"` and a `url` for the base.
+A dealer agent advertises one or more HTTP+JSON endpoints under `supportedInterfaces[]` of its [agent card](../discovery.md). Each entry has `protocolBinding: "HTTP+JSON"` and a `url` for the base.
 
 ```
 POST {base_url}/message:send
 Content-Type: application/json
-```
-
-If the agent declares `auth_type: "bearer"`, every request MUST also send:
-
-```
-Authorization: Bearer <token>
 ```
 
 The body has two top-level keys: `message` (an A2A `Message`) and `configuration` (the buyer's accepted output modes):
@@ -191,14 +185,13 @@ curl -X POST https://demo-toyota.example.com/a2a/message:send \
   }'
 ```
 
-## `lead.submit` (bearer auth example)
+## `lead.submit`
 
 The unified lead carries customer info plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment`. Below: a single test-drive lead that also queues the buyer's trade-in for in-person appraisal.
 
 ```bash
 curl -X POST https://demo-toyota.example.com/a2a/message:send \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   -d '{
     "message": {
       "messageId": "01HZ9K8R1G4B7Q9WS2F7APYZ6T",
@@ -239,10 +232,7 @@ curl -X POST https://demo-toyota.example.com/a2a/message:send \
             },
             "appointment": {
               "appointment_type": "test_drive",
-              "requested_windows": [
-                { "start": "2026-05-02T17:00:00Z", "end": "2026-05-02T18:00:00Z" }
-              ],
-              "timezone": "America/Los_Angeles",
+              "appointment_at": "2026-05-02T17:00:00Z",
               "duration_minutes": 60
             },
             "message": "Interested in this Civic; please appraise my Corolla at the same visit.",
@@ -345,7 +335,6 @@ Recommended HTTP status mapping:
 | `CONTACT_CONSENT_REQUIRED` | 403 | Customer info present without consent or with insufficient scope. |
 | `INVALID_CONSENT` | 403 | Consent grant present but malformed or expired. |
 | `APPOINTMENT_TIME_UNAVAILABLE` | 409 | None of the requested windows can be honored and no proposals offered. |
-| `AUTH_REQUIRED` | 401 | Bearer token missing or invalid. |
 | `RATE_LIMITED` | 429 | Client has exceeded the dealer's rate limits. |
 | `INTERNAL_ERROR` | 500 | Unhandled dealer-side error. |
 

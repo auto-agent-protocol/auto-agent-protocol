@@ -14,14 +14,14 @@ The keywords MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, RECOMMENDED, and OPTIONAL 
 
 ### Inventory MUSTs
 
-- **Sold vehicles MUST NOT be returned as available.** Dealer agents MUST NOT include known-sold vehicles in `inventory.search` results unless their `status` clearly communicates the sold state. Buyer agents that observe a `status` indicating a sold disposition MUST treat the vehicle as unavailable.
-- **`last_verified_at` is MANDATORY for availability claims.** Every `Vehicle` returned by `inventory.search` and every `VehicleDetail` returned by `inventory.vehicle` MUST include `last_verified_at` whenever the agent is making availability claims about the listing. The field is an ISO 8601 datetime indicating when the dealer last reconciled this listing's availability, price, and status.
+- **Inventory feeds MUST contain only in-stock statuses.** `Vehicle.status` is a controlled enum: `available` | `intransit` | `pending`. Dealer agents MUST only return vehicles whose `status` is one of these three in `inventory.search` results. A vehicle in any other state is OUT OF STOCK: the dealer MUST omit it, and a buyer agent that somehow observes any other value MUST ignore the vehicle and treat it as unavailable. `status` is REQUIRED on every inventory listing.
+- **`updated_at` is MANDATORY for availability claims.** Every `Vehicle` returned by `inventory.search` and `inventory.vehicle` MUST include `updated_at` whenever the agent is making availability claims about the listing. The field is an RFC 3339 timestamp indicating when the dealer last updated this listing's availability, price, and status.
 - **`vehicle.vin` or `vehicle.stock` SHOULD be present on detail responses.** `inventory.vehicle` responses SHOULD include `vin` or `stock`. When neither is present (e.g. a deeply pre-allocated unit), the response MUST include `vehicle_id` and SHOULD include free-text `notes` explaining the unit's identification.
-- **When implemented, `inventory.search` MUST support anonymous calls.** A dealer agent is not required to expose `inventory.search`, but if it does and the agent card / contract manifest does not explicitly state otherwise (`anonymous_allowed: false`), `inventory.search` MUST accept calls without authentication, without `customer` info, and without `consent`. AAP RECOMMENDS dealer agents publish their search surface anonymously by default when they expose one.
+- **When implemented, `inventory.search` MUST support anonymous calls.** A dealer agent is not required to expose `inventory.search`, but if it does, it MUST accept calls without `customer` info and without `consent`. AAP RECOMMENDS dealer agents publish their search surface anonymously by default when they expose one.
 
 ### Inventory SHOULDs
 
-- Dealer agents SHOULD update `last_verified_at` no less frequently than once per business day for each in-stock listing.
+- Dealer agents SHOULD update `updated_at` no less frequently than once per business day for each in-stock listing.
 - Dealer agents SHOULD echo the request's `pagination.skip` and `pagination.limit` in the response `data.skip` and `data.limit` so buyer agents can paginate without ambiguity.
 - Buyer agents SHOULD attach `privacy.anonymous: true` to every `inventory.search` call by default and only attach customer identity when actually submitting a lead.
 
@@ -50,23 +50,22 @@ The keywords MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, RECOMMENDED, and OPTIONAL 
 ### Appointment MUSTs
 
 - **Booking is not implied.** A successful `lead.submit` response does NOT guarantee an appointment booking unless the `data.appointment.status` is `confirmed`. `requested` and `proposed` mean the customer has expressed interest but has not been booked.
-- **Non-confirmable requests SHOULD return `requested` or `proposed`.** When the dealer agent cannot auto-confirm a request (manual review required, none of the user's windows fit, etc.), it SHOULD respond with `data.appointment.status: "requested"` or `data.appointment.status: "proposed"` rather than rejecting the appointment.
-- **At least one window is required when `requested_windows` is provided.** Each entry in `requested_windows[]` MUST include `start`. The whole `requested_windows[]` array MAY be omitted if the dealer's policy explicitly allows open-ended scheduling; that policy MUST be communicated out of band.
-- **`vehicle_of_interest` SHOULD be present for `test_drive` and `handover`.** When `appointment.appointment_type` is `test_drive` or `handover`, the lead SHOULD also include `vehicle_of_interest` so the dealer knows which unit. A submission without `vehicle_of_interest` MAY be rejected with `MISSING_REQUIRED_FIELD` per dealer policy.
+- **Non-confirmable requests SHOULD return `requested` or `proposed`.** When the dealer agent cannot auto-confirm a request (manual review required, the requested time does not fit, etc.), it SHOULD respond with `data.appointment.status: "requested"` or `data.appointment.status: "proposed"` rather than rejecting the appointment.
+- **`appointment_at` MAY be omitted.** When the buyer does not specify a time, the dealer SHOULD return `requested` and follow up to schedule. When present, `appointment_at` MUST be an ISO 8601 / RFC 3339 timestamp with a timezone offset.
+- **`vehicle_of_interest` SHOULD be present for `test_drive`.** When `appointment.appointment_type` is `test_drive`, the lead SHOULD also include `vehicle_of_interest` so the dealer knows which unit. A submission without `vehicle_of_interest` MAY be rejected with `MISSING_REQUIRED_FIELD` per dealer policy.
 
 ### Appointment SHOULDs
 
 - The dealer agent SHOULD include the dealer's primary phone (`data.dealer.phone`, E.164) on every lead-with-appointment response so the buyer agent can surface it to the user.
-- The dealer agent SHOULD include `data.appointment.confirmed_window` on every `confirmed` appointment status and `data.appointment.proposed_slots` on every `proposed` status.
-- Buyer agents that receive `data.appointment.status: "proposed"` SHOULD present the alternative slots to the user and re-submit a fresh `lead.submit` with the chosen slot in `appointment.requested_windows[]`.
+- The dealer agent SHOULD include `data.appointment.confirmed_at` on every `confirmed` appointment status and `data.appointment.proposed_times` on every `proposed` status.
+- Buyer agents that receive `data.appointment.status: "proposed"` SHOULD present the alternative times to the user and re-submit a fresh `lead.submit` with the chosen time in `appointment.appointment_at`.
 
 ## Defaults and locale rules
 
 When optional context fields are omitted, AAP defines deterministic fallbacks so buyer agents and dealer agents agree without out-of-band coordination.
 
-- **Currency default.** When a `Money` value is sent without an explicit context, the assumed currency is `USD`. v0.1 is US-only by scope; non-USD currencies SHOULD still be sent with `currency` set explicitly.
-- **Address default country.** v0.1 `Address` has no `country` field; the assumed country is `US`. International support is deferred to a later version.
-- **Appointment timezone default.** When `Appointment.timezone` is omitted, the dealer SHOULD interpret `requested_windows[]` in the dealer's own local timezone (the IANA zone published in `dealer.information.timezone`). Buyer agents SHOULD set `Appointment.timezone` explicitly whenever the buyer's locale differs from the dealer's.
+- **Prices are integers in whole US dollars.** `msrp`, `list_price`, `offered_price`, and `price` are plain integers in whole US dollars (e.g. `26780`).
+- **Address default country.** `Address.country` is optional; when omitted, the assumed country is `US`.
 - **Idempotency.** Buyer agents that retry `lead.submit` after a network failure SHOULD pass an `idempotency_key` (UUID recommended). Dealer agents SHOULD dedupe on this key for at least 24 hours and return the original `lead_id` and status on retries.
 - **Consent expiration.** When `ConsentGrant.expires_at` is omitted, the dealer MAY apply its own default expiration window per local regulation; an explicit `expires_at` always wins. The dealer MUST reject the lead with `INVALID_CONSENT` if the grant has already expired.
 
@@ -83,17 +82,14 @@ When optional context fields are omitted, AAP defines deterministic fallbacks so
 - Dealer agents SHOULD publish `list_price`, `msrp`, and `price` together for transparency. `list_price` is the base advertised number; `price` is the final out-the-door number; the difference is the sum of mandatory fees and required add-ons.
 - Buyer agents SHOULD compare offers across dealers on `price` (not `list_price`). Comparing on `list_price` deceives the user about the actual cost.
 
-## Authentication and rate limits
+## Authentication
 
-### Auth MUSTs
+AAP v0.2 defines **no authentication of its own** — agents are public by default. A dealer that needs to protect its endpoint uses A2A's native `securitySchemes` / `securityRequirements` on its agent card; obtaining and presenting credentials then follows A2A (a transport concern), not AAP. See [Discovery](./discovery.md#authentication).
 
-- **`auth_type` agreement.** The agent card's `security_requirements` and the contract manifest's `auth_type` MUST agree. If `security_requirements` requires `bearer`, `auth_type` MUST be `"bearer"`; if `security_requirements` is empty/absent, `auth_type` MUST be `null`.
-- **Bearer tokens MUST be passed in the `Authorization` header.** `Authorization: Bearer <token>` is the only auth scheme AAP v0.1 documents. Other schemes (mTLS, OAuth client credentials with downstream JWT, signed requests) are out of scope.
-
-### Rate-limit SHOULDs
+## Rate limits
 
 - Dealer agents SHOULD return `RATE_LIMITED` (HTTP 429 / JSON-RPC code -32002) with `retryable: true` and a hint in `details.retry_after_ms` when the buyer agent exceeds a per-key quota.
 
 ## Ordering of rules
 
-When two rules appear to conflict, the more restrictive one wins. For example: a `Vehicle.status` of "Sold" indicates the listing must not be returned as available even if the dealer's own internal cache says otherwise. The buyer agent's choice of `privacy.anonymous: true` does NOT override the consent rules — those apply only to lead.* skills, where customer info changes the call.
+When two rules appear to conflict, the more restrictive one wins. For example: a vehicle whose `status` is not one of `available` | `intransit` | `pending` is out of stock and MUST NOT be returned as available, even if the dealer's own internal cache says otherwise. The buyer agent's choice of `privacy.anonymous: true` does NOT override the consent rules — those apply only to lead.* skills, where customer info changes the call.

@@ -12,9 +12,9 @@ This skill is invoked through A2A's `SendMessage` operation (`SendMessage` JSON-
 
 ![Consent gate: anonymous browsing on the left, ConsentGrant in the middle, consented lead on the right](/img/consent-gate.png)
 
-The `lead.submit` skill is the **single, unified** lead-capture entry point in AAP v0.1. A buyer agent submits one request containing the consented `customer` plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment`. This matches how dealerships actually take leads: a shopper test-driving a new car often wants their old car appraised in the same visit.
+The `lead.submit` skill is the **single, unified** lead-capture entry point in AAP v0.2. A buyer agent submits one request containing the consented `customer` plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment`. This matches how dealerships actually take leads: a shopper test-driving a new car often wants their old car appraised in the same visit.
 
-`lead.submit` replaces the v0.1-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment` with a single contract.
+`lead.submit` replaces the early-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment` with a single contract.
 
 | Property | Value |
 |---|---|
@@ -50,12 +50,12 @@ For the field-by-field ADF/XML mapping, see [ADF mapping](../compatibility/adf-m
 | `consent` | `ConsentGrant` | **yes** | Always required. `scope` MUST be `["lead_submission"]`. |
 | `vehicle_of_interest` | `Vehicle` | no | Optional. When present, `condition` (if set) MUST be `new` \| `used` \| `cpo`; vehicle MUST be identifiable via `vin`, `stock`, or `year`+`make`+`model`. |
 | `trade_in` | `Vehicle` | no | Optional. When present, `condition` (if set) MUST be `excellent` \| `good` \| `fair` \| `poor`; MUST carry at least `year`+`make`+`model`. `mileage` is strongly recommended. |
-| `appointment` | `Appointment` | no | Optional. The vehicle for the appointment is implicit: `vehicle_of_interest` for test drives / handover, `trade_in` for trade-in appraisals. |
+| `appointment` | `Appointment` | no | Optional. `appointment_type` is one of `sales` \| `service` \| `test_drive` \| `trade_in`; `appointment_at` is the requested start time (ISO 8601). The vehicle is implicit: `vehicle_of_interest` for a test drive, `trade_in` for a trade-in appraisal. |
 | `message` | string | no | Free-text user note (max 4000 chars). |
 | `source_agent` | string | yes | Buyer agent identifier (e.g. `chatgpt-shopping`, `gemini-assistant`). |
 | `submitted_at` | date-time | no | Buyer-agent timestamp at submission. |
 
-The unified `Vehicle` interface is the same shape used by `inventory.search` results — see the [Vehicle schema source](https://autoagentprotocol.org/v0.1/schemas/vehicle.schema.json). Both `vehicle_of_interest` and `trade_in` use this shape; only the valid `condition` enum subset differs.
+The unified `Vehicle` interface is the same shape used by `inventory.search` results — see the [Vehicle schema source](https://autoagentprotocol.org/v0.2/schemas/vehicle.schema.json). Both `vehicle_of_interest` and `trade_in` use this shape; only the valid `condition` enum subset differs.
 
 ## Response shape
 
@@ -66,10 +66,10 @@ The unified `Vehicle` interface is the same shape used by `inventory.search` res
     "lead_id": "string",
     "status":  "received | duplicate | rejected",
     "appointment": {
-      "appointment_id":   "string",
-      "status":           "requested | proposed | confirmed | rejected",
-      "confirmed_window": { "start": "ISO-8601", "end": "ISO-8601" },
-      "proposed_slots":   [{ "start": "ISO-8601", "end": "ISO-8601" }]
+      "appointment_id": "string",
+      "status":         "requested | proposed | confirmed | rejected",
+      "confirmed_at":   "ISO-8601",
+      "proposed_times": ["ISO-8601"]
     },
     "dealer": { "name": "string", "phone": "+1XXXXXXXXXX" }
   },
@@ -82,7 +82,7 @@ The unified `Vehicle` interface is the same shape used by `inventory.search` res
 | `data.lead_id` | string | yes | Dealer-assigned lead identifier. |
 | `data.status` | enum | yes | `received`, `duplicate`, or `rejected`. `duplicate` indicates the dealer recognized the same buyer/vehicle from a recent submission. |
 | `data.appointment` | object | conditional | Present iff request had `appointment` AND the dealer is acknowledging it. |
-| `data.appointment.status` | enum | (when present) | `requested` (manual review), `proposed` (alternatives in `proposed_slots`), `confirmed` (booked at `confirmed_window`), or `rejected`. |
+| `data.appointment.status` | enum | (when present) | `requested` (manual review), `proposed` (alternatives in `proposed_times`), `confirmed` (booked at `confirmed_at`), or `rejected`. |
 | `data.dealer` | object | no | Convenience contact summary the buyer agent can show the user. |
 | `message` | string | no | Optional dealer note. |
 
@@ -124,7 +124,7 @@ A user wants to test-drive a 2024 Honda CR-V, trade in their 2020 Passat, and bo
     "body": "suv",
     "transmission": "automatic",
     "mileage": 14820,
-    "price": { "amount": 32995, "currency": "USD" },
+    "price": 32995,
     "zip": "94107"
   },
   "trade_in": {
@@ -136,10 +136,7 @@ A user wants to test-drive a 2024 Honda CR-V, trade in their 2020 Passat, and bo
   },
   "appointment": {
     "appointment_type": "test_drive",
-    "requested_windows": [
-      { "start": "2026-05-03T18:00:00Z", "end": "2026-05-03T19:00:00Z" }
-    ],
-    "timezone": "America/Los_Angeles",
+    "appointment_at": "2026-05-03T18:00:00Z",
     "duration_minutes": 60,
     "notes": "I'd like to test the CR-V and have my Passat appraised in the same visit."
   },
@@ -160,10 +157,7 @@ A user wants to test-drive a 2024 Honda CR-V, trade in their 2020 Passat, and bo
     "appointment": {
       "appointment_id": "appt_2026_04_30_00128",
       "status": "confirmed",
-      "confirmed_window": {
-        "start": "2026-05-03T18:00:00Z",
-        "end":   "2026-05-03T19:00:00Z"
-      }
+      "confirmed_at": "2026-05-03T18:00:00Z"
     },
     "dealer": {
       "name": "Demo Toyota",
@@ -201,7 +195,7 @@ A user wants to test-drive a 2024 Honda CR-V, trade in their 2020 Passat, and bo
 
 ## Variant: appointment with proposed alternatives
 
-When the dealer cannot honor any requested window:
+When the dealer cannot honor the requested time:
 
 ```json
 {
@@ -212,18 +206,18 @@ When the dealer cannot honor any requested window:
     "appointment": {
       "appointment_id": "appt_2026_04_30_00129",
       "status": "proposed",
-      "proposed_slots": [
-        { "start": "2026-05-03T20:00:00Z", "end": "2026-05-03T21:00:00Z" },
-        { "start": "2026-05-04T16:00:00Z", "end": "2026-05-04T17:00:00Z" }
+      "proposed_times": [
+        "2026-05-03T20:00:00Z",
+        "2026-05-04T16:00:00Z"
       ]
     },
     "dealer": { "name": "Demo Toyota", "phone": "+14155550100" }
   },
-  "message": "We're booked solid Sunday afternoon. The slots above are open Sunday evening and Monday afternoon (Pacific). Reply with the slot you prefer or call to confirm."
+  "message": "We're booked solid Sunday afternoon. The times above are open Sunday evening and Monday afternoon (Pacific). Reply with the time you prefer or call to confirm."
 }
 ```
 
-The buyer agent SHOULD present the alternatives to the user and re-submit a fresh `lead.submit.request` with one of the proposed slots in `appointment.requested_windows[]`.
+The buyer agent SHOULD present the alternatives to the user and re-submit a fresh `lead.submit.request` with one of the proposed times in `appointment.appointment_at`.
 
 ## Why one skill instead of three?
 
@@ -233,7 +227,7 @@ Real shopping flows naturally bundle the inquiry, the trade-in, and the appointm
 - **Consent friction** — users sign off 3 disclosures for one decision.
 - **Race conditions** — the appointment may be booked before the lead arrives, or vice-versa.
 
-A single `lead.submit` lets the dealer transactionally accept the lead, queue the trade-in for appraisal, and confirm or propose the appointment in one round trip. v0.1 keeps the contract tight by NOT supporting multi-vehicle leads (one `vehicle_of_interest` per submission); send N requests for N vehicles.
+A single `lead.submit` lets the dealer transactionally accept the lead, queue the trade-in for appraisal, and confirm or propose the appointment in one round trip. v0.2 keeps the contract tight by NOT supporting multi-vehicle leads (one `vehicle_of_interest` per submission); send N requests for N vehicles.
 
 ## Consent and channel rules
 
@@ -245,8 +239,8 @@ A single `lead.submit` lets the dealer transactionally accept the lead, queue th
 ## Errors
 
 - `CONTACT_CONSENT_REQUIRED` — `consent` missing, `scope` not `['lead_submission']`, or follow-up channel not in `allowed_channels`.
-- `VEHICLE_NOT_FOUND` / `VEHICLE_UNAVAILABLE` — `vehicle_of_interest` reference cannot be located, or no longer available, when an appointment of type `test_drive` or `handover` is requested.
-- `APPOINTMENT_TIME_UNAVAILABLE` — none of the requested windows can be honored AND the dealer has no proposals to make. The lead may still be `received` even when the appointment portion fails.
+- `VEHICLE_NOT_FOUND` / `VEHICLE_UNAVAILABLE` — `vehicle_of_interest` reference cannot be located, or no longer available, when a `test_drive` appointment is requested.
+- `APPOINTMENT_TIME_UNAVAILABLE` — the requested `appointment_at` cannot be honored AND the dealer has no proposals to make. The lead may still be `received` even when the appointment portion fails.
 - `INVALID_CONDITION` — `vehicle_of_interest.condition` is in the trade-in vocabulary, or `trade_in.condition` is in the sale-condition vocabulary.
 
 See [Errors](../errors.md) for the full vocabulary.

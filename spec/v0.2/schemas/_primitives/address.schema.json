@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v0.2/schemas/_primitives/address.schema.json",
+  "title": "Address",
+  "description": "Postal address. All fields are OPTIONAL by design — the buyer agent should pass through whatever pieces of the address are available (e.g. just a ZIP for regional pricing, or just city+state, or the full street address). The dealer is responsible for handling partial addresses gracefully.",
+  "type": "object",
+  "properties": {
+    "country": {
+      "type": "string",
+      "description": "Country code or name (e.g. 'US'). Optional; defaults to 'US' when omitted."
+    },
+    "state": {
+      "type": "string",
+      "description": "State / region code or full name (e.g. 'CA' or 'California')."
+    },
+    "city": {
+      "type": "string",
+      "description": "City or locality (e.g. 'San Francisco')."
+    },
+    "address_line_1": {
+      "type": "string",
+      "description": "Primary street line (e.g. '1280 Howard Street')."
+    },
+    "address_line_2": {
+      "type": "string",
+      "description": "Secondary street line (suite, apartment, building, floor)."
+    },
+    "zip": {
+      "type": "string",
+      "description": "Postal / ZIP code (e.g. '94103' or '94103-1234')."
+    }
+  },
+  "additionalProperties": false
+}

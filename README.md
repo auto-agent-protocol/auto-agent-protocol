@@ -9,28 +9,31 @@
 
 **The A2A v1.0 Automotive Retail Profile.**
 
-AAP is the open A2A profile that lets AI agents discover dealerships, browse inventory, and submit consented leads through typed automotive messages riding on top of [A2A v1.0](https://a2a-protocol.org). A compliant dealer agent is an A2A agent that publishes an `agent-card.json` with the AAP automotive extension URI (`https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.1`) and implements **one or more** of the five standard AAP automotive skills (a tiny used-car lot might only do `inventory.search` + `lead.submit`; a franchise dealership might do all five). Buyer agents can use either A2A binding — JSON-RPC 2.0 or HTTP+JSON — to invoke the same skills with identical payloads.
+AAP is the open A2A profile that lets AI agents discover dealerships, browse inventory, and submit consented leads through typed automotive messages riding on top of [A2A v1.0](https://a2a-protocol.org). A compliant dealer agent is an A2A agent that publishes an `agent-card.json` with the AAP automotive extension URI (`https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.2`) and implements **one or more** of the five standard AAP automotive skills (a tiny used-car lot might only do `inventory.search` + `lead.submit`; a franchise dealership might do all five). Buyer agents can use either A2A binding — JSON-RPC 2.0 or HTTP+JSON — to invoke the same skills with identical payloads.
 
-![agent-card.json — the contract every AAP dealership exposes, advertising A2A v1.0 compliance, the AAP automotive extension, the subset of AAP skills the agent implements, and supported bindings](static/img/agent-card-passport.png)
+![agent-card.json — the contract every AAP dealership exposes, advertising A2A v1.0 compliance, the AAP automotive extension, the subset of AAP skills the agent implements, and supported bindings](static/img/v0.2/agent-card-passport.png)
 
-## v0.1 Scope
+## v0.2 Scope
 
-- **Discovery** via `/.well-known/agent-card.json` (A2A-compatible)
+v0.2 is a **simplification** of v0.1: a single `agent-card.json` is the only file a dealer publishes (no separate contract manifest), prices are plain integers, the vehicle and dealer shapes are flattened, and `status` is a controlled enum. v0.1 remains published and frozen at `https://autoagentprotocol.org/docs/v0.1/` for anyone pinned to it.
+
+- **Discovery** via `/.well-known/agent-card.json` only (A2A-compatible) — no second well-known file
 - **Inventory**: facets, search, vehicle detail
-- **Dealership information**: name, address, contacts, schedule, capabilities
+- **Dealership information**: group name, welcome message, and one or more rooftops (locations) with address, geo, contacts, hours, timezone, and capabilities
 - **Leads**: a single unified `lead.submit` accepting a consented customer plus any combination of vehicle of interest, trade-in, and appointment
 - **ADF/XML mapping** documented for legacy CRM compatibility
 
-v0.1 does **not** cover: authentication beyond bearer, payments, financing, RFQ/quote flows, trade-in valuations, reservations, or international addresses (US-only).
+v0.2 does **not** cover: authentication (agents are public by default; auth is left to A2A's native `securitySchemes`), payments, financing approval, RFQ/quote flows, trade-in valuations, or reservations.
 
 ![How an AI agent buys a car — discover via /.well-known/agent-card.json, browse with inventory.search, inspect with inventory.vehicle, and submit a unified lead.submit carrying customer + vehicle of interest + trade-in + appointment](static/img/buyer-journey.png)
 
 ## Quick links
 
 - **Specification**: [autoagentprotocol.org](https://autoagentprotocol.org)
-- **JSON Schemas**: [`spec/v0.1/schemas/`](spec/v0.1/schemas/)
-- **Examples**: [`spec/v0.1/examples/`](spec/v0.1/examples/)
-- **OpenAPI 3.1** (built at deploy time): `https://autoagentprotocol.org/v0.1/openapi-jsonrpc.yaml`, `https://autoagentprotocol.org/v0.1/openapi-rest.yaml`
+- **Example agent card** (the single file a dealer deploys): [`spec/v0.2/examples/agent-card.example.json`](spec/v0.2/examples/agent-card.example.json)
+- **JSON Schemas**: [`spec/v0.2/schemas/`](spec/v0.2/schemas/)
+- **Examples**: [`spec/v0.2/examples/`](spec/v0.2/examples/)
+- **OpenAPI 3.1** (built at deploy time): `https://autoagentprotocol.org/v0.2/openapi-jsonrpc.yaml`, `https://autoagentprotocol.org/v0.2/openapi-rest.yaml`
 
 ## The five skills
 
@@ -77,18 +80,20 @@ pnpm start                 # Start local dev server
 ### Repository structure
 
 ```
-spec/v0.1/schemas/         JSON Schema 2020-12 source of truth (committed)
-spec/v0.1/examples/        Example payloads (committed)
-spec/v0.1/skills.yaml      Skills manifest (committed)
-docs/                      Hand-written documentation pages (committed)
+spec/v0.2/schemas/         JSON Schema 2020-12 source of truth — current version (committed)
+spec/v0.2/examples/        Example payloads (committed)
+spec/v0.2/skills.yaml      Skills manifest (committed)
+spec/v0.1/                 Frozen v0.1 spec, kept for consumers pinned to it (committed, immutable)
+docs/                      Hand-written documentation pages for the current version, v0.2 (committed)
+versioned_docs/, versioned_sidebars/, versions.json  Frozen v0.1 docs snapshot (committed)
 docs/skills/, bindings/    A2A binding + skill reference (committed)
 packages/                  npm packages: types, schemas, validator (committed)
 tools/                     Generators and validators (committed)
 src/components/            FieldCard React component (committed)
 
-generated/v0.1/            Auto-generated: TS types, OpenAPI bundles, MCP manifest, contract manifest sample (NOT committed)
+generated/                 Auto-generated per version: TS types, OpenAPI bundles, MCP manifest (NOT committed)
 docs/schemas/_partials/    Auto-generated FieldCard MDX (NOT committed)
-static/v0.1/, static/latest/  Spec assets mirrored for the docs site (NOT committed)
+static/v0.1/, static/v0.2/, static/latest/  Spec assets mirrored for the docs site (NOT committed)
 build/                     Docusaurus production output (NOT committed)
 ```
 
@@ -113,4 +118,4 @@ Released versions are immutable. The `latest` URL always points to the highest r
 
 ## Contributing
 
-See [Contributing guide](https://autoagentprotocol.org/docs/v0.1/contributing) for details on proposing changes.
+See [Contributing guide](https://autoagentprotocol.org/docs/v0.2/contributing) for details on proposing changes.
