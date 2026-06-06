@@ -92,7 +92,6 @@ tools/                     Generators and validators (committed)
 src/components/            FieldCard React component (committed)
 
 generated/                 Auto-generated per version: TS types, OpenAPI bundles, MCP manifest (NOT committed)
-docs/schemas/_partials/    Auto-generated FieldCard MDX (NOT committed)
 static/v0.1/, static/v0.2/, static/latest/  Spec assets mirrored for the docs site (NOT committed)
 build/                     Docusaurus production output (NOT committed)
 ```
