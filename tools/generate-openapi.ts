@@ -3,6 +3,7 @@ import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import { glob } from "glob";
+import { ALL_VERSIONS } from "./versions.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -85,7 +86,7 @@ const REQUEST_MESSAGE_IDS: Record<string, string> = {
 };
 
 async function main() {
-  const versions = ["v0.1", "v0.2"];
+  const versions = ALL_VERSIONS;
 
   for (const version of versions) {
     const specDir = resolve(ROOT, "spec", version);

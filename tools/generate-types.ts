@@ -3,15 +3,16 @@ import { glob } from "glob";
 import { writeFileSync, mkdirSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import { ALL_VERSIONS, LATEST } from "./versions.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 
 async function main() {
-  const versions = ["v0.1", "v0.2"];
+  const versions = ALL_VERSIONS;
 
   // The @autoagentprotocol/types package ships exactly one version's types.
-  const PACKAGE_VERSION = "v0.2";
+  const PACKAGE_VERSION = LATEST;
   const outputByVersion = new Map<string, string>();
 
   for (const version of versions) {

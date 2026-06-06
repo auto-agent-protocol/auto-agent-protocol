@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { parse as parseYaml } from "yaml";
+import { ALL_VERSIONS } from "./versions.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -27,7 +28,7 @@ function toMcpToolName(skillId: string): string {
 }
 
 async function main() {
-  const versions = ["v0.1", "v0.2"];
+  const versions = ALL_VERSIONS;
 
   for (const version of versions) {
     const skillsFile = resolve(ROOT, "spec", version, "skills.yaml");

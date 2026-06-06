@@ -2,6 +2,7 @@ import { cpSync, mkdirSync, existsSync, rmSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { glob } from "glob";
+import { ALL_VERSIONS, LATEST } from "./versions.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -9,7 +10,7 @@ const ROOT = resolve(__dirname, "..");
 // The HIGHEST released version. Mirrored at /latest so consumers can deep-link
 // to the most recent stable URL without pinning a version. v0.1 still serves at
 // /v0.1 unchanged for consumers pinned to it.
-const LATEST_VERSION = "v0.2";
+const LATEST_VERSION = LATEST;
 
 async function copyVersion(version: string, destLabel: string): Promise<void> {
   const specDir = resolve(ROOT, "spec", version);
@@ -49,7 +50,7 @@ async function copyVersion(version: string, destLabel: string): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const versions = ["v0.1", "v0.2"];
+  const versions = ALL_VERSIONS;
 
   for (const version of versions) {
     await copyVersion(version, version);
