@@ -34,6 +34,45 @@ function toComponentName(schemaFile: string): string {
     .join("");
 }
 
+// Rewrite a single JSON Schema `$ref` so it resolves INSIDE the OpenAPI document.
+// The source schemas use two ref styles that are both invalid once inlined under
+// `components/schemas`:
+//   - cross-file:  "./vehicle.schema.json", "./_primitives/address.schema.json",
+//                  or with a fragment "./inventory-search-request.schema.json#/$defs/filters"
+//                  → "#/components/schemas/<ComponentName>[/$defs/...]"
+//   - intra-file:  "#/$defs/term_facet" — once `$id` is stripped the JSON-Pointer
+//                  root becomes the whole OpenAPI doc, so it must be rebased under
+//                  the component this schema is inlined as.
+function rewriteRef(ref: string, selfComponent: string): string {
+  if (ref.startsWith("#")) {
+    return `#/components/schemas/${selfComponent}${ref.slice(1)}`;
+  }
+  const [filePart, fragment] = ref.split("#");
+  const base = filePart.split("/").pop()!;
+  let out = `#/components/schemas/${toComponentName(base)}`;
+  if (fragment) out += `/${fragment.replace(/^\//, "")}`;
+  return out;
+}
+
+// Deep-clone a schema, rewriting every `$ref` so the inlined copy is
+// self-contained within the generated OpenAPI document.
+function rewriteRefs(node: any, selfComponent: string): any {
+  if (Array.isArray(node)) {
+    return node.map((n) => rewriteRefs(n, selfComponent));
+  }
+  if (node && typeof node === "object") {
+    const out: Record<string, any> = {};
+    for (const [key, value] of Object.entries(node)) {
+      out[key] =
+        key === "$ref" && typeof value === "string"
+          ? rewriteRef(value, selfComponent)
+          : rewriteRefs(value, selfComponent);
+    }
+    return out;
+  }
+  return node;
+}
+
 // Stable, illustrative ULID-style identifiers per skill so OpenAPI examples are
 // deterministic across regenerations. The buyer agent generates a fresh
 // `messageId` per call in production; these are only example values.
@@ -66,7 +105,7 @@ async function main() {
       const baseName = sf.split("/").pop()!;
       const name = toComponentName(baseName);
       const { $schema, $id, ...rest } = schema;
-      components[name] = rest;
+      components[name] = rewriteRefs(rest, name);
     }
 
     function exampleMessageId(skillId: string): string {
