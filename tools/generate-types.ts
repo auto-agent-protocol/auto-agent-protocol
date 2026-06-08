@@ -1,14 +1,19 @@
 import { compileFromFile } from "json-schema-to-typescript";
 import { glob } from "glob";
 import { writeFileSync, mkdirSync } from "fs";
-import { resolve, dirname, basename } from "path";
+import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import { ALL_VERSIONS, LATEST } from "./versions.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 
 async function main() {
-  const versions = ["v0.1", "v0.2"];
+  const versions = ALL_VERSIONS;
+
+  // The @autoagentprotocol/types package ships exactly one version's types.
+  const PACKAGE_VERSION = LATEST;
+  const outputByVersion = new Map<string, string>();
 
   for (const version of versions) {
     const schemasDir = resolve(ROOT, "spec", version, "schemas");
@@ -41,12 +46,18 @@ async function main() {
     const outFile = resolve(outDir, "types.d.ts");
     writeFileSync(outFile, output);
     console.log(`Generated ${outFile}`);
+    outputByVersion.set(version, output);
+  }
 
-    // Also copy to packages/types/src
+  // Copy the published version's types into packages/types/src exactly once
+  // (previously this ran inside the loop, so v0.1 was written then immediately
+  // overwritten by v0.2 on every build).
+  const pkgOutput = outputByVersion.get(PACKAGE_VERSION);
+  if (pkgOutput) {
     const pkgDir = resolve(ROOT, "packages/types/src");
     mkdirSync(pkgDir, { recursive: true });
-    writeFileSync(resolve(pkgDir, "index.d.ts"), output);
-    console.log(`Copied types to packages/types/src/index.d.ts`);
+    writeFileSync(resolve(pkgDir, "index.d.ts"), pkgOutput);
+    console.log(`Copied ${PACKAGE_VERSION} types to packages/types/src/index.d.ts`);
   }
 }
 
