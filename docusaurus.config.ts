@@ -93,6 +93,7 @@ const config: Config = {
       logo: {
         alt: "Auto Agent Protocol logo",
         src: "img/logo.png",
+        srcDark: "img/logo-white.png",
       },
       items: [
         {
