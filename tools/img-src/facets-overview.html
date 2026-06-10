@@ -1,0 +1,203 @@
+<!-- Source for static/img/v1.0/facets-overview.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #eef1f7;
+    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #0f1d33;
+    overflow: hidden;
+  }
+  .code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  header { text-align: center; padding-top: 38px; }
+  h1 { font-size: 52px; font-weight: 700; letter-spacing: -0.5px; }
+  h1 .code { letter-spacing: 0; }
+  .subtitle { margin-top: 10px; font-size: 25px; color: #5b6b84; }
+  .subtitle .code { color: #41506b; }
+
+  /* ---- dashboard card ---- */
+  .dash {
+    width: 1400px; margin: 22px auto 0;
+    background: #fff; border-radius: 24px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    padding: 24px 28px 26px;
+  }
+  .dash-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .type-chip {
+    background: #dbe7fb; color: #1d4ed8; border-radius: 999px;
+    padding: 6px 18px; font-size: 19px; font-weight: 600;
+  }
+  .dash-head .meta { font-size: 20px; color: #9aa7bd; }
+  .dash-head .meta b { color: #41506b; font-weight: 600; }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  .tile {
+    background: #f7f9fd; border: 1.5px solid #e4e9f2; border-radius: 16px;
+    padding: 16px 20px 18px; height: 212px;
+  }
+  .tile-label {
+    display: inline-block; background: #dbe7fb; color: #1d4ed8;
+    border-radius: 999px; padding: 3px 14px;
+    font-size: 17px; font-weight: 600; margin-bottom: 14px;
+  }
+
+  /* horizontal bar rows (makes, rooftops) */
+  .hrow { display: flex; align-items: center; gap: 12px; margin-top: 13px; }
+  .hrow:first-of-type { margin-top: 2px; }
+  .hrow .name { width: 128px; font-size: 21px; color: #41506b; }
+  .hrow .track { flex: 1; height: 18px; background: #e4e9f2; border-radius: 9px; overflow: hidden; }
+  .hrow .fill { display: block; height: 100%; background: linear-gradient(90deg, #2563eb, #1d4ed8); border-radius: 9px; }
+  .hrow .count { width: 34px; text-align: right; font-size: 21px; font-weight: 700; color: #0f1d33; }
+  .rooftops .name { width: 156px; }
+
+  /* histogram (years) */
+  .hist { display: flex; align-items: flex-end; justify-content: space-between; height: 112px; padding: 0 4px; }
+  .hist .col { display: flex; flex-direction: column; align-items: center; width: 44px; }
+  .hist .n { font-size: 14px; color: #9aa7bd; margin-bottom: 4px; }
+  .hist .bar { width: 26px; background: linear-gradient(180deg, #2563eb, #1d4ed8); border-radius: 6px 6px 3px 3px; }
+  .hist-years { display: flex; justify-content: space-between; padding: 0 4px; margin-top: 7px; }
+  .hist-years span { width: 44px; text-align: center; font-size: 15px; color: #5b6b84; }
+
+  /* range tiles */
+  .range-vals { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; }
+  .range-vals .cap { font-size: 16px; color: #9aa7bd; margin-bottom: 4px; }
+  .range-vals .val { font-size: 29px; font-weight: 700; color: #0f1d33; }
+  .range-vals .side.max { text-align: right; }
+  .range-track { position: relative; height: 14px; background: #e4e9f2; border-radius: 7px; margin-top: 18px; }
+  .range-track .span { position: absolute; top: 0; left: 4%; right: 4%; height: 100%; background: linear-gradient(90deg, #2563eb, #1d4ed8); border-radius: 7px; }
+  .range-track .knob {
+    position: absolute; top: 50%; width: 24px; height: 24px; border-radius: 50%;
+    background: #fff; border: 5px solid #1d4ed8; transform: translateY(-50%);
+    box-shadow: 0 3px 8px rgba(15,29,51,.18);
+  }
+  .range-track .knob.lo { left: 4%; margin-left: -12px; }
+  .range-track .knob.hi { right: 4%; margin-right: -12px; }
+  .range-note { margin-top: 16px; font-size: 16px; color: #9aa7bd; }
+
+  /* conditions: stacked segment bar + legend */
+  .stack { display: flex; height: 26px; border-radius: 13px; overflow: hidden; margin-top: 4px; }
+  .stack .seg-new { width: 40%; background: #2563eb; }
+  .stack .seg-used { width: 44%; background: #6d9bf0; }
+  .stack .seg-cpo { width: 16%; background: #c5d8f7; }
+  .legend { margin-top: 14px; }
+  .legend .lrow { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 20px; }
+  .legend .swatch { width: 14px; height: 14px; border-radius: 4px; }
+  .legend .lname { color: #41506b; width: 80px; }
+  .legend .lcount { font-weight: 700; color: #0f1d33; }
+
+  /* ---- footer ---- */
+  footer { display: flex; justify-content: center; margin-top: 22px; }
+  .footer-pill {
+    background: #fff; border-radius: 999px; padding: 15px 34px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    font-size: 23px; color: #41506b;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .footer-pill .chip {
+    background: #dbe7fb; color: #1d4ed8; border-radius: 999px;
+    padding: 4px 16px; font-size: 21px; font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1><span class="code">inventory.facets</span> — the shape of the lot in one call</h1>
+    <div class="subtitle">One SendMessage with a <span class="code">"inventory.facets.request"</span> DataPart returns every filterable bucket and range</div>
+  </header>
+
+  <div class="dash">
+    <div class="dash-head">
+      <span class="type-chip code">inventory.facets.response</span>
+      <span class="meta"><b>25 vehicles</b> in stock &nbsp;&middot;&nbsp; 6 facets</span>
+    </div>
+
+    <div class="grid">
+      <!-- makes -->
+      <div class="tile">
+        <span class="tile-label code">makes</span>
+        <div class="hrow"><span class="name">Honda</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="count">12</span></div>
+        <div class="hrow"><span class="name">Toyota</span><span class="track"><span class="fill" style="width:75%"></span></span><span class="count">9</span></div>
+        <div class="hrow"><span class="name">Tesla</span><span class="track"><span class="fill" style="width:33%"></span></span><span class="count">4</span></div>
+      </div>
+
+      <!-- years -->
+      <div class="tile">
+        <span class="tile-label code">years</span>
+        <div class="hist">
+          <div class="col"><span class="n">2</span><span class="bar" style="height:31px"></span></div>
+          <div class="col"><span class="n">3</span><span class="bar" style="height:46px"></span></div>
+          <div class="col"><span class="n">4</span><span class="bar" style="height:62px"></span></div>
+          <div class="col"><span class="n">5</span><span class="bar" style="height:77px"></span></div>
+          <div class="col"><span class="n">6</span><span class="bar" style="height:92px"></span></div>
+          <div class="col"><span class="n">3</span><span class="bar" style="height:46px"></span></div>
+          <div class="col"><span class="n">2</span><span class="bar" style="height:31px"></span></div>
+        </div>
+        <div class="hist-years">
+          <span>2019</span><span>2020</span><span>2021</span><span>2022</span><span>2023</span><span>2024</span><span>2025</span>
+        </div>
+      </div>
+
+      <!-- conditions -->
+      <div class="tile">
+        <span class="tile-label code">conditions</span>
+        <div class="stack"><span class="seg-new"></span><span class="seg-used"></span><span class="seg-cpo"></span></div>
+        <div class="legend">
+          <div class="lrow"><span class="swatch" style="background:#2563eb"></span><span class="lname code">new</span><span class="lcount">10</span></div>
+          <div class="lrow"><span class="swatch" style="background:#6d9bf0"></span><span class="lname code">used</span><span class="lcount">11</span></div>
+          <div class="lrow"><span class="swatch" style="background:#c5d8f7"></span><span class="lname code">cpo</span><span class="lcount">4</span></div>
+        </div>
+      </div>
+
+      <!-- price_range -->
+      <div class="tile">
+        <span class="tile-label code">price_range</span>
+        <div class="range-vals">
+          <div class="side"><div class="cap">min</div><div class="val code">$18,990</div></div>
+          <div class="side max"><div class="cap">max</div><div class="val code">$61,200</div></div>
+        </div>
+        <div class="range-track"><span class="span"></span><span class="knob lo"></span><span class="knob hi"></span></div>
+        <div class="range-note">integer USD &middot; FTC-final prices</div>
+      </div>
+
+      <!-- mileage_range -->
+      <div class="tile">
+        <span class="tile-label code">mileage_range</span>
+        <div class="range-vals">
+          <div class="side"><div class="cap">min</div><div class="val code">0</div></div>
+          <div class="side max"><div class="cap">max</div><div class="val code">84,000 mi</div></div>
+        </div>
+        <div class="range-track"><span class="span"></span><span class="knob lo"></span><span class="knob hi"></span></div>
+        <div class="range-note">odometer across all 25 vehicles</div>
+      </div>
+
+      <!-- rooftops -->
+      <div class="tile rooftops">
+        <span class="tile-label code">rooftops</span>
+        <div class="hrow"><span class="name">🏬 North</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="count">14</span></div>
+        <div class="hrow"><span class="name">🏬 Downtown</span><span class="track"><span class="fill" style="width:79%"></span></span><span class="count">11</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-pill">
+      <span>🤖 Buyer agents read facets first — then issue precise</span>
+      <span class="chip code">inventory.search</span>
+      <span>queries</span>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{/* Auto-generated from vehicle-detail-response.schema.json. Edit the schema, not this file. */}
+
+Typed AAP response for the `inventory.vehicle` skill. The `data` field is a Vehicle (v0.2 unified the former Vehicle + VehicleDetail into one type). Because it is always an inventory listing, `condition` is constrained to `new` | `used` | `cpo` and `status` (one of `available` | `intransit` | `pending`) is required. Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
+
+<FieldCard
+  name="type"
+  type={"\`inventory.vehicle.response\`"}
+  required={true}
+>
+  
+</FieldCard>
+<FieldCard
+  name="data"
+  type={"any"}
+  required={true}
+>
+  
+</FieldCard>
+<FieldCard
+  name="message"
+  type={"string"}
+  required={false}
+>
+  Optional contextual note. MAY be omitted.
+</FieldCard>

@@ -1,0 +1,179 @@
+<!doctype html>
+<!-- Source for static/img/v1.0/rest-envelope.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #eef1f7;
+    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #0f1d33;
+    overflow: hidden;
+  }
+  .title {
+    text-align: center;
+    font-size: 52px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    padding-top: 40px;
+  }
+  .tagrow { text-align: center; margin-top: 16px; }
+  .tag {
+    display: inline-block;
+    background: #e4e9f2;
+    color: #5b6b84;
+    font-size: 21px;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 6px 22px;
+    letter-spacing: 0.5px;
+  }
+  .main {
+    width: 1460px;
+    margin: 26px auto 0;
+    display: flex;
+    gap: 40px;
+    align-items: stretch;
+  }
+  .codecard {
+    width: 930px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    padding: 28px 40px;
+  }
+  .reqline {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 23px;
+    color: #0f1d33;
+    margin-bottom: 14px;
+  }
+  .verb {
+    display: inline-block;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: #ffffff;
+    background: #2563eb;
+    border-radius: 8px;
+    padding: 4px 14px;
+    margin-right: 14px;
+    vertical-align: 2px;
+  }
+  .code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 22px;
+  }
+  .ln { white-space: pre; line-height: 34px; }
+  .k { color: #41506b; }
+  .p { color: #9aa7bd; }
+  .v { color: #0f1d33; }
+  .hl { color: #1d4ed8; font-weight: 600; }
+  .respline {
+    margin: 18px 0 12px;
+    padding-top: 18px;
+    border-top: 1px solid #e4e9f2;
+    font-size: 21px;
+    color: #5b6b84;
+  }
+  .status {
+    display: inline-block;
+    font-size: 19px;
+    font-weight: 700;
+    color: #1d4ed8;
+    background: #dbe7fb;
+    border-radius: 8px;
+    padding: 4px 14px;
+    margin-right: 14px;
+  }
+  .note {
+    flex: 1;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 72px;
+  }
+  .note .nh {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1d4ed8;
+  }
+  .note .nb {
+    font-size: 23px;
+    line-height: 1.5;
+    color: #5b6b84;
+  }
+  .note .nb b { color: #0f1d33; font-weight: 600; }
+  .note .nb code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 21px;
+    background: #eef1f7;
+    border-radius: 7px;
+    padding: 2px 9px;
+    color: #1d4ed8;
+  }
+  .footer { width: 1600px; text-align: center; margin-top: 26px; }
+  .footnote {
+    display: inline-block;
+    background: #ffffff;
+    border: 1px solid #dfe5ef;
+    border-radius: 999px;
+    padding: 13px 30px;
+    font-size: 22px;
+    color: #41506b;
+  }
+  .footnote b { color: #0f1d33; }
+</style>
+</head>
+<body>
+  <div class="title">HTTP+JSON — the optional binding</div>
+  <div class="tagrow"><span class="tag">OPTIONAL</span></div>
+
+  <div class="main">
+    <div class="codecard">
+      <div class="reqline"><span class="verb">POST</span>{base}/message:send</div>
+      <div class="code">
+        <div class="ln"><span class="p">{</span></div>
+        <div class="ln">  <span class="k">"message"</span><span class="p">: {</span></div>
+        <div class="ln">    <span class="k">"messageId"</span><span class="p">:</span> <span class="v">"…"</span><span class="p">,</span></div>
+        <div class="ln">    <span class="k">"role"</span><span class="p">:</span> <span class="v">"ROLE_USER"</span><span class="p">,</span></div>
+        <div class="ln">    <span class="k">"parts"</span><span class="p">: [{ </span><span class="k">"data"</span><span class="p">: {</span></div>
+        <div class="ln">      <span class="k">"type"</span><span class="p">:</span> <span class="hl">"inventory.search.request"</span><span class="p">,</span></div>
+        <div class="ln">      <span class="k">"filters"</span><span class="p">: {</span> <span class="k">"make"</span><span class="p">:</span> <span class="p">[</span><span class="v">"Honda"</span><span class="p">] }</span></div>
+        <div class="ln">    <span class="p">} }]</span></div>
+        <div class="ln">  <span class="p">}</span></div>
+        <div class="ln"><span class="p">}</span></div>
+      </div>
+      <div class="respline"><span class="status">200 OK</span>response</div>
+      <div class="code">
+        <div class="ln"><span class="p">{</span></div>
+        <div class="ln">  <span class="k">"message"</span><span class="p">: {</span> <span class="k">"role"</span><span class="p">:</span> <span class="hl">"ROLE_AGENT"</span><span class="p">,</span> <span class="k">"parts"</span><span class="p">: [</span> <span class="p">…</span> <span class="p">] }</span></div>
+        <div class="ln"><span class="p">}</span></div>
+      </div>
+    </div>
+
+    <div class="note">
+      <div>
+        <div class="nh">Same objects, new envelope</div>
+        <div class="nb">Same <b>Message</b> objects as JSON-RPC — only the envelope differs.</div>
+      </div>
+      <div>
+        <div class="nh">Errors</div>
+        <div class="nb">Errors use <code>google.rpc.Status</code> with the typed <code>aap.error</code> in <code>details</code>.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span class="footnote">Add it for <b>REST-first stacks</b> — JSON-RPC remains the guaranteed binding.</span>
+  </div>
+</body>
+</html>

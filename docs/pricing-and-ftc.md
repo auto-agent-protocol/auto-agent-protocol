@@ -6,7 +6,7 @@ description: The four pricing fields (msrp, list_price, offered_price, price), w
 
 # Pricing and FTC compliance
 
-![Vehicle pricing ladder from msrp to the FTC-final price](/img/pricing-ladder.png)
+![Vehicle pricing ladder from msrp to the FTC-final price](/img/v1.0/pricing-ladder.png)
 
 AAP standardizes four explicit pricing fields on every vehicle. The single most important rule:
 

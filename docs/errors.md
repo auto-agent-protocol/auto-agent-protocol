@@ -6,7 +6,9 @@ description: The 11 AAP error codes — meaning, suggested HTTP and JSON-RPC map
 
 # Errors
 
-AAP defines a single typed error payload (`aap.error`) that every dealer agent MUST use when a skill cannot be fulfilled. The error rides inside the standard A2A error envelope: `error.data` for JSON-RPC ([Section 9.5](./bindings/json-rpc.md#error-mapping-a2a-section-95)) or as a `DataPart` in a non-2xx HTTP response for HTTP+JSON ([Section 11.6](./bindings/rest.md#error-mapping-a2a-section-116)).
+![Anatomy of a typed AAP error inside the JSON-RPC error envelope: error.code, data.code, retryable](/img/v1.0/error-anatomy.png)
+
+AAP defines a single typed error payload (`aap.error`) that every dealer agent MUST use when a skill cannot be fulfilled. The error rides inside the standard A2A error envelope: `error.data` for the REQUIRED JSON-RPC binding ([Section 9.5](./bindings/json-rpc.md#error-mapping-a2a-section-95)) or inside the `google.rpc.Status` body of a non-2xx HTTP response for the OPTIONAL HTTP+JSON binding ([Section 11.6](./bindings/rest.md#error-mapping-a2a-section-116)).
 
 ## Error payload shape
 
@@ -59,7 +61,7 @@ The 11 codes, their meaning, recommended HTTP status, recommended JSON-RPC code,
 
 ### `UNSUPPORTED_SKILL`
 
-Returned when a buyer agent calls a skill id the dealer agent does not implement. AAP-compliant dealers implement all five skills, so this code is rare in practice. It is intended for forward-compat scenarios where future AAP versions add skills not present in v0.2.
+Returned when a buyer agent calls a skill id the dealer agent does not implement. AAP v1.0 agents declare the subset of the five skills they implement (at least one) on their agent card, so buyer agents SHOULD check the declared skills before calling. This code also covers forward-compat scenarios where future AAP versions add skills not present in v1.0.
 
 ### `SCHEMA_VALIDATION_FAILED`
 

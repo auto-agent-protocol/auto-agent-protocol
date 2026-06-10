@@ -1,0 +1,163 @@
+<!-- Source for static/img/v1.0/skills-overview.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #eef1f7;
+    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #0f1d33;
+    overflow: hidden;
+  }
+  .code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  header { text-align: center; padding-top: 46px; }
+  h1 { font-size: 58px; font-weight: 700; letter-spacing: -0.5px; }
+  .subtitle { margin-top: 12px; font-size: 27px; color: #5b6b84; }
+
+  /* ---- honeycomb ---- */
+  .honeycomb { margin-top: 24px; }
+  .row { display: flex; justify-content: center; gap: 56px; }
+  .row.bottom { margin-top: -26px; }
+
+  .hexwrap { filter: drop-shadow(0 14px 28px rgba(37,99,235,.25)); }
+  .hex {
+    width: 372px; height: 318px;
+    background: #2563eb;
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #fff; text-align: center;
+  }
+  .hex .name { font-size: 27px; font-weight: 700; margin-top: 20px; }
+  .hex .desc { font-size: 18px; color: rgba(255,255,255,.78); margin-top: 8px; }
+
+  /* ---- glyphs (pure CSS, white) ---- */
+  .glyph { height: 64px; display: flex; align-items: center; justify-content: center; }
+
+  /* storefront */
+  .g-store { flex-direction: column; }
+  .g-store .awning {
+    width: 60px; height: 14px; border-radius: 4px 4px 7px 7px;
+    background: repeating-linear-gradient(90deg, #fff 0 15px, rgba(255,255,255,.45) 15px 30px);
+  }
+  .g-store .shopbody {
+    width: 46px; height: 32px; margin-top: 4px;
+    border: 4px solid #fff; border-top-width: 0; border-radius: 0 0 4px 4px;
+    position: relative;
+  }
+  .g-store .door {
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 13px; height: 19px; background: #fff; border-radius: 3px 3px 0 0;
+  }
+
+  /* bar chart */
+  .g-bars { flex-direction: column; }
+  .g-bars .bars { display: flex; align-items: flex-end; gap: 7px; height: 46px; }
+  .g-bars .bars span { width: 12px; background: #fff; border-radius: 3px; display: block; }
+  .g-bars .b1 { height: 24px; }
+  .g-bars .b2 { height: 44px; }
+  .g-bars .b3 { height: 33px; }
+  .g-bars .base { width: 60px; height: 4px; background: #fff; border-radius: 2px; margin-top: 5px; }
+
+  /* magnifier */
+  .g-search .lens {
+    width: 38px; height: 38px; border: 6px solid #fff; border-radius: 50%;
+    position: relative; margin-right: 14px; margin-bottom: 10px;
+  }
+  .g-search .lens::after {
+    content: ""; position: absolute; width: 22px; height: 7px; background: #fff;
+    border-radius: 4px; right: -19px; bottom: -8px; transform: rotate(45deg);
+  }
+
+  /* car */
+  .g-car { flex-direction: column; }
+  .g-car .carbody {
+    width: 68px; height: 22px; background: #fff; border-radius: 8px 11px 5px 5px;
+    position: relative; margin-top: 14px;
+  }
+  .g-car .carbody::before {
+    content: ""; position: absolute; top: -13px; left: 13px;
+    width: 34px; height: 14px; background: #fff; border-radius: 8px 11px 0 0;
+  }
+  .g-car .wheels { display: flex; justify-content: space-between; width: 56px; margin-top: -8px; }
+  .g-car .wheels span {
+    width: 15px; height: 15px; border-radius: 50%;
+    background: #2563eb; border: 4px solid #fff; display: block;
+  }
+
+  /* paper plane (send) */
+  .g-plane .plane {
+    width: 52px; height: 44px; background: #fff;
+    clip-path: polygon(0 0, 100% 50%, 0 100%, 21% 50%);
+  }
+
+  /* ---- footer ---- */
+  footer { display: flex; justify-content: center; margin-top: 24px; }
+  .footer-pill {
+    background: #fff; border-radius: 999px; padding: 16px 36px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    font-size: 23px; color: #41506b;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .footer-pill .chip {
+    background: #dbe7fb; color: #1d4ed8; border-radius: 999px;
+    padding: 4px 16px; font-size: 21px; font-weight: 600;
+  }
+  .footer-pill .dot { color: #9aa7bd; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>The five AAP skills</h1>
+    <div class="subtitle">A2A v1.0 Automotive Retail Profile &middot; implement the subset your dealer agent serves</div>
+  </header>
+
+  <div class="honeycomb">
+    <div class="row top">
+      <div class="hexwrap"><div class="hex">
+        <div class="glyph g-store"><div class="awning"></div><div class="shopbody"><div class="door"></div></div></div>
+        <div class="name code">dealer.information</div>
+        <div class="desc">store profile &amp; hours</div>
+      </div></div>
+      <div class="hexwrap"><div class="hex">
+        <div class="glyph g-bars"><div class="bars"><span class="b1"></span><span class="b2"></span><span class="b3"></span></div><div class="base"></div></div>
+        <div class="name code">inventory.facets</div>
+        <div class="desc">filterable attributes</div>
+      </div></div>
+      <div class="hexwrap"><div class="hex">
+        <div class="glyph g-search"><div class="lens"></div></div>
+        <div class="name code">inventory.search</div>
+        <div class="desc">query the lot</div>
+      </div></div>
+    </div>
+    <div class="row bottom">
+      <div class="hexwrap"><div class="hex">
+        <div class="glyph g-car"><div class="carbody"></div><div class="wheels"><span></span><span></span></div></div>
+        <div class="name code">inventory.vehicle</div>
+        <div class="desc">single-vehicle detail</div>
+      </div></div>
+      <div class="hexwrap"><div class="hex">
+        <div class="glyph g-plane"><div class="plane"></div></div>
+        <div class="name code">lead.submit</div>
+        <div class="desc">hand off the buyer</div>
+      </div></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-pill">
+      <span>Each agent implements 1 or more skills</span>
+      <span class="dot">&middot;</span>
+      <span>Recommended minimum:</span>
+      <span class="chip code">inventory.search</span>
+      <span>+</span>
+      <span class="chip code">lead.submit</span>
+    </div>
+  </footer>
+</body>
+</html>

@@ -6,6 +6,8 @@ description: Normative MUST/SHOULD rules every AAP-compliant dealer agent and bu
 
 # Behavior rules
 
+![Etiquette for buyer agents: identify honestly, browse anonymously, respect rate limits, quote only the FTC-final price](/img/v1.0/agent-etiquette.png)
+
 This page collects the normative MUST and SHOULD requirements that an AAP-compliant agent must follow. These rules are the bare minimum for interoperability and regulatory compliance; they are referenced from the per-skill pages and applied by the dealer-side test suite.
 
 The keywords MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, RECOMMENDED, and OPTIONAL are interpreted as in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
@@ -27,7 +29,7 @@ The keywords MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, RECOMMENDED, and OPTIONAL 
 
 ## Lead rules
 
-![Consent gate: anonymous inventory access vs consent-gated lead access](/img/consent-gate.png)
+![Consent gate: anonymous inventory access vs consent-gated lead access](/img/v1.0/consent-gate.png)
 
 ### Lead MUSTs
 
@@ -84,7 +86,7 @@ When optional context fields are omitted, AAP defines deterministic fallbacks so
 
 ## Authentication
 
-AAP v0.2 defines **no authentication of its own** — agents are public by default. A dealer that needs to protect its endpoint uses A2A's native `securitySchemes` / `securityRequirements` on its agent card; obtaining and presenting credentials then follows A2A (a transport concern), not AAP. See [Discovery](./discovery.md#authentication).
+AAP v1.0.0 defines **no authentication of its own** — agents are public by default. A dealer that needs to protect its endpoint uses A2A's native `securitySchemes` / `securityRequirements` on its agent card; obtaining and presenting credentials then follows A2A (a transport concern), not AAP. See [Discovery](./discovery.md#authentication).
 
 ## Rate limits
 

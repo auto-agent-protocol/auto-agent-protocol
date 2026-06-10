@@ -1,0 +1,120 @@
+<!-- Source for static/img/v1.0/pricing-ladder.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #eef1f7;
+    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #0f1d33;
+    position: relative;
+    overflow: hidden;
+  }
+  .title {
+    text-align: center;
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    padding-top: 72px;
+  }
+  .ladder {
+    position: absolute;
+    left: 70px;
+    top: 246px;
+    width: 1460px;
+    height: 540px;
+  }
+  .step {
+    position: absolute;
+    width: 310px;
+    min-height: 175px;
+    background: #ffffff;
+    border-radius: 22px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    padding: 32px 32px;
+  }
+  .field {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 30px;
+    font-weight: 700;
+    color: #1d4ed8;
+    margin-bottom: 14px;
+  }
+  .desc {
+    font-size: 23px;
+    line-height: 1.4;
+    color: #5b6b84;
+  }
+  .s1 { left: 0;      top: 0;   }
+  .s2 { left: 360px;  top: 95px;  }
+  .s3 { left: 720px;  top: 190px; }
+  .s4 {
+    left: 1080px; top: 285px;
+    width: 380px;
+    min-height: 235px;
+    background: #2563eb;
+    box-shadow: 0 14px 32px rgba(37,99,235,.25);
+  }
+  .s4 .field { color: #ffffff; }
+  .s4 .desc  { color: rgba(255,255,255,.92); }
+  .arrow {
+    position: absolute;
+    font-size: 42px;
+    font-weight: 700;
+    color: #9aa7bd;
+  }
+  .a1 { left: 314px;  top: 96px;  }
+  .a2 { left: 674px;  top: 191px; }
+  .a3 { left: 1034px; top: 286px; }
+  .footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 56px;
+    text-align: center;
+    font-size: 24px;
+    color: #5b6b84;
+  }
+  .footer code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: #41506b;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="title">Four pricing fields, one honest number</div>
+
+  <div class="ladder">
+    <div class="step s1">
+      <div class="field">msrp</div>
+      <div class="desc">manufacturer&rsquo;s suggested retail (the sticker)</div>
+    </div>
+    <div class="arrow a1">&searr;</div>
+
+    <div class="step s2">
+      <div class="field">list_price</div>
+      <div class="desc">dealer&rsquo;s advertised price</div>
+    </div>
+    <div class="arrow a2">&searr;</div>
+
+    <div class="step s3">
+      <div class="field">offered_price</div>
+      <div class="desc">list_price + taxes for the buyer&rsquo;s zip (when provided)</div>
+    </div>
+    <div class="arrow a3">&searr;</div>
+
+    <div class="step s4">
+      <div class="field">price</div>
+      <div class="desc">FTC-final out-the-door amount the buyer can actually pay &mdash; fees included</div>
+    </div>
+  </div>
+
+  <div class="footer"><code>price</code> is the only field a buyer agent may quote as final &nbsp;&middot;&nbsp; all prices are plain integers (USD)</div>
+</body>
+</html>

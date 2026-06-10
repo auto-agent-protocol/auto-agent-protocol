@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v1.0/schemas/dealer-information.schema.json",
+  "title": "DealerInformation",
+  "description": "Public dealership profile. v1.0 reduces this to the minimum: a dealer group `name`, an optional `welcome_message`, and one or more `rooftops` (physical locations). Per-location identity, address, geo, contacts, hours, and service capabilities live on each rooftop. Vehicles reference the rooftop that holds them via `Vehicle.rooftop` = the rooftop's `name`. Returned by the `dealer.information` AAP skill, wrapped in `dealer.information.response` and carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Dealer group / business name shown to buyers (e.g. 'Demo Auto Group')."
+    },
+    "welcome_message": {
+      "type": "string",
+      "description": "Optional greeting a buyer agent MAY surface to the user (e.g. 'Welcome to Demo Auto Group — happy to help by phone, video, or in person.')."
+    },
+    "rooftops": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One or more dealership locations (rooftops). A single-location dealer has one entry; a multi-rooftop group lists each store.",
+      "items": { "$ref": "#/$defs/rooftop" }
+    }
+  },
+  "required": ["name", "rooftops"],
+  "additionalProperties": false,
+  "$defs": {
+    "named_value": {
+      "type": "object",
+      "description": "A labeled contact value (e.g. name 'Sales', value '+14155550100' or 'sales@dealer.example').",
+      "properties": {
+        "name": { "type": "string", "description": "Channel label (e.g. 'Sales', 'Service', 'Parts')." },
+        "value": { "type": "string", "description": "The contact value itself — the email address or phone number." }
+      },
+      "required": ["value"],
+      "additionalProperties": false
+    },
+    "day_hours": {
+      "description": "A single day's hours — {open, close} in 24h HH:MM (rooftop local time) or null when closed.",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "open": { "type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$" },
+            "close": { "type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$" }
+          },
+          "required": ["open", "close"],
+          "additionalProperties": false
+        },
+        { "type": "null" }
+      ]
+    },
+    "weekly_hours": {
+      "type": "object",
+      "description": "Hours keyed by day. Each day is {open, close} or null when closed.",
+      "properties": {
+        "monday": { "$ref": "#/$defs/day_hours" },
+        "tuesday": { "$ref": "#/$defs/day_hours" },
+        "wednesday": { "$ref": "#/$defs/day_hours" },
+        "thursday": { "$ref": "#/$defs/day_hours" },
+        "friday": { "$ref": "#/$defs/day_hours" },
+        "saturday": { "$ref": "#/$defs/day_hours" },
+        "sunday": { "$ref": "#/$defs/day_hours" }
+      },
+      "additionalProperties": false
+    },
+    "schedule": {
+      "type": "object",
+      "description": "A named weekly schedule (e.g. name 'sales' or 'service' with its own weekly hours).",
+      "properties": {
+        "name": { "type": "string", "description": "Schedule label (e.g. 'sales', 'service')." },
+        "value": { "$ref": "#/$defs/weekly_hours" }
+      },
+      "required": ["value"],
+      "additionalProperties": false
+    },
+    "rooftop": {
+      "type": "object",
+      "description": "A single dealership location.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Rooftop name shown to buyers and referenced by `Vehicle.rooftop` (e.g. 'Demo Toyota San Francisco')."
+        },
+        "legal_name": {
+          "type": "string",
+          "description": "Legal / registered business name for this location."
+        },
+        "website": {
+          "type": "string",
+          "format": "uri",
+          "description": "Public website for this rooftop."
+        },
+        "geo": {
+          "type": "object",
+          "description": "Geographic coordinates of this rooftop.",
+          "properties": {
+            "latitude": { "type": "number", "minimum": -90, "maximum": 90 },
+            "longitude": { "type": "number", "minimum": -180, "maximum": 180 }
+          },
+          "required": ["latitude", "longitude"],
+          "additionalProperties": false
+        },
+        "emails": {
+          "type": "array",
+          "description": "Email contact channels for this rooftop.",
+          "items": { "$ref": "#/$defs/named_value" }
+        },
+        "phones": {
+          "type": "array",
+          "description": "Phone contact channels for this rooftop.",
+          "items": { "$ref": "#/$defs/named_value" }
+        },
+        "address": {
+          "$ref": "./_primitives/address.schema.json",
+          "description": "Physical address of this rooftop."
+        },
+        "schedules": {
+          "type": "array",
+          "description": "Named weekly schedules for this rooftop (e.g. a 'sales' schedule and a 'service' schedule).",
+          "items": { "$ref": "#/$defs/schedule" }
+        },
+        "timezone": {
+          "type": "string",
+          "description": "IANA timezone identifier for this rooftop's schedules (e.g. 'America/Los_Angeles')."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Free-text notes (e.g. 'closed major holidays')."
+        },
+        "capabilities": {
+          "type": "array",
+          "description": "Services this rooftop offers, as free-text tags (e.g. 'sales', 'service', 'parts', 'financing', 'trade_in', 'delivery').",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    }
+  }
+}

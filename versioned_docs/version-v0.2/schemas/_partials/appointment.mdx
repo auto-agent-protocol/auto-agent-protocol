@@ -1,0 +1,34 @@
+{/* Auto-generated from appointment.schema.json. Edit the schema, not this file. */}
+
+An appointment request piggybacked on a `lead.submit.request`. The vehicle reference for the appointment is IMPLICIT — it is whatever is in the parent `vehicle_of_interest` (or `trade_in` for a trade-in appraisal). A standalone sales or service visit can omit any vehicle.
+
+<FieldCard
+  name="appointment_type"
+  type={"\"sales\" | \"service\" | \"test_drive\" | \"trade_in\""}
+  required={true}
+  enumValues={["sales","service","test_drive","trade_in"]}
+>
+  Kind of appointment the buyer is requesting.
+</FieldCard>
+<FieldCard
+  name="appointment_at"
+  type={"string"}
+  required={false}
+  format="date-time"
+>
+  Requested start time of the appointment as an ISO 8601 / RFC 3339 timestamp that MUST include a timezone offset (Z or ±HH:MM), e.g. '2026-05-03T11:00:00-07:00'. Optional — when omitted, the dealer follows up to schedule a time.
+</FieldCard>
+<FieldCard
+  name="duration_minutes"
+  type={"integer"}
+  required={false}
+>
+  Expected appointment duration in minutes. If omitted, the dealer applies its default for \`appointment_type\`.
+</FieldCard>
+<FieldCard
+  name="notes"
+  type={"string"}
+  required={false}
+>
+  Free-text note from the buyer (e.g. 'I'd like to bring my partner', 'parking instructions please').
+</FieldCard>

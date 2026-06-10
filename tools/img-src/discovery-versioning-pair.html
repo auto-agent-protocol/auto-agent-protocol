@@ -1,0 +1,109 @@
+<!doctype html>
+<!-- Source for static/img/v1.0/discovery-versioning-pair.png.
+     Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #eef1f7;
+    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #0f1d33;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  h1 { font-size: 60px; font-weight: 700; margin-top: 56px; letter-spacing: -0.5px; }
+  .row { display: flex; align-items: stretch; gap: 0; margin-top: 48px; }
+  .card {
+    background: #fff; border-radius: 24px; padding: 32px 36px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+  }
+  .card.left { width: 790px; }
+  .card.right { width: 560px; display: flex; flex-direction: column; }
+  .card-head { display: flex; align-items: center; gap: 16px; }
+  .filechip {
+    background: #dbe7fb; color: #1d4ed8; font-weight: 600; font-size: 23px;
+    padding: 8px 22px; border-radius: 999px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .card-head .dim { color: #9aa7bd; font-size: 22px; }
+  pre {
+    margin-top: 24px; background: #f5f8fd; border-radius: 16px; padding: 26px 28px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 22px; line-height: 1.7; color: #41506b; white-space: pre;
+  }
+  pre .key { color: #0f1d33; font-weight: 600; }
+  pre .dim { color: #9aa7bd; }
+  pre .hl {
+    background: #dbe7fb; color: #1d4ed8; font-weight: 600;
+    border-radius: 8px; padding: 3px 8px;
+    -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  }
+  .link {
+    width: 110px; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 10px;
+  }
+  .link .dot {
+    width: 58px; height: 58px; border-radius: 50%; background: #2563eb; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 30px;
+    box-shadow: 0 14px 32px rgba(37,99,235,.25);
+  }
+  .link .word { color: #5b6b84; font-size: 23px; font-weight: 600; }
+  .right-title { font-size: 32px; font-weight: 700; }
+  .right .sub { color: #5b6b84; font-size: 23px; margin-top: 8px; }
+  .pins { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 38px; padding-bottom: 14px; }
+  .pin { display: flex; align-items: center; gap: 18px; white-space: nowrap; }
+  .pin .check {
+    flex: none; width: 42px; height: 42px; border-radius: 50%;
+    background: #dbe7fb; color: #1d4ed8; font-size: 24px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pin .label { font-size: 27px; font-weight: 600; color: #0f1d33; }
+  .pin .label code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight: 500; font-size: 24px; color: #1d4ed8;
+    background: #f0f5fd; border-radius: 8px; padding: 3px 10px;
+  }
+  .footer { margin-top: 46px; font-size: 27px; color: #5b6b84; }
+</style>
+</head>
+<body>
+  <h1>One URI pins everything</h1>
+  <div class="row">
+    <div class="card left">
+      <div class="card-head">
+        <div class="filechip">agent-card.json</div>
+        <div class="dim">excerpt · capabilities.extensions[0]</div>
+      </div>
+      <pre>{
+  <span class="key">"capabilities"</span>: {
+    <span class="key">"extensions"</span>: [{
+      <span class="key">"uri"</span>: <span class="hl">"https://autoagentprotocol.org</span>
+         <span class="hl">/extensions/a2a-automotive-retail/v1.0"</span>,
+      <span class="key">"required"</span>: true
+    }]
+  }<span class="dim">,
+  …</span>
+}</pre>
+    </div>
+    <div class="link">
+      <div class="dot">&#8594;</div>
+      <div class="word">pins</div>
+    </div>
+    <div class="card right">
+      <div class="right-title">What that URI pins</div>
+      <div class="sub">Every contract follows from v1.0</div>
+      <div class="pins">
+        <div class="pin"><div class="check">&#10003;</div><div class="label">payload schemas <code>/v1.0/schemas</code></div></div>
+        <div class="pin"><div class="check">&#10003;</div><div class="label">five skill contracts</div></div>
+        <div class="pin"><div class="check">&#10003;</div><div class="label">error vocabulary</div></div>
+        <div class="pin"><div class="check">&#10003;</div><div class="label">pricing + consent rules</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">&#129302; Buyer agents read the extension URI once — every payload contract follows from it</div>
+</body>
+</html>

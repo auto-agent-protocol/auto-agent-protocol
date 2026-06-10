@@ -1,0 +1,62 @@
+<!doctype html>
+<!-- Source for static/img/v1.0/versioning-timeline.png (and the root copy).
+     Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #eef1f7;
+    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #0f1d33;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  h1 { font-size: 64px; font-weight: 700; margin-top: 64px; letter-spacing: -0.5px; }
+  .sub { font-size: 28px; color: #5b6b84; margin-top: 18px; }
+  .timeline { display: flex; align-items: center; margin-top: 150px; }
+  .node { display: flex; flex-direction: column; align-items: center; position: relative; width: 320px; }
+  .chip {
+    font-size: 24px; padding: 8px 30px; border-radius: 999px; margin-bottom: 26px;
+    background: #dde3ee; color: #5b6b84;
+  }
+  .chip.latest { background: #2563eb; color: #fff; }
+  .circle {
+    width: 160px; height: 160px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 44px; font-weight: 600;
+  }
+  .released .circle { background: #dbe7fb; border: 3px solid #2563eb; color: #1d4ed8; width: 150px; height: 150px; }
+  .latest-node .circle { background: #2563eb; border: 4px solid #1d4ed8; color: #fff; width: 195px; height: 195px; font-size: 52px; font-weight: 700; }
+  .caption { margin-top: 36px; text-align: center; font-size: 27px; line-height: 1.45; color: #0f1d33; }
+  .caption .dim { color: #9aa7bd; font-size: 25px; }
+  .connector { width: 270px; height: 4px; background: #c9d3e4; margin-top: 56px; }
+</style>
+</head>
+<body>
+  <h1>AAP versioning</h1>
+  <div class="sub">Released versions are immutable — the “latest” alias tracks the highest release.</div>
+  <div class="timeline">
+    <div class="node released">
+      <div class="chip">released</div>
+      <div class="circle">v0.1</div>
+      <div class="caption">Frozen · historical<br><span class="dim">still served at /v0.1</span></div>
+    </div>
+    <div class="connector"></div>
+    <div class="node released">
+      <div class="chip">released</div>
+      <div class="circle">v0.2</div>
+      <div class="caption">Frozen · historical<br><span class="dim">still served at /v0.2</span></div>
+    </div>
+    <div class="connector"></div>
+    <div class="node latest-node">
+      <div class="chip latest">latest</div>
+      <div class="circle">v1.0.0</div>
+      <div class="caption">Current release<br>the stable A2A v1.0<br>automotive profile</div>
+    </div>
+  </div>
+</body>
+</html>

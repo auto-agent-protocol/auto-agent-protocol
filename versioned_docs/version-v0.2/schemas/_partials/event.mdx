@@ -1,0 +1,48 @@
+{/* Auto-generated from event.schema.json. Edit the schema, not this file. */}
+
+Minimal AAP event envelope. Used for asynchronous status updates (e.g. lead status changes, appointment confirmations) delivered via A2A push notifications or task status update events.
+
+<FieldCard
+  name="type"
+  type={"\`aap.event\`"}
+  required={true}
+>
+  
+</FieldCard>
+<FieldCard
+  name="event_kind"
+  type={"\"lead.status_changed\" | \"appointment.status_changed\""}
+  required={true}
+  enumValues={["lead.status_changed","appointment.status_changed"]}
+>
+  Concrete event kind. v0.2 defines two kinds; future versions may add more.
+</FieldCard>
+<FieldCard
+  name="entity_id"
+  type={"string"}
+  required={true}
+>
+  Identifier of the affected entity (lead_id or appointment_id).
+</FieldCard>
+<FieldCard
+  name="status"
+  type={"string"}
+  required={true}
+>
+  New status value for the entity. For 'lead.status_changed', one of: received | duplicate | rejected | working | sold_to | lost. For 'appointment.status_changed', one of: requested | proposed | confirmed | rejected | completed | no_show. Conditional \`if/then\` clauses below enforce the right subset for each \`event_kind\`.
+</FieldCard>
+<FieldCard
+  name="occurred_at"
+  type={"string"}
+  required={true}
+  format="date-time"
+>
+  ISO 8601 / RFC 3339 timestamp at which the event occurred (e.g. '2026-04-30T10:15:30Z'). MUST include a timezone offset (Z or ±HH:MM).
+</FieldCard>
+<FieldCard
+  name="payload"
+  type={"object"}
+  required={false}
+>
+  Optional event-specific payload. Schema is event-kind-dependent and dealer-defined.
+</FieldCard>

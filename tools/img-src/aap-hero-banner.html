@@ -1,0 +1,179 @@
+<!-- Source for static/img/v1.0/aap-hero-banner.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,600 --hide-scrollbars this-file.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 600px; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #eef1f7;
+    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #0f1d33;
+    position: relative;
+  }
+  .left {
+    position: absolute;
+    left: 90px;
+    top: 118px;
+    width: 760px;
+  }
+  h1 {
+    font-size: 64px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.08;
+  }
+  .subtitle {
+    margin-top: 18px;
+    font-size: 28px;
+    color: #5b6b84;
+    font-weight: 500;
+  }
+  .pills {
+    margin-top: 34px;
+    display: flex;
+    gap: 16px;
+  }
+  .pill {
+    border-radius: 999px;
+    padding: 12px 26px;
+    font-size: 22px;
+    font-weight: 600;
+    background: #ffffff;
+    color: #1d4ed8;
+    border: 2px solid #dbe7fb;
+    box-shadow: 0 6px 16px rgba(15,29,51,.06);
+    white-space: nowrap;
+  }
+  .pill.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: #dbe7fb;
+    border-color: #dbe7fb;
+  }
+  .tagline {
+    position: absolute;
+    left: 90px;
+    bottom: 56px;
+    font-size: 23px;
+    color: #9aa7bd;
+    font-weight: 500;
+    letter-spacing: .2px;
+  }
+  /* Right composition */
+  .scene {
+    position: absolute;
+    right: 90px;
+    top: 0;
+    width: 700px;
+    height: 600px;
+  }
+  .dealer-card {
+    position: absolute;
+    right: 0;
+    top: 110px;
+    width: 300px;
+    background: linear-gradient(160deg, #2563eb, #1d4ed8);
+    border-radius: 24px;
+    box-shadow: 0 14px 32px rgba(37,99,235,.25);
+    padding: 30px 30px 28px;
+    color: #ffffff;
+  }
+  .dealer-card .emoji { font-size: 52px; line-height: 1; }
+  .dealer-card .name {
+    margin-top: 16px;
+    font-size: 26px;
+    font-weight: 700;
+  }
+  .dealer-card .meta {
+    margin-top: 8px;
+    font-size: 19px;
+    color: #dbe7fb;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .agent-chip {
+    position: absolute;
+    left: 0;
+    top: 360px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #ffffff;
+    border-radius: 999px;
+    padding: 16px 30px 16px 20px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    border: 2px solid #dbe7fb;
+  }
+  .agent-chip .emoji { font-size: 38px; line-height: 1; }
+  .agent-chip .label { font-size: 24px; font-weight: 700; color: #0f1d33; white-space: nowrap; }
+  /* Connector line from agent chip to dealer card */
+  .connector {
+    position: absolute;
+    left: 252px;
+    top: 398px;
+    width: 196px;
+    height: 0;
+    border-top: 3px dashed #2563eb;
+    transform: rotate(-33.5deg);
+    transform-origin: left center;
+  }
+  .connector .dot-a, .connector .dot-b {
+    position: absolute;
+    top: -7px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #2563eb;
+  }
+  .connector .dot-a { left: -4px; }
+  .connector .dot-b { right: -4px; }
+  .send-label {
+    position: absolute;
+    left: 334px;
+    top: 344px;
+    transform: translate(-50%, -50%);
+    background: #dbe7fb;
+    color: #1d4ed8;
+    border-radius: 999px;
+    padding: 8px 20px;
+    font-size: 20px;
+    font-weight: 700;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    box-shadow: 0 6px 16px rgba(37,99,235,.15);
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+  <div class="left">
+    <h1>Auto Agent Protocol</h1>
+    <div class="subtitle">The A2A v1.0 Automotive Retail Profile</div>
+    <div class="pills">
+      <div class="pill mono">agent-card.json</div>
+      <div class="pill">A2A v1.0</div>
+      <div class="pill">five typed skills</div>
+    </div>
+  </div>
+
+  <div class="tagline">open standard&nbsp;&nbsp;&middot;&nbsp;&nbsp;typed messages&nbsp;&nbsp;&middot;&nbsp;&nbsp;consented leads</div>
+
+  <div class="scene">
+    <div class="agent-chip">
+      <span class="emoji">&#129302;</span>
+      <span class="label">Buyer agent</span>
+    </div>
+    <div class="connector">
+      <span class="dot-a"></span>
+      <span class="dot-b"></span>
+    </div>
+    <div class="send-label">SendMessage</div>
+    <div class="dealer-card">
+      <div class="emoji">&#127980;</div>
+      <div class="name">Dealership agent</div>
+      <div class="meta">agent-card.json</div>
+    </div>
+  </div>
+</body>
+</html>

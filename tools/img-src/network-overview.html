@@ -1,0 +1,111 @@
+<!-- Source for static/img/v1.0/network-overview.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1600px; height: 900px; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #eef1f7;
+    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #0f1d33;
+  }
+  .stage { position: relative; width: 1600px; height: 900px; }
+
+  h1 {
+    position: absolute; top: 52px; left: 0; width: 1600px;
+    text-align: center; font-size: 56px; font-weight: 700; letter-spacing: -0.5px;
+  }
+
+  svg.wires { position: absolute; left: 0; top: 0; }
+
+  .col-label {
+    position: absolute; font-size: 19px; font-weight: 700; letter-spacing: 2.5px;
+    color: #9aa7bd; text-transform: uppercase;
+  }
+
+  .chip {
+    position: absolute; width: 320px; height: 86px;
+    background: #fff; border-radius: 999px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    display: flex; align-items: center; gap: 16px; padding: 0 30px;
+  }
+  .chip .emoji { font-size: 32px; line-height: 1; }
+  .chip .label { font-size: 25px; font-weight: 600; color: #0f1d33; }
+
+  .bus {
+    position: absolute; left: 590px; top: 320px; width: 420px; height: 320px;
+    background: linear-gradient(160deg, #2563eb, #1d4ed8);
+    border-radius: 28px;
+    box-shadow: 0 14px 32px rgba(37,99,235,.25);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 0 36px;
+  }
+  .bus .name { font-size: 46px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+  .bus .desc { margin-top: 12px; font-size: 24px; line-height: 1.35; color: rgba(255,255,255,.92); }
+  .bus .pills { margin-top: 24px; display: flex; gap: 12px; }
+  .bus .pill {
+    border-radius: 999px; padding: 9px 18px; font-size: 19px; color: #fff;
+    background: rgba(255,255,255,.16); border: 1.5px solid rgba(255,255,255,.38);
+    white-space: nowrap;
+  }
+  .bus .pill.code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  .footer {
+    position: absolute; bottom: 56px; left: 0; width: 1600px;
+    text-align: center; font-size: 27px; color: #5b6b84;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1>Buyer agents &#8644; dealer storefronts</h1>
+
+  <svg class="wires" width="1600" height="900" viewBox="0 0 1600 900" fill="none">
+    <!-- buyers -> bus -->
+    <path d="M430,320 C 515,320 505,408 590,408" stroke="#aebbd3" stroke-width="2.5"/>
+    <path d="M430,480 L 590,480" stroke="#aebbd3" stroke-width="2.5"/>
+    <path d="M430,640 C 515,640 505,552 590,552" stroke="#aebbd3" stroke-width="2.5"/>
+    <!-- bus -> dealers -->
+    <path d="M1010,408 C 1095,408 1085,320 1170,320" stroke="#aebbd3" stroke-width="2.5"/>
+    <path d="M1010,480 L 1170,480" stroke="#aebbd3" stroke-width="2.5"/>
+    <path d="M1010,552 C 1095,552 1085,640 1170,640" stroke="#aebbd3" stroke-width="2.5"/>
+    <!-- endpoint dots -->
+    <circle cx="430" cy="320" r="5" fill="#aebbd3"/>
+    <circle cx="430" cy="480" r="5" fill="#aebbd3"/>
+    <circle cx="430" cy="640" r="5" fill="#aebbd3"/>
+    <circle cx="1170" cy="320" r="5" fill="#aebbd3"/>
+    <circle cx="1170" cy="480" r="5" fill="#aebbd3"/>
+    <circle cx="1170" cy="640" r="5" fill="#aebbd3"/>
+  </svg>
+
+  <div class="col-label" style="left:110px; top:216px;">Buyer agents</div>
+  <div class="col-label" style="left:1170px; top:216px;">Dealer storefronts</div>
+
+  <!-- buyer agent chips -->
+  <div class="chip" style="left:110px; top:277px;"><span class="emoji">&#129302;</span><span class="label">AI assistant</span></div>
+  <div class="chip" style="left:110px; top:437px;"><span class="emoji">&#129302;</span><span class="label">shopping agent</span></div>
+  <div class="chip" style="left:110px; top:597px;"><span class="emoji">&#129302;</span><span class="label">voice agent</span></div>
+
+  <!-- central bus -->
+  <div class="bus">
+    <div class="name">AAP</div>
+    <div class="desc">typed automotive messages<br>over A2A v1.0</div>
+    <div class="pills">
+      <div class="pill code">SendMessage</div>
+      <div class="pill">agent-card.json discovery</div>
+    </div>
+  </div>
+
+  <!-- dealership chips -->
+  <div class="chip" style="left:1170px; top:277px;"><span class="emoji">&#127980;</span><span class="label">Dealership A</span></div>
+  <div class="chip" style="left:1170px; top:437px;"><span class="emoji">&#127980;</span><span class="label">Dealership B</span></div>
+  <div class="chip" style="left:1170px; top:597px;"><span class="emoji">&#127980;</span><span class="label">Dealership C</span></div>
+
+  <div class="footer">Any A2A v1.0 client can talk to any AAP dealership &mdash; no custom integration per pair</div>
+</div>
+</body>
+</html>

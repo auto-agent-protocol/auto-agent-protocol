@@ -1,0 +1,26 @@
+{/* Auto-generated from _primitives/aap-message.schema.json. Edit the schema, not this file. */}
+
+Abstract base shape for every typed Auto Agent Protocol payload that travels inside an A2A DataPart. Concrete request and response schemas restrict 'type' to a constant skill-id-shaped value (e.g. inventory.search.request, lead.appointment.response). The AAP version is announced once via the agent-card extension URI ('https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.2') and reflected in schema $id URLs; it is NOT repeated on the wire. Responses additionally carry a 'data' object and an optional 'message' note. Errors use the Error schema instead.
+
+<FieldCard
+  name="type"
+  type={"string"}
+  required={true}
+  pattern={"^[a-z_]+(\\.[a-z_]+){1,2}$"}
+>
+  AAP message type identifier. For skill calls: '<scope>.<thing>.request' or '<scope>.<thing>.response' (e.g. 'inventory.search.request', 'lead.appointment.response'). For envelopes: 'aap.event', 'aap.error'.
+</FieldCard>
+<FieldCard
+  name="data"
+  type={"object"}
+  required={false}
+>
+  Response payload (responses only). Requests carry their fields at the top level next to 'type'.
+</FieldCard>
+<FieldCard
+  name="message"
+  type={"string"}
+  required={false}
+>
+  Optional contextual note from the dealer or LLM, intended for the buyer agent or end user. MAY be absent or empty.
+</FieldCard>

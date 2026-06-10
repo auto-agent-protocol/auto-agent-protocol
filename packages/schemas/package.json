@@ -1,13 +1,13 @@
 {
   "name": "@autoagentprotocol/schemas",
-  "version": "0.2.0",
-  "description": "JSON Schema 2020-12 files for Auto Agent Protocol v0.2",
+  "version": "1.0.0",
+  "description": "JSON Schema 2020-12 files for Auto Agent Protocol v1.0",
   "license": "Apache-2.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": "./dist/index.js",
-    "./v0.2/*": "./dist/v0.2/*.json"
+    "./v1.0/*": "./dist/v1.0/*.json"
   },
   "files": ["dist"],
   "sideEffects": false,

@@ -6,8 +6,10 @@ description: Detail view of a single vehicle by VIN, stock, or vehicle_id, optio
 
 # `inventory.vehicle`
 
+![inventory.vehicle: look up one vehicle by VIN, stock number, or vehicle_id and get the full typed detail card](/img/v1.0/vehicle-detail-lookup.png)
+
 :::info A2A invocation
-This skill is invoked through A2A's `SendMessage` operation (`SendMessage` JSON-RPC method or `POST /message:send` over HTTP+JSON), not a dedicated REST URL. The same payload travels on either A2A binding — see [JSON-RPC binding](../bindings/json-rpc.md) or [REST binding](../bindings/rest.md). AAP only defines what goes inside `Message.parts[].data`.
+This skill is invoked through A2A's `SendMessage` operation — the single A2A operation AAP v1.0 uses — not a dedicated REST URL. It travels as the `SendMessage` JSON-RPC method on the REQUIRED [JSON-RPC binding](../bindings/json-rpc.md), or as `POST /message:send` on the OPTIONAL [HTTP+JSON binding](../bindings/rest.md); the same payload travels on either. AAP only defines what goes inside `Message.parts[].data`.
 :::
 
 The `inventory.vehicle` skill returns the full detail of a single vehicle. The buyer agent identifies the vehicle by VIN, stock number, or dealer-internal `vehicle_id`. An optional `zip` enables regional pricing (`offered_price`) when the dealer supports desking.

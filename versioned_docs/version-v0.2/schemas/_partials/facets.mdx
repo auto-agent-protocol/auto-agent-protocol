@@ -1,0 +1,116 @@
+{/* Auto-generated from facets.schema.json. Edit the schema, not this file. */}
+
+Aggregated facet counts and ranges over a dealer's inventory. Returned by the `inventory.facets` AAP skill (wrapped in `inventory.facets.response`) and OPTIONALLY embedded in `inventory.search` responses. Both responses travel inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
+
+<FieldCard
+  name="makes"
+  type={"Term_facet"}
+  required={false}
+>
+  
+</FieldCard>
+<FieldCard
+  name="models"
+  type={"Term_facet"}
+  required={false}
+>
+  
+</FieldCard>
+<FieldCard
+  name="trims"
+  type={"Term_facet"}
+  required={false}
+>
+  
+</FieldCard>
+<FieldCard
+  name="years"
+  type={"Term_facet"}
+  required={false}
+>
+  
+</FieldCard>
+<FieldCard
+  name="conditions"
+  type={"Term_facet"}
+  required={false}
+>
+  
+</FieldCard>
+<FieldCard
+  name="transmissions"
+  type={"Term_facet"}
+  required={false}
+>
+  
+</FieldCard>
+<FieldCard
+  name="fuels"
+  type={"Term_facet"}
+  required={false}
+>
+  
+</FieldCard>
+<FieldCard
+  name="drivelines"
+  type={"Term_facet"}
+  required={false}
+>
+  
+</FieldCard>
+<FieldCard
+  name="bodies"
+  type={"Term_facet"}
+  required={false}
+>
+  Body-style facets, matching the \`body\` field on Vehicle and \`filters.body\` on InventorySearchRequest.
+</FieldCard>
+<FieldCard
+  name="exterior_colors"
+  type={"Term_facet"}
+  required={false}
+>
+  
+</FieldCard>
+<FieldCard
+  name="interior_colors"
+  type={"Term_facet"}
+  required={false}
+>
+  
+</FieldCard>
+<FieldCard
+  name="rooftops"
+  type={"Term_facet"}
+  required={false}
+>
+  Rooftop facets — vehicle counts per dealership location, matching \`Vehicle.rooftop\` and \`filters.rooftops\`.
+</FieldCard>
+<FieldCard
+  name="statuses"
+  type={"Term_facet"}
+  required={false}
+>
+  
+</FieldCard>
+<FieldCard
+  name="price_range"
+  type={"Range_facet"}
+  required={false}
+>
+  
+</FieldCard>
+<FieldCard
+  name="mileage_range"
+  type={"Range_facet"}
+  required={false}
+>
+  
+</FieldCard>
+<FieldCard
+  name="year_range"
+  type={"Range_facet"}
+  required={false}
+>
+  
+</FieldCard>
