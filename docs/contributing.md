@@ -33,7 +33,6 @@ The specification and schemas are licensed under [Apache-2.0](https://www.apache
 | `packages/` | Published npm packages (`@autoagentprotocol/types`, `@autoagentprotocol/schemas`, `@autoagentprotocol/validator`). |
 | `generated/` | **Auto-generated, NOT committed.** Per-version TS types, both OpenAPI bundles, and MCP manifest. Produced by `pnpm run generate` on every build. |
 | `static/v0.1/`, `static/v0.2/`, `static/v1.0/`, `static/latest/` | **Auto-generated, NOT committed.** Spec assets mirrored for the docs site by `pnpm run copy-static`. |
-| `docs/schemas/_partials/` | **Auto-generated, NOT committed.** FieldCard MDX rendered from JSON Schema by `pnpm run generate:field-cards`. |
 
 ## Released versions are frozen
 

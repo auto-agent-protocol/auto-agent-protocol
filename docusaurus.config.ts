@@ -94,6 +94,7 @@ const config: Config = {
       logo: {
         alt: "Auto Agent Protocol logo",
         src: "img/logo.png",
+        srcDark: "img/logo-white.png",
       },
       items: [
         {
@@ -124,26 +125,26 @@ const config: Config = {
         {
           title: "Specification",
           items: [
-            { label: "Introduction", to: "/docs/v0.2/intro" },
-            { label: "A2A profile", to: "/docs/v0.2/a2a-profile" },
-            { label: "Discovery", to: "/docs/v0.2/discovery" },
-            { label: "Pricing and FTC", to: "/docs/v0.2/pricing-and-ftc" },
+            { label: "Introduction", to: "/docs/latest/intro" },
+            { label: "A2A profile", to: "/docs/latest/a2a-profile" },
+            { label: "Discovery", to: "/docs/latest/discovery" },
+            { label: "Pricing and FTC", to: "/docs/latest/pricing-and-ftc" },
           ],
         },
         {
           title: "Bindings & Skills",
           items: [
-            { label: "JSON-RPC binding", to: "/docs/v0.2/bindings/json-rpc" },
-            { label: "REST binding", to: "/docs/v0.2/bindings/rest" },
-            { label: "Inventory search", to: "/docs/v0.2/skills/inventory-search" },
-            { label: "Submit lead", to: "/docs/v0.2/skills/lead-submit" },
+            { label: "JSON-RPC binding", to: "/docs/latest/bindings/json-rpc" },
+            { label: "REST binding", to: "/docs/latest/bindings/rest" },
+            { label: "Inventory search", to: "/docs/latest/skills/inventory-search" },
+            { label: "Submit lead", to: "/docs/latest/skills/lead-submit" },
           ],
         },
         {
           title: "Compatibility",
           items: [
-            { label: "ADF mapping", to: "/docs/v0.2/compatibility/adf-mapping" },
-            { label: "MCP", to: "/docs/v0.2/compatibility/mcp" },
+            { label: "ADF mapping", to: "/docs/latest/compatibility/adf-mapping" },
+            { label: "MCP", to: "/docs/latest/compatibility/mcp" },
           ],
         },
         {
@@ -159,7 +160,7 @@ const config: Config = {
             },
             {
               label: "How AAP profiles A2A",
-              to: "/docs/v0.2/a2a-profile",
+              to: "/docs/latest/a2a-profile",
             },
           ],
         },
@@ -172,7 +173,7 @@ const config: Config = {
             },
             {
               label: "Contributing",
-              to: "/docs/v0.2/contributing",
+              to: "/docs/latest/contributing",
             },
           ],
         },

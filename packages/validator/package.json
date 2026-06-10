@@ -1,7 +1,7 @@
 {
   "name": "@autoagentprotocol/validator",
-  "version": "0.2.0",
-  "description": "Ajv-based validators for Auto Agent Protocol v0.2",
+  "version": "1.0.0",
+  "description": "Ajv-based validators for Auto Agent Protocol v1.0",
   "license": "Apache-2.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -5,17 +5,17 @@ const ROOT = resolve(__dirname, "../../..");
 const OUT = resolve(__dirname, "../dist");
 
 function main() {
-  mkdirSync(resolve(OUT, "v0.2"), { recursive: true });
+  mkdirSync(resolve(OUT, "v1.0"), { recursive: true });
 
   // Copy all schema files
   cpSync(
-    resolve(ROOT, "spec/v0.2/schemas"),
-    resolve(OUT, "v0.2"),
+    resolve(ROOT, "spec/v1.0/schemas"),
+    resolve(OUT, "v1.0"),
     { recursive: true }
   );
 
   // Generate index.js that exports schema names
-  const schemas = readdirSync(resolve(ROOT, "spec/v0.2/schemas"))
+  const schemas = readdirSync(resolve(ROOT, "spec/v1.0/schemas"))
     .filter((f) => f.endsWith(".schema.json"));
 
   let indexContent = "// Auto-generated schema index\n\"use strict\";\n";
@@ -24,7 +24,7 @@ function main() {
       .split("-")
       .map((s, i) => (i === 0 ? s : s.charAt(0).toUpperCase() + s.slice(1)))
       .join("");
-    indexContent += `exports.${name}Schema = require("./v0.2/${schema}");\n`;
+    indexContent += `exports.${name}Schema = require("./v1.0/${schema}");\n`;
   }
 
   writeFileSync(resolve(OUT, "index.js"), indexContent);
