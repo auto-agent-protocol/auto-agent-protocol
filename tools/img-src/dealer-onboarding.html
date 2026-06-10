@@ -1,4 +1,4 @@
-<!-- Source for static/img/v1.0/buyer-journey.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.0/dealer-onboarding.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +12,7 @@
     background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
     background-size: 56px 56px;
     color: #0f1d33;
-    padding: 58px 64px 48px;
+    padding: 56px 64px 46px;
     display: flex;
     flex-direction: column;
   }
@@ -33,51 +33,64 @@
     flex: 1;
     display: flex;
     align-items: center;
-    gap: 0;
+    justify-content: space-between;
     margin-top: 24px;
   }
   .card {
-    width: 334px;
-    height: 408px;
+    width: 442px;
+    height: 470px;
     background: #ffffff;
-    border-radius: 24px;
+    border-radius: 26px;
     box-shadow: 0 14px 32px rgba(15,29,51,.08);
-    padding: 30px 28px;
+    padding: 34px 32px 30px;
     display: flex;
     flex-direction: column;
   }
-  .card-top { display: flex; align-items: center; gap: 14px; }
+  .card-top { display: flex; align-items: center; gap: 16px; }
   .num {
-    width: 46px; height: 46px; border-radius: 50%;
+    width: 54px; height: 54px; border-radius: 50%;
     background: #dbe7fb; color: #1d4ed8;
-    font-size: 24px; font-weight: 800;
+    font-size: 28px; font-weight: 800;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
   .step-name {
-    font-size: 23px; font-weight: 800; letter-spacing: 2.5px;
+    font-size: 28px; font-weight: 800; letter-spacing: -0.3px;
+    line-height: 1.2;
     color: #0f1d33;
   }
   .code-chip {
-    margin-top: 24px;
+    margin-top: 26px;
     background: #f1f4fa;
     border-radius: 14px;
-    padding: 16px 18px;
-    font-size: 21px;
+    padding: 17px 19px;
+    font-size: 22px;
     line-height: 1.45;
     color: #41506b;
     font-weight: 600;
     overflow-wrap: anywhere;
   }
   .code-chip .skill { color: #1d4ed8; font-weight: 700; }
-  .result {
-    margin-top: 20px;
-    font-size: 22px;
-    line-height: 1.45;
+  .desc {
+    margin-top: 22px;
+    font-size: 23px;
+    line-height: 1.5;
     color: #5b6b84;
   }
-  .result .arr { color: #2563eb; font-weight: 700; }
-  .result b { color: #0f1d33; font-weight: 700; }
+  .desc b { color: #0f1d33; font-weight: 700; }
+  .desc .arr { color: #2563eb; font-weight: 700; }
+  .pill-row { margin-top: auto; }
+  .pill {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 9px 20px;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    background: #dbe7fb;
+    color: #1d4ed8;
+    white-space: nowrap;
+  }
 
   .card.emph {
     background: linear-gradient(180deg, #2f6df0 0%, #1d4ed8 100%);
@@ -87,28 +100,30 @@
   .card.emph .step-name { color: #ffffff; }
   .card.emph .code-chip { background: rgba(255,255,255,.16); color: #ffffff; }
   .card.emph .code-chip .skill { color: #ffffff; }
-  .card.emph .result { color: rgba(255,255,255,.85); }
-  .card.emph .result .arr { color: #ffffff; }
-  .card.emph .result b { color: #ffffff; }
+  .card.emph .desc { color: rgba(255,255,255,.85); }
+  .card.emph .desc b { color: #ffffff; }
+  .card.emph .desc .arr { color: #ffffff; }
+  .card.emph .pill { background: rgba(255,255,255,.18); color: #ffffff; }
 
   .flow-arrow {
-    align-self: center;
-    width: 44px;
+    width: 56px;
     flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
+    height: 22px;
     position: relative;
   }
   .flow-arrow::before {
     content: "";
     position: absolute;
-    left: 6px; right: 16px;
+    top: 9px;
+    left: 8px; right: 20px;
     height: 4px; border-radius: 2px;
     background: #b9c4d8;
   }
   .flow-arrow::after {
     content: "";
     position: absolute;
-    right: 5px;
+    top: 2px;
+    right: 7px;
     width: 0; height: 0;
     border-left: 13px solid #b9c4d8;
     border-top: 9px solid transparent;
@@ -116,7 +131,7 @@
   }
 
   footer {
-    margin-top: 46px;
+    margin-top: 40px;
     display: flex;
     justify-content: center;
   }
@@ -131,23 +146,23 @@
     white-space: nowrap;
   }
   .footer-pill b { color: #0f1d33; font-weight: 800; }
-  .footer-pill .mono { color: #1d4ed8; font-weight: 700; }
 </style>
 </head>
 <body>
   <header>
-    <h1>How an AI agent buys a car</h1>
-    <div class="actors"><span>🤖 buyer agent</span><span class="arr">&#8594;</span><span>🏬 dealership</span></div>
+    <h1>Dealers: go live in three steps</h1>
+    <div class="actors"><span>🏬 your domain</span><span class="arr">&#8594;</span><span>🤖 every buyer agent</span></div>
   </header>
 
   <div class="steps">
     <div class="card">
       <div class="card-top">
         <div class="num">1</div>
-        <div class="step-name">DISCOVER</div>
+        <div class="step-name">Publish your<br>agent card</div>
       </div>
-      <div class="code-chip mono">GET /.well-known/<wbr>agent-card.json</div>
-      <div class="result">Read the agent card to see which AAP skills the dealer offers.</div>
+      <div class="code-chip mono">/.well-known/<wbr>agent-card.json</div>
+      <div class="desc">Host one static <b>agent-card.json</b> at <span class="mono">/.well-known/</span> on your own domain.</div>
+      <div class="pill-row"><span class="pill">copy-paste from the example</span></div>
     </div>
 
     <div class="flow-arrow"></div>
@@ -155,37 +170,28 @@
     <div class="card">
       <div class="card-top">
         <div class="num">2</div>
-        <div class="step-name">BROWSE</div>
+        <div class="step-name">Serve the skills<br>you choose</div>
       </div>
-      <div class="code-chip mono"><span class="skill">inventory.search</span></div>
-      <div class="result"><span class="arr">&#8594;</span> typed <b>vehicle list</b>, filtered to what the buyer wants.</div>
-    </div>
-
-    <div class="flow-arrow"></div>
-
-    <div class="card">
-      <div class="card-top">
-        <div class="num">3</div>
-        <div class="step-name">INSPECT</div>
-      </div>
-      <div class="code-chip mono"><span class="skill">inventory.vehicle</span></div>
-      <div class="result"><span class="arr">&#8594;</span> <b>full detail by VIN</b> &mdash; price, options, availability.</div>
+      <div class="code-chip mono"><span class="skill">SendMessage</span> &middot; JSON-RPC</div>
+      <div class="desc">One endpoint handles every skill. Start with <b class="mono">inventory.search</b> + <b class="mono">lead.submit</b>.</div>
+      <div class="pill-row"><span class="pill">add more skills any time</span></div>
     </div>
 
     <div class="flow-arrow"></div>
 
     <div class="card emph">
       <div class="card-top">
-        <div class="num">4</div>
-        <div class="step-name">SUBMIT</div>
+        <div class="num">3</div>
+        <div class="step-name">Receive<br>consented leads</div>
       </div>
-      <div class="code-chip mono"><span class="skill">lead.submit</span></div>
-      <div class="result"><span class="arr">&#8594;</span> <b>consented lead</b>: customer + vehicle + trade&#8209;in + appointment.</div>
+      <div class="code-chip mono"><span class="skill">lead.submit</span> &#8594; ADF/XML</div>
+      <div class="desc">Typed leads map <b>field-by-field</b> to ADF/XML <span class="arr">&#8594;</span> your <b>existing CRM</b>.</div>
+      <div class="pill-row"><span class="pill">no CRM changes needed</span></div>
     </div>
   </div>
 
   <footer>
-    <div class="footer-pill">Five skills, <b>one conversation</b> &mdash; all over standard A2A v1.0 <span class="mono">SendMessage</span></div>
+    <div class="footer-pill">No app store, no gatekeeper &mdash; <b>your domain is your storefront</b> for AI agents</div>
   </footer>
 </body>
 </html>

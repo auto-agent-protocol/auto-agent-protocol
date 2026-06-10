@@ -6,6 +6,8 @@ description: Normative MUST/SHOULD rules every AAP-compliant dealer agent and bu
 
 # Behavior rules
 
+![Etiquette for buyer agents: identify honestly, browse anonymously, respect rate limits, quote only the FTC-final price](/img/v1.0/agent-etiquette.png)
+
 This page collects the normative MUST and SHOULD requirements that an AAP-compliant agent must follow. These rules are the bare minimum for interoperability and regulatory compliance; they are referenced from the per-skill pages and applied by the dealer-side test suite.
 
 The keywords MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, RECOMMENDED, and OPTIONAL are interpreted as in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).

@@ -10,6 +10,8 @@ description: How to invoke each AAP skill over A2A's JSON-RPC 2.0 binding (Secti
 
 A2A defines a JSON-RPC 2.0 binding in [Section 9](https://a2a-protocol.org/specification#section-9) of its specification. AAP rides on top of **A2A v1.0** without modification: every skill is invoked via the `SendMessage` JSON-RPC method, with the AAP request packaged as a typed `DataPart` inside `params.message.parts[]`.
 
+![JSON-RPC request and response envelopes: method SendMessage, params.message in, result.message out](/img/v1.0/jsonrpc-envelope.png)
+
 :::note JSON-RPC is the REQUIRED binding
 A JSON-RPC interface is **REQUIRED** on every AAP agent card: `supportedInterfaces[]` MUST include at least one entry with `protocolBinding: "JSONRPC"`. An [HTTP+JSON interface](rest.md) MAY be added as an OPTIONAL second binding; gRPC is out of scope for AAP v1.0.
 :::

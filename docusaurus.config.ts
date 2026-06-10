@@ -4,7 +4,8 @@ import type * as Preset from "@docusaurus/preset-classic";
 
 const config: Config = {
   title: "Auto Agent Protocol",
-  tagline: "The A2A v1.0 Automotive Retail Profile — typed messages for dealer agents",
+  tagline:
+    "The open standard that lets AI assistants find dealerships, browse real inventory, and send consented leads — built on A2A v1.0",
   favicon: "img/favicon.ico",
   url: "https://autoagentprotocol.org",
   baseUrl: "/",
@@ -125,26 +126,26 @@ const config: Config = {
         {
           title: "Specification",
           items: [
-            { label: "Introduction", to: "/docs/latest/intro" },
-            { label: "A2A profile", to: "/docs/latest/a2a-profile" },
-            { label: "Discovery", to: "/docs/latest/discovery" },
-            { label: "Pricing and FTC", to: "/docs/latest/pricing-and-ftc" },
+            { label: "Introduction", to: "/docs/v1.0/intro" },
+            { label: "A2A profile", to: "/docs/v1.0/a2a-profile" },
+            { label: "Discovery", to: "/docs/v1.0/discovery" },
+            { label: "Pricing and FTC", to: "/docs/v1.0/pricing-and-ftc" },
           ],
         },
         {
           title: "Bindings & Skills",
           items: [
-            { label: "JSON-RPC binding", to: "/docs/latest/bindings/json-rpc" },
-            { label: "REST binding", to: "/docs/latest/bindings/rest" },
-            { label: "Inventory search", to: "/docs/latest/skills/inventory-search" },
-            { label: "Submit lead", to: "/docs/latest/skills/lead-submit" },
+            { label: "JSON-RPC binding", to: "/docs/v1.0/bindings/json-rpc" },
+            { label: "REST binding", to: "/docs/v1.0/bindings/rest" },
+            { label: "Inventory search", to: "/docs/v1.0/skills/inventory-search" },
+            { label: "Submit lead", to: "/docs/v1.0/skills/lead-submit" },
           ],
         },
         {
           title: "Compatibility",
           items: [
-            { label: "ADF mapping", to: "/docs/latest/compatibility/adf-mapping" },
-            { label: "MCP", to: "/docs/latest/compatibility/mcp" },
+            { label: "ADF mapping", to: "/docs/v1.0/compatibility/adf-mapping" },
+            { label: "MCP", to: "/docs/v1.0/compatibility/mcp" },
           ],
         },
         {
@@ -160,7 +161,7 @@ const config: Config = {
             },
             {
               label: "How AAP profiles A2A",
-              to: "/docs/latest/a2a-profile",
+              to: "/docs/v1.0/a2a-profile",
             },
           ],
         },
@@ -173,7 +174,7 @@ const config: Config = {
             },
             {
               label: "Contributing",
-              to: "/docs/latest/contributing",
+              to: "/docs/v1.0/contributing",
             },
           ],
         },

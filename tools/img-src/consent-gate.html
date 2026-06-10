@@ -126,9 +126,10 @@
       </div>
       <div class="outcome">
         <div class="row ok">✓ ConsentGrant attached → lead delivered to 🏬 dealership</div>
-        <div class="row err">✕ missing or expired → <code>CONTACT_CONSENT_REQUIRED</code></div>
+        <div class="row err">✕ missing grant → <code>CONTACT_CONSENT_REQUIRED</code></div>
+        <div class="row err">✕ expired / invalid grant → <code>INVALID_CONSENT</code></div>
       </div>
-      <div class="caption">Customer info flows only after explicit consent —<br>otherwise typed error <code>CONTACT_CONSENT_REQUIRED</code></div>
+      <div class="caption">Customer info flows only after explicit consent — the gate is enforced with typed errors<code>CONTACT_CONSENT_REQUIRED</code></div>
     </div>
   </div>
 </body>

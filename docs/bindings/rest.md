@@ -10,6 +10,8 @@ description: How to invoke each AAP skill over A2A's optional HTTP+JSON binding 
 
 A2A defines an HTTP+JSON binding in [Section 11](https://a2a-protocol.org/specification#section-11) of its specification. Every A2A operation maps to a single HTTP route. AAP rides on this binding without modification: every skill is invoked via `POST /message:send` with the AAP request packaged as a typed `DataPart` inside `message.parts[]`.
 
+![HTTP+JSON envelope: POST message:send with a message body; the 200 response wraps the agent Message](/img/v1.0/rest-envelope.png)
+
 :::note HTTP+JSON is the OPTIONAL binding
 In AAP v1.0, the [JSON-RPC binding](json-rpc.md) is **REQUIRED** on every AAP agent card; an agent **MAY** additionally expose an HTTP+JSON interface as described on this page. Buyer agents **MUST NOT** require HTTP+JSON support, and gRPC is out of scope.
 

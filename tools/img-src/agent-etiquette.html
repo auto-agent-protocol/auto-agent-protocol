@@ -1,0 +1,140 @@
+<!-- Source for static/img/v1.0/agent-etiquette.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #eef1f7;
+    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #0f1d33;
+    overflow: hidden;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #1d4ed8; font-weight: 600; font-size: 22px; }
+
+  h1 { font-size: 54px; font-weight: 700; letter-spacing: -0.5px; margin-top: 44px; text-align: center; }
+  .subtitle { margin-top: 12px; font-size: 26px; color: #5b6b84; text-align: center; }
+
+  /* ---- 2x2 grid of rule cards ---- */
+  .grid {
+    margin-top: 34px;
+    display: grid; grid-template-columns: 712px 712px; gap: 30px;
+  }
+  .card {
+    background: #fff; border-radius: 24px; padding: 32px 34px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    display: flex; gap: 26px; align-items: center; height: 244px;
+  }
+  .badge {
+    flex: 0 0 96px; width: 96px; height: 96px; border-radius: 50%;
+    background: #dbe7fb; display: flex; align-items: center; justify-content: center;
+  }
+  .txt .rule-no { font-size: 18px; font-weight: 700; letter-spacing: 1.5px; color: #9aa7bd; }
+  .txt .name { font-size: 29px; font-weight: 700; margin-top: 6px; }
+  .txt .desc { font-size: 23px; color: #41506b; margin-top: 10px; line-height: 1.42; }
+
+  /* ---- CSS glyphs, brand blue ---- */
+  /* id badge */
+  .g-id { width: 58px; height: 44px; border: 4px solid #1d4ed8; border-radius: 9px;
+          position: relative; display: flex; align-items: center; padding-left: 8px; gap: 7px; }
+  .g-id .face { width: 15px; height: 15px; border-radius: 50%; background: #1d4ed8; }
+  .g-id .lines { display: flex; flex-direction: column; gap: 5px; }
+  .g-id .lines span { width: 19px; height: 4px; border-radius: 2px; background: #1d4ed8; display: block; }
+  .g-id::before { content: ""; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+                  width: 14px; height: 8px; border-radius: 3px; background: #1d4ed8; }
+
+  /* incognito hat + glasses */
+  .g-anon { display: flex; flex-direction: column; align-items: center; }
+  .g-anon .crown { width: 36px; height: 18px; background: #1d4ed8; border-radius: 7px 7px 0 0; }
+  .g-anon .brim { width: 58px; height: 7px; background: #1d4ed8; border-radius: 4px; }
+  .g-anon .glasses { display: flex; align-items: center; margin-top: 5px; }
+  .g-anon .glasses i { width: 17px; height: 17px; border: 4px solid #1d4ed8; border-radius: 50%; display: block; }
+  .g-anon .glasses b { width: 10px; height: 4px; background: #1d4ed8; display: block; }
+
+  /* speedometer */
+  .g-gauge { display: flex; flex-direction: column; align-items: center; }
+  .g-gauge .dial { width: 58px; height: 29px; border: 6px solid #1d4ed8; border-bottom: 0;
+                   border-radius: 58px 58px 0 0; position: relative; }
+  .g-gauge .dial::after { content: ""; position: absolute; bottom: -2px; left: 50%;
+                          width: 22px; height: 5px; background: #1d4ed8; border-radius: 3px;
+                          transform-origin: 2px 50%; transform: rotate(-38deg); }
+  .g-gauge .base { width: 58px; height: 5px; background: #1d4ed8; border-radius: 3px; margin-top: 2px; }
+
+  /* price tag */
+  .g-tag { width: 42px; height: 42px; background: #1d4ed8; border-radius: 8px;
+           transform: rotate(45deg); position: relative;
+           display: flex; align-items: center; justify-content: center; }
+  .g-tag::before { content: ""; position: absolute; top: 5px; left: 5px;
+                   width: 10px; height: 10px; border-radius: 50%; background: #dbe7fb; }
+  .g-tag span { transform: rotate(-45deg); color: #fff; font-size: 22px; font-weight: 700;
+                font-family: ui-monospace, SFMono-Regular, Menlo, monospace; margin-left: 8px; margin-top: 8px; }
+
+  /* ---- footer ---- */
+  footer { display: flex; justify-content: center; margin-top: 32px; }
+  .footer-pill {
+    background: #fff; border-radius: 999px; padding: 16px 38px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    font-size: 23px; color: #41506b;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .footer-pill .chip {
+    background: #dbe7fb; color: #1d4ed8; border-radius: 999px;
+    padding: 4px 18px; font-size: 21px; font-weight: 700; letter-spacing: .5px;
+  }
+</style>
+</head>
+<body>
+  <h1>Behavior rules — etiquette for buyer agents</h1>
+  <div class="subtitle">How a well-behaved 🤖 buyer agent talks to a 🏬 dealer agent</div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="badge"><div class="g-id"><div class="face"></div><div class="lines"><span></span><span></span></div></div></div>
+      <div class="txt">
+        <div class="rule-no">RULE 1</div>
+        <div class="name">Identify honestly</div>
+        <div class="desc">Send your real <code>source_agent</code> with every lead — no spoofing, no impersonation.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="badge"><div class="g-anon"><div class="crown"></div><div class="brim"></div><div class="glasses"><i></i><b></b><i></i></div></div></div>
+      <div class="txt">
+        <div class="rule-no">RULE 2</div>
+        <div class="name">Browse anonymously</div>
+        <div class="desc">Use <code>privacy.anonymous</code> for inventory queries — PII flows only behind consent.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="badge"><div class="g-gauge"><div class="dial"></div><div class="base"></div></div></div>
+      <div class="txt">
+        <div class="rule-no">RULE 3</div>
+        <div class="name">Respect the lot</div>
+        <div class="desc">Cache facets, paginate search, and honor rate limits — JSON-RPC <code>-32002</code>.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="badge"><div class="g-tag"><span>$</span></div></div>
+      <div class="txt">
+        <div class="rule-no">RULE 4</div>
+        <div class="name">Quote only the FTC-final price</div>
+        <div class="desc">Never advertise <code>msrp</code> or <code>list_price</code> as the deal — <code>price</code> is the final number.</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-pill">
+      <span class="chip">NORMATIVE</span>
+      <span>Rules are normative — dealer agents may refuse traffic that breaks them</span>
+    </div>
+  </footer>
+</body>
+</html>

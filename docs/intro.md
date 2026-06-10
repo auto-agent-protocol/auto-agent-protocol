@@ -8,9 +8,11 @@ description: What the Auto Agent Protocol is, what it standardizes, and how to c
 
 ![Buyer agent and dealership digital storefront connected by typed AAP messages](/img/v1.0/network-overview.png)
 
-**Auto Agent Protocol (AAP) is a strict A2A v1.0 profile that defines the typed automotive data shapes AI agents and car dealerships exchange when they discover, browse, and submit leads.**
+**The Auto Agent Protocol (AAP) lets AI assistants shop at car dealerships.** People increasingly ask an AI assistant to find their next car. AAP is the free, open standard that lets any of those assistants find a dealership, browse its real inventory, and — with the customer's clear permission — send the dealership a sales lead. For a dealership, joining in means publishing **one small file on your own website** and answering a few well-defined questions; no app store, no middleman, no per-partner integration work.
 
-AAP does not invent a new wire protocol. It rides on top of the [A2A](https://a2a-protocol.org) (Agent2Agent) specification: every AAP message travels inside an A2A `Message.parts[].data` value as a typed `DataPart`. A JSON-RPC 2.0 interface is REQUIRED on every AAP agent card; an HTTP+JSON/REST interface MAY be added as an optional second binding. gRPC is out of scope for v1.0.
+![Dealers go live in three steps: publish the agent card, serve the skills, receive consented leads](/img/v1.0/dealer-onboarding.png)
+
+In technical terms: AAP is a strict [A2A v1.0](https://a2a-protocol.org) (Agent2Agent) profile that defines the typed automotive data shapes AI agents and dealer agents exchange when they discover, browse, and submit leads. AAP does not invent a new wire protocol — every AAP message travels inside an A2A `Message.parts[].data` value as a typed `DataPart`. A JSON-RPC 2.0 interface is REQUIRED on every AAP agent card; an HTTP+JSON/REST interface MAY be added as an optional second binding. gRPC is out of scope for v1.0.
 
 The extension is identified by a single URI:
 
