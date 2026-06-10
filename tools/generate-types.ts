@@ -8,7 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 
 async function main() {
-  const versions = ["v0.1", "v0.2"];
+  const versions = ["v0.1", "v0.2", "v1.0"];
 
   for (const version of versions) {
     const schemasDir = resolve(ROOT, "spec", version, "schemas");

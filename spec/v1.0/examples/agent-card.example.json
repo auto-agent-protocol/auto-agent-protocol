@@ -1,0 +1,72 @@
+{
+  "name": "Demo Toyota",
+  "description": "Auto Agent Protocol dealer agent for Demo Toyota — browse inventory and submit consented leads over A2A.",
+  "supportedInterfaces": [
+    {
+      "url": "https://demo-toyota.example.com/a2a",
+      "protocolBinding": "JSONRPC",
+      "protocolVersion": "1.0"
+    },
+    {
+      "url": "https://demo-toyota.example.com/a2a",
+      "protocolBinding": "HTTP+JSON",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "provider": {
+    "organization": "Lumika AI",
+    "url": "https://lumika.ai"
+  },
+  "version": "1.0.0",
+  "documentationUrl": "https://autoagentprotocol.org/",
+  "capabilities": {
+    "extensions": [
+      {
+        "uri": "https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.0",
+        "params": {
+          "id": "0192f3c0-1a2b-7c3d-8e4f-5a6b7c8d9e0f",
+          "version": "1.0.0"
+        }
+      }
+    ]
+  },
+  "defaultInputModes": ["application/json"],
+  "defaultOutputModes": ["application/json"],
+  "skills": [
+    {
+      "id": "dealer.information",
+      "name": "Dealer Information",
+      "description": "Return the dealership profile: group name, welcome message, and rooftops with address, hours, contacts, and capabilities.",
+      "tags": ["dealer", "dealership", "profile", "hours", "contact", "locations", "automotive"],
+      "examples": ["What are your hours and address?", "Which rooftops does this dealer group have?"]
+    },
+    {
+      "id": "inventory.facets",
+      "name": "Inventory Facets",
+      "description": "Return aggregated facets (makes, models, years, conditions, price/mileage ranges, statuses) over the dealer's inventory.",
+      "tags": ["inventory", "facets", "aggregation", "filters", "automotive"],
+      "examples": ["What makes and price ranges do you have in stock?"]
+    },
+    {
+      "id": "inventory.search",
+      "name": "Inventory Search",
+      "description": "Search the dealer's vehicle inventory by make, model, year, condition, price, mileage, body, fuel, drivetrain, VIN, or stock.",
+      "tags": ["inventory", "vehicles", "search", "cars", "automotive"],
+      "examples": ["Show me used Toyota RAV4s under $30,000", "Find new electric SUVs with under 10k miles"]
+    },
+    {
+      "id": "inventory.vehicle",
+      "name": "Vehicle Detail",
+      "description": "Return full detail for a specific vehicle by VIN, stock number, or vehicle_id.",
+      "tags": ["inventory", "vehicle", "vin", "stock", "detail", "automotive"],
+      "examples": ["Get full details for VIN 1HGCM82633A004352"]
+    },
+    {
+      "id": "lead.submit",
+      "name": "Submit Lead",
+      "description": "Submit a consented lead with optional vehicle of interest, trade-in, and appointment.",
+      "tags": ["lead", "contact", "consent", "sales", "appointment", "automotive"],
+      "examples": ["I want to schedule a test drive for this vehicle"]
+    }
+  ]
+}

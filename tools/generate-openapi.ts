@@ -46,7 +46,7 @@ const REQUEST_MESSAGE_IDS: Record<string, string> = {
 };
 
 async function main() {
-  const versions = ["v0.1", "v0.2"];
+  const versions = ["v0.1", "v0.2", "v1.0"];
 
   for (const version of versions) {
     const specDir = resolve(ROOT, "spec", version);

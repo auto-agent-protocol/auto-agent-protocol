@@ -1,0 +1,85 @@
+{/* Auto-generated from lead-submit-request.schema.json. Edit the schema, not this file. */}
+
+Unified lead submission for the `lead.submit` AAP skill. A single request carries the consented customer plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment` — matching how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).
+
+Design principle: capture whatever the customer actually provided. `vehicle_of_interest`, `trade_in`, and `appointment` are entirely optional, and within them no individual field is required at the schema level — the buyer agent should pass through whatever pieces of information the user shared (a VIN, a make+model, just a year, mileage only — anything is welcome). The dealer is responsible for handling partial input gracefully.
+
+Validation rules:
+- `customer` and `consent` are always required (lead is never anonymous; consent is always required).
+- If `vehicle_of_interest.condition` is set, it MUST be one of `new`, `used`, `cpo`.
+- If `trade_in.condition` is set, it MUST be one of `excellent`, `good`, `fair`, `poor`.
+- `consent.scope` MUST be `["lead_submission"]`.
+
+Carried inside an A2A `Message.parts[].data` DataPart via `SendMessage` (JSON-RPC 2.0 or HTTP+JSON binding).
+
+<FieldCard
+  name="type"
+  type={"\`lead.submit.request\`"}
+  required={true}
+>
+  AAP message type discriminator.
+</FieldCard>
+<FieldCard
+  name="customer"
+  type={"Customer"}
+  required={true}
+>
+  Buyer contact info. Required.
+</FieldCard>
+<FieldCard
+  name="consent"
+  type={"ConsentGrant"}
+  required={true}
+>
+  Consent record covering this submission. Required. \`scope\` MUST be ["lead_submission"].
+</FieldCard>
+<FieldCard
+  name="vehicle_of_interest"
+  type={"Vehicle"}
+  required={false}
+>
+  The vehicle the buyer is interested in purchasing. Optional. Pass through whatever the customer provided (VIN alone, year+make+model, just a model name, etc.) — no individual field is required. When \`condition\` is set it MUST be one of \`new\` | \`used\` | \`cpo\`.
+</FieldCard>
+<FieldCard
+  name="trade_in"
+  type={"Vehicle"}
+  required={false}
+>
+  The vehicle the buyer wants to trade in. Optional. Pass through whatever the customer provided (just a make+model and a mileage is a perfectly valid trade-in lead). When \`condition\` is set it MUST be one of \`excellent\` | \`good\` | \`fair\` | \`poor\`. Pricing fields are typically absent on the request side and are populated by the dealer's appraisal response.
+</FieldCard>
+<FieldCard
+  name="appointment"
+  type={"Appointment"}
+  required={false}
+>
+  An appointment request the buyer wants scheduled alongside this lead. Optional. \`appointment_type\` is one of \`sales\` | \`service\` | \`test_drive\` | \`trade_in\`, and \`appointment_at\` is the requested start time. The vehicle for the appointment is implicit: \`vehicle_of_interest\` for a test drive, \`trade_in\` for a trade-in appraisal.
+</FieldCard>
+<FieldCard
+  name="message"
+  type={"string"}
+  required={false}
+>
+  Optional free-text message from the buyer to the dealer.
+</FieldCard>
+<FieldCard
+  name="source_agent"
+  type={"string"}
+  required={true}
+>
+  Identifier of the buyer agent that originated this lead (e.g. 'chatgpt-shopping', 'gemini-assistant', 'lumika-bdc'). Used for analytics and consent attribution.
+</FieldCard>
+<FieldCard
+  name="submitted_at"
+  type={"string"}
+  required={false}
+  format="date-time"
+>
+  ISO 8601 / RFC 3339 timestamp at which the buyer agent finalized this submission (e.g. '2026-04-30T11:05:08Z').
+</FieldCard>
+<FieldCard
+  name="idempotency_key"
+  type={"string"}
+  required={false}
+>
+  Optional client-generated key (UUID recommended) the dealer agent uses to dedupe retried submissions. Two requests carrying the same \`idempotency_key\` MUST produce the same response (the dealer returns the original \`lead_id\` and status). Strongly RECOMMENDED for production buyer agents that retry on network failure.
+</FieldCard>

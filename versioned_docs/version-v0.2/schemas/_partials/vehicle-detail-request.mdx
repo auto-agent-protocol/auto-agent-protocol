@@ -1,0 +1,40 @@
+{/* Auto-generated from vehicle-detail-request.schema.json. Edit the schema, not this file. */}
+
+Typed AAP request for the `inventory.vehicle` skill. The request MUST identify a specific listing via at least one of `vin`, `stock`, or `vehicle_id`. Carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
+
+<FieldCard
+  name="type"
+  type={"\`inventory.vehicle.request\`"}
+  required={true}
+>
+  
+</FieldCard>
+<FieldCard
+  name="vin"
+  type={"string"}
+  required={false}
+  pattern={"^[A-HJ-NPR-Z0-9]{17}$"}
+>
+  Vehicle Identification Number. Preferred identifier when known.
+</FieldCard>
+<FieldCard
+  name="stock"
+  type={"string"}
+  required={false}
+>
+  Dealer's stock number, used when VIN is not yet assigned (e.g. in-transit units).
+</FieldCard>
+<FieldCard
+  name="vehicle_id"
+  type={"string"}
+  required={false}
+>
+  Dealer-internal vehicle identifier.
+</FieldCard>
+<FieldCard
+  name="zip"
+  type={"string"}
+  required={false}
+>
+  Optional buyer ZIP code; when provided, the dealer MAY compute the regional offered_price field.
+</FieldCard>

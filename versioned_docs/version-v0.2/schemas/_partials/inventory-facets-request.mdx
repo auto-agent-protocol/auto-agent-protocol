@@ -1,0 +1,18 @@
+{/* Auto-generated from inventory-facets-request.schema.json. Edit the schema, not this file. */}
+
+Typed AAP request for the `inventory.facets` skill. An optional `filters` block scopes the facets to a subset of inventory (e.g. `condition: ['used']`). Carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
+
+<FieldCard
+  name="type"
+  type={"\`inventory.facets.request\`"}
+  required={true}
+>
+  
+</FieldCard>
+<FieldCard
+  name="filters"
+  type={"Filters"}
+  required={false}
+>
+  Optional filters to scope facet aggregation. Same shape as inventory.search filters; all fields are optional.
+</FieldCard>

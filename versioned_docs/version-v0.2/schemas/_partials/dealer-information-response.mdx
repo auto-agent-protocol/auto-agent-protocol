@@ -1,0 +1,25 @@
+{/* Auto-generated from dealer-information-response.schema.json. Edit the schema, not this file. */}
+
+Typed AAP response for the `dealer.information` skill. Wraps a DealerInformation object inside the standard AAP response envelope (`{ type, data, message? }`). Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
+
+<FieldCard
+  name="type"
+  type={"\`dealer.information.response\`"}
+  required={true}
+>
+  
+</FieldCard>
+<FieldCard
+  name="data"
+  type={"DealerInformation"}
+  required={true}
+>
+  
+</FieldCard>
+<FieldCard
+  name="message"
+  type={"string"}
+  required={false}
+>
+  Optional contextual note from the dealer or LLM. MAY be omitted.
+</FieldCard>

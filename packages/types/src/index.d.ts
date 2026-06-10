@@ -1,5 +1,5 @@
 // Auto-generated from JSON Schema — do not edit
-// Auto Agent Protocol v0.2
+// Auto Agent Protocol v1.0
 
 /**
  * Postal address. All fields are OPTIONAL by design — the buyer agent should pass through whatever pieces of the address are available (e.g. just a ZIP for regional pricing, or just city+state, or the full street address). The dealer is responsible for handling partial addresses gracefully.
@@ -32,7 +32,7 @@ export interface Address {
 }
 
 /**
- * Abstract base shape for every typed Auto Agent Protocol payload that travels inside an A2A DataPart. Concrete request and response schemas restrict 'type' to a constant skill-id-shaped value (e.g. inventory.search.request, lead.appointment.response). The AAP version is announced once via the agent-card extension URI ('https://autoagentprotocol.org/extensions/a2a-automotive-retail/v0.2') and reflected in schema $id URLs; it is NOT repeated on the wire. Responses additionally carry a 'data' object and an optional 'message' note. Errors use the Error schema instead.
+ * Abstract base shape for every typed Auto Agent Protocol payload that travels inside an A2A DataPart. Concrete request and response schemas restrict 'type' to a constant skill-id-shaped value (e.g. inventory.search.request, lead.appointment.response). The AAP version is announced once via the agent-card extension URI ('https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.0') and reflected in schema $id URLs; it is NOT repeated on the wire. Responses additionally carry a 'data' object and an optional 'message' note. Errors use the Error schema instead.
  */
 export interface AapMessage {
   /**
@@ -53,14 +53,14 @@ export interface AapMessage {
 }
 
 /**
- * The single vehicle interface used everywhere a vehicle is referenced — inventory.search results, inventory.vehicle detail, vehicle_of_interest, and trade_in. v0.2 merges the former Vehicle + VehicleDetail split into one shape: there is now exactly one vehicle type.
+ * The single vehicle interface used everywhere a vehicle is referenced — inventory.search results, inventory.vehicle detail, vehicle_of_interest, and trade_in. v1.0 merges the former Vehicle + VehicleDetail split into one shape: there is now exactly one vehicle type.
  *
  * Field semantics differ by context:
  * - For inventory listings (inventory.search / inventory.vehicle) `condition` MUST be one of `new`, `used`, `cpo` and `status` MUST be one of `available`, `intransit`, `pending`. Pricing fields describe the dealer's listing.
  * - For vehicle_of_interest, `condition` MUST be one of `new`, `used`, `cpo`.
  * - For trade_in, `condition` MUST be one of `excellent`, `good`, `fair`, `poor`. Pricing fields are typically absent on the request side and may be populated by the dealer's appraisal response.
  *
- * All prices are plain integers in whole US dollars (v0.2 dropped the nested {amount, currency} Money object). Context-dependent constraints are enforced at the using request/response schema. No fields are required at this base schema; `additionalProperties: true` lets inventory responses carry richer dealer-specific fields without schema changes.
+ * All prices are plain integers in whole US dollars (v1.0 dropped the nested {amount, currency} Money object). Context-dependent constraints are enforced at the using request/response schema. No fields are required at this base schema; `additionalProperties: true` lets inventory responses carry richer dealer-specific fields without schema changes.
  */
 export interface Vehicle {
   /**
@@ -88,7 +88,7 @@ export interface Vehicle {
    */
   condition?: "new" | "used" | "cpo" | "excellent" | "good" | "fair" | "poor";
   /**
-   * Inventory availability. v0.2 supports exactly three values: `available` (in stock now), `intransit` (allocated / en route to the dealership), `pending` (deal in progress). A vehicle in any other state is OUT OF STOCK and MUST NOT appear in inventory feeds — dealers omit it and buyer agents ignore any item missing or carrying an unknown status. Required on inventory listings; omitted on vehicle_of_interest and trade_in.
+   * Inventory availability. v1.0 supports exactly three values: `available` (in stock now), `intransit` (allocated / en route to the dealership), `pending` (deal in progress). A vehicle in any other state is OUT OF STOCK and MUST NOT appear in inventory feeds — dealers omit it and buyer agents ignore any item missing or carrying an unknown status. Required on inventory listings; omitted on vehicle_of_interest and trade_in.
    */
   status?: "available" | "intransit" | "pending";
   /**
@@ -172,7 +172,7 @@ export interface Vehicle {
    */
   interior_color?: string;
   /**
-   * Notable equipment and options as free-text strings (e.g. 'Adaptive Cruise Control', 'Apple CarPlay', 'Heated Front Seats'). v0.2 uses one flat list and does not separate option packages, factory equipment, or installed accessories.
+   * Notable equipment and options as free-text strings (e.g. 'Adaptive Cruise Control', 'Apple CarPlay', 'Heated Front Seats'). v1.0 uses one flat list and does not separate option packages, factory equipment, or installed accessories.
    */
   features?: string[];
   /**
@@ -203,7 +203,7 @@ export interface Vehicle {
 }
 
 /**
- * Typed AAP response for the `inventory.vehicle` skill. The `data` field is a Vehicle (v0.2 unified the former Vehicle + VehicleDetail into one type). Because it is always an inventory listing, `condition` is constrained to `new` | `used` | `cpo` and `status` (one of `available` | `intransit` | `pending`) is required. Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
+ * Typed AAP response for the `inventory.vehicle` skill. The `data` field is a Vehicle (v1.0 unified the former Vehicle + VehicleDetail into one type). Because it is always an inventory listing, `condition` is constrained to `new` | `used` | `cpo` and `status` (one of `available` | `intransit` | `pending`) is required. Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
  */
 export interface VehicleDetailResponse {
   type: "inventory.vehicle.response";
@@ -218,7 +218,7 @@ export interface VehicleDetailResponse {
 }
 
 /**
- * Typed AAP request for the `inventory.vehicle` skill. The request MUST identify a specific listing via at least one of `vin`, `stock`, or `vehicle_id`. Carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.
+ * Typed AAP request for the `inventory.vehicle` skill. The request MUST identify a specific listing via at least one of `vin`, `stock`, or `vehicle_id`. Carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
  */
 export type VehicleDetailRequest = {
   [k: string]: any;
@@ -376,7 +376,7 @@ export interface InventorySearchResponse {
 }
 
 /**
- * Typed AAP request for the `inventory.search` skill. Filters are FLAT (no nested make/model trees) and multi-value filters are arrays. Pagination uses skip/limit; sort is field+order. `privacy.anonymous` declares whether the buyer agent is sharing user identity. Carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.
+ * Typed AAP request for the `inventory.search` skill. Filters are FLAT (no nested make/model trees) and multi-value filters are arrays. Pagination uses skip/limit; sort is field+order. `privacy.anonymous` declares whether the buyer agent is sharing user identity. Carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
  */
 export interface InventorySearchRequest {
   type: "inventory.search.request";
@@ -438,7 +438,7 @@ export interface InventoryFacetsResponse {
 }
 
 /**
- * Typed AAP request for the `inventory.facets` skill. An optional `filters` block scopes the facets to a subset of inventory (e.g. `condition: ['used']`). Carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.
+ * Typed AAP request for the `inventory.facets` skill. An optional `filters` block scopes the facets to a subset of inventory (e.g. `condition: ['used']`). Carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
  */
 export interface InventoryFacetsRequest {
   type: "inventory.facets.request";
@@ -446,7 +446,7 @@ export interface InventoryFacetsRequest {
 }
 
 /**
- * Aggregated facet counts and ranges over a dealer's inventory. Returned by the `inventory.facets` AAP skill (wrapped in `inventory.facets.response`) and OPTIONALLY embedded in `inventory.search` responses. Both responses travel inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.
+ * Aggregated facet counts and ranges over a dealer's inventory. Returned by the `inventory.facets` AAP skill (wrapped in `inventory.facets.response`) and OPTIONALLY embedded in `inventory.search` responses. Both responses travel inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
  */
 export interface Facets {
   makes?: TermFacet;
@@ -475,7 +475,7 @@ export type Event = {
 } & {
   type: "aap.event";
   /**
-   * Concrete event kind. v0.2 defines two kinds; future versions may add more.
+   * Concrete event kind. v1.0 defines two kinds; future versions may add more.
    */
   event_kind: "lead.status_changed" | "appointment.status_changed";
   /**
@@ -544,7 +544,7 @@ export interface Error {
 }
 
 /**
- * Public dealership profile. v0.2 reduces this to the minimum: a dealer group `name`, an optional `welcome_message`, and one or more `rooftops` (physical locations). Per-location identity, address, geo, contacts, hours, and service capabilities live on each rooftop. Vehicles reference the rooftop that holds them via `Vehicle.rooftop` = the rooftop's `name`. Returned by the `dealer.information` AAP skill, wrapped in `dealer.information.response` and carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.
+ * Public dealership profile. v1.0 reduces this to the minimum: a dealer group `name`, an optional `welcome_message`, and one or more `rooftops` (physical locations). Per-location identity, address, geo, contacts, hours, and service capabilities live on each rooftop. Vehicles reference the rooftop that holds them via `Vehicle.rooftop` = the rooftop's `name`. Returned by the `dealer.information` AAP skill, wrapped in `dealer.information.response` and carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
  */
 export interface DealerInformation {
   /**
@@ -576,7 +576,7 @@ export interface DealerInformationResponse {
 }
 
 /**
- * Typed AAP request for the `dealer.information` skill. The request carries no parameters; it asks for the dealer's static profile. Carried inside an A2A `Message.parts[].data` DataPart via the `SendMessage` operation.
+ * Typed AAP request for the `dealer.information` skill. The request carries no parameters; it asks for the dealer's static profile. Carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
  */
 export interface DealerInformationRequest {
   /**
@@ -671,5 +671,110 @@ export interface Appointment {
    * Free-text note from the buyer (e.g. 'I'd like to bring my partner', 'parking instructions please').
    */
   notes?: string;
+}
+
+/**
+ * A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. A2A v1.0 declares every transport in 'supportedInterfaces[]' (it replaced the earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). To be a compliant AAP dealer agent, 'capabilities.extensions' MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.0'.
+ */
+export interface AgentCard {
+  /**
+   * Human-readable agent name.
+   */
+  name: string;
+  /**
+   * Short description of what this agent does.
+   */
+  description: string;
+  /**
+   * The A2A v1.0 service interfaces (transport + endpoint). AAP keeps the transport surface minimal: a JSONRPC interface is REQUIRED (every AAP client can rely on it); an HTTP+JSON interface MAY be added; gRPC is out of scope.
+   *
+   * @minItems 1
+   */
+  supportedInterfaces: [
+    {
+      /**
+       * Endpoint URL for this interface.
+       */
+      url: string;
+      /**
+       * The A2A transport binding available at this URL.
+       */
+      protocolBinding: "JSONRPC" | "HTTP+JSON";
+      /**
+       * The A2A protocol version this interface exposes (Major.Minor), e.g. '1.0'.
+       */
+      protocolVersion: string;
+      [k: string]: any;
+    },
+    ...{
+      /**
+       * Endpoint URL for this interface.
+       */
+      url: string;
+      /**
+       * The A2A transport binding available at this URL.
+       */
+      protocolBinding: "JSONRPC" | "HTTP+JSON";
+      /**
+       * The A2A protocol version this interface exposes (Major.Minor), e.g. '1.0'.
+       */
+      protocolVersion: string;
+      [k: string]: any;
+    }[]
+  ];
+  /**
+   * Organization operating the agent.
+   */
+  provider?: {
+    organization: string;
+    url: string;
+    [k: string]: any;
+  };
+  /**
+   * Agent document version string (semver recommended).
+   */
+  version: string;
+  /**
+   * URL to human-readable documentation describing this agent's behavior.
+   */
+  documentationUrl?: string;
+  /**
+   * A2A capability flags and extensions.
+   */
+  capabilities: {
+    streaming?: boolean;
+    pushNotifications?: boolean;
+    /**
+     * Declared A2A extensions. MUST include the AAP automotive-retail v1.0 entry.
+     */
+    extensions: Extension[];
+    [k: string]: any;
+  };
+  /**
+   * Default media types accepted by this agent across all skills.
+   */
+  defaultInputModes: string[];
+  /**
+   * Default media types produced by this agent across all skills.
+   */
+  defaultOutputModes: string[];
+  /**
+   * Skills the agent exposes. AAP defines 5 standard skill IDs (`dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`); a compliant agent declares the subset it implements. Buyer agents MUST inspect `skills[]` to discover what is supported.
+   */
+  skills: Skill[];
+  /**
+   * A2A security scheme definitions. AAP agents are public by default (no scheme).
+   */
+  securitySchemes?: {
+    [k: string]: any;
+  };
+  /**
+   * Required security schemes (alternatives, by name). Empty or absent means anonymous access is allowed.
+   */
+  security?: {
+    [k: string]: any;
+  }[];
+  iconUrl?: string;
+  [k: string]: any;
 }
 

@@ -1,0 +1,46 @@
+{/* Auto-generated from _primitives/address.schema.json. Edit the schema, not this file. */}
+
+Postal address. All fields are OPTIONAL by design — the buyer agent should pass through whatever pieces of the address are available (e.g. just a ZIP for regional pricing, or just city+state, or the full street address). The dealer is responsible for handling partial addresses gracefully.
+
+<FieldCard
+  name="country"
+  type={"string"}
+  required={false}
+>
+  Country code or name (e.g. 'US'). Optional; defaults to 'US' when omitted.
+</FieldCard>
+<FieldCard
+  name="state"
+  type={"string"}
+  required={false}
+>
+  State / region code or full name (e.g. 'CA' or 'California').
+</FieldCard>
+<FieldCard
+  name="city"
+  type={"string"}
+  required={false}
+>
+  City or locality (e.g. 'San Francisco').
+</FieldCard>
+<FieldCard
+  name="address_line_1"
+  type={"string"}
+  required={false}
+>
+  Primary street line (e.g. '1280 Howard Street').
+</FieldCard>
+<FieldCard
+  name="address_line_2"
+  type={"string"}
+  required={false}
+>
+  Secondary street line (suite, apartment, building, floor).
+</FieldCard>
+<FieldCard
+  name="zip"
+  type={"string"}
+  required={false}
+>
+  Postal / ZIP code (e.g. '94103' or '94103-1234').
+</FieldCard>

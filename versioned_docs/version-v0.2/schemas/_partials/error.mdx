@@ -1,0 +1,55 @@
+{/* Auto-generated from error.schema.json. Edit the schema, not this file. */}
+
+Typed AAP error payload. Returned inside an A2A error envelope (JSON-RPC 'error' member or HTTP 'application/json' error body, per A2A spec sections 9.5 and 11.6). Buyer agents use 'code' and 'retryable' to drive client behavior; humans see 'message'.
+
+<FieldCard
+  name="type"
+  type={"\`aap.error\`"}
+  required={true}
+>
+  
+</FieldCard>
+<FieldCard
+  name="error_id"
+  type={"string"}
+  required={true}
+>
+  Unique identifier for this error instance, suitable for support correlation (e.g. UUID).
+</FieldCard>
+<FieldCard
+  name="code"
+  type={"\"UNSUPPORTED_SKILL\" | \"SCHEMA_VALIDATION_FAILED\" | \"MISSING_REQUIRED_FIELD\" | \"INVALID_CONDITION\" | \"VEHICLE_NOT_FOUND\" | \"VEHICLE_UNAVAILABLE\" | \"CONTACT_CONSENT_REQUIRED\" | \"INVALID_CONSENT\" | \"APPOINTMENT_TIME_UNAVAILABLE\" | \"IDEMPOTENCY_CONFLICT\" | \"RATE_LIMITED\" | \"INTERNAL_ERROR\""}
+  required={true}
+  enumValues={["UNSUPPORTED_SKILL","SCHEMA_VALIDATION_FAILED","MISSING_REQUIRED_FIELD","INVALID_CONDITION","VEHICLE_NOT_FOUND","VEHICLE_UNAVAILABLE","CONTACT_CONSENT_REQUIRED","INVALID_CONSENT","APPOINTMENT_TIME_UNAVAILABLE","IDEMPOTENCY_CONFLICT","RATE_LIMITED","INTERNAL_ERROR"]}
+>
+  Machine-readable error code from the AAP error vocabulary.
+</FieldCard>
+<FieldCard
+  name="message"
+  type={"string"}
+  required={true}
+>
+  Human-readable error message suitable for end-user display.
+</FieldCard>
+<FieldCard
+  name="retryable"
+  type={"boolean"}
+  required={true}
+>
+  Whether the buyer agent SHOULD retry the same request after a backoff.
+</FieldCard>
+<FieldCard
+  name="details"
+  type={"any"}
+  required={false}
+>
+  Optional, code-specific details (e.g. validation failure paths). Free shape.
+</FieldCard>
+<FieldCard
+  name="created_at"
+  type={"string"}
+  required={true}
+  format="date-time"
+>
+  ISO 8601 / RFC 3339 timestamp at which the dealer agent generated this error (e.g. '2026-04-30T10:15:30Z'). MUST include a timezone offset (Z or ±HH:MM).
+</FieldCard>

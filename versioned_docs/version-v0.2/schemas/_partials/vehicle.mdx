@@ -1,0 +1,256 @@
+{/* Auto-generated from vehicle.schema.json. Edit the schema, not this file. */}
+
+The single vehicle interface used everywhere a vehicle is referenced — inventory.search results, inventory.vehicle detail, vehicle_of_interest, and trade_in. v0.2 merges the former Vehicle + VehicleDetail split into one shape: there is now exactly one vehicle type.
+
+Field semantics differ by context:
+- For inventory listings (inventory.search / inventory.vehicle) `condition` MUST be one of `new`, `used`, `cpo` and `status` MUST be one of `available`, `intransit`, `pending`. Pricing fields describe the dealer's listing.
+- For vehicle_of_interest, `condition` MUST be one of `new`, `used`, `cpo`.
+- For trade_in, `condition` MUST be one of `excellent`, `good`, `fair`, `poor`. Pricing fields are typically absent on the request side and may be populated by the dealer's appraisal response.
+
+All prices are plain integers in whole US dollars (v0.2 dropped the nested {amount, currency} Money object). Context-dependent constraints are enforced at the using request/response schema. No fields are required at this base schema; `additionalProperties: true` lets inventory responses carry richer dealer-specific fields without schema changes.
+
+<FieldCard
+  name="vin"
+  type={"string"}
+  required={false}
+  pattern={"^[A-HJ-NPR-Z0-9]{17}$"}
+>
+  Vehicle Identification Number (17 chars, ISO 3779). Optional on trade-ins; recommended on inventory listings of used vehicles.
+</FieldCard>
+<FieldCard
+  name="year"
+  type={"integer"}
+  required={false}
+>
+  Model year (e.g. 2024).
+</FieldCard>
+<FieldCard
+  name="make"
+  type={"string"}
+  required={false}
+>
+  Vehicle make / manufacturer brand (e.g. 'Honda', 'BMW', 'Ford').
+</FieldCard>
+<FieldCard
+  name="model"
+  type={"string"}
+  required={false}
+>
+  Vehicle model name (e.g. 'CR-V', '3 Series', 'F-150').
+</FieldCard>
+<FieldCard
+  name="trim"
+  type={"string"}
+  required={false}
+>
+  Trim level (e.g. 'EX-L', 'M Sport', 'Lariat').
+</FieldCard>
+<FieldCard
+  name="condition"
+  type={"\"new\" | \"used\" | \"cpo\" | \"excellent\" | \"good\" | \"fair\" | \"poor\""}
+  required={false}
+  enumValues={["new","used","cpo","excellent","good","fair","poor"]}
+>
+  Combined condition enum spanning both sale-condition and trade-in-condition vocabularies. For inventory listings and vehicle_of_interest use one of \`new\` | \`used\` | \`cpo\` (Certified Pre-Owned). For trade_in use one of \`excellent\` | \`good\` | \`fair\` | \`poor\`. The using schema enforces the correct subset by context.
+</FieldCard>
+<FieldCard
+  name="status"
+  type={"\"available\" | \"intransit\" | \"pending\""}
+  required={false}
+  enumValues={["available","intransit","pending"]}
+>
+  Inventory availability. v0.2 supports exactly three values: \`available\` (in stock now), \`intransit\` (allocated / en route to the dealership), \`pending\` (deal in progress). A vehicle in any other state is OUT OF STOCK and MUST NOT appear in inventory feeds — dealers omit it and buyer agents ignore any item missing or carrying an unknown status. Required on inventory listings; omitted on vehicle_of_interest and trade_in.
+</FieldCard>
+<FieldCard
+  name="rooftop"
+  type={"string | null"}
+  required={false}
+>
+  Which dealership location/rooftop holds this vehicle, identified by the rooftop's \`name\` from dealer.information. Nullable; single-rooftop dealers MAY leave it null.
+</FieldCard>
+<FieldCard
+  name="msrp"
+  type={"integer"}
+  required={false}
+>
+  Manufacturer's Suggested Retail Price (sticker price), whole US dollars. Inventory context.
+</FieldCard>
+<FieldCard
+  name="price"
+  type={"integer"}
+  required={false}
+>
+  FTC-emphasized FINAL out-the-door price after all incentives, mandatory fees, and required add-ons, in whole US dollars. Per FTC enforcement (CARS Rule), this field MUST reflect the total amount the buyer would pay; advertising a 'price' that excludes required fees or omits required add-ons is a violation. Inventory context.
+</FieldCard>
+<FieldCard
+  name="list_price"
+  type={"integer"}
+  required={false}
+>
+  Dealer's advertised list price; the base price BEFORE incentives, taxes, or fees, in whole US dollars. Inventory context.
+</FieldCard>
+<FieldCard
+  name="offered_price"
+  type={"integer"}
+  required={false}
+>
+  Regional price equal to list_price plus applicable taxes for the buyer's \`zip\`, in whole US dollars, when the dealer enables desking. Present only if a \`zip\` is supplied AND the dealer supports regional pricing. Inventory context.
+</FieldCard>
+<FieldCard
+  name="zip"
+  type={"string"}
+  required={false}
+  pattern={"^\\d{5}(-\\d{4})?$"}
+>
+  Buyer ZIP code used to compute regional pricing fields (\`offered_price\`). US ZIP, 5 digits or ZIP+4. Optional; when absent, regional pricing fields MUST be omitted.
+</FieldCard>
+<FieldCard
+  name="stock"
+  type={"string"}
+  required={false}
+>
+  Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts.
+</FieldCard>
+<FieldCard
+  name="dealer_id"
+  type={"string"}
+  required={false}
+>
+  Stable identifier of the dealer that owns this listing. Inventory context.
+</FieldCard>
+<FieldCard
+  name="vehicle_id"
+  type={"string"}
+  required={false}
+>
+  Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).
+</FieldCard>
+<FieldCard
+  name="mileage"
+  type={"integer"}
+  required={false}
+>
+  Odometer reading in miles. Required for trade-ins; typical on used inventory.
+</FieldCard>
+<FieldCard
+  name="body"
+  type={"string"}
+  required={false}
+>
+  Body style as text (e.g. 'sedan', 'suv', 'truck', 'coupe', 'hatchback', 'wagon', 'minivan', 'convertible').
+</FieldCard>
+<FieldCard
+  name="transmission"
+  type={"string"}
+  required={false}
+>
+  Transmission type as text (e.g. 'automatic', 'manual', '8-speed automatic', 'cvt').
+</FieldCard>
+<FieldCard
+  name="driveline"
+  type={"string"}
+  required={false}
+>
+  Drivetrain layout (e.g. 'fwd', 'rwd', 'awd', '4wd').
+</FieldCard>
+<FieldCard
+  name="engine"
+  type={"string"}
+  required={false}
+>
+  Engine description (e.g. '2.0L Turbo I4', '3.5L V6 Hybrid').
+</FieldCard>
+<FieldCard
+  name="fuel"
+  type={"string"}
+  required={false}
+>
+  Fuel type (e.g. 'gas', 'diesel', 'hybrid', 'phev', 'bev').
+</FieldCard>
+<FieldCard
+  name="city_mpg"
+  type={"integer"}
+  required={false}
+>
+  EPA city fuel-economy estimate in miles per gallon. Omit for fully electric vehicles (use \`electric_range_mi\`).
+</FieldCard>
+<FieldCard
+  name="highway_mpg"
+  type={"integer"}
+  required={false}
+>
+  EPA highway fuel-economy estimate in miles per gallon. Omit for fully electric vehicles (use \`electric_range_mi\`).
+</FieldCard>
+<FieldCard
+  name="electric_range_mi"
+  type={"number"}
+  required={false}
+>
+  Estimated electric range in miles, for BEV and PHEV vehicles.
+</FieldCard>
+<FieldCard
+  name="exterior_color"
+  type={"string"}
+  required={false}
+>
+  Free-text exterior color name.
+</FieldCard>
+<FieldCard
+  name="interior_color"
+  type={"string"}
+  required={false}
+>
+  Free-text interior color or upholstery name.
+</FieldCard>
+<FieldCard
+  name="features"
+  type={"string[]"}
+  required={false}
+>
+  Notable equipment and options as free-text strings (e.g. 'Adaptive Cruise Control', 'Apple CarPlay', 'Heated Front Seats'). v0.2 uses one flat list and does not separate option packages, factory equipment, or installed accessories.
+</FieldCard>
+<FieldCard
+  name="photos"
+  type={"string[]"}
+  required={false}
+>
+  Public URLs of vehicle photos, ordered by relevance.
+</FieldCard>
+<FieldCard
+  name="vdp_url"
+  type={"string"}
+  required={false}
+  format="uri"
+>
+  Public Vehicle Detail Page (VDP) URL on the dealer's website.
+</FieldCard>
+<FieldCard
+  name="description"
+  type={"string"}
+  required={false}
+>
+  Human-readable description / dealer marketing copy.
+</FieldCard>
+<FieldCard
+  name="notes"
+  type={"string"}
+  required={false}
+>
+  Dealer notes (e.g. 'recently arrived', 'service history available').
+</FieldCard>
+<FieldCard
+  name="inventory_date"
+  type={"string"}
+  required={false}
+  format="date"
+>
+  Date (RFC 3339 full-date, e.g. '2026-04-21') the vehicle first appeared in the dealership's inventory.
+</FieldCard>
+<FieldCard
+  name="updated_at"
+  type={"string"}
+  required={false}
+  format="date-time"
+>
+  ISO 8601 / RFC 3339 timestamp (with timezone offset) of the last update to this vehicle's availability, price, or status (e.g. '2026-04-30T08:42:00Z'). Buyer agents treat this as the freshness signal for availability claims.
+</FieldCard>

@@ -51,15 +51,16 @@ const config: Config = {
           editUrl:
             "https://github.com/auto-agent-protocol/auto-agent-protocol/tree/main/",
           // The `current` docs (the `docs/` folder) are the actively-edited
-          // v0.2. `lastVersion: "current"` makes v0.2 the default served at the
-          // docs root and the version the dropdown opens on. The frozen v0.1
-          // lives in `versioned_docs/version-v0.1/` (listed in versions.json)
-          // and is reachable via the version dropdown at /docs/v0.1/*.
+          // v1.0.0. `lastVersion: "current"` makes v1.0 the default served at
+          // the docs root and the version the dropdown opens on. The frozen
+          // v0.1 and v0.2 live in `versioned_docs/version-*` (listed in
+          // versions.json) and are reachable via the version dropdown at
+          // /docs/v0.1/* and /docs/v0.2/*.
           lastVersion: "current",
           versions: {
             current: {
-              label: "v0.2",
-              path: "v0.2",
+              label: "v1.0.0",
+              path: "v1.0",
             },
           },
         },
@@ -76,10 +77,10 @@ const config: Config = {
       "@docusaurus/plugin-client-redirects",
       {
         createRedirects(existingPath: string) {
-          // Alias the latest version (v0.2) under /docs/latest/* so consumers
+          // Alias the latest version (v1.0) under /docs/latest/* so consumers
           // can deep-link to the most recent docs without pinning a version.
-          if (existingPath.startsWith("/docs/v0.2/")) {
-            return [existingPath.replace("/docs/v0.2/", "/docs/latest/")];
+          if (existingPath.startsWith("/docs/v1.0/")) {
+            return [existingPath.replace("/docs/v1.0/", "/docs/latest/")];
           }
           return undefined;
         },

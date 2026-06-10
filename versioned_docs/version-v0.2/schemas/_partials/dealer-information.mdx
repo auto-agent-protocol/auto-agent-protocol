@@ -1,0 +1,25 @@
+{/* Auto-generated from dealer-information.schema.json. Edit the schema, not this file. */}
+
+Public dealership profile. v0.2 reduces this to the minimum: a dealer group `name`, an optional `welcome_message`, and one or more `rooftops` (physical locations). Per-location identity, address, geo, contacts, hours, and service capabilities live on each rooftop. Vehicles reference the rooftop that holds them via `Vehicle.rooftop` = the rooftop's `name`. Returned by the `dealer.information` AAP skill, wrapped in `dealer.information.response` and carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
+
+<FieldCard
+  name="name"
+  type={"string"}
+  required={true}
+>
+  Dealer group / business name shown to buyers (e.g. 'Demo Auto Group').
+</FieldCard>
+<FieldCard
+  name="welcome_message"
+  type={"string"}
+  required={false}
+>
+  Optional greeting a buyer agent MAY surface to the user (e.g. 'Welcome to Demo Auto Group — happy to help by phone, video, or in person.').
+</FieldCard>
+<FieldCard
+  name="rooftops"
+  type={"Rooftop[]"}
+  required={true}
+>
+  One or more dealership locations (rooftops). A single-location dealer has one entry; a multi-rooftop group lists each store.
+</FieldCard>

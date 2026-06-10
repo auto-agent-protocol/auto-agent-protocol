@@ -1,0 +1,49 @@
+{/* Auto-generated from customer.schema.json. Edit the schema, not this file. */}
+
+Buyer/customer contact info attached to a `lead.submit.request` (which travels inside an A2A `Message.parts[].data` DataPart). At least one of email or phone MUST be present. When customer is present a ConsentGrant MUST also be present.
+
+<FieldCard
+  name="first_name"
+  type={"string"}
+  required={true}
+>
+  Customer's first name.
+</FieldCard>
+<FieldCard
+  name="last_name"
+  type={"string"}
+  required={true}
+>
+  Customer's last name.
+</FieldCard>
+<FieldCard
+  name="email"
+  type={"string"}
+  required={false}
+  format="email"
+>
+  Customer email (RFC 5322).
+</FieldCard>
+<FieldCard
+  name="phone"
+  type={"string"}
+  required={false}
+  pattern={"^\\+[1-9]\\d{1,14}$"}
+>
+  Customer phone in E.164 format, e.g. +14155550123.
+</FieldCard>
+<FieldCard
+  name="preferred_contact"
+  type={"\"email\" | \"phone\" | \"sms\" | \"any\""}
+  required={false}
+  enumValues={["email","phone","sms","any"]}
+>
+  Channel preferred for follow-up. 'sms' is treated as text-message via 'phone'.
+</FieldCard>
+<FieldCard
+  name="address"
+  type={"Address"}
+  required={false}
+>
+  Optional postal address (used for residency, registration, or remote delivery).
+</FieldCard>

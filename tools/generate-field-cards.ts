@@ -96,7 +96,7 @@ function renderCardMdx(field: FieldDef): string {
 
 async function main() {
   // Field-card partials render the CURRENT (latest) docs version only.
-  const versions = ["v0.2"];
+  const versions = ["v1.0"];
 
   for (const version of versions) {
     const schemasDir = resolve(ROOT, "spec", version, "schemas");

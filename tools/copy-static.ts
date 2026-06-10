@@ -9,7 +9,7 @@ const ROOT = resolve(__dirname, "..");
 // The HIGHEST released version. Mirrored at /latest so consumers can deep-link
 // to the most recent stable URL without pinning a version. v0.1 still serves at
 // /v0.1 unchanged for consumers pinned to it.
-const LATEST_VERSION = "v0.2";
+const LATEST_VERSION = "v1.0";
 
 async function copyVersion(version: string, destLabel: string): Promise<void> {
   const specDir = resolve(ROOT, "spec", version);
@@ -49,7 +49,7 @@ async function copyVersion(version: string, destLabel: string): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const versions = ["v0.1", "v0.2"];
+  const versions = ["v0.1", "v0.2", "v1.0"];
 
   for (const version of versions) {
     await copyVersion(version, version);

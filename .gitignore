@@ -14,5 +14,6 @@ dist/
 generated/
 static/v0.1/
 static/v0.2/
+static/v1.0/
 static/latest/
 docs/schemas/_partials/

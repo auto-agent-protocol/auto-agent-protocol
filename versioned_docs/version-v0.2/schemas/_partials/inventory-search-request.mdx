@@ -1,0 +1,39 @@
+{/* Auto-generated from inventory-search-request.schema.json. Edit the schema, not this file. */}
+
+Typed AAP request for the `inventory.search` skill. Filters are FLAT (no nested make/model trees) and multi-value filters are arrays. Pagination uses skip/limit; sort is field+order. `privacy.anonymous` declares whether the buyer agent is sharing user identity. Carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
+
+<FieldCard
+  name="type"
+  type={"\`inventory.search.request\`"}
+  required={true}
+>
+  
+</FieldCard>
+<FieldCard
+  name="filters"
+  type={"Filters"}
+  required={false}
+>
+  Optional filter block. All fields optional; absent fields mean 'no constraint'.
+</FieldCard>
+<FieldCard
+  name="pagination"
+  type={"object"}
+  required={false}
+>
+  Result paging. Default values are dealer-defined; spec recommends limit defaults <= 50 and limit cap of 100.
+</FieldCard>
+<FieldCard
+  name="sort"
+  type={"object"}
+  required={false}
+>
+  Result ordering. Default ordering is dealer-defined.
+</FieldCard>
+<FieldCard
+  name="privacy"
+  type={"object"}
+  required={false}
+>
+  Privacy hints from the buyer agent. AAP RECOMMENDS anonymous searches by default; user identity is only attached when a lead is submitted.
+</FieldCard>
