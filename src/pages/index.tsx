@@ -30,7 +30,7 @@ function Hero() {
           </div>
           <div className={styles.heroImage}>
             <img
-              src="/img/hero.png"
+              src="/img/v1.0/hero.png"
               alt="A buyer agent and a dealership digital storefront connected by typed AAP messages"
               width="1376"
               height="768"
@@ -114,7 +114,7 @@ function Skills() {
           </div>
           <div className="col col--7">
             <img
-              src="/img/v0.2/skills-overview.png"
+              src="/img/v1.0/skills-overview.png"
               alt="Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit"
               className={styles.fullImage}
               width="1376"
@@ -136,7 +136,7 @@ function Pricing() {
         <div className="row">
           <div className="col col--7">
             <img
-              src="/img/pricing-ladder.png"
+              src="/img/v1.0/pricing-ladder.png"
               alt="Vehicle pricing ladder: msrp, list_price, offered_price, and the FTC-final price"
               className={styles.fullImage}
               width="1376"

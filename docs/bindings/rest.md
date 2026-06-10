@@ -1,38 +1,45 @@
 ---
 sidebar_position: 2
 title: HTTP+JSON (REST) binding
-description: How to invoke each AAP skill over A2A's HTTP+JSON binding (Section 11 of the A2A spec) using a single POST /message:send endpoint.
+description: How to invoke each AAP skill over A2A's optional HTTP+JSON binding (Section 11 of the A2A spec) using a single POST /message:send endpoint.
 ---
 
 # HTTP+JSON (REST) binding
 
-![Same AAP payload feeding two transports: JSON-RPC 2.0 on the left, HTTP+JSON on the right](/img/bindings-comparison.png)
+![Same AAP payload feeding two transports: JSON-RPC 2.0 on the left, HTTP+JSON on the right](/img/v1.0/bindings-comparison.png)
 
 A2A defines an HTTP+JSON binding in [Section 11](https://a2a-protocol.org/specification#section-11) of its specification. Every A2A operation maps to a single HTTP route. AAP rides on this binding without modification: every skill is invoked via `POST /message:send` with the AAP request packaged as a typed `DataPart` inside `message.parts[]`.
 
-:::info What changed in A2A v1.0
-A2A v1.0 reshaped the body of `POST /message:send`. The URL path stays the same; the inner `Message` shape changed. AAP examples on this page reflect the new shape; see [A2A spec §A.2.1 — Breaking Change: Kind Discriminator Removed](https://a2a-protocol.org/latest/specification/#a21-breaking-change-kind-discriminator-removed) for the source of truth.
+:::note HTTP+JSON is the OPTIONAL binding
+In AAP v1.0, the [JSON-RPC binding](json-rpc.md) is **REQUIRED** on every AAP agent card; an agent **MAY** additionally expose an HTTP+JSON interface as described on this page. Buyer agents **MUST NOT** require HTTP+JSON support, and gRPC is out of scope.
 
-| Aspect | Legacy (v0.3.x) | Current (v1.0) |
-|---|---|---|
-| Method name (JSON-RPC) | `message/send` | `SendMessage` |
-| URL (HTTP+JSON) | `POST /message:send` | `POST /message:send` (unchanged) |
-| Role | `user` / `agent` | `ROLE_USER` / `ROLE_AGENT` |
-| Part discriminator | per-part `kind: "data"` field | member-name discriminator (no `kind`) |
-| `messageId` | optional | required on every `Message` |
-| `mediaType` on DataPart | absent | `application/vnd.autoagent.<skill>-request+json` |
+AAP uses exactly **one** A2A operation: `SendMessage` — a request `Message` in, a response `Message` out (`POST {base}/message:send` in this binding). The rest of the optional A2A surface (`SendStreamingMessage`, tasks Get/List/Cancel/Subscribe, push notification configs, `GetExtendedAgentCard`) is **out of scope** for AAP v1.0: dealer agents do not need to implement it and buyer agents MUST NOT require it.
+:::
+
+:::info A2A wire format — A2A v1.0 ProtoJSON form
+AAP rides on **A2A v1.0**. Use the v1.0 ProtoJSON form that the A2A SDKs (`a2a-js`, `a2a-python`) and clients (Claude, ChatGPT, Gemini, Perplexity) send and parse. A compliant AAP agent **MUST** emit this single canonical form so any A2A client can parse its replies. There is one wire form — no `kind` discriminators, `Role` is an enum name, and the response is wrapped under `message`.
+
+| Aspect | A2A v1.0 ProtoJSON form |
+|---|---|
+| URL (HTTP+JSON) | `POST /message:send` |
+| Role | `"ROLE_USER"` / `"ROLE_AGENT"` |
+| Part discriminator | member-name (the `data` member); no `kind` |
+| Message discriminator | (none); no `kind` |
+| Response body | `SendMessageResponse`: `{ "message": <Message> }` |
+| `messageId` | required on every `Message` |
+| `mediaType` on DataPart | `application/vnd.autoagent.<skill>-request+json` |
 :::
 
 ## Endpoint
 
-A dealer agent advertises one or more HTTP+JSON endpoints under `supportedInterfaces[]` of its [agent card](../discovery.md). Each entry has `protocolBinding: "HTTP+JSON"` and a `url` for the base.
+A dealer agent that opts into this binding advertises one or more HTTP+JSON endpoints under `supportedInterfaces[]` of its [agent card](../discovery.md), alongside its required JSONRPC interface. Each HTTP+JSON entry has `protocolBinding: "HTTP+JSON"` and a `url` for the base.
 
 ```
 POST {base_url}/message:send
 Content-Type: application/json
 ```
 
-The body has two top-level keys: `message` (an A2A `Message`) and `configuration` (the buyer's accepted output modes):
+The body is an A2A `SendMessageRequest` with two top-level keys: `message` (an A2A `Message`) and `configuration` (the buyer's accepted output modes):
 
 ```json
 {
@@ -50,12 +57,14 @@ The body has two top-level keys: `message` (an A2A `Message`) and `configuration
     ]
   },
   "configuration": {
-    "acceptedOutputModes": ["application/vnd.autoagent.<skill>-response+json"]
+    "acceptedOutputModes": [
+      "application/vnd.autoagent.<skill>-response+json"
+    ]
   }
 }
 ```
 
-The response is an A2A `Message` wrapped in a top-level `message` key:
+The response body is an A2A `SendMessageResponse`, which wraps the agent `Message` under `message`:
 
 ```json
 {
@@ -66,7 +75,9 @@ The response is an A2A `Message` wrapped in a top-level `message` key:
       {
         "data": {
           "type": "<scope>.<thing>.response",
-          "data": { "...": "skill-specific response data" }
+          "data": {
+            "...": "skill-specific response data"
+          }
         },
         "mediaType": "application/vnd.autoagent.<skill>-response+json"
       }
@@ -251,7 +262,7 @@ curl -X POST https://demo-toyota.example.com/a2a/message:send \
 
 ## Successful response shape
 
-A successful HTTP+JSON response uses HTTP status `200 OK` and returns a top-level `message` object whose value is an A2A `Message`:
+A successful HTTP+JSON response uses HTTP status `200 OK` and its body is an A2A `SendMessageResponse`: a top-level `message` object whose value is the agent's A2A `Message`:
 
 ```http
 HTTP/1.1 200 OK

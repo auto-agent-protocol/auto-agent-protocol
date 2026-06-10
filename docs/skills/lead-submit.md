@@ -7,14 +7,16 @@ description: Unified consented lead. Carries customer info plus any combination 
 # `lead.submit`
 
 :::info A2A invocation
-This skill is invoked through A2A's `SendMessage` operation (`SendMessage` JSON-RPC method or `POST /message:send` over HTTP+JSON), not a dedicated REST URL. The same payload travels on either A2A binding — see [JSON-RPC binding](../bindings/json-rpc.md) or [REST binding](../bindings/rest.md). AAP only defines what goes inside `Message.parts[].data`.
+This skill is invoked through A2A's `SendMessage` operation — the only A2A operation AAP uses — not a dedicated REST URL. Every AAP agent card MUST expose a JSON-RPC interface (`SendMessage` method); an HTTP+JSON interface (`POST {base}/message:send`) MAY be added. The same payload travels on either binding — see [JSON-RPC binding](../bindings/json-rpc.md) (required) or [REST binding](../bindings/rest.md) (optional). AAP only defines what goes inside `Message.parts[].data`.
 :::
 
-![Consent gate: anonymous browsing on the left, ConsentGrant in the middle, consented lead on the right](/img/consent-gate.png)
+![A consented lead end to end: ConsentGrant, lead.submit request, dealer validation, lead_id response, ADF/XML to the dealer CRM](/img/v1.0/lead-lifecycle.png)
 
-The `lead.submit` skill is the **single, unified** lead-capture entry point in AAP v0.2. A buyer agent submits one request containing the consented `customer` plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment`. This matches how dealerships actually take leads: a shopper test-driving a new car often wants their old car appraised in the same visit.
+![Consent gate: anonymous browsing on the left, ConsentGrant in the middle, consented lead on the right](/img/v1.0/consent-gate.png)
 
-`lead.submit` replaces the early-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment` with a single contract.
+The `lead.submit` skill is the **single, unified** lead-capture entry point in AAP v1.0.0. A buyer agent submits one request containing the consented `customer` plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment`. This matches how dealerships actually take leads: a shopper test-driving a new car often wants their old car appraised in the same visit.
+
+`lead.submit` replaced the early-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment` with a single contract, which AAP v1.0.0 carries forward unchanged.
 
 | Property | Value |
 |---|---|
@@ -55,7 +57,7 @@ For the field-by-field ADF/XML mapping, see [ADF mapping](../compatibility/adf-m
 | `source_agent` | string | yes | Buyer agent identifier (e.g. `chatgpt-shopping`, `gemini-assistant`). |
 | `submitted_at` | date-time | no | Buyer-agent timestamp at submission. |
 
-The unified `Vehicle` interface is the same shape used by `inventory.search` results — see the [Vehicle schema source](https://autoagentprotocol.org/v0.2/schemas/vehicle.schema.json). Both `vehicle_of_interest` and `trade_in` use this shape; only the valid `condition` enum subset differs.
+The unified `Vehicle` interface is the same shape used by `inventory.search` results — see the [Vehicle schema source](https://autoagentprotocol.org/v1.0/schemas/vehicle.schema.json). Both `vehicle_of_interest` and `trade_in` use this shape; only the valid `condition` enum subset differs.
 
 ## Response shape
 
@@ -227,7 +229,7 @@ Real shopping flows naturally bundle the inquiry, the trade-in, and the appointm
 - **Consent friction** — users sign off 3 disclosures for one decision.
 - **Race conditions** — the appointment may be booked before the lead arrives, or vice-versa.
 
-A single `lead.submit` lets the dealer transactionally accept the lead, queue the trade-in for appraisal, and confirm or propose the appointment in one round trip. v0.2 keeps the contract tight by NOT supporting multi-vehicle leads (one `vehicle_of_interest` per submission); send N requests for N vehicles.
+A single `lead.submit` lets the dealer transactionally accept the lead, queue the trade-in for appraisal, and confirm or propose the appointment in one round trip. v1.0 keeps the contract tight by NOT supporting multi-vehicle leads (one `vehicle_of_interest` per submission); send N requests for N vehicles.
 
 ## Consent and channel rules
 

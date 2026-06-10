@@ -6,20 +6,26 @@ description: How to invoke each AAP skill over A2A's JSON-RPC 2.0 binding (Secti
 
 # JSON-RPC 2.0 binding
 
-![Same AAP payload feeding two transports: JSON-RPC 2.0 on the left, HTTP+JSON on the right](/img/bindings-comparison.png)
+![Same AAP payload feeding two transports: JSON-RPC 2.0 on the left, HTTP+JSON on the right](/img/v1.0/bindings-comparison.png)
 
-A2A defines a JSON-RPC 2.0 binding in [Section 9](https://a2a-protocol.org/specification#section-9) of its specification. AAP rides on top of it without modification: every skill is invoked via the `SendMessage` JSON-RPC method, with the AAP request packaged as a typed `DataPart` inside `params.message.parts[]`.
+A2A defines a JSON-RPC 2.0 binding in [Section 9](https://a2a-protocol.org/specification#section-9) of its specification. AAP rides on top of **A2A v1.0** without modification: every skill is invoked via the `SendMessage` JSON-RPC method, with the AAP request packaged as a typed `DataPart` inside `params.message.parts[]`.
 
-:::info What changed in A2A v1.0
-A2A v1.0 reshaped the JSON-RPC wire format. AAP examples on this page reflect the new shape; see [A2A spec §A.2.1 — Breaking Change: Kind Discriminator Removed](https://a2a-protocol.org/latest/specification/#a21-breaking-change-kind-discriminator-removed) for the source of truth.
+:::note JSON-RPC is the REQUIRED binding
+A JSON-RPC interface is **REQUIRED** on every AAP agent card: `supportedInterfaces[]` MUST include at least one entry with `protocolBinding: "JSONRPC"`. An [HTTP+JSON interface](rest.md) MAY be added as an OPTIONAL second binding; gRPC is out of scope for AAP v1.0.
+:::
 
-| Aspect | Legacy (v0.3.x) | Current (v1.0) |
-|---|---|---|
-| Method name | `message/send` | `SendMessage` |
-| Role | `"user"` / `"agent"` | `"ROLE_USER"` / `"ROLE_AGENT"` |
-| Part discriminator | per-part `kind: "data"` field | member-name discriminator (no `kind`) |
-| `messageId` | optional | required on every `Message` |
-| `mediaType` on DataPart | absent | `application/vnd.autoagent.<skill>-request+json` |
+:::info A2A v1.0 wire format — the ProtoJSON form
+AAP rides on A2A v1.0, whose single canonical wire format is the ProtoJSON form: the method is `SendMessage`, `Role` is the enum name `"ROLE_USER"` / `"ROLE_AGENT"`, and a `Part` has no `kind` discriminator (it is typed by the member it carries — AAP uses the `data` member). A compliant AAP agent **MUST** emit and accept this form so any A2A v1.0 client can parse its replies.
+
+| Aspect | A2A v1.0 (ProtoJSON) |
+|---|---|
+| Method name | `SendMessage` |
+| Role | `"ROLE_USER"` / `"ROLE_AGENT"` |
+| Part discriminator | member-name (no `kind`) |
+| Message discriminator | (none — no `kind`) |
+| `result` (JSON-RPC) | the `SendMessageResponse`, i.e. `{ "message": <Message> }` |
+| `messageId` | required on every `Message` |
+| `mediaType` on DataPart | `application/vnd.autoagent.<skill>-request+json` |
 :::
 
 ## Endpoint and method
@@ -36,6 +42,8 @@ All AAP skills use a single JSON-RPC method:
 ```
 "method": "SendMessage"
 ```
+
+`SendMessage` is the **only** A2A operation AAP uses (message-only pattern: request `Message` in, response `Message` out). The optional A2A surface — `SendStreamingMessage`, the `tasks` operations (Get/List/Cancel/Subscribe), push notification configs, and `GetExtendedAgentCard` — is out of scope for AAP v1.0: dealer agents do not need to implement it, and buyer agents MUST NOT require it.
 
 The `id` field is the standard JSON-RPC request id; AAP does not constrain it. The `params.message` is an A2A `Message` whose first `parts[]` entry is the typed AAP `DataPart`. A buyer agent MUST also include `params.configuration.acceptedOutputModes` listing the AAP response media type it expects.
 
@@ -63,13 +71,15 @@ Every AAP request looks like this on the wire:
       ]
     },
     "configuration": {
-      "acceptedOutputModes": ["application/vnd.autoagent.<skill>-response+json"]
+      "acceptedOutputModes": [
+        "application/vnd.autoagent.<skill>-response+json"
+      ]
     }
   }
 }
 ```
 
-The response wraps an A2A `Message` in `result.message`:
+The JSON-RPC `result` is the `SendMessageResponse`, which ProtoJSON serializes as `{ "message": <Message> }` — so the agent `Message` is wrapped under `result.message`:
 
 ```json
 {
@@ -83,7 +93,9 @@ The response wraps an A2A `Message` in `result.message`:
         {
           "data": {
             "type": "<scope>.<thing>.response",
-            "data": { "...": "skill-specific response data" }
+            "data": {
+              "...": "skill-specific response data"
+            }
           },
           "mediaType": "application/vnd.autoagent.<skill>-response+json"
         }
@@ -120,7 +132,9 @@ The remainder of this page shows the full envelope for each of the five skills.
       ]
     },
     "configuration": {
-      "acceptedOutputModes": ["application/vnd.autoagent.dealer-information-response+json"]
+      "acceptedOutputModes": [
+        "application/vnd.autoagent.dealer-information-response+json"
+      ]
     }
   }
 }
@@ -147,9 +161,22 @@ The remainder of this page shows the full envelope for each of the five skills.
                   "name": "Demo Toyota San Francisco",
                   "legal_name": "Demo Toyota of San Francisco, LLC",
                   "website": "https://demo-toyota.example.com",
-                  "geo": { "latitude": 37.77, "longitude": -122.41 },
-                  "emails": [{ "name": "Sales", "value": "sales@demo-toyota.example.com" }],
-                  "phones": [{ "name": "Sales", "value": "+14155550100" }],
+                  "geo": {
+                    "latitude": 37.77,
+                    "longitude": -122.41
+                  },
+                  "emails": [
+                    {
+                      "name": "Sales",
+                      "value": "sales@demo-toyota.example.com"
+                    }
+                  ],
+                  "phones": [
+                    {
+                      "name": "Sales",
+                      "value": "+14155550100"
+                    }
+                  ],
                   "address": {
                     "country": "US",
                     "state": "CA",
@@ -158,7 +185,12 @@ The remainder of this page shows the full envelope for each of the five skills.
                     "zip": "94105"
                   },
                   "timezone": "America/Los_Angeles",
-                  "capabilities": ["sales", "service", "financing", "trade_in"]
+                  "capabilities": [
+                    "sales",
+                    "service",
+                    "financing",
+                    "trade_in"
+                  ]
                 }
               ]
             }
@@ -188,14 +220,20 @@ The remainder of this page shows the full envelope for each of the five skills.
         {
           "data": {
             "type": "inventory.facets.request",
-            "filters": { "condition": ["used"] }
+            "filters": {
+              "condition": [
+                "used"
+              ]
+            }
           },
           "mediaType": "application/vnd.autoagent.inventory-facets-request+json"
         }
       ]
     },
     "configuration": {
-      "acceptedOutputModes": ["application/vnd.autoagent.inventory-facets-response+json"]
+      "acceptedOutputModes": [
+        "application/vnd.autoagent.inventory-facets-response+json"
+      ]
     }
   }
 }
@@ -216,10 +254,30 @@ The remainder of this page shows the full envelope for each of the five skills.
           "data": {
             "type": "inventory.facets.response",
             "data": {
-              "makes": [{ "value": "Honda", "count": 12 }, { "value": "Toyota", "count": 27 }],
-              "conditions": [{ "value": "used", "count": 39 }],
-              "year_range": { "min": 2015, "max": 2024 },
-              "price_range": { "min": 9990, "max": 38990 }
+              "makes": [
+                {
+                  "value": "Honda",
+                  "count": 12
+                },
+                {
+                  "value": "Toyota",
+                  "count": 27
+                }
+              ],
+              "conditions": [
+                {
+                  "value": "used",
+                  "count": 39
+                }
+              ],
+              "year_range": {
+                "min": 2015,
+                "max": 2024
+              },
+              "price_range": {
+                "min": 9990,
+                "max": 38990
+              }
             }
           },
           "mediaType": "application/vnd.autoagent.inventory-facets-response+json"
@@ -248,21 +306,36 @@ The remainder of this page shows the full envelope for each of the five skills.
           "data": {
             "type": "inventory.search.request",
             "filters": {
-              "make": ["Honda"],
-              "condition": ["used", "cpo"],
+              "make": [
+                "Honda"
+              ],
+              "condition": [
+                "used",
+                "cpo"
+              ],
               "year_min": 2020,
               "price_max": 30000
             },
-            "pagination": { "skip": 0, "limit": 20 },
-            "sort": { "field": "price", "order": "asc" },
-            "privacy": { "anonymous": true }
+            "pagination": {
+              "skip": 0,
+              "limit": 20
+            },
+            "sort": {
+              "field": "price",
+              "order": "asc"
+            },
+            "privacy": {
+              "anonymous": true
+            }
           },
           "mediaType": "application/vnd.autoagent.inventory-search-request+json"
         }
       ]
     },
     "configuration": {
-      "acceptedOutputModes": ["application/vnd.autoagent.inventory-search-response+json"]
+      "acceptedOutputModes": [
+        "application/vnd.autoagent.inventory-search-response+json"
+      ]
     }
   }
 }
@@ -339,7 +412,9 @@ The remainder of this page shows the full envelope for each of the five skills.
       ]
     },
     "configuration": {
-      "acceptedOutputModes": ["application/vnd.autoagent.vehicle-detail-response+json"]
+      "acceptedOutputModes": [
+        "application/vnd.autoagent.vehicle-detail-response+json"
+      ]
     }
   }
 }
@@ -377,7 +452,11 @@ The remainder of this page shows the full envelope for each of the five skills.
               "rooftop": "Demo Toyota San Francisco",
               "city_mpg": 31,
               "highway_mpg": 40,
-              "features": ["Adaptive Cruise Control", "Apple CarPlay", "Lane Keep Assist"],
+              "features": [
+                "Adaptive Cruise Control",
+                "Apple CarPlay",
+                "Lane Keep Assist"
+              ],
               "vdp_url": "https://demo-toyota.example.com/inventory/T12345",
               "inventory_date": "2026-04-12",
               "updated_at": "2026-04-30T10:15:00Z"
@@ -425,18 +504,28 @@ The unified lead carries customer info plus any combination of `vehicle_of_inter
             },
             "consent": {
               "granted_at": "2026-04-30T10:16:00Z",
-              "allowed_channels": ["email", "phone"],
+              "allowed_channels": [
+                "email",
+                "phone"
+              ],
               "consent_text": "I agree to share my contact info with Demo Toyota about VIN 1HGCY2F57RA000001, my Saturday test drive, and the trade-in of my 2014 Toyota Corolla.",
               "source_agent": "chatgpt-shopping",
-              "scope": ["lead_submission"]
+              "scope": [
+                "lead_submission"
+              ]
             },
             "vehicle_of_interest": {
               "vin": "1HGCY2F57RA000001",
-              "year": 2022, "make": "Honda", "model": "Civic", "trim": "EX",
+              "year": 2022,
+              "make": "Honda",
+              "model": "Civic",
+              "trim": "EX",
               "condition": "cpo"
             },
             "trade_in": {
-              "year": 2014, "make": "Toyota", "model": "Corolla",
+              "year": 2014,
+              "make": "Toyota",
+              "model": "Corolla",
               "condition": "good",
               "mileage": 96000
             },
@@ -454,7 +543,9 @@ The unified lead carries customer info plus any combination of `vehicle_of_inter
       ]
     },
     "configuration": {
-      "acceptedOutputModes": ["application/vnd.autoagent.lead-submit-response+json"]
+      "acceptedOutputModes": [
+        "application/vnd.autoagent.lead-submit-response+json"
+      ]
     }
   }
 }

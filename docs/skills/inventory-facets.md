@@ -7,7 +7,7 @@ description: Aggregated counts and ranges (makes, models, years, conditions, pri
 # `inventory.facets`
 
 :::info A2A invocation
-This skill is invoked through A2A's `SendMessage` operation (`SendMessage` JSON-RPC method or `POST /message:send` over HTTP+JSON), not a dedicated REST URL. The same payload travels on either A2A binding — see [JSON-RPC binding](../bindings/json-rpc.md) or [REST binding](../bindings/rest.md). AAP only defines what goes inside `Message.parts[].data`.
+This skill is invoked through A2A's `SendMessage` operation — the single A2A operation AAP v1.0 uses — not a dedicated REST URL. It travels as the `SendMessage` JSON-RPC method on the REQUIRED [JSON-RPC binding](../bindings/json-rpc.md), or as `POST /message:send` on the OPTIONAL [HTTP+JSON binding](../bindings/rest.md); the same payload travels on either. AAP only defines what goes inside `Message.parts[].data`.
 :::
 
 The `inventory.facets` skill returns aggregated facet counts and ranges over a dealer's inventory. A buyer agent uses it to discover what a dealer actually carries before composing a search — for example, to learn the set of available makes and models, the year range, or the price ceiling.

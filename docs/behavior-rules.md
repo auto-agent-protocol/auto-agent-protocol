@@ -27,7 +27,7 @@ The keywords MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, RECOMMENDED, and OPTIONAL 
 
 ## Lead rules
 
-![Consent gate: anonymous inventory access vs consent-gated lead access](/img/consent-gate.png)
+![Consent gate: anonymous inventory access vs consent-gated lead access](/img/v1.0/consent-gate.png)
 
 ### Lead MUSTs
 
@@ -84,7 +84,7 @@ When optional context fields are omitted, AAP defines deterministic fallbacks so
 
 ## Authentication
 
-AAP v0.2 defines **no authentication of its own** — agents are public by default. A dealer that needs to protect its endpoint uses A2A's native `securitySchemes` / `securityRequirements` on its agent card; obtaining and presenting credentials then follows A2A (a transport concern), not AAP. See [Discovery](./discovery.md#authentication).
+AAP v1.0.0 defines **no authentication of its own** — agents are public by default. A dealer that needs to protect its endpoint uses A2A's native `securitySchemes` / `securityRequirements` on its agent card; obtaining and presenting credentials then follows A2A (a transport concern), not AAP. See [Discovery](./discovery.md#authentication).
 
 ## Rate limits
 
