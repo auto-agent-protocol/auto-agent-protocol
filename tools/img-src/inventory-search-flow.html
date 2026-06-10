@@ -1,0 +1,191 @@
+<!-- Source for static/img/v1.0/inventory-search-flow.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #eef1f7;
+    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #0f1d33;
+    display: flex;
+    flex-direction: column;
+    padding: 44px 64px 36px;
+  }
+  .title {
+    font-size: 52px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: -0.5px;
+  }
+  .title code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: #2563eb;
+  }
+  .flow {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    margin-top: 8px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    padding: 26px 30px 28px;
+  }
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .actor {
+    font-size: 26px;
+    font-weight: 700;
+    color: #0f1d33;
+  }
+  .tag {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border-radius: 999px;
+    padding: 5px 16px;
+    text-transform: uppercase;
+  }
+  .tag-req-msg { background: #dbe7fb; color: #1d4ed8; }
+  .tag-resp { background: #e4e9f2; color: #5b6b84; }
+  pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 22px;
+    line-height: 1.42;
+    color: #41506b;
+  }
+  .k { color: #41506b; }
+  .s { color: #1d4ed8; }
+  .n { color: #0f1d33; font-weight: 600; }
+  .dim { color: #9aa7bd; font-size: 26px; letter-spacing: 2px; line-height: 1; }
+  .req-card { width: 560px; }
+  .resp-card { width: 600px; }
+  .arrow-col {
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .arrow-label {
+    background: #2563eb;
+    color: #fff;
+    font-size: 21px;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 9px 22px;
+    white-space: nowrap;
+    box-shadow: 0 14px 32px rgba(37,99,235,.25);
+  }
+  .arrow-line {
+    position: relative;
+    width: 100%;
+    height: 5px;
+    background: #2563eb;
+    border-radius: 3px;
+  }
+  .arrow-line::after {
+    content: "";
+    position: absolute;
+    right: -2px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-left: 18px solid #2563eb;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+  }
+  .pill-required {
+    background: #dbe7fb;
+    color: #1d4ed8;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border-radius: 999px;
+    padding: 4px 14px;
+  }
+  .footer {
+    text-align: center;
+    margin-top: 10px;
+  }
+  .footer-pill {
+    display: inline-block;
+    background: #fff;
+    border-radius: 999px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    padding: 14px 36px;
+    font-size: 24px;
+    color: #5b6b84;
+  }
+  .footer-pill b { color: #0f1d33; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="title"><code>inventory.search</code> — one request, typed results</div>
+
+  <div class="flow">
+    <div class="card req-card">
+      <div class="card-head">
+        <span class="actor">🤖 buyer agent</span>
+        <span class="tag tag-req-msg">request</span>
+      </div>
+      <pre>{
+  <span class="k">"type"</span>: <span class="s">"inventory.search.request"</span>,
+  <span class="k">"filters"</span>: {
+    <span class="k">"make"</span>: [<span class="s">"Honda"</span>],
+    <span class="k">"price_max"</span>: <span class="n">30000</span>
+  },
+  <span class="k">"pagination"</span>: {
+    <span class="k">"skip"</span>: <span class="n">0</span>,
+    <span class="k">"limit"</span>: <span class="n">20</span>
+  }
+}</pre>
+    </div>
+
+    <div class="arrow-col">
+      <div class="arrow-label">SendMessage (JSON-RPC)</div>
+      <div class="arrow-line"></div>
+      <div class="pill-required">REQUIRED</div>
+    </div>
+
+    <div class="card resp-card">
+      <div class="card-head">
+        <span class="actor">🏬 dealership</span>
+        <span class="tag tag-resp">response</span>
+      </div>
+      <pre>{
+  <span class="k">"type"</span>: <span class="s">"inventory.search.response"</span>,
+  <span class="k">"data"</span>: {
+    <span class="k">"total"</span>: <span class="n">2</span>,
+    <span class="k">"vehicles"</span>: [
+      {
+        <span class="k">"vin"</span>: <span class="s">"1HGCM82633A004352"</span>,
+        <span class="k">"year"</span>: <span class="n">2021</span>,
+        <span class="k">"make"</span>: <span class="s">"Honda"</span>,
+        <span class="k">"model"</span>: <span class="s">"Accord"</span>,
+        <span class="k">"price"</span>: <span class="n">24995</span>
+      },
+      <span class="dim">...</span>
+    ]
+  }
+}</pre>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span class="footer-pill"><b>Filters are flat</b> · multi-value filters are <b>arrays</b> · price is the <b>FTC-final integer</b></span>
+  </div>
+</body>
+</html>

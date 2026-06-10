@@ -1,0 +1,177 @@
+<!-- Source for static/img/v1.0/mcp-wrapper.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #0f1d33;
+    background-color: #eef1f7;
+    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    overflow: hidden;
+  }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  .wrap { width: 1600px; height: 900px; padding: 56px 70px 44px; display: flex; flex-direction: column; }
+
+  h1 { font-size: 58px; font-weight: 700; letter-spacing: -0.5px; }
+  .subtitle { font-size: 27px; color: #5b6b84; margin-top: 10px; }
+
+  .row {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 34px;
+  }
+
+  .card {
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    padding: 34px 36px;
+  }
+
+  .card-kicker {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: #9aa7bd;
+    margin-bottom: 10px;
+  }
+  .card-title { font-size: 28px; font-weight: 700; line-height: 1.3; }
+  .card-sub { font-size: 23px; color: #5b6b84; margin-top: 8px; }
+
+  /* Left: MCP host */
+  .host { width: 472px; }
+  .tools { margin-top: 24px; display: flex; flex-direction: column; gap: 14px; }
+  .tool {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 22px;
+    color: #1d4ed8;
+    background: #dbe7fb;
+    border-radius: 999px;
+    padding: 11px 24px;
+    align-self: flex-start;
+  }
+
+  /* Middle: adapter */
+  .adapter { width: 430px; }
+  .manifest {
+    margin-top: 22px;
+    background: #f3f6fb;
+    border: 1px solid #e4e9f2;
+    border-radius: 14px;
+    padding: 16px 20px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 22px;
+    color: #41506b;
+  }
+  .caption {
+    margin-top: 20px;
+    font-size: 23px;
+    color: #5b6b84;
+    line-height: 1.4;
+  }
+  .caption .mono { color: #41506b; font-size: 22px; }
+
+  /* Right: dealer agent */
+  .dealer { width: 380px; background: #2563eb; box-shadow: 0 14px 32px rgba(37,99,235,.25); color: #ffffff; }
+  .dealer .emoji { font-size: 52px; }
+  .dealer .who { font-size: 20px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: #bdd3fa; margin-top: 12px; }
+  .dealer .card-title { color: #ffffff; margin-top: 8px; }
+  .send {
+    margin-top: 18px;
+    display: inline-block;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 23px;
+    font-weight: 600;
+    color: #1d4ed8;
+    background: #ffffff;
+    border-radius: 999px;
+    padding: 10px 24px;
+  }
+  .bindings { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .bind {
+    font-size: 18px; font-weight: 700;
+    border-radius: 999px; padding: 7px 16px;
+  }
+  .bind.req { background: #dbe7fb; color: #1d4ed8; }
+  .bind.opt { background: #e4e9f2; color: #5b6b84; }
+  .bind .lbl { font-weight: 600; }
+
+  /* Arrows */
+  .arrow { display: flex; align-items: center; flex: 0 0 auto; padding: 0 6px; }
+  .arrow .shaft { width: 56px; height: 5px; background: #2563eb; border-radius: 3px; }
+  .arrow .head {
+    width: 0; height: 0;
+    border-top: 11px solid transparent;
+    border-bottom: 11px solid transparent;
+    border-left: 16px solid #2563eb;
+    margin-left: -2px;
+  }
+
+  .footer {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 26px;
+    color: #5b6b84;
+  }
+  .footer b { color: #0f1d33; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div>
+    <h1>MCP tools, AAP wire</h1>
+  </div>
+
+  <div class="row">
+    <!-- Left: MCP host -->
+    <div class="card host">
+      <div class="card-kicker">🤖 MCP host</div>
+      <div class="card-title">Claude, IDEs, agents</div>
+      <div class="tools">
+        <div class="tool">aap_dealer_information</div>
+        <div class="tool">aap_inventory_facets</div>
+        <div class="tool">aap_inventory_search</div>
+        <div class="tool">aap_inventory_vehicle</div>
+        <div class="tool">aap_lead_submit</div>
+      </div>
+    </div>
+
+    <div class="arrow"><div class="shaft"></div><div class="head"></div></div>
+
+    <!-- Middle: adapter -->
+    <div class="card adapter">
+      <div class="card-kicker">Adapter</div>
+      <div class="card-title">MCP server</div>
+      <div class="card-sub">official AAP manifest</div>
+      <div class="manifest">mcp.json</div>
+      <div class="caption">tool args = the typed AAP request<br><span class="mono">"inventory.search.request"</span></div>
+    </div>
+
+    <div class="arrow"><div class="shaft"></div><div class="head"></div></div>
+
+    <!-- Right: dealer agent -->
+    <div class="card dealer">
+      <div class="emoji">🏬</div>
+      <div class="who">Dealer agent</div>
+      <div class="card-title">A2A v1.0 endpoint</div>
+      <div class="send">SendMessage</div>
+      <div class="bindings">
+        <div class="bind req"><span class="lbl">JSON-RPC</span> · REQUIRED</div>
+        <div class="bind opt"><span class="lbl">HTTP+JSON</span> · OPTIONAL</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">One manifest exposes every AAP skill as an MCP tool — <b>the call still rides standard A2A</b></div>
+</div>
+</body>
+</html>

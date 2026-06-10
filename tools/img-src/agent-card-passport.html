@@ -1,0 +1,67 @@
+<!doctype html>
+<!-- Source for static/img/v1.0/agent-card-passport.png.
+     Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #eef1f7;
+    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #0f1d33;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  h1 { font-size: 60px; font-weight: 700; margin-top: 56px; letter-spacing: -0.5px; }
+  .card {
+    margin-top: 46px; width: 720px; background: #2563eb; border-radius: 28px;
+    padding: 34px 36px 36px; color: #fff; box-shadow: 0 18px 40px rgba(37, 99, 235, 0.25);
+  }
+  .card-head { display: flex; align-items: center; justify-content: space-between; padding-bottom: 22px; border-bottom: 1px solid rgba(255,255,255,0.35); }
+  .card-title { font-size: 38px; font-weight: 600; }
+  .badge { background: #fff; color: #1d4ed8; font-size: 24px; font-weight: 600; padding: 9px 26px; border-radius: 999px; }
+  .panel { background: #fff; color: #0f1d33; border-radius: 18px; padding: 24px 28px; margin-top: 24px; }
+  .panel-title { font-size: 28px; font-weight: 600; }
+  .panel .uri { color: #1d4ed8; font-size: 23px; margin-top: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .panel .note { color: #7484a0; font-size: 24px; font-weight: 400; }
+  .pills { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 18px; }
+  .pill { background: #dbe7fb; color: #1d4ed8; font-size: 23px; padding: 9px 22px; border-radius: 999px; }
+  .bindings { display: flex; align-items: baseline; gap: 18px; font-size: 27px; }
+  .bindings b { font-weight: 600; }
+  .bindings .req { color: #1d4ed8; font-weight: 600; }
+  .bindings .opt { color: #7484a0; }
+  .footer { margin-top: 40px; font-size: 27px; color: #5b6b84; }
+  .footer code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #41506b; }
+</style>
+</head>
+<body>
+  <h1>One file: agent-card.json</h1>
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">agent-card.json</div>
+      <div class="badge">A2A v1.0</div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">AAP automotive extension</div>
+      <div class="uri">…/a2a-automotive-retail/v1.0</div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">The five AAP skills <span class="note">· implement a subset</span></div>
+      <div class="pills">
+        <div class="pill">dealer.information</div>
+        <div class="pill">inventory.facets</div>
+        <div class="pill">inventory.search</div>
+        <div class="pill">inventory.vehicle</div>
+        <div class="pill">lead.submit</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="bindings"><b>Bindings:</b> <span class="req">JSON-RPC · required</span> <span class="opt">HTTP+JSON · optional</span></div>
+    </div>
+  </div>
+  <div class="footer">Deploy one file to <code>/.well-known/</code> — that is the entire AAP contract.</div>
+</body>
+</html>

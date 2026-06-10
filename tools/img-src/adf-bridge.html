@@ -1,0 +1,180 @@
+<!-- Source for static/img/v1.0/adf-bridge.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #eef1f7;
+    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #0f1d33;
+    padding: 44px 38px 36px;
+    display: flex;
+    flex-direction: column;
+  }
+  code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  h1 {
+    font-size: 50px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    text-align: center;
+  }
+  h1 .mono { color: #1d4ed8; }
+  h1 .dash { color: #9aa7bd; font-weight: 600; }
+
+  .row {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 30px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    padding: 26px 30px;
+  }
+  .card-left  { width: 540px; flex: 0 0 540px; }
+  .card-right { width: 580px; flex: 0 0 580px; }
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .card-title { font-size: 23px; font-weight: 700; color: #0f1d33; }
+  .pill {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: .4px;
+  }
+  .pill-blue { background: #dbe7fb; color: #1d4ed8; }
+  .pill-gray { background: #e4e9f2; color: #5b6b84; }
+
+  pre {
+    font-size: 22px;
+    line-height: 1.42;
+    color: #41506b;
+    white-space: pre;
+  }
+  .k { color: #1d4ed8; }          /* JSON keys / XML tags */
+  .s { color: #0f1d33; }          /* string values */
+  .a { color: #5b6b84; }          /* XML attributes */
+  .p { color: #9aa7bd; }          /* punctuation */
+
+  .arrow {
+    font-size: 40px;
+    color: #2563eb;
+    font-weight: 700;
+    flex: 0 0 auto;
+  }
+
+  .bridge {
+    background: #2563eb;
+    border-radius: 24px;
+    box-shadow: 0 14px 32px rgba(37,99,235,.25);
+    padding: 28px 22px;
+    width: 272px;
+    flex: 0 0 272px;
+    color: #fff;
+    text-align: center;
+  }
+  .bridge .robot { font-size: 40px; }
+  .bridge h2 { font-size: 26px; font-weight: 700; margin: 12px 0 18px; line-height: 1.25; }
+  .map-row {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 16px;
+    color: rgba(255,255,255,.92);
+    background: rgba(255,255,255,.14);
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin-top: 9px;
+    white-space: nowrap;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 27px;
+    color: #5b6b84;
+    margin-top: 28px;
+  }
+  .footer b { color: #0f1d33; }
+</style>
+</head>
+<body>
+
+  <h1><span class="mono">lead.submit</span> → ADF/XML <span class="dash">—</span> CRMs need no changes</h1>
+
+  <div class="row">
+
+    <div class="card card-left">
+      <div class="card-head">
+        <span class="card-title">🤖 AAP lead</span>
+        <span class="pill pill-blue">JSON</span>
+      </div>
+      <pre>{
+  <span class="k">"type"</span>: <span class="s">"lead.submit.request"</span>,
+  <span class="k">"customer"</span>: {
+    <span class="k">"first_name"</span>: <span class="s">"Anna"</span>,
+    <span class="k">"email"</span>: <span class="s">"anna@…"</span>
+  },
+  <span class="k">"consent"</span>: {
+    <span class="k">"scope"</span>: [<span class="s">"lead_submission"</span>]
+  },
+  <span class="k">"vehicle_of_interest"</span>: {
+    <span class="k">"vin"</span>: <span class="s">"1HGCM82633A004352"</span>
+  },
+  <span class="k">"appointment"</span>: {
+    <span class="k">"appointment_type"</span>: <span class="s">"test_drive"</span>
+  }
+}</pre>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="bridge">
+      <div class="robot">🔁</div>
+      <h2>field-by-field<br>ADF mapping</h2>
+      <div class="map-row">first_name → name</div>
+      <div class="map-row">email → email</div>
+      <div class="map-row">vin → vin</div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="card card-right">
+      <div class="card-head">
+        <span class="card-title">🏬 Dealer CRM</span>
+        <span class="pill pill-gray">ADF/XML</span>
+      </div>
+      <pre><span class="k">&lt;adf&gt;</span>
+  <span class="k">&lt;prospect&gt;</span>
+    <span class="k">&lt;customer&gt;</span>
+      <span class="k">&lt;contact&gt;</span>
+        <span class="k">&lt;name <span class="a">part="first"</span>&gt;</span><span class="s">Anna</span><span class="k">&lt;/name&gt;</span>
+        <span class="k">&lt;email&gt;</span><span class="s">anna@…</span><span class="k">&lt;/email&gt;</span>
+      <span class="k">&lt;/contact&gt;</span>
+    <span class="k">&lt;/customer&gt;</span>
+    <span class="k">&lt;vehicle <span class="a">interest="buy"</span>&gt;</span>
+      <span class="k">&lt;vin&gt;</span><span class="s">1HGCM82633A004352</span><span class="k">&lt;/vin&gt;</span>
+    <span class="k">&lt;/vehicle&gt;</span>
+  <span class="k">&lt;/prospect&gt;</span>
+<span class="k">&lt;/adf&gt;</span></pre>
+    </div>
+
+  </div>
+
+  <div class="footer">Every AAP lead lands in <b>25-year-old dealer CRMs</b> untouched</div>
+
+</body>
+</html>

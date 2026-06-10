@@ -1,0 +1,135 @@
+<!doctype html>
+<!-- Source for static/img/v1.0/consent-gate.png.
+     Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #eef1f7;
+    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #0f1d33;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  h1 { font-size: 50px; font-weight: 700; margin-top: 40px; letter-spacing: -0.5px; }
+  .subtitle { margin-top: 10px; font-size: 26px; color: #5b6b84; }
+  .subtitle code { font-size: 24px; color: #1d4ed8; font-weight: 600; }
+
+  .lanes { display: flex; gap: 56px; margin-top: 26px; }
+  .lane {
+    width: 720px; height: 690px; background: #fff; border-radius: 24px;
+    box-shadow: 0 14px 32px rgba(15,29,51,.08); padding: 30px 34px 28px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .lane-head { display: flex; align-items: center; gap: 14px; }
+  .lane-tag { font-size: 22px; font-weight: 700; padding: 6px 20px; border-radius: 999px; letter-spacing: .5px; }
+  .lane-tag.open { background: #dbe7fb; color: #1d4ed8; }
+  .lane-tag.gated { background: #1d4ed8; color: #fff; }
+  .lane-head .t { font-size: 28px; font-weight: 600; }
+  .actor { margin-top: 12px; font-size: 22px; color: #5b6b84; }
+
+  .pills { margin-top: 18px; display: grid; grid-template-columns: auto auto; gap: 12px 16px; }
+  .pill { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 22px;
+          background: #dbe7fb; color: #1d4ed8; border-radius: 999px; padding: 9px 26px; text-align: center; }
+  .pill.lead { background: #1d4ed8; color: #fff; margin-top: 14px; }
+
+  .arr { display: flex; flex-direction: column; align-items: center; margin-top: 12px; }
+  .arr .ln { width: 3px; height: 32px; background: #2563eb; }
+  .arr .hd { width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 11px solid #2563eb; }
+
+  /* open barrier gate */
+  .gate { position: relative; width: 320px; height: 190px; margin-top: 8px; }
+  .gate .pass { position: absolute; left: 50%; top: 0; bottom: 8px; border-left: 3px dashed #93b4f5; transform: translateX(-50%); }
+  .gate .ground { position: absolute; bottom: 0; left: 0; right: 0; height: 5px; background: #d4dae6; border-radius: 3px; }
+  .gate .post { position: absolute; bottom: 4px; width: 18px; height: 96px; background: #2563eb; border-radius: 9px; }
+  .gate .post.l { left: 10px; }
+  .gate .post.r { right: 10px; }
+  .gate .arm { position: absolute; left: 12px; bottom: 94px; width: 100px; height: 14px;
+               background: linear-gradient(90deg, #1d4ed8, #93b4f5); border-radius: 7px;
+               transform-origin: 7px 7px; transform: rotate(-55deg); }
+  .gate .hinge { position: absolute; left: 10px; bottom: 92px; width: 18px; height: 18px;
+                 background: #1d4ed8; border: 3px solid #fff; border-radius: 50%; }
+
+  .dealer { margin-top: 14px; font-size: 24px; font-weight: 600; background: #f3f6fc; border: 2px solid #dbe7fb;
+            border-radius: 999px; padding: 9px 28px; }
+
+  /* stop bar in gated lane */
+  .stop { display: flex; flex-direction: column; align-items: center; margin-top: 12px; }
+  .stop .ln { width: 3px; height: 34px; background: #2563eb; }
+  .stop .bar { width: 210px; height: 10px; background: #1d4ed8; border-radius: 999px; margin-top: 3px; }
+
+  .grant { margin-top: 20px; width: 640px; background: #2563eb; border-radius: 18px; padding: 20px 28px;
+           box-shadow: 0 14px 30px rgba(37,99,235,.25); color: #fff; }
+  .grant .gh { font-size: 26px; font-weight: 700; }
+  .grant .fields { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .grant .f { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 21px;
+              background: rgba(255,255,255,.16); border-radius: 999px; padding: 6px 16px; }
+
+  .outcome { margin-top: 24px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  .outcome .row { font-size: 22px; border-radius: 999px; padding: 8px 24px; }
+  .outcome .ok { background: #dbe7fb; color: #1d4ed8; font-weight: 600; }
+  .outcome .err { background: #e4e9f2; color: #5b6b84; }
+  .outcome .err code { font-size: 21px; color: #1d4ed8; font-weight: 600; }
+
+  .caption { margin-top: auto; font-size: 22px; color: #5b6b84; text-align: center; line-height: 1.45; max-width: 640px; }
+  .caption code { font-size: 21px; color: #1d4ed8; font-weight: 600; }
+</style>
+</head>
+<body>
+  <h1>The consent gate</h1>
+  <div class="subtitle">Anonymous browsing is open by design — <code>lead.submit</code> requires an explicit ConsentGrant</div>
+
+  <div class="lanes">
+    <!-- OPEN lane -->
+    <div class="lane">
+      <div class="lane-head"><span class="lane-tag open">OPEN</span><span class="t">— anonymous browsing</span></div>
+      <div class="actor">🤖 buyer agent</div>
+      <div class="pills">
+        <div class="pill">dealer.information</div>
+        <div class="pill">inventory.facets</div>
+        <div class="pill">inventory.search</div>
+        <div class="pill">inventory.vehicle</div>
+      </div>
+      <div class="arr"><div class="ln"></div><div class="hd"></div></div>
+      <div class="gate">
+        <div class="pass"></div>
+        <div class="ground"></div>
+        <div class="post l"></div>
+        <div class="post r"></div>
+        <div class="arm"></div>
+        <div class="hinge"></div>
+      </div>
+      <div class="arr"><div class="ln"></div><div class="hd"></div></div>
+      <div class="dealer">🏬 dealership agent</div>
+      <div class="caption">Public inventory queries — no personal data</div>
+    </div>
+
+    <!-- GATED lane -->
+    <div class="lane">
+      <div class="lane-head"><span class="lane-tag gated">GATED</span><span class="t">— consented lead</span></div>
+      <div class="actor">🤖 buyer agent</div>
+      <div class="pill lead">lead.submit</div>
+      <div class="stop"><div class="ln"></div><div class="bar"></div></div>
+      <div class="grant">
+        <div class="gh">🔒 ConsentGrant</div>
+        <div class="fields">
+          <div class="f">granted_at</div>
+          <div class="f">allowed_channels</div>
+          <div class="f">consent_text</div>
+          <div class="f">scope: [lead_submission]</div>
+        </div>
+      </div>
+      <div class="outcome">
+        <div class="row ok">✓ ConsentGrant attached → lead delivered to 🏬 dealership</div>
+        <div class="row err">✕ missing or expired → <code>CONTACT_CONSENT_REQUIRED</code></div>
+      </div>
+      <div class="caption">Customer info flows only after explicit consent —<br>otherwise typed error <code>CONTACT_CONSENT_REQUIRED</code></div>
+    </div>
+  </div>
+</body>
+</html>
