@@ -1,7 +1,7 @@
 ---
 sidebar_position: 8
 title: Errors
-description: The 11 AAP error codes — meaning, suggested HTTP and JSON-RPC mapping, and retryable defaults.
+description: The 12 AAP error codes — meaning, suggested HTTP and JSON-RPC mapping, and retryable defaults.
 ---
 
 # Errors
@@ -31,7 +31,7 @@ AAP defines a single typed error payload (`aap.error`) that every dealer agent M
 |---|---|---|---|
 | `type` | const | yes | Always `aap.error`. |
 | `error_id` | string | yes | Unique identifier for this error instance (UUID recommended), suitable for support correlation. |
-| `code` | enum | yes | One of the 11 AAP error codes below. |
+| `code` | enum | yes | One of the 12 AAP error codes below. |
 | `message` | string | yes | Human-readable error message. May be surfaced to the end user. |
 | `retryable` | boolean | yes | Whether the buyer agent SHOULD retry the same request after a backoff. |
 | `details` | object | no | Code-specific details; free shape (e.g. validation paths, retry hints). |
@@ -39,7 +39,7 @@ AAP defines a single typed error payload (`aap.error`) that every dealer agent M
 
 ## Error code reference
 
-The 11 codes, their meaning, recommended HTTP status, recommended JSON-RPC code, and `retryable` default.
+The 12 codes, their meaning, recommended HTTP status, recommended JSON-RPC code, and `retryable` default.
 
 | `code` | Meaning | HTTP | JSON-RPC | `retryable` default |
 |---|---|---|---|---|
@@ -52,6 +52,7 @@ The 11 codes, their meaning, recommended HTTP status, recommended JSON-RPC code,
 | `CONTACT_CONSENT_REQUIRED` | `customer` info present without `consent`, or follow-up channel not in `consent.allowed_channels`. | 403 | -32000 (Server error) | `false` |
 | `INVALID_CONSENT` | `consent` is present but malformed, expired, or its scope does not cover the called skill. | 403 | -32000 (Server error) | `false` |
 | `APPOINTMENT_TIME_UNAVAILABLE` | The requested `appointment_at` cannot be honored AND the dealer has no proposed alternatives. | 409 | -32000 (Server error) | `false` |
+| `IDEMPOTENCY_CONFLICT` | An `idempotency_key` was reused with a different request payload. | 409 | -32000 (Server error) | `false` |
 | `RATE_LIMITED` | Client has exceeded the dealer's rate limit. | 429 | -32002 (Server error reserved) | **`true`** |
 | `INTERNAL_ERROR` | Unhandled dealer-side error. | 500 | -32603 (Internal error) | `true` |
 
@@ -94,6 +95,10 @@ Returned when `consent` is structurally present but unusable: e.g. `consent.scop
 ### `APPOINTMENT_TIME_UNAVAILABLE`
 
 Returned by `lead.submit` when an `appointment` block was included, the requested `appointment_at` cannot be honored, AND the dealer has no `proposed_times` to offer. Dealers SHOULD prefer `data.appointment.status: "proposed"` with alternative times over this error whenever possible. The lead itself MAY still be `received` even when the appointment portion fails.
+
+### `IDEMPOTENCY_CONFLICT`
+
+Returned by `lead.submit` when an `idempotency_key` is reused with a request payload that differs from the original submission. A retry with the *same* key AND the *same* payload MUST be treated as idempotent — the dealer returns the original lead (e.g. `data.status: "duplicate"`), not this error. `retryable: false`: the buyer agent must use a fresh `idempotency_key` for a genuinely new request.
 
 ### `RATE_LIMITED`
 

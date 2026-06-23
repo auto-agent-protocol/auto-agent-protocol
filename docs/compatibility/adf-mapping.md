@@ -36,7 +36,7 @@ This page documents the field-by-field translation. The dealer agent (or the dea
 | `appointment.appointment_at` | `<customer><comments>Requested appointment: 2026-05-03 11:00 PT</comments></customer>` | Free-text in `<comments>`; CRMs route to the appointment desk. |
 | `submitted_at` | `<requestdate>...</requestdate>` | ISO 8601 (e.g. `2026-04-30T10:15:10Z`). |
 | `message` | `<customer><comments>...</comments></customer>` | Free-text user message. |
-| `source_agent` | `<provider><name part="full">{source_agent}</name></provider>` | Identifies the buyer-agent provider (e.g. `chatgpt-shopping`). |
+| `source_agent` | `<provider><name part="full">{source_agent}</name></provider>` | Identifies the originating buyer agent (e.g. `chatgpt-shopping`). **Direct integration:** put `source_agent` in `<provider><name part="full">`. **Lead-network delivery:** when an intermediary (e.g. the AAP platform) delivers the ADF, it MAY instead set `<provider><name part="full">` to the network brand, carry `source_agent` in `<provider><service>`, and add `<provider><url>` for the network — `<vendor>` always stays the selling dealership either way. |
 | Dealer name (from the `dealer.information` rooftop `name`) | `<vendor><vendorname>...</vendorname></vendor>` | Dealer agent fills this from its own profile, not from the buyer agent. |
 | `trade_in.year` / `make` / `model` / `trim` | A second `<vehicle interest="trade-in">...</vehicle>` block with `<year>`, `<make>`, `<model>`, `<trim>` | Trade-in vehicle goes in its own ADF `<vehicle>` block. |
 | `trade_in.mileage` | `<vehicle interest="trade-in"><odometer units="mi">...</odometer></vehicle>` | Strongly recommended; ADF `<odometer>`. |
@@ -155,6 +155,7 @@ Note:
 - `appointment.appointment_at` is folded into the customer `<comments>` since ADF has no native appointment element.
 - The dealer name `Demo Toyota` is filled from the dealer agent's own profile, not from the buyer agent's request.
 - The user `message` and the appointment time land in customer `<comments>`.
+- This example shows **direct** delivery, so `source_agent` (`chatgpt-shopping`) is the `<provider><name>`. Under **lead-network** delivery the network brand is the `<provider><name>` and `chatgpt-shopping` rides in `<provider><service>` (see the `source_agent` row above); `<vendor>` is the selling dealership in both cases.
 
 ## What does NOT map to ADF
 
