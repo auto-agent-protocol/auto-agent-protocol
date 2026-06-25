@@ -16,7 +16,7 @@ function Hero() {
             <div className={styles.buttons}>
               <Link
                 className="button button--secondary button--lg"
-                to="/docs/v1.0/intro"
+                to="/docs/v1.1/intro"
               >
                 Read the Spec
               </Link>
@@ -30,7 +30,7 @@ function Hero() {
           </div>
           <div className={styles.heroImage}>
             <img
-              src="/img/v1.0/hero.png"
+              src="/img/v1.1/hero.png"
               alt="A buyer agent and a dealership digital storefront connected by typed AAP messages"
               width="1376"
               height="768"
@@ -47,7 +47,7 @@ const features = [
   {
     title: "An A2A Profile",
     description:
-      "AAP is a strict A2A v1.0 profile: typed automotive messages ride on top of A2A's data layer. The JSON-RPC binding is required everywhere; HTTP+JSON can be added — the payloads are identical.",
+      "AAP is a strict A2A v1.0 profile: typed automotive messages ride on top of A2A's data layer. JSON-RPC 2.0 is the single transport — one SendMessage operation carries every skill.",
   },
   {
     title: "Five Skills",
@@ -57,7 +57,7 @@ const features = [
   {
     title: "FTC-Aware Pricing",
     description:
-      "Four explicit pricing fields (msrp, list_price, offered_price, price). The price field carries the final out-the-door amount a buyer can actually pay — AAP's rule against bait pricing, aligned with FTC guidance.",
+      "Three explicit pricing fields (msrp, list_price, price). The price field carries the final out-the-door amount a buyer can actually pay — AAP's rule against bait pricing, aligned with FTC guidance.",
   },
   {
     title: "Anonymous First",
@@ -108,13 +108,13 @@ function Skills() {
               checkout, no payment scope. Just the read-and-lead lifecycle,
               typed and validated.
             </p>
-            <Link to="/docs/v1.0/intro" className="button button--primary">
+            <Link to="/docs/v1.1/intro" className="button button--primary">
               Browse the skills
             </Link>
           </div>
           <div className="col col--7">
             <img
-              src="/img/v1.0/skills-overview.png"
+              src="/img/v1.1/skills-overview.png"
               alt="Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit"
               className={styles.fullImage}
               width="1376"
@@ -136,8 +136,8 @@ function Pricing() {
         <div className="row">
           <div className="col col--7">
             <img
-              src="/img/v1.0/pricing-ladder.png"
-              alt="Vehicle pricing ladder: msrp, list_price, offered_price, and the FTC-final price"
+              src="/img/v1.1/pricing-ladder.png"
+              alt="Vehicle pricing ladder: msrp, list_price, and the FTC-final price"
               className={styles.fullImage}
               width="1376"
               height="768"
@@ -148,15 +148,14 @@ function Pricing() {
           <div className="col col--5">
             <h2>FTC-aware pricing, baked in</h2>
             <p>
-              Vehicles carry four explicit pricing fields. The{" "}
+              Vehicles carry three explicit pricing fields. The{" "}
               <code>price</code> field is the final out-the-door
               amount — what the buyer would actually pay; AAP requires it so
-              agents never quote bait prices. <code>msrp</code>,{" "}
-              <code>list_price</code>, and the regional <code>offered_price</code>{" "}
-              sit beside it, so AI agents can give honest answers, in line with the
-              FTC's push against hidden fees and bait pricing.
+              agents never quote bait prices. <code>msrp</code> and{" "}
+              <code>list_price</code> sit beside it, so AI agents can give honest
+              answers, in line with the FTC's push against hidden fees and bait pricing.
             </p>
-            <Link to="/docs/v1.0/pricing-and-ftc" className="button button--primary">
+            <Link to="/docs/v1.1/pricing-and-ftc" className="button button--primary">
               Read the pricing semantics
             </Link>
           </div>
