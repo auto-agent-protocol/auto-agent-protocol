@@ -6,14 +6,12 @@ description: How to invoke each AAP skill over A2A's JSON-RPC 2.0 binding (Secti
 
 # JSON-RPC 2.0 binding
 
-![Same AAP payload feeding two transports: JSON-RPC 2.0 on the left, HTTP+JSON on the right](/img/v1.0/bindings-comparison.png)
-
-A2A defines a JSON-RPC 2.0 binding in [Section 9](https://a2a-protocol.org/specification#section-9) of its specification. AAP rides on top of **A2A v1.0** without modification: every skill is invoked via the `SendMessage` JSON-RPC method, with the AAP request packaged as a typed `DataPart` inside `params.message.parts[]`.
+A2A defines a JSON-RPC 2.0 binding in [Section 9](https://a2a-protocol.org/specification#section-9) of its specification. AAP rides on top of **A2A v1.0** without modification, and uses JSON-RPC 2.0 as its **sole** transport: every skill is invoked via the `SendMessage` JSON-RPC method, with the AAP request packaged as a typed `DataPart` inside `params.message.parts[]`.
 
 ![JSON-RPC request and response envelopes: method SendMessage, params.message in, result.message out](/img/v1.0/jsonrpc-envelope.png)
 
-:::note JSON-RPC is the REQUIRED binding
-A JSON-RPC interface is **REQUIRED** on every AAP agent card: `supportedInterfaces[]` MUST include at least one entry with `protocolBinding: "JSONRPC"`. An [HTTP+JSON interface](rest.md) MAY be added as an OPTIONAL second binding; gRPC is out of scope for AAP v1.0.
+:::note JSON-RPC is the SOLE binding
+A JSON-RPC interface is **REQUIRED** on every AAP agent card: `supportedInterfaces[]` MUST include at least one entry with `protocolBinding: "JSONRPC"`. JSON-RPC 2.0 is the **only** transport AAP defines — the HTTP+JSON (REST) binding was [removed in v1.1](rest.md), and gRPC is out of scope.
 :::
 
 :::info A2A v1.0 wire format — the ProtoJSON form
@@ -45,7 +43,7 @@ All AAP skills use a single JSON-RPC method:
 "method": "SendMessage"
 ```
 
-`SendMessage` is the **only** A2A operation AAP uses (message-only pattern: request `Message` in, response `Message` out). The optional A2A surface — `SendStreamingMessage`, the `tasks` operations (Get/List/Cancel/Subscribe), push notification configs, and `GetExtendedAgentCard` — is out of scope for AAP v1.0: dealer agents do not need to implement it, and buyer agents MUST NOT require it.
+`SendMessage` is the **only** A2A operation AAP uses (message-only pattern: request `Message` in, response `Message` out). The optional A2A surface — `SendStreamingMessage`, the `tasks` operations (Get/List/Cancel/Subscribe), push notification configs, and `GetExtendedAgentCard` — is out of scope for AAP: dealer agents do not need to implement it, and buyer agents MUST NOT require it.
 
 The `id` field is the standard JSON-RPC request id; AAP does not constrain it. The `params.message` is an A2A `Message` whose first `parts[]` entry is the typed AAP `DataPart`. A buyer agent MUST also include `params.configuration.acceptedOutputModes` listing the AAP response media type it expects.
 
@@ -511,7 +509,6 @@ The unified lead carries customer info plus any combination of `vehicle_of_inter
                 "phone"
               ],
               "consent_text": "I agree to share my contact info with Demo Toyota about VIN 1HGCY2F57RA000001, my Saturday test drive, and the trade-in of my 2014 Toyota Corolla.",
-              "source_agent": "chatgpt-shopping",
               "scope": [
                 "lead_submission"
               ]
@@ -537,7 +534,11 @@ The unified lead carries customer info plus any combination of `vehicle_of_inter
               "duration_minutes": 60
             },
             "message": "Interested in this Civic; is it still available? Please appraise my Corolla at the same visit.",
-            "source_agent": "chatgpt-shopping",
+            "source_agent": {
+              "name": "chatgpt-shopping",
+              "url": "https://chatgpt.com",
+              "agent_card_url": "https://chatgpt.com/.well-known/agent-card.json"
+            },
             "submitted_at": "2026-04-30T10:16:05Z"
           },
           "mediaType": "application/vnd.autoagent.lead-submit-request+json"

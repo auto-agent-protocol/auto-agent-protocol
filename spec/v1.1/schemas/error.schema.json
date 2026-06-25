@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v1.1/schemas/error.schema.json",
+  "title": "Error",
+  "description": "Typed AAP error payload. Returned inside an A2A error envelope (JSON-RPC 'error' member or HTTP 'application/json' error body, per A2A spec sections 9.5 and 11.6). Buyer agents use 'code' and 'retryable' to drive client behavior; humans see 'message'.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "aap.error" },
+    "error_id": {
+      "type": "string",
+      "description": "Unique identifier for this error instance, suitable for support correlation (e.g. UUID).",
+      "examples": ["err_3f29c1a8b2", "3f29c1a8-7b4d-4e2a-9c1f-8a6b2d0e5f31"]
+    },
+    "code": {
+      "type": "string",
+      "enum": [
+        "UNSUPPORTED_SKILL",
+        "SCHEMA_VALIDATION_FAILED",
+        "MISSING_REQUIRED_FIELD",
+        "INVALID_CONDITION",
+        "VEHICLE_NOT_FOUND",
+        "VEHICLE_UNAVAILABLE",
+        "CONTACT_CONSENT_REQUIRED",
+        "INVALID_CONSENT",
+        "APPOINTMENT_TIME_UNAVAILABLE",
+        "IDEMPOTENCY_CONFLICT",
+        "RATE_LIMITED",
+        "INTERNAL_ERROR"
+      ],
+      "description": "Machine-readable error code from the AAP error vocabulary.",
+      "examples": ["VEHICLE_NOT_FOUND", "RATE_LIMITED"]
+    },
+    "message": {
+      "type": "string",
+      "description": "Human-readable error message suitable for end-user display.",
+      "examples": ["The requested vehicle could not be found."]
+    },
+    "retryable": {
+      "type": "boolean",
+      "description": "Whether the buyer agent SHOULD retry the same request after a backoff.",
+      "examples": [false]
+    },
+    "details": {
+      "description": "Optional, code-specific details (e.g. validation failure paths). Free shape.",
+      "additionalProperties": true
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339 timestamp at which the dealer agent generated this error (e.g. '2026-04-30T10:15:30Z'). MUST include a timezone offset (Z or ±HH:MM).",
+      "examples": ["2026-04-30T10:15:30Z"]
+    }
+  },
+  "required": ["type", "error_id", "code", "message", "retryable", "created_at"],
+  "additionalProperties": false
+}

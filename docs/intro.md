@@ -12,12 +12,12 @@ description: What the Auto Agent Protocol is, what it standardizes, and how to c
 
 ![Dealers go live in three steps: publish the agent card, serve the skills, receive consented leads](/img/v1.0/dealer-onboarding.png)
 
-In technical terms: AAP is a strict [A2A v1.0](https://a2a-protocol.org) (Agent2Agent) profile that defines the typed automotive data shapes AI agents and dealer agents exchange when they discover, browse, and submit leads. AAP does not invent a new wire protocol — every AAP message travels inside an A2A `Message.parts[].data` value as a typed `DataPart`. A JSON-RPC 2.0 interface is REQUIRED on every AAP agent card; an HTTP+JSON/REST interface MAY be added as an optional second binding. gRPC is out of scope for v1.0.
+In technical terms: AAP is a strict [A2A v1.0](https://a2a-protocol.org) (Agent2Agent) profile that defines the typed automotive data shapes AI agents and dealer agents exchange when they discover, browse, and submit leads. AAP does not invent a new wire protocol — every AAP message travels inside an A2A `Message.parts[].data` value as a typed `DataPart`. JSON-RPC 2.0 is the sole binding: a JSON-RPC 2.0 interface is REQUIRED on every AAP agent card. The HTTP+JSON (REST) binding was removed in v1.1, and gRPC is out of scope.
 
 The extension is identified by a single URI:
 
 ```
-https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.0
+https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1
 ```
 
 A dealer agent declares itself AAP-compliant by listing this URI in `capabilities.extensions[]` of its A2A agent card and by implementing **one or more** of the five standard AAP automotive skills. Agents pick the subset they support; AAP RECOMMENDS at least `inventory.search` + `lead.submit` for an end-to-end shopping flow, but neither is mandatory.
@@ -26,7 +26,7 @@ A dealer agent declares itself AAP-compliant by listing this URI in `capabilitie
 
 ![Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit](/img/v1.0/skills-overview.png)
 
-AAP v1.0 defines a **vocabulary** of five standard skill IDs that cover the read-and-lead lifecycle of automotive retail. A dealer agent picks whichever subset matches its capabilities — none of the five is individually mandatory.
+AAP v1.1 defines a **vocabulary** of five standard skill IDs that cover the read-and-lead lifecycle of automotive retail. A dealer agent picks whichever subset matches its capabilities — none of the five is individually mandatory.
 
 | Skill | Purpose |
 |---|---|
@@ -36,7 +36,7 @@ AAP v1.0 defines a **vocabulary** of five standard skill IDs that cover the read
 | `inventory.vehicle` | Detail view of one specific vehicle (by VIN, stock, or vehicle_id) |
 | `lead.submit` | Unified consented lead carrying customer info plus optional vehicle of interest, trade-in, and appointment |
 
-It does NOT define authentication (v1.0 agents are public by default; auth is left to A2A), payments, financing approval, RFQ/quote workflows, trade-in valuations, or reservations. Future versions MAY extend this surface; v1.0 is intentionally minimal.
+It does NOT define authentication (v1.1 agents are public by default; auth is left to A2A), payments, financing approval, RFQ/quote workflows, trade-in valuations, or reservations. Future versions MAY extend this surface; v1.1 is intentionally minimal.
 
 ## Layered architecture
 
@@ -52,8 +52,7 @@ flowchart TB
 
   subgraph A2A["A2A v1.0"]
     direction LR
-    JR["JSON-RPC 2.0 binding (required)"]
-    HTTP["HTTP+JSON binding (optional)"]
+    JR["JSON-RPC 2.0 binding (sole binding)"]
   end
 
   subgraph Dealer["Dealer agent"]
@@ -66,7 +65,7 @@ flowchart TB
   A2A -->|HTTP response| Buyer
 ```
 
-AAP uses exactly **one** A2A operation: `SendMessage` — a request `Message` goes in, a response `Message` comes out. The optional A2A surface (`SendStreamingMessage`, the `tasks` operations Get/List/Cancel/Subscribe, push notification configs, `GetExtendedAgentCard`) is out of scope for AAP v1.0: dealer agents do not need to implement it, and buyer agents MUST NOT require it. AAP only specifies the typed payloads inside `DataPart.data`.
+AAP uses exactly **one** A2A operation: `SendMessage` — a request `Message` goes in, a response `Message` comes out. The optional A2A surface (`SendStreamingMessage`, the `tasks` operations Get/List/Cancel/Subscribe, push notification configs, `GetExtendedAgentCard`) is out of scope for AAP: dealer agents do not need to implement it, and buyer agents MUST NOT require it. AAP only specifies the typed payloads inside `DataPart.data`.
 
 ## Quick start
 
@@ -80,20 +79,19 @@ Fetch the A2A agent card at the dealer's well-known URL:
 curl https://demo-toyota.example.com/.well-known/agent-card.json
 ```
 
-Confirm the card lists the AAP extension URI under `capabilities.extensions[].uri` and includes a `supportedInterfaces[]` entry whose `protocolBinding` is `JSONRPC` (REQUIRED on every AAP agent card; an `HTTP+JSON` entry MAY also be present).
+Confirm the card lists the AAP extension URI under `capabilities.extensions[].uri` and includes a `supportedInterfaces[]` entry whose `protocolBinding` is `JSONRPC` (REQUIRED on every AAP agent card; it is the sole AAP binding).
 
-### 2. Pick a binding
+### 2. The binding
 
-Every AAP agent exposes the JSON-RPC 2.0 binding; a dealer MAY additionally offer HTTP+JSON. Both carry identical AAP payloads; gRPC is out of scope for AAP v1.0.
+Every AAP agent exposes the JSON-RPC 2.0 binding — AAP's sole transport. gRPC is out of scope, and the HTTP+JSON (REST) binding was removed in v1.1.
 
 | Binding | Status | A2A spec | AAP page |
 |---|---|---|---|
-| JSON-RPC 2.0 | REQUIRED | A2A Section 9 | [JSON-RPC binding](./bindings/json-rpc.md) |
-| HTTP+JSON | OPTIONAL | A2A Section 11 | [REST binding](./bindings/rest.md) |
+| JSON-RPC 2.0 | REQUIRED (sole binding) | A2A Section 9 | [JSON-RPC binding](./bindings/json-rpc.md) |
 
 ### 3. Send a typed AAP message
 
-Wrap an AAP request inside an A2A `Message` and send it with `SendMessage` — the single A2A operation AAP uses. Below is the simplest call — `dealer.information` over the REQUIRED JSON-RPC binding, using the A2A v1.0 ProtoJSON wire format (`ROLE_USER`/`ROLE_AGENT` enum names, no `kind` discriminators) that A2A v1.0 clients send and parse:
+Wrap an AAP request inside an A2A `Message` and send it with `SendMessage` — the single A2A operation AAP uses. Below is the simplest call — `dealer.information` over the JSON-RPC binding, using the A2A v1.0 ProtoJSON wire format (`ROLE_USER`/`ROLE_AGENT` enum names, no `kind` discriminators) that A2A v1.0 clients send and parse:
 
 ```bash
 curl -X POST https://demo-toyota.example.com/a2a \

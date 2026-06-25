@@ -26,14 +26,13 @@ flowchart TB
 
   subgraph Layer3["Layer 3 — Protocol bindings"]
     L3J["JSON-RPC 2.0 (Section 9)"]
-    L3H["HTTP+JSON / REST (Section 11)"]
   end
 
   Layer1 --> Layer2
   Layer2 --> Layer3
 ```
 
-A2A clients and servers can mix and match: any abstract operation can be called over any binding, with the same data model.
+A2A defines several bindings; AAP rides on exactly one — JSON-RPC 2.0 — with the same data model on every call.
 
 ## Where AAP fits
 
@@ -41,9 +40,9 @@ AAP is a layer 1 profile. It defines:
 
 1. **Standard skill vocabulary.** Five canonical `skills[].id` values an AAP-compliant agent card draws from: `dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`. An agent declares the subset it actually implements (one or more); none is individually mandatory. AAP RECOMMENDS at least `inventory.search` + `lead.submit` for an end-to-end shopping flow.
 2. **Typed `DataPart` payloads.** For each skill, an exact request and response JSON Schema. Each payload includes a `type` field whose value is `<scope>.<thing>.request` or `<scope>.<thing>.response` (e.g. `inventory.search.request`). The AAP version is announced once via the agent-card extension URI; it is not repeated on the wire.
-3. **An extension URI.** `https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.0`, declared in `capabilities.extensions[]` of the agent card.
+3. **An extension URI.** `https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1`, declared in `capabilities.extensions[]` of the agent card.
 
-AAP does NOT redefine layer 2 (abstract operations) or layer 3 (protocol bindings) — it deliberately uses a minimal slice of each. AAP uses exactly **one** A2A operation: `SendMessage` (the message-only pattern — request `Message` in, response `Message` out), which maps to `POST {base}/message:send` on the HTTP+JSON binding. The optional A2A surface (`SendStreamingMessage`, the tasks Get/List/Cancel/Subscribe operations, push notification configs, `GetExtendedAgentCard`) is out of scope for AAP v1.0 — dealer agents do not need to implement it, and buyer agents MUST NOT require it. On bindings: a JSON-RPC 2.0 interface is REQUIRED on every AAP agent card; an HTTP+JSON interface MAY be added (OPTIONAL); gRPC is out of scope for AAP v1.0.
+AAP does NOT redefine layer 2 (abstract operations) or layer 3 (protocol bindings) — it deliberately uses a minimal slice of each. AAP uses exactly **one** A2A operation: `SendMessage` (the message-only pattern — request `Message` in, response `Message` out). The optional A2A surface (`SendStreamingMessage`, the tasks Get/List/Cancel/Subscribe operations, push notification configs, `GetExtendedAgentCard`) is out of scope for AAP — dealer agents do not need to implement it, and buyer agents MUST NOT require it. On bindings: JSON-RPC 2.0 is the **sole** binding AAP defines — a JSON-RPC interface is REQUIRED on every AAP agent card. The HTTP+JSON (REST) binding was removed in v1.1, and gRPC is out of scope.
 
 ## The typed `DataPart` pattern
 
@@ -137,7 +136,7 @@ The dealer agent replies with an A2A `Message` containing the AAP response:
 }
 ```
 
-The outer envelope around this `Message` differs by binding (JSON-RPC 2.0 vs. HTTP+JSON), but the `Message` itself — and the AAP `DataPart.data` — is identical in both cases. See [JSON-RPC binding](./bindings/json-rpc.md) and [REST binding](./bindings/rest.md) for full envelope examples.
+The outer envelope around this `Message` is the JSON-RPC 2.0 binding — AAP's sole transport. See [JSON-RPC binding](./bindings/json-rpc.md) for full envelope examples.
 
 ## Why typed `DataParts` instead of natural-language parts
 
@@ -148,7 +147,7 @@ An AI agent could in principle stuff a search query into a `TextPart` and let th
 - Pricing and consent are regulated; ambiguous natural language increases compliance risk.
 - Validation tooling (Ajv, ajv-formats, OpenAPI clients) only works on structured payloads.
 
-A buyer agent MAY include free-text `TextParts` in the same `Message` for human-readable context. AAP defines no semantics for them — only the typed `DataPart` is normative.
+Protocol calls use typed JSON `DataParts` ONLY; dealer agents MUST ignore any `TextParts`. AAP defines no protocol semantics for free-text parts — only the typed `DataPart` is normative, and a dealer agent MUST NOT derive any protocol meaning from a `TextPart`.
 
 ## Discovery and bindings: the rest of the profile
 
@@ -157,9 +156,9 @@ AAP layers one more piece on top of the base A2A surface:
 | Piece | Where it lives | Purpose |
 |---|---|---|
 | Agent card with AAP extension | `/.well-known/agent-card.json` | A2A discovery; declares the AAP extension URI and lists the subset of AAP skills the agent implements. |
-| Binding sections | A2A Sections 9 and 11 | How AAP DataParts ride inside JSON-RPC 2.0 (REQUIRED on every AAP agent card) and HTTP+JSON (OPTIONAL) envelopes. |
+| Binding section | A2A Section 9 | How AAP DataParts ride inside JSON-RPC 2.0 envelopes — the sole AAP binding, REQUIRED on every AAP agent card. |
 
 See:
 
 - [Discovery](./discovery.md) for the agent card.
-- [JSON-RPC binding](./bindings/json-rpc.md) and [REST binding](./bindings/rest.md) for the wire format of each binding.
+- [JSON-RPC binding](./bindings/json-rpc.md) for the wire format.

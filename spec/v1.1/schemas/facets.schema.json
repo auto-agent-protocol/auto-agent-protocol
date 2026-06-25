@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v1.1/schemas/facets.schema.json",
+  "title": "Facets",
+  "description": "Aggregated facet counts and ranges over a dealer's inventory. Returned by the `inventory.facets` AAP skill (wrapped in `inventory.facets.response`) and OPTIONALLY embedded in `inventory.search` responses. Both responses travel inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.",
+  "type": "object",
+  "$defs": {
+    "term_facet": {
+      "type": "array",
+      "description": "A term facet: each entry pairs a distinct field value with the count of matching vehicles.",
+      "examples": [[{ "value": "Honda", "count": 42 }, { "value": "Toyota", "count": 31 }]],
+      "items": {
+        "type": "object",
+        "properties": {
+          "value": { "type": ["string", "integer"], "description": "A distinct value observed for this field across the matching set (e.g. a make, model, or year).", "examples": ["Honda", 2024] },
+          "count": { "type": "integer", "minimum": 0, "description": "Number of matching vehicles carrying this value.", "examples": [42] }
+        },
+        "required": ["value", "count"],
+        "additionalProperties": false
+      }
+    },
+    "range_facet": {
+      "type": "object",
+      "description": "A numeric range facet: the observed min and max for a field across the matching set.",
+      "examples": [{ "min": 18995, "max": 64995 }],
+      "properties": {
+        "min": { "type": "number", "description": "Lowest observed value for this field across the matching set.", "examples": [18995] },
+        "max": { "type": "number", "description": "Highest observed value for this field across the matching set.", "examples": [64995] }
+      },
+      "required": ["min", "max"],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "makes": { "$ref": "#/$defs/term_facet" },
+    "models": { "$ref": "#/$defs/term_facet" },
+    "trims": { "$ref": "#/$defs/term_facet" },
+    "years": { "$ref": "#/$defs/term_facet" },
+    "conditions": { "$ref": "#/$defs/term_facet" },
+    "transmissions": { "$ref": "#/$defs/term_facet" },
+    "fuels": { "$ref": "#/$defs/term_facet" },
+    "drivelines": { "$ref": "#/$defs/term_facet" },
+    "bodies": { "$ref": "#/$defs/term_facet", "description": "Body-style facets, matching the `body` field on Vehicle and `filters.body` on InventorySearchRequest." },
+    "exterior_colors": { "$ref": "#/$defs/term_facet" },
+    "interior_colors": { "$ref": "#/$defs/term_facet" },
+    "rooftops": { "$ref": "#/$defs/term_facet", "description": "Rooftop facets — vehicle counts per dealership location, matching `Vehicle.rooftop` and `filters.rooftops`." },
+    "statuses": { "$ref": "#/$defs/term_facet" },
+    "price_range": { "$ref": "#/$defs/range_facet" },
+    "mileage_range": { "$ref": "#/$defs/range_facet" },
+    "year_range": { "$ref": "#/$defs/range_facet" }
+  },
+  "additionalProperties": false
+}

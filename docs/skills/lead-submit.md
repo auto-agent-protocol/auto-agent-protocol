@@ -7,16 +7,16 @@ description: Unified consented lead. Carries customer info plus any combination 
 # `lead.submit`
 
 :::info A2A invocation
-This skill is invoked through A2A's `SendMessage` operation — the only A2A operation AAP uses — not a dedicated REST URL. Every AAP agent card MUST expose a JSON-RPC interface (`SendMessage` method); an HTTP+JSON interface (`POST {base}/message:send`) MAY be added. The same payload travels on either binding — see [JSON-RPC binding](../bindings/json-rpc.md) (required) or [REST binding](../bindings/rest.md) (optional). AAP only defines what goes inside `Message.parts[].data`.
+This skill is invoked through A2A's `SendMessage` operation — the only A2A operation AAP uses — not a dedicated REST URL. Every AAP agent card MUST expose a JSON-RPC interface (`SendMessage` method); JSON-RPC 2.0 is AAP's sole binding — see [JSON-RPC binding](../bindings/json-rpc.md). AAP only defines what goes inside `Message.parts[].data`, carried as a typed JSON `DataPart`.
 :::
 
 ![A consented lead end to end: ConsentGrant, lead.submit request, dealer validation, lead_id response, ADF/XML to the dealer CRM](/img/v1.0/lead-lifecycle.png)
 
 ![Consent gate: anonymous browsing on the left, ConsentGrant in the middle, consented lead on the right](/img/v1.0/consent-gate.png)
 
-The `lead.submit` skill is the **single, unified** lead-capture entry point in AAP v1.0.0. A buyer agent submits one request containing the consented `customer` plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment`. This matches how dealerships actually take leads: a shopper test-driving a new car often wants their old car appraised in the same visit.
+The `lead.submit` skill is the **single, unified** lead-capture entry point in AAP v1.1.0. A buyer agent submits one request containing the consented `customer` plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment`. This matches how dealerships actually take leads: a shopper test-driving a new car often wants their old car appraised in the same visit.
 
-`lead.submit` replaced the early-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment` with a single contract, which AAP v1.0.0 carries forward unchanged.
+`lead.submit` replaced the early-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment` with a single contract, which AAP v1.1.0 carries forward unchanged.
 
 | Property | Value |
 |---|---|
@@ -40,7 +40,11 @@ For the field-by-field ADF/XML mapping, see [ADF mapping](../compatibility/adf-m
   "trade_in":            { "...Vehicle (condition: excellent|good|fair|poor)..." },
   "appointment":         { "...Appointment..." },
   "message":      "Free-text message from the user (max 4000 chars).",
-  "source_agent": "string (e.g. chatgpt-shopping)",
+  "source_agent": {
+    "name": "chatgpt-shopping",
+    "url": "https://chatgpt.com",
+    "agent_card_url": "https://chatgpt.com/.well-known/agent-card.json"
+  },
   "submitted_at": "ISO-8601"
 }
 ```
@@ -49,15 +53,22 @@ For the field-by-field ADF/XML mapping, see [ADF mapping](../compatibility/adf-m
 |---|---|---|---|
 | `type` | const | yes | `lead.submit.request`. |
 | `customer` | `Customer` | **yes** | Buyer contact info. Always required. |
-| `consent` | `ConsentGrant` | **yes** | Always required. `scope` MUST be `["lead_submission"]`. |
+| `consent` | `ConsentGrant` | **yes** | Always required. `scope` MUST be `["lead_submission"]`. As of v1.1, `consent` no longer carries `source_agent`; the buyer agent is identified once by the top-level `source_agent` object below. |
 | `vehicle_of_interest` | `Vehicle` | no | Optional. When present, `condition` (if set) MUST be `new` \| `used` \| `cpo`; vehicle MUST be identifiable via `vin`, `stock`, or `year`+`make`+`model`. |
 | `trade_in` | `Vehicle` | no | Optional. When present, `condition` (if set) MUST be `excellent` \| `good` \| `fair` \| `poor`; MUST carry at least `year`+`make`+`model`. `mileage` is strongly recommended. |
 | `appointment` | `Appointment` | no | Optional. `appointment_type` is one of `sales` \| `service` \| `test_drive` \| `trade_in`; `appointment_at` is the requested start time (ISO 8601). The vehicle is implicit: `vehicle_of_interest` for a test drive, `trade_in` for a trade-in appraisal. |
 | `message` | string | no | Free-text user note (max 4000 chars). |
-| `source_agent` | string | yes | Buyer agent identifier (e.g. `chatgpt-shopping`, `gemini-assistant`). |
+| `source_agent` | object | yes | The single buyer-agent identity for this lead. `name` is REQUIRED (e.g. `chatgpt-shopping`, `gemini-assistant`); `url` and `agent_card_url` are OPTIONAL. This is the one and only `source_agent` in v1.1 — it was removed from `consent`. |
+| `source_agent.name` | string | **yes** | Buyer agent identifier. |
+| `source_agent.url` | string (uri) | no | Buyer agent's site or product URL. |
+| `source_agent.agent_card_url` | string (uri) | no | URL of the buyer agent's A2A agent card. |
 | `submitted_at` | date-time | no | Buyer-agent timestamp at submission. |
 
-The unified `Vehicle` interface is the same shape used by `inventory.search` results — see the [Vehicle schema source](https://autoagentprotocol.org/v1.0/schemas/vehicle.schema.json). Both `vehicle_of_interest` and `trade_in` use this shape; only the valid `condition` enum subset differs.
+The unified `Vehicle` interface is the same shape used by `inventory.search` results — see the [Vehicle schema source](https://autoagentprotocol.org/v1.1/schemas/vehicle.schema.json). Both `vehicle_of_interest` and `trade_in` use this shape; only the valid `condition` enum subset differs.
+
+:::note Self-discovery
+A buyer agent does not have to hard-code or guess this shape. The dealer's [agent card](../discovery.md) publishes each skill's `inputSchema` as a `$ref` to the canonical JSON Schema (e.g. `https://autoagentprotocol.org/v1.1/schemas/lead-submit-request.schema.json`). Buyer agents SHOULD fetch that schema and validate against it, rather than relying on the prose here. The top-level `source_agent` object — and the removal of `consent.source_agent` in v1.1 — are both reflected in that published schema.
+:::
 
 ## Response shape
 
@@ -115,7 +126,6 @@ A user wants to test-drive a 2024 Honda CR-V, trade in their 2020 Passat, and bo
     "granted_at": "2026-04-30T11:05:00Z",
     "allowed_channels": ["email", "phone"],
     "consent_text": "I authorize Demo Toyota to contact me by phone or email about VIN 1HGCY2F57RA000001, my requested test drive on May 3, and a possible trade-in of my 2020 Volkswagen Passat. I understand I can withdraw consent at any time.",
-    "source_agent": "gemini-assistant",
     "scope": ["lead_submission"]
   },
   "vehicle_of_interest": {
@@ -143,7 +153,11 @@ A user wants to test-drive a 2024 Honda CR-V, trade in their 2020 Passat, and bo
     "notes": "I'd like to test the CR-V and have my Passat appraised in the same visit."
   },
   "message": "I'm interested in the 2024 Honda CR-V EX-L (VIN 1HGCY2F57RA000001). I plan to pay cash and would like to trade in my 2020 Volkswagen Passat with 62,000 miles.",
-  "source_agent": "gemini-assistant",
+  "source_agent": {
+    "name": "gemini-assistant",
+    "url": "https://gemini.google.com",
+    "agent_card_url": "https://gemini.google.com/.well-known/agent-card.json"
+  },
   "submitted_at": "2026-04-30T11:05:08Z"
 }
 ```
@@ -186,11 +200,14 @@ A user wants to test-drive a 2024 Honda CR-V, trade in their 2020 Passat, and bo
     "granted_at": "2026-04-30T10:42:00Z",
     "allowed_channels": ["email"],
     "consent_text": "I agree to share my name, email, and phone number with Demo Toyota so a sales representative can answer my financing question by email.",
-    "source_agent": "chatgpt-shopping-agent",
     "scope": ["lead_submission"]
   },
   "message": "What APR is Demo Toyota offering this month for buyers with 740+ credit?",
-  "source_agent": "chatgpt-shopping-agent",
+  "source_agent": {
+    "name": "chatgpt-shopping-agent",
+    "url": "https://chatgpt.com",
+    "agent_card_url": "https://chatgpt.com/.well-known/agent-card.json"
+  },
   "submitted_at": "2026-04-30T10:42:05Z"
 }
 ```
@@ -229,7 +246,7 @@ Real shopping flows naturally bundle the inquiry, the trade-in, and the appointm
 - **Consent friction** — users sign off 3 disclosures for one decision.
 - **Race conditions** — the appointment may be booked before the lead arrives, or vice-versa.
 
-A single `lead.submit` lets the dealer transactionally accept the lead, queue the trade-in for appraisal, and confirm or propose the appointment in one round trip. v1.0 keeps the contract tight by NOT supporting multi-vehicle leads (one `vehicle_of_interest` per submission); send N requests for N vehicles.
+A single `lead.submit` lets the dealer transactionally accept the lead, queue the trade-in for appraisal, and confirm or propose the appointment in one round trip. v1.1 keeps the contract tight by NOT supporting multi-vehicle leads (one `vehicle_of_interest` per submission); send N requests for N vehicles.
 
 ## Consent and channel rules
 
