@@ -67,10 +67,6 @@
         "contact",
         "locations",
         "automotive"
-      ],
-      "examples": [
-        "What are your hours and address?",
-        "Which rooftops does this dealer group have?"
       ]
     },
     {
@@ -83,9 +79,6 @@
         "aggregation",
         "filters",
         "automotive"
-      ],
-      "examples": [
-        "What makes and price ranges do you have in stock?"
       ]
     },
     {
@@ -98,10 +91,6 @@
         "search",
         "cars",
         "automotive"
-      ],
-      "examples": [
-        "Show me used Toyota RAV4s under $30,000",
-        "Find new electric SUVs with under 10k miles"
       ]
     },
     {
@@ -115,9 +104,6 @@
         "stock",
         "detail",
         "automotive"
-      ],
-      "examples": [
-        "Get full details for VIN 1HGCM82633A004352"
       ]
     },
     {
@@ -131,9 +117,6 @@
         "sales",
         "appointment",
         "automotive"
-      ],
-      "examples": [
-        "I want to schedule a test drive for this vehicle"
       ]
     }
   ]
