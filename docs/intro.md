@@ -17,7 +17,7 @@ In technical terms: AAP is a strict [A2A v1.0](https://a2a-protocol.org) (Agent2
 The extension is identified by a single URI:
 
 ```
-https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1
+https://autoagentprotocol.org/extensions/aap/v1.1
 ```
 
 A dealer agent declares itself AAP-compliant by listing this URI in `capabilities.extensions[]` of its A2A agent card and by implementing **one or more** of the five standard AAP automotive skills. Agents pick the subset they support; AAP RECOMMENDS at least `inventory.search` + `lead.submit` for an end-to-end shopping flow, but neither is mandatory.

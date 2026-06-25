@@ -24,12 +24,12 @@ Each released version of AAP has a major.minor version number (v0.1, v0.2, v1.0,
 | Adding a new error code | minor |
 | Removing a field, renaming a field, tightening a type, narrowing an enum | major |
 | Changing a required field's semantics | major |
-| Changing the agent-card extension URI (e.g. `extensions/a2a-automotive-retail/v1.0` -> `.../v1.1`) | minor or major |
+| Changing the agent-card extension URI (e.g. `extensions/aap/v1.1` -> `.../v2.0`) | minor or major |
 | Documentation-only correction with no schema change | patch |
 
 The table above is the policy in force now that AAP has reached 1.0.0. **During the pre-1.0 (`0.x`) series, a minor bump was allowed to carry breaking changes** — per SemVer's 0.x allowance. v0.2 was exactly such a bump: it removed and renamed fields, flattened prices to integers, narrowed `status` to an enum, and dropped the separate contract manifest, all relative to v0.1. AAP v1.0.0 was the first stable release: its payload shape is the one introduced in v0.2, unchanged, riding A2A v1.0. AAP v1.1 is the current release; it dropped the optional HTTP+JSON (REST) binding, leaving JSON-RPC 2.0 as the single transport. Pin to the exact version a dealer advertises.
 
-The AAP version lives in exactly one place on the wire: the agent-card extension URI (e.g. `https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1`) and the schema `$id` URLs (`https://autoagentprotocol.org/v1.1/schemas/...`). Per-message `data.type` and `mediaType` are intentionally version-free; the dealer's agent-card pins the active version once per session.
+The AAP version lives in exactly one place on the wire: the agent-card extension URI (e.g. `https://autoagentprotocol.org/extensions/aap/v1.1`) and the schema `$id` URLs (`https://autoagentprotocol.org/v1.1/schemas/...`). Per-message `data.type` and `mediaType` are intentionally version-free; the dealer's agent-card pins the active version once per session.
 
 ## Released versions are immutable
 
@@ -82,7 +82,7 @@ The AAP version is announced only via the agent-card extension URI and the schem
 The A2A extension URI is version-pinned per major.minor:
 
 ```
-https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1
+https://autoagentprotocol.org/extensions/aap/v1.1
 ```
 
 A future minor version introduces a new extension URI. Dealer agents that support multiple AAP minor versions MAY declare multiple extension entries on their A2A agent card; buyer agents pick the highest version they understand.

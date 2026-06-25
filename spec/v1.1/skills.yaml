@@ -1,5 +1,5 @@
 version: "1.1.0"
-extension_uri: https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1
+extension_uri: https://autoagentprotocol.org/extensions/aap/v1.1
 schema_base_url: https://autoagentprotocol.org/v1.1/schemas/
 skills:
   - id: dealer.information
