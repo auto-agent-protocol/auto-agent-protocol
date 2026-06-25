@@ -6,9 +6,6 @@ skills:
     name: Dealer Information
     description: Return the dealership profile — group name, welcome message, and one or more rooftops (locations) with their address, geo, contacts, business hours, timezone, and service capabilities.
     tags: [dealer, dealership, profile, hours, contact, locations, automotive]
-    examples:
-      - What are your hours and address?
-      - Which rooftops does this dealer group have?
     request_schema: dealer-information-request.schema.json
     response_schema: dealer-information-response.schema.json
     request_type: dealer.information.request
@@ -20,8 +17,6 @@ skills:
     name: Inventory Facets
     description: Return searchable inventory facets such as makes, models, years, conditions, body styles, price ranges, mileage ranges, drivetrain, fuel type, and statuses.
     tags: [inventory, facets, aggregation, filters, automotive]
-    examples:
-      - What makes and price ranges do you have in stock?
     request_schema: inventory-facets-request.schema.json
     response_schema: inventory-facets-response.schema.json
     request_type: inventory.facets.request
@@ -33,9 +28,6 @@ skills:
     name: Inventory Search
     description: Search vehicle inventory by query, make, model, trim, year, condition, price, mileage, body style, VIN, stock, features, and availability.
     tags: [inventory, vehicles, search, cars, automotive]
-    examples:
-      - Show me used Toyota RAV4s under $30,000
-      - Find new electric SUVs with under 10k miles
     request_schema: inventory-search-request.schema.json
     response_schema: inventory-search-response.schema.json
     request_type: inventory.search.request
@@ -47,8 +39,6 @@ skills:
     name: Vehicle Detail
     description: Return details for a specific vehicle by VIN, stock number, or vehicle_id, including status, pricing disclosure, photos, mileage, trim, features, fuel economy, and dealer page URL.
     tags: [inventory, vehicle, vin, stock, detail, automotive]
-    examples:
-      - Get full details for VIN 1HGCM82633A004352
     request_schema: vehicle-detail-request.schema.json
     response_schema: vehicle-detail-response.schema.json
     request_type: inventory.vehicle.request
@@ -60,8 +50,6 @@ skills:
     name: Submit Lead
     description: Submit a consented lead carrying customer info plus any combination of vehicle of interest, trade-in, and appointment request — a single unified contract that matches how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).
     tags: [lead, contact, consent, sales, appointment, automotive]
-    examples:
-      - I want to schedule a test drive for this vehicle
     request_schema: lead-submit-request.schema.json
     response_schema: lead-submit-response.schema.json
     request_type: lead.submit.request

@@ -1676,11 +1676,13 @@ components:
       additionalProperties: false
     AgentCard:
       title: AgentCard
-      description: A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json
+      description: "A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json
         on a dealer-controlled domain. A2A v1.0 declares every transport in 'supportedInterfaces[]' (it replaced the
-        earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). To be a
-        compliant AAP dealer agent, 'capabilities.extensions' MUST include an entry whose 'uri' equals
-        'https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1'.
+        earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). AAP v1.1
+        uses a single transport: JSON-RPC 2.0. A compliant AAP dealer agent advertises a JSONRPC interface in
+        'supportedInterfaces[]' and does not advertise any other transport for AAP. To be a compliant AAP dealer agent,
+        'capabilities.extensions' MUST include an entry whose 'uri' equals
+        'https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1'."
       type: object
       properties:
         name:
@@ -1692,9 +1694,10 @@ components:
         supportedInterfaces:
           type: array
           minItems: 1
-          description: "The A2A v1.0 service interfaces (transport + endpoint). AAP keeps the transport surface minimal: a JSONRPC
-            interface is REQUIRED (every AAP client can rely on it); an HTTP+JSON interface MAY be added; gRPC is out of
-            scope."
+          description: "The A2A v1.0 service interfaces (transport + endpoint). AAP v1.1 uses a single transport: a JSONRPC
+            interface is REQUIRED and is the only transport an AAP agent advertises (every AAP client can rely on it).
+            The HTTP+JSON (REST) binding was removed in v1.1; gRPC is out of scope. The protocolBinding enum still lists
+            'HTTP+JSON' for raw A2A compatibility, but AAP v1.1 advertises only 'JSONRPC'."
           items:
             type: object
             properties:
@@ -1838,10 +1841,6 @@ components:
                 type: string
               minItems: 1
               description: Keywords describing the skill. REQUIRED by A2A so clients/LLMs can categorize and rank skills.
-            examples:
-              type: array
-              items:
-                type: string
             inputModes:
               type: array
               items:
@@ -1850,33 +1849,17 @@ components:
               type: array
               items:
                 type: string
-            inputSchema:
-              type: object
-              description: 'JSON Schema (or a `{ "$ref": "<uri>" }`) describing the JSON DataPart this skill accepts. Lets a buyer
-                agent discover and fetch the full request payload schema directly from the AgentCard. SHOULD reference
-                the AAP per-skill request schema, e.g. `{ "$ref":
-                "https://autoagentprotocol.org/v1.1/schemas/inventory-search-request.schema.json" }`.'
-            outputSchema:
-              type: object
-              description: 'JSON Schema (or a `{ "$ref": "<uri>" }`) describing the JSON DataPart this skill returns. Lets a buyer
-                agent discover and fetch the full response payload schema directly from the AgentCard. SHOULD reference
-                the AAP per-skill response schema, e.g. `{ "$ref":
-                "https://autoagentprotocol.org/v1.1/schemas/inventory-search-response.schema.json" }`.'
-            schemaUrl:
-              type: string
-              format: uri
-              description: URL of the JSON Schema for this skill's request DataPart. Convenience alias for `inputSchema.$ref` when the
-                card carries a bare URL instead of an inline `$ref` object.
-            requestSchemaUrl:
-              type: string
-              format: uri
-              description: URL of the JSON Schema for this skill's request DataPart. Synonym of `schemaUrl`.
           required:
             - id
             - name
             - description
             - tags
           additionalProperties: true
+          description: An A2A AgentSkill. AAP v1.1 cards do NOT carry per-skill natural-language `examples` — AAP is JSON-only,
+            with no NL prompt examples. AAP publishes each skill's request/response JSON Schema URLs in the AAP
+            extension's `params.skills` map as `params.skills["<id>"].request_schema` / `response_schema` (see
+            capabilities.extensions[].params) — NOT as fields on the skill — because strict A2A AgentCard parsers reject
+            unknown skill fields.
     Address:
       title: Address
       description: Postal address. All fields are OPTIONAL by design — the buyer agent should pass through whatever pieces of

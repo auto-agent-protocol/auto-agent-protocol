@@ -1,6 +1,6 @@
 {
   "name": "Demo Toyota",
-  "description": "Auto Agent Protocol dealer agent for Demo Toyota — browse inventory and submit consented leads over A2A.",
+  "description": "Auto Agent Protocol dealer agent for Demo Toyota \u2014 browse inventory and submit consented leads over A2A.",
   "supportedInterfaces": [
     {
       "url": "https://demo-toyota.example.com/a2a",
@@ -20,58 +20,104 @@
         "uri": "https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1",
         "params": {
           "id": "0192f3c0-1a2b-7c3d-8e4f-5a6b7c8d9e0f",
-          "version": "1.0.0"
+          "version": "1.1.0",
+          "schema_base_url": "https://autoagentprotocol.org/v1.1/schemas/",
+          "skills": {
+            "dealer.information": {
+              "request_schema": "https://autoagentprotocol.org/v1.1/schemas/dealer-information-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v1.1/schemas/dealer-information-response.schema.json"
+            },
+            "inventory.facets": {
+              "request_schema": "https://autoagentprotocol.org/v1.1/schemas/inventory-facets-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v1.1/schemas/inventory-facets-response.schema.json"
+            },
+            "inventory.search": {
+              "request_schema": "https://autoagentprotocol.org/v1.1/schemas/inventory-search-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v1.1/schemas/inventory-search-response.schema.json"
+            },
+            "inventory.vehicle": {
+              "request_schema": "https://autoagentprotocol.org/v1.1/schemas/vehicle-detail-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v1.1/schemas/vehicle-detail-response.schema.json"
+            },
+            "lead.submit": {
+              "request_schema": "https://autoagentprotocol.org/v1.1/schemas/lead-submit-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v1.1/schemas/lead-submit-response.schema.json"
+            }
+          }
         }
       }
     ]
   },
-  "defaultInputModes": ["application/json"],
-  "defaultOutputModes": ["application/json"],
+  "defaultInputModes": [
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "application/json"
+  ],
   "skills": [
     {
       "id": "dealer.information",
       "name": "Dealer Information",
       "description": "Return the dealership profile: group name, welcome message, and rooftops with address, hours, contacts, and capabilities.",
-      "tags": ["dealer", "dealership", "profile", "hours", "contact", "locations", "automotive"],
-      "examples": ["What are your hours and address?", "Which rooftops does this dealer group have?"],
-      "inputSchema": { "$ref": "https://autoagentprotocol.org/v1.1/schemas/dealer-information-request.schema.json" },
-      "outputSchema": { "$ref": "https://autoagentprotocol.org/v1.1/schemas/dealer-information-response.schema.json" }
+      "tags": [
+        "dealer",
+        "dealership",
+        "profile",
+        "hours",
+        "contact",
+        "locations",
+        "automotive"
+      ]
     },
     {
       "id": "inventory.facets",
       "name": "Inventory Facets",
       "description": "Return aggregated facets (makes, models, years, conditions, price/mileage ranges, statuses) over the dealer's inventory.",
-      "tags": ["inventory", "facets", "aggregation", "filters", "automotive"],
-      "examples": ["What makes and price ranges do you have in stock?"],
-      "inputSchema": { "$ref": "https://autoagentprotocol.org/v1.1/schemas/inventory-facets-request.schema.json" },
-      "outputSchema": { "$ref": "https://autoagentprotocol.org/v1.1/schemas/inventory-facets-response.schema.json" }
+      "tags": [
+        "inventory",
+        "facets",
+        "aggregation",
+        "filters",
+        "automotive"
+      ]
     },
     {
       "id": "inventory.search",
       "name": "Inventory Search",
       "description": "Search the dealer's vehicle inventory by make, model, year, condition, price, mileage, body, fuel, drivetrain, VIN, or stock.",
-      "tags": ["inventory", "vehicles", "search", "cars", "automotive"],
-      "examples": ["Show me used Toyota RAV4s under $30,000", "Find new electric SUVs with under 10k miles"],
-      "inputSchema": { "$ref": "https://autoagentprotocol.org/v1.1/schemas/inventory-search-request.schema.json" },
-      "outputSchema": { "$ref": "https://autoagentprotocol.org/v1.1/schemas/inventory-search-response.schema.json" }
+      "tags": [
+        "inventory",
+        "vehicles",
+        "search",
+        "cars",
+        "automotive"
+      ]
     },
     {
       "id": "inventory.vehicle",
       "name": "Vehicle Detail",
       "description": "Return full detail for a specific vehicle by VIN, stock number, or vehicle_id.",
-      "tags": ["inventory", "vehicle", "vin", "stock", "detail", "automotive"],
-      "examples": ["Get full details for VIN 1HGCM82633A004352"],
-      "inputSchema": { "$ref": "https://autoagentprotocol.org/v1.1/schemas/vehicle-detail-request.schema.json" },
-      "outputSchema": { "$ref": "https://autoagentprotocol.org/v1.1/schemas/vehicle-detail-response.schema.json" }
+      "tags": [
+        "inventory",
+        "vehicle",
+        "vin",
+        "stock",
+        "detail",
+        "automotive"
+      ]
     },
     {
       "id": "lead.submit",
       "name": "Submit Lead",
       "description": "Submit a consented lead with optional vehicle of interest, trade-in, and appointment.",
-      "tags": ["lead", "contact", "consent", "sales", "appointment", "automotive"],
-      "examples": ["I want to schedule a test drive for this vehicle"],
-      "inputSchema": { "$ref": "https://autoagentprotocol.org/v1.1/schemas/lead-submit-request.schema.json" },
-      "outputSchema": { "$ref": "https://autoagentprotocol.org/v1.1/schemas/lead-submit-response.schema.json" }
+      "tags": [
+        "lead",
+        "contact",
+        "consent",
+        "sales",
+        "appointment",
+        "automotive"
+      ]
     }
   ]
 }

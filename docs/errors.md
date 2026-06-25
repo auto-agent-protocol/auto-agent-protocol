@@ -1,14 +1,14 @@
 ---
 sidebar_position: 8
 title: Errors
-description: The 12 AAP error codes — meaning, suggested HTTP and JSON-RPC mapping, and retryable defaults.
+description: The 12 AAP error codes — meaning, suggested JSON-RPC mapping, and retryable defaults.
 ---
 
 # Errors
 
 ![Anatomy of a typed AAP error inside the JSON-RPC error envelope: error.code, data.code, retryable](/img/v1.0/error-anatomy.png)
 
-AAP defines a single typed error payload (`aap.error`) that every dealer agent MUST use when a skill cannot be fulfilled. The error rides inside the standard A2A error envelope: `error.data` for the REQUIRED JSON-RPC binding ([Section 9.5](./bindings/json-rpc.md#error-mapping-a2a-section-95)) or inside the `google.rpc.Status` body of a non-2xx HTTP response for the OPTIONAL HTTP+JSON binding ([Section 11.6](./bindings/rest.md#error-mapping-a2a-section-116)).
+AAP defines a single typed error payload (`aap.error`) that every dealer agent MUST use when a skill cannot be fulfilled. The error rides inside the standard A2A error envelope: `error.data` of the JSON-RPC error response ([Section 9.5](./bindings/json-rpc.md#error-mapping-a2a-section-95)). AAP v1.1 uses a single transport — JSON-RPC 2.0; the HTTP+JSON (REST) binding was [removed in v1.1](./bindings/rest.md).
 
 ## Error payload shape
 
@@ -39,22 +39,22 @@ AAP defines a single typed error payload (`aap.error`) that every dealer agent M
 
 ## Error code reference
 
-The 12 codes, their meaning, recommended HTTP status, recommended JSON-RPC code, and `retryable` default.
+The 12 codes, their meaning, recommended JSON-RPC code, and `retryable` default.
 
-| `code` | Meaning | HTTP | JSON-RPC | `retryable` default |
-|---|---|---|---|---|
-| `UNSUPPORTED_SKILL` | The agent does not implement this skill. | 404 | -32601 (Method not found) | `false` |
-| `SCHEMA_VALIDATION_FAILED` | Request body fails JSON Schema validation. | 422 | -32602 (Invalid params) | `false` |
-| `MISSING_REQUIRED_FIELD` | A specifically required field is absent. | 422 | -32602 (Invalid params) | `false` |
-| `INVALID_CONDITION` | `vehicle_of_interest.condition` is in the trade-in vocabulary, or `trade_in.condition` is in the sale-condition vocabulary. | 422 | -32602 (Invalid params) | `false` |
-| `VEHICLE_NOT_FOUND` | The supplied `vin` / `stock` / `vehicle_id` does not match any listing. | 404 | -32000 (Server error) | `false` |
-| `VEHICLE_UNAVAILABLE` | The vehicle exists but its `status` is no longer one of `available` \| `intransit` \| `pending`. | 409 | -32000 (Server error) | `false` |
-| `CONTACT_CONSENT_REQUIRED` | `customer` info present without `consent`, or follow-up channel not in `consent.allowed_channels`. | 403 | -32000 (Server error) | `false` |
-| `INVALID_CONSENT` | `consent` is present but malformed, expired, or its scope does not cover the called skill. | 403 | -32000 (Server error) | `false` |
-| `APPOINTMENT_TIME_UNAVAILABLE` | The requested `appointment_at` cannot be honored AND the dealer has no proposed alternatives. | 409 | -32000 (Server error) | `false` |
-| `IDEMPOTENCY_CONFLICT` | An `idempotency_key` was reused with a different request payload. | 409 | -32000 (Server error) | `false` |
-| `RATE_LIMITED` | Client has exceeded the dealer's rate limit. | 429 | -32002 (Server error reserved) | **`true`** |
-| `INTERNAL_ERROR` | Unhandled dealer-side error. | 500 | -32603 (Internal error) | `true` |
+| `code` | Meaning | JSON-RPC | `retryable` default |
+|---|---|---|---|
+| `UNSUPPORTED_SKILL` | The agent does not implement this skill. | -32601 (Method not found) | `false` |
+| `SCHEMA_VALIDATION_FAILED` | Request body fails JSON Schema validation. | -32602 (Invalid params) | `false` |
+| `MISSING_REQUIRED_FIELD` | A specifically required field is absent. | -32602 (Invalid params) | `false` |
+| `INVALID_CONDITION` | `vehicle_of_interest.condition` is in the trade-in vocabulary, or `trade_in.condition` is in the sale-condition vocabulary. | -32602 (Invalid params) | `false` |
+| `VEHICLE_NOT_FOUND` | The supplied `vin` / `stock` / `vehicle_id` does not match any listing. | -32000 (Server error) | `false` |
+| `VEHICLE_UNAVAILABLE` | The vehicle exists but its `status` is no longer one of `available` \| `intransit` \| `pending`. | -32000 (Server error) | `false` |
+| `CONTACT_CONSENT_REQUIRED` | `customer` info present without `consent`, or follow-up channel not in `consent.allowed_channels`. | -32000 (Server error) | `false` |
+| `INVALID_CONSENT` | `consent` is present but malformed, expired, or its scope does not cover the called skill. | -32000 (Server error) | `false` |
+| `APPOINTMENT_TIME_UNAVAILABLE` | The requested `appointment_at` cannot be honored AND the dealer has no proposed alternatives. | -32000 (Server error) | `false` |
+| `IDEMPOTENCY_CONFLICT` | An `idempotency_key` was reused with a different request payload. | -32000 (Server error) | `false` |
+| `RATE_LIMITED` | Client has exceeded the dealer's rate limit. | -32002 (Server error reserved) | **`true`** |
+| `INTERNAL_ERROR` | Unhandled dealer-side error. | -32603 (Internal error) | `true` |
 
 `retryable` is a default, not a hard rule. Dealer agents MAY override it per-instance — for example, a `SCHEMA_VALIDATION_FAILED` is conceptually non-retryable (the request is malformed and a retry will fail identically), but a transient `INTERNAL_ERROR` is conceptually retryable. Buyer agents MUST honor the value the dealer returns rather than the table default.
 
@@ -62,7 +62,7 @@ The 12 codes, their meaning, recommended HTTP status, recommended JSON-RPC code,
 
 ### `UNSUPPORTED_SKILL`
 
-Returned when a buyer agent calls a skill id the dealer agent does not implement. AAP v1.0 agents declare the subset of the five skills they implement (at least one) on their agent card, so buyer agents SHOULD check the declared skills before calling. This code also covers forward-compat scenarios where future AAP versions add skills not present in v1.0.
+Returned when a buyer agent calls a skill id the dealer agent does not implement. AAP v1.1 agents declare the subset of the five skills they implement (at least one) on their agent card, so buyer agents SHOULD check the declared skills before calling. This code also covers forward-compat scenarios where future AAP versions add skills not present in v1.1.
 
 ### `SCHEMA_VALIDATION_FAILED`
 
@@ -131,46 +131,6 @@ A catch-all for unexpected dealer-side failures. `retryable: true` is the defaul
       },
       "created_at": "2026-04-30T10:15:30Z"
     }
-  }
-}
-```
-
-### HTTP+JSON error response
-
-A2A v1.0 (Section 11.6) uses Google's standard `google.rpc.Status` shape for HTTP error bodies. AAP places the typed `aap.error` payload as one of the entries in `error.details[]`, alongside a `google.rpc.ErrorInfo` entry whose `reason` carries the AAP code.
-
-```http
-HTTP/1.1 422 Unprocessable Entity
-Content-Type: application/json
-
-{
-  "error": {
-    "code": 422,
-    "message": "filters.year_min must be an integer",
-    "details": [
-      {
-        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
-        "reason": "SCHEMA_VALIDATION_FAILED",
-        "domain": "autoagentprotocol.org",
-        "metadata": {
-          "instancePath": "/filters/year_min",
-          "received": "twenty-twenty"
-        }
-      },
-      {
-        "@type": "type.googleapis.com/aap.error",
-        "type": "aap.error",
-        "error_id": "err_01HZ9EXAMPLE",
-        "code": "SCHEMA_VALIDATION_FAILED",
-        "message": "filters.year_min must be an integer",
-        "retryable": false,
-        "details": {
-          "instancePath": "/filters/year_min",
-          "received": "twenty-twenty"
-        },
-        "created_at": "2026-04-30T10:15:30Z"
-      }
-    ]
   }
 }
 ```

@@ -683,7 +683,7 @@ export interface Appointment {
 }
 
 /**
- * A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. A2A v1.0 declares every transport in 'supportedInterfaces[]' (it replaced the earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). To be a compliant AAP dealer agent, 'capabilities.extensions' MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1'.
+ * A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. A2A v1.0 declares every transport in 'supportedInterfaces[]' (it replaced the earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). AAP v1.1 uses a single transport: JSON-RPC 2.0. A compliant AAP dealer agent advertises a JSONRPC interface in 'supportedInterfaces[]' and does not advertise any other transport for AAP. To be a compliant AAP dealer agent, 'capabilities.extensions' MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1'.
  */
 export interface AgentCard {
   /**
@@ -695,7 +695,7 @@ export interface AgentCard {
    */
   description: string;
   /**
-   * The A2A v1.0 service interfaces (transport + endpoint). AAP keeps the transport surface minimal: a JSONRPC interface is REQUIRED (every AAP client can rely on it); an HTTP+JSON interface MAY be added; gRPC is out of scope.
+   * The A2A v1.0 service interfaces (transport + endpoint). AAP v1.1 uses a single transport: a JSONRPC interface is REQUIRED and is the only transport an AAP agent advertises (every AAP client can rely on it). The HTTP+JSON (REST) binding was removed in v1.1; gRPC is out of scope. The protocolBinding enum still lists 'HTTP+JSON' for raw A2A compatibility, but AAP v1.1 advertises only 'JSONRPC'.
    *
    * @minItems 1
    */
