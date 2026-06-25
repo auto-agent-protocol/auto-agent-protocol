@@ -182,5 +182,5 @@ All five skills have been exercised live through the official A2A v1.0 SDKs (`@a
 - [Why automotive needs AAP](./why.md) — the gap AAP fills against A2A, ACP, MCP, and ADF.
 - [A2A profile](./a2a-profile.md) — how AAP slots into A2A's three-layer architecture.
 - [Discovery](./discovery.md) — full agent card example.
-- [Pricing and FTC compliance](./pricing-and-ftc.md) — the four pricing fields and why `price` is the FTC-final out-the-door amount.
+- [Pricing and FTC compliance](./pricing-and-ftc.md) — the three pricing fields and why `price` is the FTC-final out-the-door amount.
 - [Skills reference](./skills/dealer-information.md) — one page per skill with full request/response examples.
