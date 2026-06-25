@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://autoagentprotocol.org/v1.1/schemas/agent-card.schema.json",
   "title": "AgentCard",
-  "description": "A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. A2A v1.0 declares every transport in 'supportedInterfaces[]' (it replaced the earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). AAP v1.1 uses a single transport: JSON-RPC 2.0. A compliant AAP dealer agent advertises a JSONRPC interface in 'supportedInterfaces[]' and does not advertise any other transport for AAP. To be a compliant AAP dealer agent, 'capabilities.extensions' MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1'.",
+  "description": "A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. A2A v1.0 declares every transport in 'supportedInterfaces[]' (it replaced the earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). AAP v1.1 uses a single transport: JSON-RPC 2.0. A compliant AAP dealer agent advertises a JSONRPC interface in 'supportedInterfaces[]' and does not advertise any other transport for AAP. To be a compliant AAP dealer agent, 'capabilities.extensions' MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/aap/v1.1'.",
   "type": "object",
   "properties": {
     "name": { "type": "string", "description": "Human-readable agent name." },
@@ -63,7 +63,7 @@
           "contains": {
             "type": "object",
             "properties": {
-              "uri": { "const": "https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1" }
+              "uri": { "const": "https://autoagentprotocol.org/extensions/aap/v1.1" }
             },
             "required": ["uri"]
           }

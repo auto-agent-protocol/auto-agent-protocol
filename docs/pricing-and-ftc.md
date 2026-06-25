@@ -1,14 +1,14 @@
 ---
 sidebar_position: 6
 title: Pricing and FTC compliance
-description: The four pricing fields (msrp, list_price, offered_price, price), what each one means, and why price MUST be the FTC-final out-the-door amount.
+description: The three pricing fields (msrp, list_price, price), what each one means, and why price MUST be the FTC-final out-the-door amount.
 ---
 
 # Pricing and FTC compliance
 
-![Vehicle pricing ladder from msrp to the FTC-final price](/img/v1.0/pricing-ladder.png)
+![Vehicle pricing ladder from msrp to the FTC-final price](/img/v1.1/pricing-ladder.png)
 
-AAP standardizes four explicit pricing fields on every vehicle. The single most important rule:
+AAP standardizes three explicit pricing fields on every vehicle. The single most important rule:
 
 > **`price` is the FTC-final out-the-door amount.** It is the total amount the buyer would pay for this specific vehicle, including all required fees, mandatory add-ons, and any conditions on dealer financing. Anything less is a violation of FTC enforcement policy.
 
@@ -23,16 +23,15 @@ In March 2026 the FTC sent warning letters to 97 auto dealership groups about de
 
 AAP's `price` field is the protocol-level expression of that rule. Buyer agents — including LLM-driven shopping assistants — sort, filter, and compare dealers on `price`. If a dealer publishes a `price` that is not the final amount, the buyer agent will surface that vehicle as artificially cheap and the dealer will be advertising a deceptive price across every agent that touches the API.
 
-## The four pricing fields
+## The three pricing fields
 
-Every `Vehicle` object in AAP MAY carry four integer price fields (whole US dollars). Each has a precise meaning.
+Every `Vehicle` object in AAP MAY carry three integer price fields (whole US dollars). Each has a precise meaning.
 
-| Field | Required? | Meaning | Includes regional taxes? | Includes mandatory fees / add-ons? | Notes |
-|---|---|---|---|---|---|
-| `msrp` | optional | Manufacturer's Suggested Retail Price (sticker price). | no | no | Set by the OEM, not the dealer. |
-| `list_price` | optional | Dealer's advertised base list price BEFORE incentives, taxes, and fees. | no | no | The number the dealer would put on a window sticker as their asking price, separate from required fees. |
-| `offered_price` | optional, conditional | Regional price equal to `list_price` plus applicable taxes for the buyer's `zip`. | yes (for the supplied `zip`) | no | Present only if `zip` is supplied AND the dealer enables desking. |
-| `price` | RECOMMENDED | **FTC-final out-the-door price** after all incentives, mandatory fees, and required add-ons. | yes | yes | The single number a buyer agent uses for comparison and the only one used by `inventory.search` `price_min` / `price_max` filters and `sort.field: "price"`. |
+| Field | Required? | Meaning | Includes mandatory fees / add-ons? | Notes |
+|---|---|---|---|---|
+| `msrp` | optional | Manufacturer's Suggested Retail Price (sticker price). | no | Set by the OEM, not the dealer. |
+| `list_price` | optional | Dealer's advertised base list price BEFORE incentives and fees. | no | The number the dealer would put on a window sticker as their asking price, separate from required fees. |
+| `price` | RECOMMENDED | **FTC-final out-the-door price** after all incentives, mandatory fees, and required add-ons. | yes | The single number a buyer agent uses for comparison and the only one used by `inventory.search` `price_min` / `price_max` filters and `sort.field: "price"`. |
 
 Each is a plain integer in whole US dollars:
 
@@ -45,12 +44,10 @@ Each is a plain integer in whole US dollars:
 ```mermaid
 flowchart LR
   msrp["msrp<br/>(sticker)"] --> list["list_price<br/>(base advertised)"]
-  list --> offered["offered_price<br/>(list + regional tax,<br/>requires zip)"]
-  offered --> price["price<br/>(FTC-final<br/>out-the-door)"]
-  list --> price
+  list --> price["price<br/>(FTC-final<br/>out-the-door)"]
 ```
 
-`msrp` is informational only. `list_price` is the base advertised number. `offered_price` is the regional intermediate (what the dealer would offer in a region with given tax rate). `price` is the final number — the only one a buyer agent should use to make comparisons or run `price_min` / `price_max` filters.
+`msrp` is informational only. `list_price` is the base advertised number BEFORE incentives and fees. `price` is the final number — the FTC-final out-the-door amount, and the only one a buyer agent should use to make comparisons or run `price_min` / `price_max` filters.
 
 ## Concrete worked example
 
@@ -66,27 +63,16 @@ A 2022 Honda Civic listed by a California dealer:
   "condition": "cpo",
   "msrp": 26500,
   "list_price": 24990,
-  "offered_price": 26615,
   "price": 26780,
-  "zip": "94105",
   "status": "available",
   "inventory_date": "2026-04-12",
   "updated_at": "2026-04-30T10:15:00Z"
 }
 ```
 
-What the buyer is actually being asked to pay: **$26,780**. That is the FTC-final out-the-door figure. The other three fields are descriptive context. A buyer agent shopping for a Civic at "under $27,000" should match this listing on `price`, not `list_price`.
+What the buyer is actually being asked to pay: **$26,780**. That is the FTC-final out-the-door figure. The other two fields are descriptive context. A buyer agent shopping for a Civic at "under $27,000" should match this listing on `price`, not `list_price`.
 
 If the same dealer lists the same VIN with `price: 24990` while charging the customer $26,780 at the dealership, that is the exact pattern the FTC's 2026 warnings target.
-
-## How `zip` and desking work
-
-`offered_price` is regional. It is `list_price` plus applicable taxes for a specific buyer location. AAP exposes the buyer location in two ways:
-
-- **In `inventory.vehicle`**, the request carries an OPTIONAL `zip`. When supplied AND the dealer supports desking, the response MAY include `offered_price`. When `zip` is absent, the dealer MUST omit `offered_price`.
-- **In `inventory.search`**, the response vehicles do NOT carry `offered_price` for arbitrary buyer locations. Buyers should follow up with `inventory.vehicle` + `zip` to receive the regional price.
-
-`price` (the FTC-final out-the-door amount) does NOT depend on `zip` for its presence — the dealer SHOULD always compute and publish it for advertised inventory.
 
 ## What dealers MUST and MUST NOT do
 
@@ -95,13 +81,12 @@ These are normative; they are also restated in the [Behavior rules](./behavior-r
 - Dealers MUST publish `price` as the final out-the-door amount including all mandatory fees, conditions on financing, and required add-ons.
 - Dealers MUST NOT advertise a `price` that omits required fees, conditions on dealer financing, or required add-ons.
 - Dealers SHOULD publish `list_price` and `msrp` for transparency, but the buyer agent will compare on `price`.
-- Dealers MAY publish `offered_price` only when `zip` is supplied and the dealer supports desking.
 - Buyer agents MUST use `price` (not `list_price`) for filters and sort by default. AAP defines `inventory.search`'s `price_min` / `price_max` filters and `sort.field: "price"` against the `price` field for exactly this reason.
 
 ## How `price` is used elsewhere in AAP
 
-- `inventory.search` — `filters.price_min` and `filters.price_max` apply to `price`. `sort.field` accepts `"price"` (default sort comparator) and also `"list_price"`, `"offered_price"`, `"msrp"` for those who want to sort on a specific field.
-- `inventory.vehicle` — the response always carries `price`; `offered_price` is included only with a supplied `zip`.
+- `inventory.search` — `filters.price_min` and `filters.price_max` apply to `price`. `sort.field` accepts `"price"` (default sort comparator) and also `"list_price"`, `"msrp"` for those who want to sort on a specific field.
+- `inventory.vehicle` — the response always carries `price`.
 - `inventory.facets` — `price_range` aggregates min/max `price` values across the matching set.
 
 For full request/response shapes see the [skills reference](./skills/inventory-search.md).

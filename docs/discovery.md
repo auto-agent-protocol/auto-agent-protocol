@@ -6,7 +6,7 @@ description: A2A agent-card.json with the AAP extension. How a buyer agent disco
 
 # Discovery
 
-![Buyer agent fetching /.well-known/agent-card.json from a dealer's domain](/img/v1.0/discovery-flow.png)
+![Buyer agent fetching /.well-known/agent-card.json from a dealer's domain](/img/v1.1/discovery-flow.png)
 
 Every AAP-compliant dealer agent publishes an A2A v1.0 agent card at the well-known URL on its own domain:
 
@@ -23,7 +23,7 @@ The AgentCard structure itself is defined by [A2A](https://a2a-protocol.org/late
 1. `capabilities.extensions[]` contains an entry whose `uri` equals:
 
    ```
-   https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1
+   https://autoagentprotocol.org/extensions/aap/v1.1
    ```
 
 2. `skills[]` contains one entry per AAP skill the agent implements (one or more). Buyer agents discover capability from `skills[]`, not from the AAP extension URI alone. AAP RECOMMENDS that an agent expose at least `inventory.search` + `lead.submit` for a meaningful shopping experience, but no single skill is individually required.
@@ -59,7 +59,7 @@ This is the **smallest** card that satisfies the three requirements above — a 
   "capabilities": {
     "extensions": [
       {
-        "uri": "https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1",
+        "uri": "https://autoagentprotocol.org/extensions/aap/v1.1",
         "description": "Auto Agent Protocol v1.1 — A2A Automotive Retail Profile.",
         "required": true,
         "params": {

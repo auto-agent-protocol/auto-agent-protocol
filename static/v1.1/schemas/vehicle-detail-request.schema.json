@@ -7,8 +7,7 @@
   "examples": [
     {
       "type": "inventory.vehicle.request",
-      "vin": "1HGCV1F30NA123456",
-      "zip": "94103"
+      "vin": "1HGCV1F30NA123456"
     }
   ],
   "properties": {
@@ -28,11 +27,6 @@
       "type": "string",
       "description": "Dealer-internal vehicle identifier.",
       "examples": ["veh_8f3c1a"]
-    },
-    "zip": {
-      "type": "string",
-      "description": "Optional buyer ZIP code; when provided, the dealer MAY compute the regional offered_price field.",
-      "examples": ["94103"]
     }
   },
   "required": ["type"],

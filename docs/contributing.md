@@ -57,7 +57,7 @@ The following are intentionally out of scope for v1.1; pull requests adding them
 
 - Authentication flows. AAP defines none; agents are public by default and auth is left to A2A's native `securitySchemes` / `securityRequirements`.
 - Payments / checkout / financing approval. (See ACP for commerce checkout.)
-- RFQ / quote / desking flows beyond `offered_price`.
+- RFQ / quote / desking / regional tax-inclusive pricing flows.
 - Trade-in valuation pricing logic.
 - Reservations / inventory holds.
 - gRPC binding. (AAP v1.1 uses a single transport — JSON-RPC 2.0 — and requires a JSONRPC interface on every agent card; the HTTP+JSON (REST) binding was [removed in v1.1](./bindings/rest.md). A2A's gRPC binding is out of scope.)

@@ -1,4 +1,4 @@
-<!-- Source for static/img/v1.0/buyer-journey.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.1/buyer-journey.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,10 +8,10 @@
   html, body { width: 1600px; height: 900px; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
-    color: #0f1d33;
+    color: #26231c;
     padding: 58px 64px 48px;
     display: flex;
     flex-direction: column;
@@ -19,15 +19,15 @@
   .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 
   header { display: flex; align-items: flex-end; justify-content: space-between; }
-  h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.5px; }
+  h1 { font-size: 56px; font-weight: 800; letter-spacing: -1px; }
   .actors {
     display: flex; align-items: center; gap: 14px;
-    font-size: 24px; font-weight: 600; color: #5b6b84;
-    background: #ffffff; border-radius: 999px; padding: 12px 26px;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    font-size: 24px; font-weight: 700; color: #6f665a;
+    background: #fbf9f4; border-radius: 999px; padding: 12px 26px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09); border: 1px solid #ece4d3;
     white-space: nowrap;
   }
-  .actors .arr { color: #9aa7bd; }
+  .actors .arr { color: #bd7b34; }
 
   .steps {
     flex: 1;
@@ -39,9 +39,10 @@
   .card {
     width: 334px;
     height: 408px;
-    background: #ffffff;
-    border-radius: 24px;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    background: #fbf9f4;
+    border-radius: 22px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
     padding: 30px 28px;
     display: flex;
     flex-direction: column;
@@ -49,47 +50,48 @@
   .card-top { display: flex; align-items: center; gap: 14px; }
   .num {
     width: 46px; height: 46px; border-radius: 50%;
-    background: #dbe7fb; color: #1d4ed8;
+    background: #dcebe7; color: #0a463f;
     font-size: 24px; font-weight: 800;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
   .step-name {
-    font-size: 23px; font-weight: 800; letter-spacing: 2.5px;
-    color: #0f1d33;
+    font-size: 22px; font-weight: 800; letter-spacing: 2.5px;
+    color: #26231c;
   }
   .code-chip {
     margin-top: 24px;
-    background: #f1f4fa;
+    background: #efe9dd;
     border-radius: 14px;
     padding: 16px 18px;
-    font-size: 21px;
+    font-size: 20px;
     line-height: 1.45;
-    color: #41506b;
+    color: #4a4338;
     font-weight: 600;
     overflow-wrap: anywhere;
   }
-  .code-chip .skill { color: #1d4ed8; font-weight: 700; }
+  .code-chip .skill { color: #0e5a52; font-weight: 800; }
   .result {
     margin-top: 20px;
     font-size: 22px;
     line-height: 1.45;
-    color: #5b6b84;
+    color: #6f665a;
   }
-  .result .arr { color: #2563eb; font-weight: 700; }
-  .result b { color: #0f1d33; font-weight: 700; }
+  .result .arr { color: #bd7b34; font-weight: 800; }
+  .result b { color: #26231c; font-weight: 700; }
 
   .card.emph {
-    background: linear-gradient(180deg, #2f6df0 0%, #1d4ed8 100%);
-    box-shadow: 0 14px 32px rgba(37,99,235,.25);
+    background: linear-gradient(180deg, #0e5a52 0%, #0a463f 100%);
+    box-shadow: 0 16px 36px rgba(14,90,82,.28);
+    border-color: #0a463f;
   }
-  .card.emph .num { background: #ffffff; color: #1d4ed8; }
-  .card.emph .step-name { color: #ffffff; }
-  .card.emph .code-chip { background: rgba(255,255,255,.16); color: #ffffff; }
-  .card.emph .code-chip .skill { color: #ffffff; }
-  .card.emph .result { color: rgba(255,255,255,.85); }
-  .card.emph .result .arr { color: #ffffff; }
-  .card.emph .result b { color: #ffffff; }
+  .card.emph .num { background: #fff; color: #0a463f; }
+  .card.emph .step-name { color: #fff; }
+  .card.emph .code-chip { background: rgba(255,255,255,.15); color: #fff; }
+  .card.emph .code-chip .skill { color: #fff; }
+  .card.emph .result { color: rgba(255,255,255,.88); }
+  .card.emph .result .arr { color: #f1e4d0; }
+  .card.emph .result b { color: #fff; }
 
   .flow-arrow {
     align-self: center;
@@ -103,14 +105,14 @@
     position: absolute;
     left: 6px; right: 16px;
     height: 4px; border-radius: 2px;
-    background: #b9c4d8;
+    background: #cdbfa6;
   }
   .flow-arrow::after {
     content: "";
     position: absolute;
     right: 5px;
     width: 0; height: 0;
-    border-left: 13px solid #b9c4d8;
+    border-left: 13px solid #cdbfa6;
     border-top: 9px solid transparent;
     border-bottom: 9px solid transparent;
   }
@@ -121,23 +123,24 @@
     justify-content: center;
   }
   .footer-pill {
-    background: #ffffff;
+    background: #fbf9f4;
     border-radius: 999px;
     padding: 18px 40px;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
     font-size: 25px;
-    color: #5b6b84;
+    color: #6f665a;
     font-weight: 600;
     white-space: nowrap;
   }
-  .footer-pill b { color: #0f1d33; font-weight: 800; }
-  .footer-pill .mono { color: #1d4ed8; font-weight: 700; }
+  .footer-pill b { color: #26231c; font-weight: 800; }
+  .footer-pill .mono { color: #0e5a52; font-weight: 700; }
 </style>
 </head>
 <body>
   <header>
     <h1>How an AI agent buys a car</h1>
-    <div class="actors"><span>🤖 buyer agent</span><span class="arr">&#8594;</span><span>🏬 dealership</span></div>
+    <div class="actors"><span>🤖 buyer agent</span><span class="arr">&#8594;</span><span>🏬 dealer</span></div>
   </header>
 
   <div class="steps">
@@ -155,7 +158,7 @@
     <div class="card">
       <div class="card-top">
         <div class="num">2</div>
-        <div class="step-name">BROWSE</div>
+        <div class="step-name">SEARCH</div>
       </div>
       <div class="code-chip mono"><span class="skill">inventory.search</span></div>
       <div class="result"><span class="arr">&#8594;</span> typed <b>vehicle list</b>, filtered to what the buyer wants.</div>
@@ -166,7 +169,7 @@
     <div class="card">
       <div class="card-top">
         <div class="num">3</div>
-        <div class="step-name">INSPECT</div>
+        <div class="step-name">VEHICLE</div>
       </div>
       <div class="code-chip mono"><span class="skill">inventory.vehicle</span></div>
       <div class="result"><span class="arr">&#8594;</span> <b>full detail by VIN</b> &mdash; price, options, availability.</div>
@@ -177,7 +180,7 @@
     <div class="card emph">
       <div class="card-top">
         <div class="num">4</div>
-        <div class="step-name">SUBMIT</div>
+        <div class="step-name">LEAD</div>
       </div>
       <div class="code-chip mono"><span class="skill">lead.submit</span></div>
       <div class="result"><span class="arr">&#8594;</span> <b>consented lead</b>: customer + vehicle + trade&#8209;in + appointment.</div>
@@ -185,7 +188,7 @@
   </div>
 
   <footer>
-    <div class="footer-pill">Five skills, <b>one conversation</b> &mdash; all over standard A2A v1.0 <span class="mono">SendMessage</span></div>
+    <div class="footer-pill">Five skills, <b>one conversation</b> &mdash; all over JSON-RPC 2.0 <span class="mono">SendMessage</span> at <span class="mono">{base}/a2a</span></div>
   </footer>
 </body>
 </html>

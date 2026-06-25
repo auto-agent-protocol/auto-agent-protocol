@@ -1,0 +1,165 @@
+<!-- Source for static/img/v1.1/schema-self-discovery.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #26231c;
+    padding: 48px 64px 44px;
+    display: flex;
+    flex-direction: column;
+  }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  h1 { font-size: 54px; font-weight: 800; letter-spacing: -1px; }
+  .subtitle { font-size: 26px; color: #6f665a; margin-top: 12px; }
+  .subtitle .mono { color: #0e5a52; font-weight: 600; }
+
+  .flow {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+    gap: 16px;
+    margin-top: 34px;
+  }
+
+  .step {
+    flex: 1;
+    background: #fbf9f4;
+    border-radius: 22px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
+    padding: 26px 24px;
+    display: flex;
+    flex-direction: column;
+  }
+  .num {
+    width: 46px; height: 46px; border-radius: 12px;
+    background: #dcebe7; color: #0a463f;
+    font-size: 24px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+  }
+  .step.final .num { background: #f1e4d0; color: #bd7b34; }
+  .step .head { font-size: 25px; font-weight: 800; letter-spacing: -0.3px; line-height: 1.2; }
+  .step .desc { font-size: 19px; color: #6f665a; margin-top: 10px; line-height: 1.4; }
+
+  .box {
+    margin-top: 18px;
+    background: #efe9dd;
+    border: 1px solid #ece4d3;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #4a4338;
+    white-space: pre;
+    overflow: hidden;
+  }
+  .box.teal { background: #dcebe7; border-color: #cfe2dc; }
+  .k { color: #0e5a52; }
+  .s { color: #26231c; }
+  .c { color: #9c9486; }
+  .grow { margin-top: auto; }
+
+  .ok {
+    margin-top: 16px;
+    display: inline-flex; align-self: flex-start;
+    background: #dcebe7; color: #0a463f;
+    font-size: 18px; font-weight: 700;
+    border-radius: 999px; padding: 8px 18px;
+  }
+
+  .arrow {
+    align-self: center;
+    flex: 0 0 auto;
+    color: #0e5a52;
+    font-size: 34px;
+    font-weight: 800;
+  }
+
+  .footer {
+    margin-top: 34px;
+    text-align: center;
+    font-size: 26px;
+    color: #6f665a;
+  }
+  .footer b { color: #26231c; font-weight: 700; }
+  .footer .mono { color: #0e5a52; }
+</style>
+</head>
+<body>
+  <h1>Schemas are self-discovering</h1>
+  <div class="subtitle">The buyer agent reads the card, fetches the published JSON Schema, and submits a valid lead <b>first try</b> — zero docs.</div>
+
+  <div class="flow">
+
+    <div class="step">
+      <div class="num">1</div>
+      <div class="head">🤖 Read the<br>agent card</div>
+      <div class="desc">Buyer agent loads the AAP extension and its per-skill params.</div>
+      <div class="box grow"><span class="c">// agent-card.json</span>
+<span class="k">capabilities</span>
+ .<span class="k">extensions</span>[]
+ .<span class="k">params</span>
+ .<span class="k">skills</span></div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="step">
+      <div class="num">2</div>
+      <div class="head">Resolve the<br>schema URL</div>
+      <div class="desc"><span class="mono">skills["lead.submit"]</span> publishes the request schema URL.</div>
+      <div class="box grow"><span class="k">"lead.submit"</span>: {
+  <span class="k">"request_schema"</span>:
+   <span class="s">"…/lead.</span>
+<span class="s">submit.request.json"</span>,
+  <span class="k">"response_schema"</span>:
+   <span class="s">"…"</span>
+}</div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="step">
+      <div class="num">3</div>
+      <div class="head">Fetch the<br>JSON Schema</div>
+      <div class="desc">Field examples and constraints arrive inline — no external docs.</div>
+      <div class="box grow"><span class="k">"consent"</span>: {
+  <span class="k">"scope"</span>: {
+    <span class="k">"const"</span>:
+     [<span class="s">"lead_</span>
+<span class="s">submission"</span>]
+  }
+},
+<span class="k">"source_agent"</span>: {…}</div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="step final">
+      <div class="num">4</div>
+      <div class="head">Submit a<br>valid lead</div>
+      <div class="desc">First call passes validation — no errors[] returned.</div>
+      <div class="box teal grow"><span class="k">SendMessage</span>
+<span class="k">"lead.submit</span>
+<span class="k">.request"</span>
+<span class="c">// shaped to</span>
+<span class="c">// the schema</span></div>
+      <div class="ok">✓ valid first try</div>
+    </div>
+
+  </div>
+
+  <div class="footer">The card points to the schema; the schema teaches the shape — <b>discovery all the way down</b></div>
+</body>
+</html>

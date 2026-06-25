@@ -1,4 +1,4 @@
-<!-- Source for static/img/v1.0/aap-sdk-toolbox.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.1/aap-sdk-toolbox.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,22 +8,22 @@
   html, body { width: 1600px; height: 900px; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
-    color: #0f1d33;
+    color: #26231c;
     display: flex;
     flex-direction: column;
     padding: 64px 80px 56px;
   }
   .title {
     font-size: 56px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
+    font-weight: 800;
+    letter-spacing: -1px;
   }
   .subtitle {
     font-size: 27px;
-    color: #5b6b84;
+    color: #6f665a;
     margin-top: 14px;
   }
   .cards {
@@ -34,9 +34,10 @@
   }
   .card {
     flex: 1;
-    background: #ffffff;
-    border-radius: 24px;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    background: #fbf9f4;
+    border-radius: 22px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
     padding: 38px 36px;
     display: flex;
     flex-direction: column;
@@ -45,7 +46,7 @@
     width: 64px;
     height: 64px;
     border-radius: 16px;
-    background: #dbe7fb;
+    background: #dcebe7;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -56,42 +57,42 @@
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 25px;
     font-weight: 700;
-    color: #1d4ed8;
+    color: #0e5a52;
     line-height: 1.3;
   }
-  .pkg-scope { color: #9aa7bd; font-weight: 600; }
+  .pkg-scope { color: #9c9486; font-weight: 600; }
   .pkg-desc {
     font-size: 23px;
-    color: #5b6b84;
+    color: #6f665a;
     line-height: 1.45;
     margin-top: 16px;
   }
   .chip {
     margin-top: auto;
-    background: #f1f5fb;
-    border: 1.5px solid #dbe7fb;
+    background: #efe9dd;
+    border: 1px solid #ece4d3;
     border-radius: 14px;
     padding: 18px 20px;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 20px;
-    color: #41506b;
+    color: #4a4338;
     white-space: nowrap;
     overflow: hidden;
   }
   .footer {
     margin-top: 48px;
-    background: #0f1d33;
+    background: #26231c;
     border-radius: 18px;
-    box-shadow: 0 14px 32px rgba(15,29,51,.18);
+    box-shadow: 0 16px 36px rgba(38,35,28,.18);
     padding: 26px 34px;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 23px;
-    color: #dbe7fb;
+    color: #d5e6e1;
     white-space: nowrap;
   }
-  .footer .prompt { color: #9aa7bd; margin-right: 14px; }
-  .footer .cmd { color: #ffffff; font-weight: 600; }
-  .footer .pkg { color: #8db4f8; }
+  .footer .prompt { color: #9c9486; margin-right: 14px; }
+  .footer .cmd { color: #fbf9f4; font-weight: 600; }
+  .footer .pkg { color: #5fb8ac; }
 </style>
 </head>
 <body>
@@ -116,8 +117,8 @@
     <div class="card">
       <div class="pkg-icon">✅</div>
       <div class="pkg-name"><span class="pkg-scope">@autoagentprotocol/</span><br>validator</div>
-      <div class="pkg-desc">Ajv-based runtime validators</div>
-      <div class="chip">validate(payload) → { valid: true }</div>
+      <div class="pkg-desc">Ajv-based validators — returns every error at once</div>
+      <div class="chip">validate(lead) → { errors: [] }</div>
     </div>
   </div>
 

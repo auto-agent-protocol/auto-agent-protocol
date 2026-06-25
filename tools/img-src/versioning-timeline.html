@@ -1,6 +1,5 @@
 <!doctype html>
-<!-- Source for static/img/v1.0/versioning-timeline.png (and the root copy).
-     Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.1/versioning-timeline.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <html>
 <head>
 <meta charset="utf-8">
@@ -9,36 +8,37 @@
   html, body { width: 1600px; height: 900px; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
-    color: #0f1d33;
+    color: #26231c;
     display: flex; flex-direction: column; align-items: center;
   }
-  h1 { font-size: 64px; font-weight: 700; margin-top: 64px; letter-spacing: -0.5px; }
-  .sub { font-size: 28px; color: #5b6b84; margin-top: 18px; }
-  .timeline { display: flex; align-items: center; margin-top: 150px; }
-  .node { display: flex; flex-direction: column; align-items: center; position: relative; width: 320px; }
+  h1 { font-size: 60px; font-weight: 800; margin-top: 60px; letter-spacing: -1px; }
+  .sub { font-size: 26px; color: #6f665a; margin-top: 16px; }
+  .timeline { display: flex; align-items: center; margin-top: 130px; }
+  .node { display: flex; flex-direction: column; align-items: center; position: relative; width: 270px; }
   .chip {
-    font-size: 24px; padding: 8px 30px; border-radius: 999px; margin-bottom: 26px;
-    background: #dde3ee; color: #5b6b84;
+    font-size: 22px; font-weight: 600; padding: 8px 26px; border-radius: 999px; margin-bottom: 24px;
+    background: #ece6d8; color: #6f665a;
   }
-  .chip.latest { background: #2563eb; color: #fff; }
+  .chip.latest { background: #0e5a52; color: #fff; font-weight: 700; }
   .circle {
-    width: 160px; height: 160px; border-radius: 50%;
+    width: 150px; height: 150px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 44px; font-weight: 600;
+    font-size: 40px; font-weight: 700;
   }
-  .released .circle { background: #dbe7fb; border: 3px solid #2563eb; color: #1d4ed8; width: 150px; height: 150px; }
-  .latest-node .circle { background: #2563eb; border: 4px solid #1d4ed8; color: #fff; width: 195px; height: 195px; font-size: 52px; font-weight: 700; }
-  .caption { margin-top: 36px; text-align: center; font-size: 27px; line-height: 1.45; color: #0f1d33; }
-  .caption .dim { color: #9aa7bd; font-size: 25px; }
-  .connector { width: 270px; height: 4px; background: #c9d3e4; margin-top: 56px; }
+  .released .circle { background: #dcebe7; border: 3px solid #0e5a52; color: #0a463f; width: 140px; height: 140px; }
+  .frozen .circle { background: #f1e4d0; border: 3px solid #bd7b34; color: #bd7b34; width: 140px; height: 140px; }
+  .latest-node .circle { background: #0e5a52; border: 4px solid #0a463f; color: #fff; width: 190px; height: 190px; font-size: 48px; }
+  .caption { margin-top: 32px; text-align: center; font-size: 25px; line-height: 1.4; color: #26231c; font-weight: 600; }
+  .caption .dim { color: #9c9486; font-size: 22px; font-weight: 400; }
+  .connector { width: 180px; height: 4px; background: #d9cdb6; margin-top: 52px; }
 </style>
 </head>
 <body>
   <h1>AAP versioning</h1>
-  <div class="sub">Released versions are immutable — the “latest” alias tracks the highest release.</div>
+  <div class="sub">Released versions are immutable — the "latest" alias tracks the highest release.</div>
   <div class="timeline">
     <div class="node released">
       <div class="chip">released</div>
@@ -52,10 +52,16 @@
       <div class="caption">Frozen · historical<br><span class="dim">still served at /v0.2</span></div>
     </div>
     <div class="connector"></div>
+    <div class="node frozen">
+      <div class="chip">frozen</div>
+      <div class="circle">v1.0</div>
+      <div class="caption">Frozen · stable<br><span class="dim">still served at /v1.0</span></div>
+    </div>
+    <div class="connector"></div>
     <div class="node latest-node">
       <div class="chip latest">latest</div>
-      <div class="circle">v1.0.0</div>
-      <div class="caption">Current release<br>the stable A2A v1.0<br>automotive profile</div>
+      <div class="circle">v1.1</div>
+      <div class="caption">Current release<br>on A2A v1.0<br><span class="dim">JSON-RPC sole binding</span></div>
     </div>
   </div>
 </body>

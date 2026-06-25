@@ -1,6 +1,5 @@
 <!doctype html>
-<!-- Source for static/img/v1.0/bindings-comparison.png.
-     Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.1/bindings-comparison.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <html>
 <head>
 <meta charset="utf-8">
@@ -9,55 +8,67 @@
   html, body { width: 1600px; height: 900px; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
-    color: #0f1d33;
+    color: #26231c;
     display: flex; flex-direction: column; align-items: center;
   }
-  h1 { font-size: 50px; font-weight: 700; margin-top: 50px; letter-spacing: -0.5px; }
-  .payload { margin-top: 40px; background: #2563eb; color: #fff; border-radius: 18px; padding: 20px 40px; font-size: 27px; font-weight: 600; box-shadow: 0 14px 30px rgba(37,99,235,.25); }
-  .payload code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 400; font-size: 25px; }
-  .fan { display: flex; gap: 70px; margin-top: 48px; }
-  .col { width: 620px; display: flex; flex-direction: column; align-items: center; }
-  .col h2 { font-size: 30px; font-weight: 600; margin-bottom: 8px; }
-  .col .tag { font-size: 22px; padding: 5px 18px; border-radius: 999px; margin-bottom: 18px; }
-  .col .tag.req { background: #dbe7fb; color: #1d4ed8; font-weight: 600; }
-  .col .tag.opt { background: #e4e9f2; color: #5b6b84; }
-  .box { width: 100%; background: #fff; border-radius: 18px; padding: 24px 28px; box-shadow: 0 12px 28px rgba(15,29,51,.08); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 23px; line-height: 1.7; color: #41506b; }
-  .box .k { color: #1d4ed8; }
-  .same { margin-top: 44px; font-size: 28px; color: #5b6b84; }
-  .same b { color: #0f1d33; }
+  h1 { font-size: 60px; font-weight: 800; margin-top: 64px; letter-spacing: -1px; }
+  .sub { margin-top: 18px; font-size: 26px; color: #6f665a; max-width: 1100px; text-align: center; }
+  .sub b { color: #26231c; font-weight: 700; }
+
+  .wire {
+    margin-top: 52px;
+    width: 1200px;
+    background: #fbf9f4;
+    border-radius: 22px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
+    padding: 36px 48px 40px;
+    position: relative;
+  }
+  .cardhead { display: flex; align-items: center; gap: 20px; margin-bottom: 22px; }
+  .label {
+    font-size: 18px; font-weight: 700; letter-spacing: 1px;
+    color: #0a463f; background: #dcebe7; border-radius: 999px; padding: 7px 20px;
+  }
+  .endpoint { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 24px; color: #4a4338; }
+  .actors { margin-left: auto; font-size: 22px; color: #6f665a; }
+
+  .code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 26px; line-height: 44px; }
+  .ln { white-space: pre; }
+  .k { color: #0e5a52; }
+  .p { color: #9c9486; }
+  .v { color: #26231c; }
+  .hl { color: #bd7b34; font-weight: 700; }
+
+  .foot { margin-top: 50px; font-size: 27px; color: #6f665a; }
+  .foot b { color: #0a463f; font-weight: 700; }
 </style>
 </head>
 <body>
-  <h1>Same payload, two transports</h1>
-  <div class="payload">AAP typed payload — <code>"type": "inventory.search.request"</code></div>
-  <div class="fan">
-    <div class="col">
-      <h2>JSON-RPC 2.0 binding</h2>
-      <div class="tag req">REQUIRED</div>
-      <div class="box">
-        <div>POST {base}/a2a</div>
-        <div>{</div>
-        <div>&nbsp;&nbsp;<span class="k">"jsonrpc"</span>: "2.0",</div>
-        <div>&nbsp;&nbsp;<span class="k">"method"</span>: "SendMessage",</div>
-        <div>&nbsp;&nbsp;<span class="k">"params"</span>: { "message": … }</div>
-        <div>}</div>
-      </div>
+  <h1>One wire: JSON-RPC 2.0</h1>
+  <div class="sub">Every AAP skill rides the <b>same single envelope</b> — one method, typed payloads. No REST, no second transport to build.</div>
+
+  <div class="wire">
+    <div class="cardhead">
+      <span class="label">THE ONLY CALL</span>
+      <span class="endpoint">POST {base}/a2a</span>
+      <span class="actors">🤖 buyer → 🏬 dealer</span>
     </div>
-    <div class="col">
-      <h2>HTTP+JSON binding</h2>
-      <div class="tag opt">OPTIONAL</div>
-      <div class="box">
-        <div>POST {base}/message:send</div>
-        <div>{</div>
-        <div>&nbsp;&nbsp;<span class="k">"message"</span>: { … },</div>
-        <div>&nbsp;&nbsp;<span class="k">"configuration"</span>: { … }</div>
-        <div>}</div>
-      </div>
+    <div class="code">
+      <div class="ln"><span class="p">{</span></div>
+      <div class="ln">  <span class="k">"jsonrpc"</span><span class="p">:</span> <span class="v">"2.0"</span><span class="p">,</span> <span class="k">"id"</span><span class="p">:</span> <span class="v">7</span><span class="p">,</span></div>
+      <div class="ln">  <span class="k">"method"</span><span class="p">:</span> <span class="hl">"SendMessage"</span><span class="p">,</span></div>
+      <div class="ln">  <span class="k">"params"</span><span class="p">: {</span> <span class="k">"message"</span><span class="p">: {</span></div>
+      <div class="ln">    <span class="k">"role"</span><span class="p">:</span> <span class="v">"ROLE_USER"</span><span class="p">,</span></div>
+      <div class="ln">    <span class="k">"parts"</span><span class="p">: [ {</span> <span class="k">"data"</span><span class="p">: {</span> <span class="k">"type"</span><span class="p">:</span> <span class="hl">"inventory.search.request"</span> <span class="p">} } ]</span></div>
+      <div class="ln">  <span class="p">} }</span></div>
+      <div class="ln"><span class="p">}</span></div>
     </div>
   </div>
-  <div class="same"><b>→ same wire effect</b> — identical AAP DataPart, identical response Message</div>
+
+  <div class="foot"><b>Same wire for all five skills</b> — swap only the typed <code style="font-family:ui-monospace,Menlo,monospace;color:#4a4338">data.type</code>.</div>
 </body>
 </html>

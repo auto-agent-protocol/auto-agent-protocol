@@ -6,7 +6,7 @@ description: Normative MUST/SHOULD rules every AAP-compliant dealer agent and bu
 
 # Behavior rules
 
-![Etiquette for buyer agents: identify honestly, browse anonymously, respect rate limits, quote only the FTC-final price](/img/v1.0/agent-etiquette.png)
+![Etiquette for buyer agents: identify honestly, browse anonymously, respect rate limits, quote only the FTC-final price](/img/v1.1/agent-etiquette.png)
 
 This page collects the normative MUST and SHOULD requirements that an AAP-compliant agent must follow. These rules are the bare minimum for interoperability and regulatory compliance; they are referenced from the per-skill pages and applied by the dealer-side test suite.
 
@@ -29,7 +29,7 @@ The keywords MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, RECOMMENDED, and OPTIONAL 
 
 ## Lead rules
 
-![Consent gate: anonymous inventory access vs consent-gated lead access](/img/v1.0/consent-gate.png)
+![Consent gate: anonymous inventory access vs consent-gated lead access](/img/v1.1/consent-gate.png)
 
 ### Lead MUSTs
 
@@ -66,7 +66,7 @@ The keywords MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, RECOMMENDED, and OPTIONAL 
 
 When optional context fields are omitted, AAP defines deterministic fallbacks so buyer agents and dealer agents agree without out-of-band coordination.
 
-- **Prices are integers in whole US dollars.** `msrp`, `list_price`, `offered_price`, and `price` are plain integers in whole US dollars (e.g. `26780`).
+- **Prices are integers in whole US dollars.** `msrp`, `list_price`, and `price` are plain integers in whole US dollars (e.g. `26780`).
 - **Address default country.** `Address.country` is optional; when omitted, the assumed country is `US`.
 - **Idempotency.** Buyer agents that retry `lead.submit` after a network failure SHOULD pass an `idempotency_key` (UUID recommended). Dealer agents SHOULD dedupe on this key for at least 24 hours and return the original `lead_id` and status on retries.
 - **Consent expiration.** When `ConsentGrant.expires_at` is omitted, the dealer MAY apply its own default expiration window per local regulation; an explicit `expires_at` always wins. The dealer MUST reject the lead with `INVALID_CONSENT` if the grant has already expired.
@@ -77,7 +77,6 @@ When optional context fields are omitted, AAP defines deterministic fallbacks so
 
 - **`price` MUST reflect the FINAL out-the-door amount.** `Vehicle.price` is the FTC-final price the buyer would actually pay, including all incentives applied, all mandatory fees added, all required dealer add-ons added. Dealers MUST NOT advertise a `price` that omits required fees, conditions on dealer financing, or required add-ons. See [Pricing and FTC compliance](./pricing-and-ftc.md) for the underlying FTC enforcement context (March 2026 warnings + CARS Rule).
 - **`price_min` / `price_max` and `sort.field: "price"` apply to `price`.** `inventory.search` `filters.price_min`, `filters.price_max`, and `sort.field: "price"` are evaluated against the `price` field, not `list_price` or `msrp`. Dealers MUST keep `price` accurate for the same reason.
-- **`offered_price` is conditional on `zip`.** `Vehicle.offered_price` MUST be omitted when no `zip` was supplied or when the dealer does not support desking. It MUST NOT be a substitute for `price`.
 
 ### Pricing SHOULDs
 

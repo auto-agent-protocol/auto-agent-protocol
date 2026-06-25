@@ -20,8 +20,7 @@
     "model": "CR-V",
     "trim": "EX-L",
     "condition": "used",
-    "price": 32995,
-    "zip": "94107"
+    "price": 32995
   },
   "message": "I'd like the out-the-door price for VIN 1HGCY2F57RA000001 delivered to ZIP 94107 and confirmation it's still available.",
   "source_agent": {

@@ -1,4 +1,4 @@
-<!-- Source for static/img/v1.0/datapart-anatomy.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.1/datapart-anatomy.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,41 +8,42 @@
   html, body { width: 1600px; height: 900px; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
-    color: #0f1d33;
+    color: #26231c;
     overflow: hidden;
   }
   .title {
     text-align: center;
-    font-size: 54px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    padding-top: 46px;
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    padding-top: 48px;
   }
   .card {
     position: relative;
     width: 1460px;
-    margin: 36px auto 0;
-    background: #ffffff;
-    border-radius: 24px;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
-    padding: 36px 56px;
+    margin: 40px auto 0;
+    background: #fbf9f4;
+    border-radius: 22px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
+    padding: 38px 56px;
   }
   .code {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 22px;
   }
-  .ln { white-space: pre; line-height: 42px; height: 42px; }
-  .k { color: #41506b; }
-  .p { color: #9aa7bd; }
-  .v { color: #0f1d33; }
-  .hl { color: #1d4ed8; font-weight: 600; }
+  .ln { white-space: pre; line-height: 44px; height: 44px; }
+  .k { color: #4a4338; }
+  .p { color: #9c9486; }
+  .v { color: #26231c; }
+  .hl { color: #0e5a52; font-weight: 700; }
   .tie {
     display: inline-block;
     width: 30px; height: 2px;
-    background: #c3cede;
+    background: #d8cdb8;
     vertical-align: middle;
     margin: 0 12px 0 16px;
   }
@@ -51,8 +52,8 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-size: 17px;
     font-weight: 600;
-    color: #1d4ed8;
-    background: #dbe7fb;
+    color: #0a463f;
+    background: #dcebe7;
     border-radius: 999px;
     padding: 5px 16px;
     vertical-align: middle;
@@ -60,8 +61,8 @@
   }
   .datawrap {
     position: relative;
-    background: #edf3fd;
-    border-left: 4px solid #2563eb;
+    background: #f1e4d0;
+    border-left: 4px solid #bd7b34;
     border-radius: 10px;
     margin-left: -20px;
     padding-left: 16px;
@@ -71,12 +72,13 @@
     right: 0;
     top: 50%;
     transform: translateY(-50%);
-    width: 312px;
+    width: 320px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
   .callout .cb b {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 17px;
+    color: #4a4338;
   }
   .callout::before {
     content: '';
@@ -85,72 +87,70 @@
     top: 50%;
     width: 32px;
     height: 2px;
-    background: #b9c5d8;
+    background: #d3a86a;
   }
   .callout .ct {
     font-size: 21px;
-    font-weight: 700;
-    color: #1d4ed8;
+    font-weight: 800;
+    color: #bd7b34;
     margin-bottom: 6px;
   }
   .callout .cb {
     font-size: 18px;
     line-height: 1.4;
-    color: #5b6b84;
+    color: #6f665a;
   }
   .footer {
     width: 1600px;
     text-align: center;
-    margin-top: 34px;
+    margin-top: 38px;
   }
   .footnote {
     display: inline-block;
-    background: #ffffff;
-    border: 1px solid #dfe5ef;
+    background: #fbf9f4;
+    border: 1px solid #ece4d3;
     border-radius: 999px;
-    padding: 13px 30px;
+    padding: 14px 32px;
     font-size: 22px;
-    color: #41506b;
+    color: #4a4338;
   }
   .footnote code {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 20px;
-    background: #eef1f7;
+    background: #efe9dd;
     border-radius: 7px;
     padding: 2px 9px;
-    color: #1d4ed8;
+    color: #4a4338;
   }
 </style>
 </head>
 <body>
-  <div class="title">Anatomy of an A2A v1.0 Message</div>
+  <div class="title">Anatomy of a typed JSON DataPart</div>
 
   <div class="card">
     <div class="code">
       <div class="ln"><span class="p">{</span></div>
       <div class="ln">  <span class="k">"messageId"</span><span class="p">:</span> <span class="v">"01HZ9F4M7C0X3K5RN8B3WJTW2P"</span><span class="p">,</span><span class="tie"></span><span class="chip">unique per message</span></div>
       <div class="ln">  <span class="k">"role"</span><span class="p">:</span> <span class="v">"ROLE_USER"</span><span class="p">,</span><span class="tie"></span><span class="chip">ProtoJSON enum</span></div>
-      <div class="ln">  <span class="k">"parts"</span><span class="p">: [</span></div>
-      <div class="ln">    <span class="p">{</span></div>
+      <div class="ln">  <span class="k">"parts"</span><span class="p">: [ {</span></div>
       <div class="datawrap">
-        <div class="ln">      <span class="k">"data"</span><span class="p">: {</span></div>
-        <div class="ln">        <span class="k">"type"</span><span class="p">:</span> <span class="hl">"inventory.search.request"</span><span class="p">,</span></div>
-        <div class="ln">        <span class="k">"filters"</span><span class="p">: {</span> <span class="k">"make"</span><span class="p">:</span> <span class="p">[</span><span class="v">"Toyota"</span><span class="p">]</span><span class="p">,</span> <span class="k">"model"</span><span class="p">:</span> <span class="p">[</span><span class="v">"RAV4"</span><span class="p">]</span><span class="p">,</span> <span class="p">… }</span></div>
-        <div class="ln">      <span class="p">},</span></div>
+        <div class="ln">    <span class="k">"data"</span><span class="p">: {</span></div>
+        <div class="ln">      <span class="k">"type"</span><span class="p">:</span> <span class="hl">"inventory.search.request"</span><span class="p">,</span></div>
+        <div class="ln">      <span class="k">"filters"</span><span class="p">: {</span> <span class="k">"make"</span><span class="p">:</span> <span class="p">[</span><span class="v">"Toyota"</span><span class="p">]</span><span class="p">,</span> <span class="k">"model"</span><span class="p">:</span> <span class="p">[</span><span class="v">"RAV4"</span><span class="p">]</span><span class="p">,</span> <span class="p">… }</span></div>
+        <div class="ln">    <span class="p">},</span></div>
         <div class="callout">
           <div class="ct">typed DataPart</div>
-          <div class="cb">the part is typed by its <b>data</b> member</div>
+          <div class="cb">the part is typed by <b>data.type</b></div>
         </div>
       </div>
-      <div class="ln">      <span class="k">"mediaType"</span><span class="p">:</span> <span class="hl">"application/vnd.autoagent.inventory-search-request+json"</span></div>
-      <div class="ln">    <span class="p">}</span></div>
-      <div class="ln">  <span class="p">]</span></div>
+      <div class="ln">    <span class="k">"mediaType"</span><span class="p">:</span> <span class="hl">"application/json"</span></div>
+      <div class="ln">  <span class="p">} ]</span></div>
       <div class="ln"><span class="p">}</span></div>
     </div>
   </div>
 
   <div class="footer">
-    <span class="footnote">A2A v1.0 — no <code>kind</code> discriminators; the AAP payload is the <code>data</code> value</span>
+    <span class="footnote">A2A v1.0 — typed JSON only; the AAP payload is the <code>data</code> value, keyed by <code>data.type</code></span>
   </div>
 </body>
 </html>

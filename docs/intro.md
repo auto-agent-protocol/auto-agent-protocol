@@ -6,25 +6,25 @@ description: What the Auto Agent Protocol is, what it standardizes, and how to c
 
 # Introduction
 
-![Buyer agent and dealership digital storefront connected by typed AAP messages](/img/v1.0/network-overview.png)
+![Buyer agent and dealership digital storefront connected by typed AAP messages](/img/v1.1/network-overview.png)
 
 **The Auto Agent Protocol (AAP) lets AI assistants shop at car dealerships.** People increasingly ask an AI assistant to find their next car. AAP is the free, open standard that lets any of those assistants find a dealership, browse its real inventory, and — with the customer's clear permission — send the dealership a sales lead. For a dealership, joining in means publishing **one small file on your own website** and answering a few well-defined questions; no app store, no middleman, no per-partner integration work.
 
-![Dealers go live in three steps: publish the agent card, serve the skills, receive consented leads](/img/v1.0/dealer-onboarding.png)
+![Dealers go live in three steps: publish the agent card, serve the skills, receive consented leads](/img/v1.1/dealer-onboarding.png)
 
 In technical terms: AAP is a strict [A2A v1.0](https://a2a-protocol.org) (Agent2Agent) profile that defines the typed automotive data shapes AI agents and dealer agents exchange when they discover, browse, and submit leads. AAP does not invent a new wire protocol — every AAP message travels inside an A2A `Message.parts[].data` value as a typed `DataPart`. JSON-RPC 2.0 is the sole binding: a JSON-RPC 2.0 interface is REQUIRED on every AAP agent card. The HTTP+JSON (REST) binding was removed in v1.1, and gRPC is out of scope.
 
 The extension is identified by a single URI:
 
 ```
-https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1
+https://autoagentprotocol.org/extensions/aap/v1.1
 ```
 
 A dealer agent declares itself AAP-compliant by listing this URI in `capabilities.extensions[]` of its A2A agent card and by implementing **one or more** of the five standard AAP automotive skills. Agents pick the subset they support; AAP RECOMMENDS at least `inventory.search` + `lead.submit` for an end-to-end shopping flow, but neither is mandatory.
 
 ## What AAP standardizes
 
-![Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit](/img/v1.0/skills-overview.png)
+![Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit](/img/v1.1/skills-overview.png)
 
 AAP v1.1 defines a **vocabulary** of five standard skill IDs that cover the read-and-lead lifecycle of automotive retail. A dealer agent picks whichever subset matches its capabilities — none of the five is individually mandatory.
 
@@ -40,7 +40,7 @@ It does NOT define authentication (v1.1 agents are public by default; auth is le
 
 ## Layered architecture
 
-![Three-layer stack: HTTP at the bottom, A2A v1.0 in the middle, AAP automotive profile on top](/img/v1.0/architecture-stack.png)
+![Three-layer stack: HTTP at the bottom, A2A v1.0 in the middle, AAP automotive profile on top](/img/v1.1/architecture-stack.png)
 
 AAP sits as a profile on top of A2A, which itself sits on top of HTTP. AAP never touches the wire format directly — it defines the shape of typed `DataParts` that A2A bindings carry.
 
@@ -173,7 +173,7 @@ The dealer agent replies with a `SendMessageResponse` in the JSON-RPC `result` �
 
 ## Verified interoperability
 
-![Works with every A2A v1.0 client: the official JS and Python SDKs and any A2A-capable assistant, all invoking one AAP dealer agent](/img/v1.0/interop-clients.png)
+![Works with every A2A v1.0 client: the official JS and Python SDKs and any A2A-capable assistant, all invoking one AAP dealer agent](/img/v1.1/interop-clients.png)
 
 All five skills have been exercised live through the official A2A v1.0 SDKs (`@a2a-js/sdk` and `a2a-sdk` for Python): inventory search, facets, vehicle detail, dealer information, and a consented `lead.submit` — with no AAP-specific client code.
 
@@ -182,5 +182,5 @@ All five skills have been exercised live through the official A2A v1.0 SDKs (`@a
 - [Why automotive needs AAP](./why.md) — the gap AAP fills against A2A, ACP, MCP, and ADF.
 - [A2A profile](./a2a-profile.md) — how AAP slots into A2A's three-layer architecture.
 - [Discovery](./discovery.md) — full agent card example.
-- [Pricing and FTC compliance](./pricing-and-ftc.md) — the four pricing fields and why `price` is the FTC-final out-the-door amount.
+- [Pricing and FTC compliance](./pricing-and-ftc.md) — the three pricing fields and why `price` is the FTC-final out-the-door amount.
 - [Skills reference](./skills/dealer-information.md) — one page per skill with full request/response examples.

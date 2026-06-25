@@ -6,7 +6,7 @@ description: Field-by-field mapping from a lead.submit request to ADF/XML so dea
 
 # ADF/XML mapping
 
-![ADF bridge: AAP lead.submit JSON on the left, ADF/XML on the right, dealer CRM ingesting at the end](/img/v1.0/adf-bridge.png)
+![ADF bridge: AAP lead.submit JSON on the left, ADF/XML on the right, dealer CRM ingesting at the end](/img/v1.1/adf-bridge.png)
 
 The Auto-lead Data Format (ADF/XML) has been the de-facto standard for delivering leads to dealer CRMs for over two decades. AAP's [`lead.submit`](../skills/lead-submit.md) request is designed to translate losslessly to ADF/XML so a dealer's existing pipeline accepts the lead unchanged.
 
@@ -43,7 +43,7 @@ This page documents the field-by-field translation. The dealer agent (or the dea
 | `trade_in.condition` | `<vehicle interest="trade-in"><condition>...</condition></vehicle>` | `excellent`, `good`, `fair`, `poor` map directly to ADF's `<condition>` enum. |
 | `trade_in.vin` | `<vehicle interest="trade-in"><vin>...</vin></vehicle>` | Optional; recommended for accurate appraisal. |
 
-Nothing in `consent` is part of ADF (the format predates structured agent consent). AAP's `ConsentGrant` is preserved alongside the lead in the dealer CRM as an audit record. AAP-specific fields without an ADF equivalent (`customer.preferred_contact`, `vehicle_of_interest.vehicle_id`, `vehicle_of_interest.msrp`/`list_price`/`offered_price`/`zip`) MAY be persisted as CRM extension fields or in `<comments>`.
+Nothing in `consent` is part of ADF (the format predates structured agent consent). AAP's `ConsentGrant` is preserved alongside the lead in the dealer CRM as an audit record. AAP-specific fields without an ADF equivalent (`customer.preferred_contact`, `vehicle_of_interest.vehicle_id`, `vehicle_of_interest.msrp`/`list_price`) MAY be persisted as CRM extension fields or in `<comments>`.
 
 ## Concrete worked example
 

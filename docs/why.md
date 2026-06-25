@@ -6,9 +6,9 @@ description: The gap AAP fills against A2A, ACP, MCP, and ADF — and why it is 
 
 # Why automotive needs AAP
 
-![Before AAP: every buyer agent and dealership pair needs a custom integration. After AAP: one open profile connects them all](/img/v1.0/why-before-after.png)
+![Before AAP: every buyer agent and dealership pair needs a custom integration. After AAP: one open profile connects them all](/img/v1.1/why-before-after.png)
 
-![Five AAP skills covering the read-and-lead lifecycle](/img/v1.0/skills-overview.png)
+![Five AAP skills covering the read-and-lead lifecycle](/img/v1.1/skills-overview.png)
 
 Automotive retail has unusual constraints that no general-purpose agent protocol addresses end-to-end:
 
@@ -43,7 +43,7 @@ AAP fixes the field names, types, and required behavior:
 
 - **Five canonical skill IDs** form the AAP v1.1 vocabulary; dealer agents implement whichever subset matches their capabilities.
 - **Strict typed `DataParts`** (`<scope>.<thing>.request`, `<scope>.<thing>.response`) so a buyer agent can validate before sending.
-- **Four explicit pricing fields** (`msrp`, `list_price`, `offered_price`, `price`), each an integer in whole US dollars, where `price` is the FTC-final out-the-door amount — see [Pricing and FTC compliance](./pricing-and-ftc.md).
+- **Three explicit pricing fields** (`msrp`, `list_price`, `price`), each an integer in whole US dollars, where `price` is the FTC-final out-the-door amount — see [Pricing and FTC compliance](./pricing-and-ftc.md).
 - **`ConsentGrant`** structure required when a lead carries customer contact info, with explicit `allowed_channels` and `scope`.
 - **A controlled vehicle `status` enum** (`available`, `intransit`, `pending`) — these are the only statuses that appear in an inventory feed; a vehicle in any other state (sold, reserved, in service, etc.) is out of stock and is omitted by the dealer and ignored by the buyer — see [behavior rules](./behavior-rules.md).
 

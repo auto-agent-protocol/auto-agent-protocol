@@ -1,4 +1,4 @@
-<!-- Source for static/img/v1.0/aap-hero-banner.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,600 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.1/aap-hero-banner.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,600 --hide-scrollbars this-file.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,16 +8,16 @@
   html, body { width: 1600px; height: 600px; overflow: hidden; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
-    color: #0f1d33;
+    color: #26231c;
     position: relative;
   }
   .left {
     position: absolute;
     left: 90px;
-    top: 118px;
+    top: 124px;
     width: 760px;
   }
   h1 {
@@ -25,11 +25,12 @@
     font-weight: 800;
     letter-spacing: -1px;
     line-height: 1.08;
+    color: #26231c;
   }
   .subtitle {
     margin-top: 18px;
     font-size: 28px;
-    color: #5b6b84;
+    color: #6f665a;
     font-weight: 500;
   }
   .pills {
@@ -42,23 +43,26 @@
     padding: 12px 26px;
     font-size: 22px;
     font-weight: 600;
-    background: #ffffff;
-    color: #1d4ed8;
-    border: 2px solid #dbe7fb;
-    box-shadow: 0 6px 16px rgba(15,29,51,.06);
+    background: #dcebe7;
+    color: #0a463f;
+    box-shadow: 0 6px 16px rgba(38,35,28,.06);
     white-space: nowrap;
   }
   .pill.mono {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    background: #dbe7fb;
-    border-color: #dbe7fb;
+    background: #efe9dd;
+    color: #4a4338;
+  }
+  .pill.bronze {
+    background: #f1e4d0;
+    color: #bd7b34;
   }
   .tagline {
     position: absolute;
     left: 90px;
-    bottom: 56px;
+    bottom: 54px;
     font-size: 23px;
-    color: #9aa7bd;
+    color: #9c9486;
     font-weight: 500;
     letter-spacing: .2px;
   }
@@ -73,11 +77,11 @@
   .dealer-card {
     position: absolute;
     right: 0;
-    top: 110px;
-    width: 300px;
-    background: linear-gradient(160deg, #2563eb, #1d4ed8);
+    top: 112px;
+    width: 304px;
+    background: linear-gradient(160deg, #0e5a52, #0a463f);
     border-radius: 24px;
-    box-shadow: 0 14px 32px rgba(37,99,235,.25);
+    box-shadow: 0 16px 36px rgba(14,90,82,.28);
     padding: 30px 30px 28px;
     color: #ffffff;
   }
@@ -90,7 +94,7 @@
   .dealer-card .meta {
     margin-top: 8px;
     font-size: 19px;
-    color: #dbe7fb;
+    color: #cfe4df;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   }
   .agent-chip {
@@ -100,14 +104,14 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    background: #ffffff;
+    background: #fbf9f4;
     border-radius: 999px;
     padding: 16px 30px 16px 20px;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
-    border: 2px solid #dbe7fb;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
   }
   .agent-chip .emoji { font-size: 38px; line-height: 1; }
-  .agent-chip .label { font-size: 24px; font-weight: 700; color: #0f1d33; white-space: nowrap; }
+  .agent-chip .label { font-size: 24px; font-weight: 700; color: #26231c; white-space: nowrap; }
   /* Connector line from agent chip to dealer card */
   .connector {
     position: absolute;
@@ -115,7 +119,7 @@
     top: 398px;
     width: 196px;
     height: 0;
-    border-top: 3px dashed #2563eb;
+    border-top: 3px dashed #0e5a52;
     transform: rotate(-33.5deg);
     transform-origin: left center;
   }
@@ -125,7 +129,7 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: #2563eb;
+    background: #0e5a52;
   }
   .connector .dot-a { left: -4px; }
   .connector .dot-b { right: -4px; }
@@ -134,14 +138,14 @@
     left: 334px;
     top: 344px;
     transform: translate(-50%, -50%);
-    background: #dbe7fb;
-    color: #1d4ed8;
+    background: #dcebe7;
+    color: #0a463f;
     border-radius: 999px;
     padding: 8px 20px;
     font-size: 20px;
     font-weight: 700;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    box-shadow: 0 6px 16px rgba(37,99,235,.15);
+    box-shadow: 0 6px 16px rgba(14,90,82,.15);
     white-space: nowrap;
   }
 </style>
@@ -149,11 +153,11 @@
 <body>
   <div class="left">
     <h1>Auto Agent Protocol</h1>
-    <div class="subtitle">The A2A v1.0 Automotive Retail Profile</div>
+    <div class="subtitle">the A2A automotive-retail profile &middot; JSON-RPC only</div>
     <div class="pills">
-      <div class="pill mono">agent-card.json</div>
-      <div class="pill">A2A v1.0</div>
-      <div class="pill">five typed skills</div>
+      <div class="pill">v1.1</div>
+      <div class="pill mono">SendMessage</div>
+      <div class="pill bronze">five typed skills</div>
     </div>
   </div>
 

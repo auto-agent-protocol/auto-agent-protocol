@@ -1,6 +1,5 @@
 <!doctype html>
-<!-- Source for static/img/v1.0/lead-lifecycle.png.
-     Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.1/lead-lifecycle.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <html>
 <head>
 <meta charset="utf-8">
@@ -9,66 +8,67 @@
   html, body { width: 1600px; height: 900px; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
-    color: #0f1d33;
+    color: #26231c;
     display: flex; flex-direction: column; align-items: center;
   }
   .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-  h1 { font-size: 52px; font-weight: 700; margin-top: 52px; letter-spacing: -0.5px; }
+  h1 { font-size: 56px; font-weight: 800; margin-top: 52px; letter-spacing: -1px; }
 
-  .row { display: flex; align-items: flex-start; gap: 6px; margin-top: 56px; }
+  .row { display: flex; align-items: flex-start; gap: 6px; margin-top: 54px; }
   .stage { display: flex; flex-direction: column; align-items: center; position: relative; }
-  .badge { width: 44px; height: 44px; border-radius: 999px; background: #2563eb; color: #fff;
-           font-size: 22px; font-weight: 700; display: flex; align-items: center; justify-content: center;
-           box-shadow: 0 8px 18px rgba(37,99,235,.25); margin-bottom: 12px; }
-  .card { width: 100%; height: 300px; background: #fff; border-radius: 20px; padding: 24px 18px;
-          box-shadow: 0 14px 32px rgba(15,29,51,.08);
-          display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
-  .card.blue { background: #2563eb; box-shadow: 0 14px 32px rgba(37,99,235,.25); }
+  .badge { width: 44px; height: 44px; border-radius: 999px; background: #0e5a52; color: #fff;
+           font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+           box-shadow: 0 8px 18px rgba(14,90,82,.25); margin-bottom: 12px; }
+  .card { width: 100%; height: 314px; background: #fbf9f4; border-radius: 22px; padding: 24px 18px;
+          box-shadow: 0 16px 36px rgba(38,35,28,.09); border: 1px solid #ece4d3;
+          display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 13px; }
+  .card.teal { background: #0e5a52; border-color: #0a463f; box-shadow: 0 16px 36px rgba(14,90,82,.28); }
 
-  .arrow { width: 36px; height: 5px; background: #2563eb; border-radius: 3px; position: relative;
-           margin-top: 203px; flex: none; }
+  .arrow { width: 36px; height: 5px; background: #0e5a52; border-radius: 3px; position: relative;
+           margin-top: 210px; flex: none; }
   .arrow::after { content: ""; position: absolute; right: -2px; top: -8px;
-                  border-left: 20px solid #2563eb; border-top: 10px solid transparent; border-bottom: 10px solid transparent; }
+                  border-left: 20px solid #0e5a52; border-top: 10px solid transparent; border-bottom: 10px solid transparent; }
 
-  .struct-title { font-size: 24px; font-weight: 700; color: #1d4ed8; }
-  .frow { display: flex; align-items: center; gap: 10px; font-size: 20px; color: #41506b; }
-  .frow::before { content: ""; width: 8px; height: 8px; border-radius: 999px; background: #2563eb; flex: none; }
+  .struct-title { font-size: 23px; font-weight: 800; color: #0a463f; }
+  .frow { display: flex; align-items: center; gap: 10px; font-size: 19px; color: #6f665a; }
+  .frow::before { content: ""; width: 8px; height: 8px; border-radius: 999px; background: #bd7b34; flex: none; }
+  .nested { font-size: 17px; color: #9c9486; line-height: 1.34; text-align: center; }
 
-  .chip { font-size: 19px; color: #1d4ed8; background: #dbe7fb; padding: 8px 16px; border-radius: 999px; white-space: nowrap; }
-  .pill { font-size: 19px; padding: 6px 14px; border-radius: 999px; white-space: nowrap; }
-  .pill.req { background: #dbe7fb; color: #1d4ed8; }
-  .pill.opt { background: #e4e9f2; color: #5b6b84; }
+  .chip { font-size: 18px; color: #0a463f; background: #dcebe7; padding: 8px 16px; border-radius: 999px; white-space: nowrap; font-weight: 600; }
+  .pill { font-size: 18px; padding: 6px 14px; border-radius: 999px; white-space: nowrap; }
+  .pill.req { background: #dcebe7; color: #0a463f; font-weight: 600; }
+  .pill.opt { background: #ece6d8; color: #6f665a; }
 
-  .icon { width: 92px; height: 92px; border-radius: 24px; background: #2563eb; color: #fff;
-          display: flex; align-items: center; justify-content: center; font-size: 46px;
-          box-shadow: 0 10px 22px rgba(37,99,235,.25); }
-  .actor-name { font-size: 25px; font-weight: 600; }
-  .actor-note { font-size: 20px; color: #5b6b84; text-align: center; line-height: 1.35; }
+  .icon { width: 88px; height: 88px; border-radius: 24px; background: #0e5a52; color: #fff;
+          display: flex; align-items: center; justify-content: center; font-size: 44px;
+          box-shadow: 0 10px 22px rgba(14,90,82,.25); }
+  .actor-name { font-size: 24px; font-weight: 700; }
+  .actor-note { font-size: 19px; color: #6f665a; text-align: center; line-height: 1.35; }
 
-  .chip.onblue { background: rgba(255,255,255,.18); color: #fff; }
-  .blue .brow { font-size: 21px; color: #dbe7fb; }
-  .blue .brow b { color: #fff; font-weight: 600; }
+  .chip.onteal { background: rgba(255,255,255,.18); color: #fff; }
+  .teal .brow { font-size: 20px; color: #dcebe7; }
+  .teal .brow b { color: #fff; font-weight: 700; }
 
-  .down-arrow { width: 5px; height: 30px; background: #2563eb; border-radius: 3px; position: relative; }
+  .down-arrow { width: 5px; height: 28px; background: #bd7b34; border-radius: 3px; position: relative; }
   .down-arrow::after { content: ""; position: absolute; bottom: -2px; left: -7px;
-                       border-top: 16px solid #2563eb; border-left: 9px solid transparent; border-right: 9px solid transparent; }
-  .crm-name { font-size: 24px; font-weight: 600; }
+                       border-top: 16px solid #bd7b34; border-left: 9px solid transparent; border-right: 9px solid transparent; }
+  .crm-name { font-size: 23px; font-weight: 700; }
 
-  .branch { position: absolute; top: 356px; left: 50%; transform: translateX(-50%);
+  .branch { position: absolute; top: 372px; left: 50%; transform: translateX(-50%);
             display: flex; flex-direction: column; align-items: center; }
-  .branch .vline { width: 0; height: 42px; border-left: 4px dashed #b4232a; opacity: .55; }
+  .branch .vline { width: 0; height: 40px; border-left: 4px dashed #bd7b34; opacity: .7; }
   .branch .err { display: flex; align-items: center; gap: 12px; white-space: nowrap;
-                 background: #fff; border: 2px solid #efc9cb; border-radius: 999px; padding: 12px 26px;
-                 box-shadow: 0 10px 24px rgba(15,29,51,.07); }
-  .branch .err .lbl { font-size: 21px; color: #5b6b84; }
-  .branch .err .code { font-size: 21px; font-weight: 600; color: #b4232a; }
+                 background: #fbf9f4; border: 2px solid #e7c79c; border-radius: 999px; padding: 12px 26px;
+                 box-shadow: 0 10px 24px rgba(38,35,28,.08); }
+  .branch .err .lbl { font-size: 20px; color: #6f665a; }
+  .branch .err .code { font-size: 20px; font-weight: 700; color: #bd7b34; }
 
-  .footer { margin-top: 218px; font-size: 28px; }
-  .footer b { font-weight: 700; color: #0f1d33; }
-  .footer span { color: #5b6b84; }
+  .footer { margin-top: 222px; font-size: 28px; }
+  .footer b { font-weight: 800; color: #26231c; }
+  .footer span { color: #6f665a; }
 </style>
 </head>
 <body>
@@ -83,20 +83,22 @@
         <div class="frow mono">granted_at</div>
         <div class="frow mono">allowed_channels</div>
         <div class="frow mono">scope</div>
+        <div class="nested mono">[ lead_submission ]</div>
       </div>
     </div>
 
     <div class="arrow"></div>
 
-    <!-- 2. lead.submit.request -->
-    <div class="stage" style="width: 300px;">
+    <!-- 2. lead.submit request -->
+    <div class="stage" style="width: 318px;">
       <div class="badge">2</div>
       <div class="card">
-        <div class="chip mono">lead.submit.request</div>
-        <div class="pill req mono">customer</div>
+        <div class="chip mono">lead.submit</div>
+        <div class="pill req mono">source_agent { }</div>
+        <div class="nested mono">{ name, agent_card_url }<br>top-level object</div>
+        <div class="pill req mono">consent</div>
         <div class="pill opt mono">vehicle_of_interest?</div>
-        <div class="pill opt mono">trade_in?</div>
-        <div class="pill opt mono">appointment?</div>
+        <div class="pill opt mono">trade_in? · appointment?</div>
       </div>
     </div>
 
@@ -121,11 +123,11 @@
 
     <div class="arrow"></div>
 
-    <!-- 4. lead.submit.response -->
+    <!-- 4. lead.submit response -->
     <div class="stage" style="width: 310px;">
       <div class="badge">4</div>
-      <div class="card blue">
-        <div class="chip onblue mono">lead.submit.response</div>
+      <div class="card teal">
+        <div class="chip onteal mono">lead.submit response</div>
         <div class="brow mono"><b>lead_id</b></div>
         <div class="brow mono">status: <b>received</b></div>
       </div>

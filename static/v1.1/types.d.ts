@@ -32,7 +32,7 @@ export interface Address {
 }
 
 /**
- * Abstract base shape for every typed Auto Agent Protocol payload that travels inside an A2A DataPart. Concrete request and response schemas restrict 'type' to a constant skill-id-shaped value (e.g. inventory.search.request, lead.appointment.response). The AAP version is announced once via the agent-card extension URI ('https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1') and reflected in schema $id URLs; it is NOT repeated on the wire. Responses additionally carry a 'data' object and an optional 'message' note. Errors use the Error schema instead.
+ * Abstract base shape for every typed Auto Agent Protocol payload that travels inside an A2A DataPart. Concrete request and response schemas restrict 'type' to a constant skill-id-shaped value (e.g. inventory.search.request, lead.appointment.response). The AAP version is announced once via the agent-card extension URI ('https://autoagentprotocol.org/extensions/aap/v1.1') and reflected in schema $id URLs; it is NOT repeated on the wire. Responses additionally carry a 'data' object and an optional 'message' note. Errors use the Error schema instead.
  */
 export interface AapMessage {
   /**
@@ -107,14 +107,6 @@ export interface Vehicle {
    * Dealer's advertised list price; the base price BEFORE incentives, taxes, or fees, in whole US dollars. Inventory context.
    */
   list_price?: number;
-  /**
-   * Regional price equal to list_price plus applicable taxes for the buyer's `zip`, in whole US dollars, when the dealer enables desking. Present only if a `zip` is supplied AND the dealer supports regional pricing. Inventory context.
-   */
-  offered_price?: number;
-  /**
-   * Buyer ZIP code used to compute regional pricing fields (`offered_price`). US ZIP, 5 digits or ZIP+4. Optional; when absent, regional pricing fields MUST be omitted.
-   */
-  zip?: string;
   /**
    * Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts.
    */
@@ -236,10 +228,6 @@ export type VehicleDetailRequest = {
    * Dealer-internal vehicle identifier.
    */
   vehicle_id?: string;
-  /**
-   * Optional buyer ZIP code; when provided, the dealer MAY compute the regional offered_price field.
-   */
-  zip?: string;
 };
 
 /**
@@ -414,17 +402,7 @@ export interface InventorySearchRequest {
     /**
      * Field to sort by. Sorting by 'price' uses the FTC-final 'price' field (which dealers MUST keep accurate); 'updated_at' sorts by listing freshness.
      */
-    field:
-      | "price"
-      | "list_price"
-      | "offered_price"
-      | "msrp"
-      | "mileage"
-      | "year"
-      | "make"
-      | "model"
-      | "stock"
-      | "updated_at";
+    field: "price" | "list_price" | "msrp" | "mileage" | "year" | "make" | "model" | "stock" | "updated_at";
     order: "asc" | "desc";
   };
   /**
@@ -683,7 +661,7 @@ export interface Appointment {
 }
 
 /**
- * A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. A2A v1.0 declares every transport in 'supportedInterfaces[]' (it replaced the earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). AAP v1.1 uses a single transport: JSON-RPC 2.0. A compliant AAP dealer agent advertises a JSONRPC interface in 'supportedInterfaces[]' and does not advertise any other transport for AAP. To be a compliant AAP dealer agent, 'capabilities.extensions' MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1'.
+ * A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. A2A v1.0 declares every transport in 'supportedInterfaces[]' (it replaced the earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). AAP v1.1 uses a single transport: JSON-RPC 2.0. A compliant AAP dealer agent advertises a JSONRPC interface in 'supportedInterfaces[]' and does not advertise any other transport for AAP. To be a compliant AAP dealer agent, 'capabilities.extensions' MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/aap/v1.1'.
  */
 export interface AgentCard {
   /**

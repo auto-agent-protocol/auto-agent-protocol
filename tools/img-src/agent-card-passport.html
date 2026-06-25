@@ -1,6 +1,5 @@
 <!doctype html>
-<!-- Source for static/img/v1.0/agent-card-passport.png.
-     Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.1/agent-card-passport.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <html>
 <head>
 <meta charset="utf-8">
@@ -9,59 +8,105 @@
   html, body { width: 1600px; height: 900px; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
-    color: #0f1d33;
+    color: #26231c;
     display: flex; flex-direction: column; align-items: center;
   }
-  h1 { font-size: 60px; font-weight: 700; margin-top: 56px; letter-spacing: -0.5px; }
+  h1 { font-size: 52px; font-weight: 800; margin-top: 34px; letter-spacing: -1px; }
+  .sub { font-size: 23px; color: #6f665a; margin-top: 12px; }
+
   .card {
-    margin-top: 46px; width: 720px; background: #2563eb; border-radius: 28px;
-    padding: 34px 36px 36px; color: #fff; box-shadow: 0 18px 40px rgba(37, 99, 235, 0.25);
+    margin-top: 24px; width: 1180px;
+    background: #fbf9f4; border-radius: 22px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09); border: 1px solid #ece4d3;
+    padding: 26px 36px 28px;
   }
-  .card-head { display: flex; align-items: center; justify-content: space-between; padding-bottom: 22px; border-bottom: 1px solid rgba(255,255,255,0.35); }
-  .card-title { font-size: 38px; font-weight: 600; }
-  .badge { background: #fff; color: #1d4ed8; font-size: 24px; font-weight: 600; padding: 9px 26px; border-radius: 999px; }
-  .panel { background: #fff; color: #0f1d33; border-radius: 18px; padding: 24px 28px; margin-top: 24px; }
-  .panel-title { font-size: 28px; font-weight: 600; }
-  .panel .uri { color: #1d4ed8; font-size: 23px; margin-top: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-  .panel .note { color: #7484a0; font-size: 24px; font-weight: 400; }
-  .pills { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 18px; }
-  .pill { background: #dbe7fb; color: #1d4ed8; font-size: 23px; padding: 9px 22px; border-radius: 999px; }
-  .bindings { display: flex; align-items: baseline; gap: 18px; font-size: 27px; }
-  .bindings b { font-weight: 600; }
-  .bindings .req { color: #1d4ed8; font-weight: 600; }
-  .bindings .opt { color: #7484a0; }
-  .footer { margin-top: 40px; font-size: 27px; color: #5b6b84; }
-  .footer code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #41506b; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid #ece4d3; }
+  .filechip {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 26px; font-weight: 700; color: #26231c;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .filechip .dot { font-size: 30px; }
+  .a2a-badge { background: #0e5a52; color: #fff; font-size: 22px; font-weight: 700; padding: 9px 24px; border-radius: 999px; }
+
+  .grid { display: flex; gap: 26px; margin-top: 18px; }
+  .col { flex: 1; }
+
+  .label { font-size: 21px; font-weight: 700; letter-spacing: 1.5px; color: #9c9486; text-transform: uppercase; }
+  .uri {
+    margin-top: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 21px; color: #0a463f; background: #dcebe7; border-radius: 12px;
+    padding: 12px 18px; line-height: 1.4; word-break: break-all;
+  }
+
+  .skills { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .skill {
+    background: #fbf9f4; border: 1px solid #ece4d3; border-radius: 14px;
+    padding: 8px 16px; display: flex; align-items: center; gap: 14px;
+  }
+  .skill .id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 21px; color: #4a4338; font-weight: 600; min-width: 240px; }
+  .skill .tags { display: flex; gap: 7px; flex-wrap: nowrap; margin-left: auto; }
+  .tag { background: #efe9dd; color: #4a4338; font-size: 15px; padding: 4px 11px; border-radius: 999px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+
+  .schemabox {
+    margin-top: 10px; background: #fbf9f4; border: 1px dashed #d9cdb6; border-radius: 14px;
+    padding: 13px 18px;
+  }
+  .schemabox .where {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 18px; color: #bd7b34; font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .schemarow { margin-top: 7px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; color: #4a4338; white-space: nowrap; }
+  .schemarow .k { color: #bd7b34; }
+  .schemarow .v { color: #4a4338; }
+
+  .footer { margin-top: 22px; font-size: 24px; color: #6f665a; text-align: center; }
+  .footer code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #0a463f; background: #dcebe7; border-radius: 8px; padding: 3px 9px; }
+  .footer b { color: #26231c; font-weight: 700; }
 </style>
 </head>
 <body>
-  <h1>One file: agent-card.json</h1>
+  <h1>One file: the agent card</h1>
+  <div class="sub">A2A v1.0 card · AAP extension · five skills · schemas live in extension params</div>
   <div class="card">
     <div class="card-head">
-      <div class="card-title">agent-card.json</div>
-      <div class="badge">A2A v1.0</div>
+      <div class="filechip"><span class="dot">🪪</span>agent-card.json</div>
+      <div class="a2a-badge">A2A v1.0</div>
     </div>
-    <div class="panel">
-      <div class="panel-title">AAP automotive extension</div>
-      <div class="uri">…/a2a-automotive-retail/v1.0</div>
-    </div>
-    <div class="panel">
-      <div class="panel-title">The five AAP skills <span class="note">· implement a subset</span></div>
-      <div class="pills">
-        <div class="pill">dealer.information</div>
-        <div class="pill">inventory.facets</div>
-        <div class="pill">inventory.search</div>
-        <div class="pill">inventory.vehicle</div>
-        <div class="pill">lead.submit</div>
+    <div class="grid">
+      <div class="col">
+        <div class="label">AAP extension URI</div>
+        <div class="uri">https://autoagentprotocol.org<br>/extensions/aap/v1.1</div>
+
+        <div class="label" style="margin-top:18px;">Five skills · id + tags only</div>
+        <div class="skills">
+          <div class="skill"><span class="id">dealer.information</span><span class="tags"><span class="tag">dealer</span></span></div>
+          <div class="skill"><span class="id">inventory.facets</span><span class="tags"><span class="tag">inventory</span><span class="tag">facets</span></span></div>
+          <div class="skill"><span class="id">inventory.search</span><span class="tags"><span class="tag">inventory</span><span class="tag">search</span></span></div>
+          <div class="skill"><span class="id">inventory.vehicle</span><span class="tags"><span class="tag">inventory</span><span class="tag">vin</span></span></div>
+          <div class="skill"><span class="id">lead.submit</span><span class="tags"><span class="tag">lead</span><span class="tag">consent</span></span></div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="label">Schema URLs — in extension params, NOT on the skill</div>
+        <div class="schemabox">
+          <div class="where">capabilities.extensions[].params.skills["lead.submit"]</div>
+          <div class="schemarow"><span class="k">request_schema:&nbsp;</span><span class="v">…/aap/v1.1/schemas/lead.submit.request.json</span></div>
+          <div class="schemarow"><span class="k">response_schema:&nbsp;</span><span class="v">…/aap/v1.1/schemas/lead.submit.response.json</span></div>
+        </div>
+        <div class="schemabox">
+          <div class="where">capabilities.extensions[].params.skills["inventory.search"]</div>
+          <div class="schemarow"><span class="k">request_schema:&nbsp;</span><span class="v">…/aap/v1.1/schemas/inventory.search.request.json</span></div>
+          <div class="schemarow"><span class="k">response_schema:&nbsp;</span><span class="v">…/aap/v1.1/schemas/inventory.search.response.json</span></div>
+        </div>
+        <div class="label" style="margin-top:14px;">Transport</div>
+        <div class="uri" style="background:#f1e4d0; color:#bd7b34;">JSON-RPC 2.0 · sole binding<br>POST {base}/a2a · method SendMessage</div>
       </div>
     </div>
-    <div class="panel">
-      <div class="bindings"><b>Bindings:</b> <span class="req">JSON-RPC · required</span> <span class="opt">HTTP+JSON · optional</span></div>
-    </div>
   </div>
-  <div class="footer">Deploy one file to <code>/.well-known/</code> — that is the entire AAP contract.</div>
+  <div class="footer"><b>Deploy one file to</b> <code>/.well-known/agent-card.json</code> <b>— that is the entire AAP contract.</b></div>
 </body>
 </html>

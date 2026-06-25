@@ -6,7 +6,7 @@ description: Return the dealership profile — identity, rooftop locations, hour
 
 # `dealer.information`
 
-![One dealer group with several rooftops, each carrying address, contacts, hours, and capabilities](/img/v1.0/dealer-rooftops.png)
+![One dealer group with several rooftops, each carrying address, contacts, hours, and capabilities](/img/v1.1/dealer-rooftops.png)
 
 :::info A2A invocation
 This skill is invoked through A2A's `SendMessage` operation — the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md) — not a dedicated REST URL. (The HTTP+JSON binding was [removed in v1.1](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.

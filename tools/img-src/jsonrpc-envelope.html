@@ -1,4 +1,4 @@
-<!-- Source for static/img/v1.0/jsonrpc-envelope.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.1/jsonrpc-envelope.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,65 +8,66 @@
   html, body { width: 1600px; height: 900px; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
-    color: #0f1d33;
+    color: #26231c;
     overflow: hidden;
   }
   .title {
     text-align: center;
-    font-size: 52px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    padding-top: 38px;
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    padding-top: 34px;
   }
   .card {
     width: 1460px;
-    margin: 24px auto 0;
-    background: #ffffff;
-    border-radius: 24px;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
-    padding: 24px 52px 26px;
+    margin: 20px auto 0;
+    background: #fbf9f4;
+    border-radius: 22px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
+    padding: 26px 52px 28px;
   }
   .cardhead {
     display: flex;
     align-items: center;
     gap: 18px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
   .label {
     font-size: 18px;
     font-weight: 700;
     letter-spacing: 1px;
-    color: #1d4ed8;
-    background: #dbe7fb;
+    color: #0a463f;
+    background: #dcebe7;
     border-radius: 999px;
-    padding: 6px 18px;
+    padding: 7px 20px;
   }
   .endpoint {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 21px;
-    color: #41506b;
+    font-size: 22px;
+    color: #4a4338;
   }
   .actors {
     margin-left: auto;
-    font-size: 19px;
-    color: #5b6b84;
+    font-size: 20px;
+    color: #6f665a;
   }
   .code {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 21px;
+    font-size: 22px;
   }
-  .ln { white-space: pre; line-height: 33px; height: 33px; }
-  .k { color: #41506b; }
-  .p { color: #9aa7bd; }
-  .v { color: #0f1d33; }
-  .hl { color: #1d4ed8; font-weight: 600; }
+  .ln { white-space: pre; line-height: 32px; height: 32px; }
+  .k { color: #4a4338; }
+  .p { color: #9c9486; }
+  .v { color: #26231c; }
+  .hl { color: #0e5a52; font-weight: 700; }
   .tie {
     display: inline-block;
     width: 30px; height: 2px;
-    background: #c3cede;
+    background: #d8cdb8;
     vertical-align: middle;
     margin: 0 12px 0 16px;
   }
@@ -75,43 +76,43 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-size: 16px;
     font-weight: 600;
-    color: #1d4ed8;
-    background: #dbe7fb;
+    color: #0a463f;
+    background: #dcebe7;
     border-radius: 999px;
-    padding: 4px 14px;
+    padding: 5px 15px;
     vertical-align: middle;
     line-height: 1.3;
   }
   .footer {
     width: 1600px;
     text-align: center;
-    margin-top: 26px;
+    margin-top: 20px;
   }
   .footnote {
     display: inline-block;
-    background: #ffffff;
-    border: 1px solid #dfe5ef;
+    background: #fbf9f4;
+    border: 1px solid #ece4d3;
     border-radius: 999px;
-    padding: 13px 30px;
-    font-size: 22px;
-    color: #41506b;
+    padding: 14px 32px;
+    font-size: 23px;
+    color: #4a4338;
   }
 </style>
 </head>
 <body>
-  <div class="title">JSON-RPC 2.0 — the required binding</div>
+  <div class="title">JSON-RPC 2.0 — the one binding</div>
 
   <div class="card">
     <div class="cardhead">
       <span class="label">REQUEST</span>
-      <span class="endpoint">POST {base}</span>
+      <span class="endpoint">POST {base}/a2a</span>
       <span class="actors">🤖 buyer → 🏬 dealer</span>
     </div>
     <div class="code">
       <div class="ln"><span class="p">{</span></div>
       <div class="ln">  <span class="k">"jsonrpc"</span><span class="p">:</span> <span class="v">"2.0"</span><span class="p">,</span> <span class="hl">"id": 7</span><span class="p">,</span><span class="tie"></span><span class="chip">same id</span></div>
       <div class="ln">  <span class="k">"method"</span><span class="p">:</span> <span class="hl">"SendMessage"</span><span class="p">,</span></div>
-      <div class="ln">  <span class="k">"params"</span><span class="p">: {</span> <span class="k">"message"</span><span class="p">: {</span></div>
+      <div class="ln">  <span class="k">"params"</span><span class="p">: {</span> <span class="hl">"message"</span><span class="p">: {</span></div>
       <div class="ln">      <span class="k">"messageId"</span><span class="p">:</span> <span class="v">"…"</span><span class="p">,</span> <span class="k">"role"</span><span class="p">:</span> <span class="v">"ROLE_USER"</span><span class="p">,</span></div>
       <div class="ln">      <span class="k">"parts"</span><span class="p">: [ {</span> <span class="k">"data"</span><span class="p">: {</span> <span class="k">"type"</span><span class="p">:</span> <span class="hl">"dealer.information.request"</span> <span class="p">} } ] } }</span></div>
       <div class="ln"><span class="p">}</span></div>
@@ -126,7 +127,7 @@
     <div class="code">
       <div class="ln"><span class="p">{</span></div>
       <div class="ln">  <span class="k">"jsonrpc"</span><span class="p">:</span> <span class="v">"2.0"</span><span class="p">,</span> <span class="hl">"id": 7</span><span class="p">,</span><span class="tie"></span><span class="chip">same id</span></div>
-      <div class="ln">  <span class="k">"result"</span><span class="p">: {</span> <span class="k">"message"</span><span class="p">: {</span><span class="tie"></span><span class="chip">result wraps message</span></div>
+      <div class="ln">  <span class="k">"result"</span><span class="p">: {</span> <span class="hl">"message"</span><span class="p">: {</span><span class="tie"></span><span class="chip">result wraps message</span></div>
       <div class="ln">      <span class="k">"role"</span><span class="p">:</span> <span class="v">"ROLE_AGENT"</span><span class="p">,</span></div>
       <div class="ln">      <span class="k">"parts"</span><span class="p">: [ {</span> <span class="k">"data"</span><span class="p">: {</span> <span class="k">"type"</span><span class="p">:</span> <span class="hl">"dealer.information.response"</span><span class="p">,</span> <span class="k">"data"</span><span class="p">:</span> <span class="v">…</span> <span class="p">} } ] } }</span></div>
       <div class="ln"><span class="p">}</span></div>

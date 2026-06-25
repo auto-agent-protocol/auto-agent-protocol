@@ -256,22 +256,6 @@ components:
             Inventory context.
           examples:
             - 34000
-        offered_price:
-          type: integer
-          minimum: 0
-          description: Regional price equal to list_price plus applicable taxes for the buyer's `zip`, in whole US dollars, when
-            the dealer enables desking. Present only if a `zip` is supplied AND the dealer supports regional pricing.
-            Inventory context.
-          examples:
-            - 36975
-        zip:
-          type: string
-          pattern: ^\d{5}(-\d{4})?$
-          description: Buyer ZIP code used to compute regional pricing fields (`offered_price`). US ZIP, 5 digits or ZIP+4.
-            Optional; when absent, regional pricing fields MUST be omitted.
-          examples:
-            - "94103"
-            - 94103-1234
         stock:
           type: string
           description: Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts.
@@ -449,7 +433,6 @@ components:
       examples:
         - type: inventory.vehicle.request
           vin: 1HGCV1F30NA123456
-          zip: "94103"
       properties:
         type:
           const: inventory.vehicle.request
@@ -469,11 +452,6 @@ components:
           description: Dealer-internal vehicle identifier.
           examples:
             - veh_8f3c1a
-        zip:
-          type: string
-          description: Optional buyer ZIP code; when provided, the dealer MAY compute the regional offered_price field.
-          examples:
-            - "94103"
       required:
         - type
       anyOf:
@@ -837,7 +815,6 @@ components:
               enum:
                 - price
                 - list_price
-                - offered_price
                 - msrp
                 - mileage
                 - year
@@ -1693,7 +1670,7 @@ components:
         uses a single transport: JSON-RPC 2.0. A compliant AAP dealer agent advertises a JSONRPC interface in
         'supportedInterfaces[]' and does not advertise any other transport for AAP. To be a compliant AAP dealer agent,
         'capabilities.extensions' MUST include an entry whose 'uri' equals
-        'https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1'."
+        'https://autoagentprotocol.org/extensions/aap/v1.1'."
       type: object
       properties:
         name:
@@ -1774,7 +1751,7 @@ components:
                 type: object
                 properties:
                   uri:
-                    const: https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1
+                    const: https://autoagentprotocol.org/extensions/aap/v1.1
                 required:
                   - uri
           required:
@@ -1922,9 +1899,9 @@ components:
       description: Abstract base shape for every typed Auto Agent Protocol payload that travels inside an A2A DataPart.
         Concrete request and response schemas restrict 'type' to a constant skill-id-shaped value (e.g.
         inventory.search.request, lead.appointment.response). The AAP version is announced once via the agent-card
-        extension URI ('https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1') and reflected in schema
-        $id URLs; it is NOT repeated on the wire. Responses additionally carry a 'data' object and an optional 'message'
-        note. Errors use the Error schema instead.
+        extension URI ('https://autoagentprotocol.org/extensions/aap/v1.1') and reflected in schema $id URLs; it is NOT
+        repeated on the wire. Responses additionally carry a 'data' object and an optional 'message' note. Errors use
+        the Error schema instead.
       type: object
       properties:
         type:

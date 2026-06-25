@@ -17,7 +17,7 @@
   "capabilities": {
     "extensions": [
       {
-        "uri": "https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1",
+        "uri": "https://autoagentprotocol.org/extensions/aap/v1.1",
         "params": {
           "id": "0192f3c0-1a2b-7c3d-8e4f-5a6b7c8d9e0f",
           "version": "1.1.0",
