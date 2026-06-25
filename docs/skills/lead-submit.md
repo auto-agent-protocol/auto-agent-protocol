@@ -67,7 +67,7 @@ For the field-by-field ADF/XML mapping, see [ADF mapping](../compatibility/adf-m
 The unified `Vehicle` interface is the same shape used by `inventory.search` results — see the [Vehicle schema source](https://autoagentprotocol.org/v1.1/schemas/vehicle.schema.json). Both `vehicle_of_interest` and `trade_in` use this shape; only the valid `condition` enum subset differs.
 
 :::note Self-discovery
-A buyer agent does not have to hard-code or guess this shape. The dealer's [agent card](../discovery.md) publishes each skill's `inputSchema` as a `$ref` to the canonical JSON Schema (e.g. `https://autoagentprotocol.org/v1.1/schemas/lead-submit-request.schema.json`). Buyer agents SHOULD fetch that schema and validate against it, rather than relying on the prose here. The top-level `source_agent` object — and the removal of `consent.source_agent` in v1.1 — are both reflected in that published schema.
+A buyer agent does not have to hard-code or guess this shape. The dealer's [agent card](../discovery.md) publishes each skill's request/response JSON Schema URLs in the **AAP extension params** — `capabilities.extensions[].params.skills["lead.submit"].request_schema` points at the canonical schema (e.g. `https://autoagentprotocol.org/v1.1/schemas/lead-submit-request.schema.json`). The URLs live in the extension params, not as fields on the A2A `skill` object, so strict A2A AgentCard parsers still accept the card. Buyer agents SHOULD fetch that schema and validate against it, rather than relying on the prose here. The top-level `source_agent` object — and the removal of `consent.source_agent` in v1.1 — are both reflected in that published schema.
 :::
 
 ## Response shape
