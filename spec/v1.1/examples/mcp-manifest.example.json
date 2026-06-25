@@ -27,7 +27,7 @@
     },
     {
       "name": "aap_inventory_vehicle",
-      "description": "Return full detail for a specific vehicle by VIN, stock, or vehicle_id, including FTC-compliant pricing fields and (optionally) regional offered_price for a given ZIP. Anonymous-safe; no consent required.",
+      "description": "Return full detail for a specific vehicle by VIN, stock, or vehicle_id, including FTC-compliant pricing fields. Anonymous-safe; no consent required.",
       "inputSchema": {
         "$ref": "https://autoagentprotocol.org/v1.1/schemas/vehicle-detail-request.schema.json"
       }

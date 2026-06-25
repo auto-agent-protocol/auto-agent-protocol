@@ -108,14 +108,6 @@ export interface Vehicle {
    */
   list_price?: number;
   /**
-   * Regional price equal to list_price plus applicable taxes for the buyer's `zip`, in whole US dollars, when the dealer enables desking. Present only if a `zip` is supplied AND the dealer supports regional pricing. Inventory context.
-   */
-  offered_price?: number;
-  /**
-   * Buyer ZIP code used to compute regional pricing fields (`offered_price`). US ZIP, 5 digits or ZIP+4. Optional; when absent, regional pricing fields MUST be omitted.
-   */
-  zip?: string;
-  /**
    * Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts.
    */
   stock?: string;
@@ -236,10 +228,6 @@ export type VehicleDetailRequest = {
    * Dealer-internal vehicle identifier.
    */
   vehicle_id?: string;
-  /**
-   * Optional buyer ZIP code; when provided, the dealer MAY compute the regional offered_price field.
-   */
-  zip?: string;
 };
 
 /**
@@ -414,17 +402,7 @@ export interface InventorySearchRequest {
     /**
      * Field to sort by. Sorting by 'price' uses the FTC-final 'price' field (which dealers MUST keep accurate); 'updated_at' sorts by listing freshness.
      */
-    field:
-      | "price"
-      | "list_price"
-      | "offered_price"
-      | "msrp"
-      | "mileage"
-      | "year"
-      | "make"
-      | "model"
-      | "stock"
-      | "updated_at";
+    field: "price" | "list_price" | "msrp" | "mileage" | "year" | "make" | "model" | "stock" | "updated_at";
     order: "asc" | "desc";
   };
   /**

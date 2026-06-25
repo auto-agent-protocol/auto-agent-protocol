@@ -136,8 +136,7 @@ A user wants to test-drive a 2024 Honda CR-V, trade in their 2020 Passat, and bo
     "body": "suv",
     "transmission": "automatic",
     "mileage": 14820,
-    "price": 32995,
-    "zip": "94107"
+    "price": 32995
   },
   "trade_in": {
     "year": 2020, "make": "Volkswagen", "model": "Passat", "trim": "SE",

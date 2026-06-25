@@ -40,7 +40,7 @@
       "properties": {
         "field": {
           "type": "string",
-          "enum": ["price", "list_price", "offered_price", "msrp", "mileage", "year", "make", "model", "stock", "updated_at"],
+          "enum": ["price", "list_price", "msrp", "mileage", "year", "make", "model", "stock", "updated_at"],
           "description": "Field to sort by. Sorting by 'price' uses the FTC-final 'price' field (which dealers MUST keep accurate); 'updated_at' sorts by listing freshness.",
           "examples": ["price", "year"]
         },

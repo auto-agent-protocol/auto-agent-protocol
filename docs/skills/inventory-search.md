@@ -60,7 +60,7 @@ AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi
 ```
 
 - `pagination.skip` and `pagination.limit` are integers. AAP recommends defaults of `skip=0`, `limit=20`, and a hard cap of `100`.
-- `sort.field` accepts: `price`, `list_price`, `offered_price`, `msrp`, `mileage`, `year`, `make`, `model`, `stock`, `updated_at`. `sort.order` is `asc` or `desc`. **Sorting by `price` uses the FTC-final `price` field** that dealers MUST keep accurate.
+- `sort.field` accepts: `price`, `list_price`, `msrp`, `mileage`, `year`, `make`, `model`, `stock`, `updated_at`. `sort.order` is `asc` or `desc`. **Sorting by `price` uses the FTC-final `price` field** that dealers MUST keep accurate.
 - `privacy.anonymous: true` indicates the buyer agent is not attaching user identity to this search. AAP RECOMMENDS anonymous searches by default; user identity is attached only when a lead is submitted.
 
 ## Request shape
@@ -107,7 +107,7 @@ AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi
 | `data.vehicles[]` | `Vehicle[]` | yes | Listings in the requested order. |
 | `data.facets` | `Facets` | no | OPTIONAL embedded aggregation over the matching set. |
 
-Each `Vehicle` MAY include `dealer_id`, `vehicle_id`, `vin`, `stock`, `year`, `make`, `model`, `trim`, `condition` (`new` | `used` | `cpo` for inventory contexts), `rooftop`, `body`, `transmission`, `mileage`, `msrp`, `list_price`, `offered_price`, `price`, `zip`, and `status`. The unified Vehicle schema declares all of these as optional and `additionalProperties: true`, so inventory responses MAY also include rich fields like `photos`, `vdp_url`, `driveline`, `engine`, `fuel`, `city_mpg`, `highway_mpg`, `electric_range_mi`, `exterior_color`, `interior_color`, `features`, `description`, `notes`, `inventory_date`, and `updated_at`. `updated_at` MUST be present whenever the dealer is making availability claims — see [Behavior rules](../behavior-rules.md). Vehicle `status` is **REQUIRED** on inventory listings and is a controlled enum: exactly `available` | `intransit` | `pending`. Only these three statuses appear in inventory feeds; a vehicle in any other state is OUT OF STOCK and MUST be omitted by the dealer (and ignored by the buyer if encountered).
+Each `Vehicle` MAY include `dealer_id`, `vehicle_id`, `vin`, `stock`, `year`, `make`, `model`, `trim`, `condition` (`new` | `used` | `cpo` for inventory contexts), `rooftop`, `body`, `transmission`, `mileage`, `msrp`, `list_price`, `price`, and `status`. The unified Vehicle schema declares all of these as optional and `additionalProperties: true`, so inventory responses MAY also include rich fields like `photos`, `vdp_url`, `driveline`, `engine`, `fuel`, `city_mpg`, `highway_mpg`, `electric_range_mi`, `exterior_color`, `interior_color`, `features`, `description`, `notes`, `inventory_date`, and `updated_at`. `updated_at` MUST be present whenever the dealer is making availability claims — see [Behavior rules](../behavior-rules.md). Vehicle `status` is **REQUIRED** on inventory listings and is a controlled enum: exactly `available` | `intransit` | `pending`. Only these three statuses appear in inventory feeds; a vehicle in any other state is OUT OF STOCK and MUST be omitted by the dealer (and ignored by the buyer if encountered).
 
 ## Full example
 
@@ -196,7 +196,7 @@ Note that vehicle 2 has only `stock` and `vehicle_id` (no VIN yet, since it is i
 ## Sort considerations
 
 - Sorting by `price` (default for price-comparison flows) sorts on the FTC-final out-the-door amount. This is what buyer agents SHOULD use to honestly compare offers.
-- Sorting by `list_price`, `offered_price`, or `msrp` is allowed for users who want a different perspective; the dealer SHOULD still publish accurate `price` for FTC compliance.
+- Sorting by `list_price` or `msrp` is allowed for users who want a different perspective; the dealer SHOULD still publish accurate `price` for FTC compliance.
 - Sorting by `updated_at desc` is the recommended freshness ordering when buyers care about which listings the dealer has most recently re-confirmed.
 
 ## Anonymous search by default

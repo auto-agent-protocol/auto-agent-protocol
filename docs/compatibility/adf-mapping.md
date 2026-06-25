@@ -43,7 +43,7 @@ This page documents the field-by-field translation. The dealer agent (or the dea
 | `trade_in.condition` | `<vehicle interest="trade-in"><condition>...</condition></vehicle>` | `excellent`, `good`, `fair`, `poor` map directly to ADF's `<condition>` enum. |
 | `trade_in.vin` | `<vehicle interest="trade-in"><vin>...</vin></vehicle>` | Optional; recommended for accurate appraisal. |
 
-Nothing in `consent` is part of ADF (the format predates structured agent consent). AAP's `ConsentGrant` is preserved alongside the lead in the dealer CRM as an audit record. AAP-specific fields without an ADF equivalent (`customer.preferred_contact`, `vehicle_of_interest.vehicle_id`, `vehicle_of_interest.msrp`/`list_price`/`offered_price`/`zip`) MAY be persisted as CRM extension fields or in `<comments>`.
+Nothing in `consent` is part of ADF (the format predates structured agent consent). AAP's `ConsentGrant` is preserved alongside the lead in the dealer CRM as an audit record. AAP-specific fields without an ADF equivalent (`customer.preferred_contact`, `vehicle_of_interest.vehicle_id`, `vehicle_of_interest.msrp`/`list_price`) MAY be persisted as CRM extension fields or in `<comments>`.
 
 ## Concrete worked example
 

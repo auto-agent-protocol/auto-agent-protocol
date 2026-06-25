@@ -43,7 +43,7 @@ AAP fixes the field names, types, and required behavior:
 
 - **Five canonical skill IDs** form the AAP v1.1 vocabulary; dealer agents implement whichever subset matches their capabilities.
 - **Strict typed `DataParts`** (`<scope>.<thing>.request`, `<scope>.<thing>.response`) so a buyer agent can validate before sending.
-- **Four explicit pricing fields** (`msrp`, `list_price`, `offered_price`, `price`), each an integer in whole US dollars, where `price` is the FTC-final out-the-door amount — see [Pricing and FTC compliance](./pricing-and-ftc.md).
+- **Three explicit pricing fields** (`msrp`, `list_price`, `price`), each an integer in whole US dollars, where `price` is the FTC-final out-the-door amount — see [Pricing and FTC compliance](./pricing-and-ftc.md).
 - **`ConsentGrant`** structure required when a lead carries customer contact info, with explicit `allowed_channels` and `scope`.
 - **A controlled vehicle `status` enum** (`available`, `intransit`, `pending`) — these are the only statuses that appear in an inventory feed; a vehicle in any other state (sold, reserved, in service, etc.) is out of stock and is omitted by the dealer and ignored by the buyer — see [behavior rules](./behavior-rules.md).
 

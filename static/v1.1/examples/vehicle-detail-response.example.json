@@ -23,9 +23,7 @@
     "highway_mpg": 32,
     "msrp": 35450,
     "list_price": 31495,
-    "offered_price": 34239,
     "price": 32995,
-    "zip": "94107",
     "mileage": 14820,
     "photos": [
       "https://cdn.demo-toyota.example.com/inventory/dt-2611/01.jpg",
@@ -59,5 +57,5 @@
     "owners": 1,
     "delivery_options": ["dealer_pickup", "local_home_delivery"]
   },
-  "message": "Pricing shown reflects FTC-final out-the-door cost for ZIP 94107 in California. The 'offered_price' includes applicable California sales tax; the 'price' field is the total amount after current incentives and required fees."
+  "message": "The 'price' field is the FTC-final out-the-door cost — the total amount due after current incentives and required fees."
 }

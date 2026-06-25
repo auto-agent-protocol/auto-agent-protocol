@@ -404,8 +404,7 @@ The remainder of this page shows the full envelope for each of the five skills.
         {
           "data": {
             "type": "inventory.vehicle.request",
-            "vin": "1HGCY2F57RA000001",
-            "zip": "94105"
+            "vin": "1HGCY2F57RA000001"
           },
           "mediaType": "application/vnd.autoagent.vehicle-detail-request+json"
         }
@@ -445,9 +444,7 @@ The remainder of this page shows the full envelope for each of the five skills.
               "condition": "cpo",
               "msrp": 26500,
               "list_price": 24990,
-              "offered_price": 26615,
               "price": 26780,
-              "zip": "94105",
               "status": "available",
               "rooftop": "Demo Toyota San Francisco",
               "city_mpg": 31,

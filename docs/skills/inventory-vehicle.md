@@ -1,7 +1,7 @@
 ---
 sidebar_position: 4
 title: inventory.vehicle
-description: Detail view of a single vehicle by VIN, stock, or vehicle_id, optionally with a buyer zip for regional offered_price.
+description: Detail view of a single vehicle by VIN, stock, or vehicle_id, returning the full typed vehicle card.
 ---
 
 # `inventory.vehicle`
@@ -12,7 +12,7 @@ description: Detail view of a single vehicle by VIN, stock, or vehicle_id, optio
 This skill is invoked through A2A's `SendMessage` operation — the single A2A operation AAP v1.1 uses — not a dedicated REST URL. It travels as the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md). (The HTTP+JSON binding was [removed in v1.1](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
 :::
 
-The `inventory.vehicle` skill returns the full detail of a single vehicle. The buyer agent identifies the vehicle by VIN, stock number, or dealer-internal `vehicle_id`. An optional `zip` enables regional pricing (`offered_price`) when the dealer supports desking.
+The `inventory.vehicle` skill returns the full detail of a single vehicle. The buyer agent identifies the vehicle by VIN, stock number, or dealer-internal `vehicle_id`.
 
 | Property | Value |
 |---|---|
@@ -30,8 +30,7 @@ The `inventory.vehicle` skill returns the full detail of a single vehicle. The b
   "type": "inventory.vehicle.request",
   "vin":        "string (17 chars, ISO 3779)",
   "stock":      "string",
-  "vehicle_id": "string",
-  "zip":   "string"
+  "vehicle_id": "string"
 }
 ```
 
@@ -41,7 +40,6 @@ The `inventory.vehicle` skill returns the full detail of a single vehicle. The b
 | `vin` | string | conditional | 17-char VIN. Preferred when known. |
 | `stock` | string | conditional | Dealer's stock number. Used when VIN is not yet assigned. |
 | `vehicle_id` | string | conditional | Dealer-internal identifier (e.g. for in-transit units). |
-| `zip` | string | no | Buyer ZIP/postal code; when supplied, the dealer MAY return a regional `offered_price`. |
 
 The request MUST include **at least one** of `vin`, `stock`, or `vehicle_id` (`anyOf`). Sending more than one is allowed; the dealer agent uses the most specific match.
 
@@ -67,19 +65,17 @@ Pricing fields:
 | Field | Always present? | Notes |
 |---|---|---|
 | `msrp` | optional | Sticker price set by the OEM. |
-| `list_price` | optional | Base advertised price before incentives, taxes, fees. |
-| `offered_price` | optional, conditional | Present only when `zip` is supplied AND the dealer supports desking. |
+| `list_price` | optional | Base advertised price before incentives and fees. |
 | `price` | RECOMMENDED | FTC-final out-the-door amount. See [Pricing and FTC compliance](../pricing-and-ftc.md). |
 
-## Full example with `zip`
+## Full example
 
 ### Request
 
 ```json
 {
   "type": "inventory.vehicle.request",
-  "vin": "1HGCV1F30KA000001",
-  "zip": "94105"
+  "vin": "1HGCV1F30KA000001"
 }
 ```
 
@@ -108,9 +104,7 @@ Pricing fields:
     "highway_mpg": 42,
     "msrp": 26500,
     "list_price": 24990,
-    "offered_price": 26615,
     "price": 26780,
-    "zip": "94105",
     "mileage": 22150,
     "rooftop": "Demo Toyota San Francisco",
     "photos": [
@@ -135,17 +129,6 @@ Pricing fields:
 ```
 
 `features` is a declared field on the unified `Vehicle`. The response above also includes extra dealer-specific properties (`carfax_url`, `warranty`) that are not part of the base Vehicle schema; AAP allows them via the Vehicle's `additionalProperties: true` (other common extras include `title_status`).
-
-## Without `zip`
-
-If `zip` is omitted from the request, the response MUST omit `offered_price`. `price` is still expected (it is the FTC-final out-the-door amount and does not depend on a buyer location for its presence).
-
-```json
-{
-  "type": "inventory.vehicle.request",
-  "vin": "1HGCV1F30KA000001"
-}
-```
 
 ## Errors
 
