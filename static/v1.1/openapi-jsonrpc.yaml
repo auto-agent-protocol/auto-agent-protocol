@@ -1,0 +1,2052 @@
+openapi: 3.1.0
+info:
+  title: Auto Agent Protocol — A2A JSON-RPC binding
+  description: Auto Agent Protocol v1.1 documented over the A2A JSON-RPC 2.0 binding (A2A spec, Section 9). Every skill is
+    invoked as an A2A `SendMessage` JSON-RPC call carrying a typed AAP DataPart. Reflects the A2A v1.0 wire format (no
+    `kind` discriminator, ROLE_USER/ROLE_AGENT enum strings, required `messageId`, `mediaType` per part).
+  version: v1.1
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: Auto Agent Protocol
+    url: https://autoagentprotocol.org
+servers:
+  - url: https://dealer.example/a2a
+    description: Dealer agent JSON-RPC endpoint
+paths:
+  /:
+    post:
+      operationId: sendMessage
+      summary: A2A SendMessage (carries any AAP skill request)
+      description: "All AAP skills are invoked through the A2A `SendMessage` JSON-RPC method. The skill is dispatched by the
+        typed DataPart payload (`type: <scope>.<thing>.request`, e.g. `inventory.search.request`)."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonRpcRequest"
+            examples:
+              dealer.information:
+                summary: Dealer Information
+                value:
+                  jsonrpc: "2.0"
+                  id: req_001
+                  method: SendMessage
+                  params:
+                    message:
+                      messageId: 01HZ9G5N8D1Y4M6SP9C4XKVW3Q
+                      role: ROLE_USER
+                      parts:
+                        - data:
+                            type: dealer.information.request
+                          mediaType: application/vnd.autoagent.dealer-information-request+json
+                    configuration:
+                      acceptedOutputModes:
+                        - application/vnd.autoagent.dealer-information-response+json
+              inventory.facets:
+                summary: Inventory Facets
+                value:
+                  jsonrpc: "2.0"
+                  id: req_001
+                  method: SendMessage
+                  params:
+                    message:
+                      messageId: 01HZ9H6P9E2Z5N7TQ0D5YMWX4R
+                      role: ROLE_USER
+                      parts:
+                        - data:
+                            type: inventory.facets.request
+                          mediaType: application/vnd.autoagent.inventory-facets-request+json
+                    configuration:
+                      acceptedOutputModes:
+                        - application/vnd.autoagent.inventory-facets-response+json
+              inventory.search:
+                summary: Inventory Search
+                value:
+                  jsonrpc: "2.0"
+                  id: req_001
+                  method: SendMessage
+                  params:
+                    message:
+                      messageId: 01HZ9F4M7C0X3K5RN8B3WJTW2P
+                      role: ROLE_USER
+                      parts:
+                        - data:
+                            type: inventory.search.request
+                          mediaType: application/vnd.autoagent.inventory-search-request+json
+                    configuration:
+                      acceptedOutputModes:
+                        - application/vnd.autoagent.inventory-search-response+json
+              inventory.vehicle:
+                summary: Vehicle Detail
+                value:
+                  jsonrpc: "2.0"
+                  id: req_001
+                  method: SendMessage
+                  params:
+                    message:
+                      messageId: 01HZ9J7Q0F3A6P8VR1E6ZNXY5S
+                      role: ROLE_USER
+                      parts:
+                        - data:
+                            type: inventory.vehicle.request
+                          mediaType: application/vnd.autoagent.vehicle-detail-request+json
+                    configuration:
+                      acceptedOutputModes:
+                        - application/vnd.autoagent.vehicle-detail-response+json
+              lead.submit:
+                summary: Submit Lead
+                value:
+                  jsonrpc: "2.0"
+                  id: req_001
+                  method: SendMessage
+                  params:
+                    message:
+                      messageId: 01HZ9K8R1G4B7Q9WS2F7APYZ6T
+                      role: ROLE_USER
+                      parts:
+                        - data:
+                            type: lead.submit.request
+                          mediaType: application/vnd.autoagent.lead-submit-request+json
+                    configuration:
+                      acceptedOutputModes:
+                        - application/vnd.autoagent.lead-submit-response+json
+      responses:
+        "200":
+          description: Successful JSON-RPC response. The result wraps an A2A Message whose DataPart carries an AAP response payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonRpcResponse"
+components:
+  schemas:
+    Vehicle:
+      title: Vehicle
+      description: >-
+        The single vehicle interface used everywhere a vehicle is referenced — inventory.search results,
+        inventory.vehicle detail, vehicle_of_interest, and trade_in. v1.0 merges the former Vehicle + VehicleDetail
+        split into one shape: there is now exactly one vehicle type.
+
+
+        Field semantics differ by context:
+
+        - For inventory listings (inventory.search / inventory.vehicle) `condition` MUST be one of `new`, `used`, `cpo`
+        and `status` MUST be one of `available`, `intransit`, `pending`. Pricing fields describe the dealer's listing.
+
+        - For vehicle_of_interest, `condition` MUST be one of `new`, `used`, `cpo`.
+
+        - For trade_in, `condition` MUST be one of `excellent`, `good`, `fair`, `poor`. Pricing fields are typically
+        absent on the request side and may be populated by the dealer's appraisal response.
+
+
+        All prices are plain integers in whole US dollars (v1.0 dropped the nested {amount, currency} Money object).
+        Context-dependent constraints are enforced at the using request/response schema. No fields are required at this
+        base schema; `additionalProperties: true` lets inventory responses carry richer dealer-specific fields without
+        schema changes.
+      type: object
+      examples:
+        - vin: 1HGCV1F30NA123456
+          year: 2024
+          make: Honda
+          model: CR-V
+          trim: EX-L
+          condition: new
+          status: available
+          msrp: 36000
+          price: 35500
+          mileage: 12
+          body: suv
+          exterior_color: Crystal Black Pearl
+          stock: H12345
+      properties:
+        vin:
+          type: string
+          pattern: ^[A-HJ-NPR-Z0-9]{17}$
+          description: Vehicle Identification Number (17 chars, ISO 3779). Optional on trade-ins; recommended on inventory
+            listings of used vehicles.
+          examples:
+            - 1HGCV1F30NA123456
+        year:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+          description: Model year (e.g. 2024).
+          examples:
+            - 2024
+        make:
+          type: string
+          description: Vehicle make / manufacturer brand (e.g. 'Honda', 'BMW', 'Ford').
+          examples:
+            - Honda
+            - BMW
+            - Ford
+        model:
+          type: string
+          description: Vehicle model name (e.g. 'CR-V', '3 Series', 'F-150').
+          examples:
+            - CR-V
+            - 3 Series
+            - F-150
+        trim:
+          type: string
+          description: Trim level (e.g. 'EX-L', 'M Sport', 'Lariat').
+          examples:
+            - EX-L
+            - M Sport
+            - Lariat
+        condition:
+          type: string
+          enum:
+            - new
+            - used
+            - cpo
+            - excellent
+            - good
+            - fair
+            - poor
+          description: Combined condition enum spanning both sale-condition and trade-in-condition vocabularies. For inventory
+            listings and vehicle_of_interest use one of `new` | `used` | `cpo` (Certified Pre-Owned). For trade_in use
+            one of `excellent` | `good` | `fair` | `poor`. The using schema enforces the correct subset by context.
+          examples:
+            - new
+            - used
+            - cpo
+        status:
+          type: string
+          enum:
+            - available
+            - intransit
+            - pending
+          description: "Inventory availability. v1.0 supports exactly three values: `available` (in stock now), `intransit`
+            (allocated / en route to the dealership), `pending` (deal in progress). A vehicle in any other state is OUT
+            OF STOCK and MUST NOT appear in inventory feeds — dealers omit it and buyer agents ignore any item missing
+            or carrying an unknown status. Required on inventory listings; omitted on vehicle_of_interest and trade_in."
+          examples:
+            - available
+            - intransit
+        rooftop:
+          type:
+            - string
+            - "null"
+          description: Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from
+            dealer.information. Nullable; single-rooftop dealers MAY leave it null.
+          examples:
+            - Demo Toyota San Francisco
+        msrp:
+          type: integer
+          minimum: 0
+          description: Manufacturer's Suggested Retail Price (sticker price), whole US dollars. Inventory context.
+          examples:
+            - 36000
+        price:
+          type: integer
+          minimum: 0
+          description: FTC-emphasized FINAL out-the-door price after all incentives, mandatory fees, and required add-ons, in
+            whole US dollars. Per FTC enforcement (CARS Rule), this field MUST reflect the total amount the buyer would
+            pay; advertising a 'price' that excludes required fees or omits required add-ons is a violation. Inventory
+            context.
+          examples:
+            - 35500
+        list_price:
+          type: integer
+          minimum: 0
+          description: Dealer's advertised list price; the base price BEFORE incentives, taxes, or fees, in whole US dollars.
+            Inventory context.
+          examples:
+            - 34000
+        offered_price:
+          type: integer
+          minimum: 0
+          description: Regional price equal to list_price plus applicable taxes for the buyer's `zip`, in whole US dollars, when
+            the dealer enables desking. Present only if a `zip` is supplied AND the dealer supports regional pricing.
+            Inventory context.
+          examples:
+            - 36975
+        zip:
+          type: string
+          pattern: ^\d{5}(-\d{4})?$
+          description: Buyer ZIP code used to compute regional pricing fields (`offered_price`). US ZIP, 5 digits or ZIP+4.
+            Optional; when absent, regional pricing fields MUST be omitted.
+          examples:
+            - "94103"
+            - 94103-1234
+        stock:
+          type: string
+          description: Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts.
+          examples:
+            - H12345
+        dealer_id:
+          type: string
+          description: Stable identifier of the dealer that owns this listing. Inventory context.
+          examples:
+            - demo-toyota-sf
+        vehicle_id:
+          type: string
+          description: Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).
+          examples:
+            - veh_8f3c1a
+        mileage:
+          type: integer
+          minimum: 0
+          description: Odometer reading in miles. Required for trade-ins; typical on used inventory.
+          examples:
+            - 12
+            - 38450
+        body:
+          type: string
+          description: Body style as text (e.g. 'sedan', 'suv', 'truck', 'coupe', 'hatchback', 'wagon', 'minivan', 'convertible').
+          examples:
+            - suv
+            - sedan
+            - truck
+        transmission:
+          type: string
+          description: Transmission type as text (e.g. 'automatic', 'manual', '8-speed automatic', 'cvt').
+          examples:
+            - automatic
+            - cvt
+        driveline:
+          type: string
+          description: Drivetrain layout (e.g. 'fwd', 'rwd', 'awd', '4wd').
+          examples:
+            - awd
+            - fwd
+        engine:
+          type: string
+          description: Engine description (e.g. '2.0L Turbo I4', '3.5L V6 Hybrid').
+          examples:
+            - 1.5L Turbo I4
+            - 3.5L V6 Hybrid
+        fuel:
+          type: string
+          description: Fuel type (e.g. 'gas', 'diesel', 'hybrid', 'phev', 'bev').
+          examples:
+            - gas
+            - hybrid
+            - bev
+        city_mpg:
+          type: integer
+          minimum: 0
+          description: EPA city fuel-economy estimate in miles per gallon. Omit for fully electric vehicles (use
+            `electric_range_mi`).
+          examples:
+            - 28
+        highway_mpg:
+          type: integer
+          minimum: 0
+          description: EPA highway fuel-economy estimate in miles per gallon. Omit for fully electric vehicles (use
+            `electric_range_mi`).
+          examples:
+            - 34
+        electric_range_mi:
+          type: number
+          minimum: 0
+          description: Estimated electric range in miles, for BEV and PHEV vehicles.
+          examples:
+            - 300
+        exterior_color:
+          type: string
+          description: Free-text exterior color name.
+          examples:
+            - Crystal Black Pearl
+            - Platinum White Pearl
+        interior_color:
+          type: string
+          description: Free-text interior color or upholstery name.
+          examples:
+            - Black Leather
+            - Gray Cloth
+        features:
+          type: array
+          items:
+            type: string
+          description: Notable equipment and options as free-text strings (e.g. 'Adaptive Cruise Control', 'Apple CarPlay',
+            'Heated Front Seats'). v1.0 uses one flat list and does not separate option packages, factory equipment, or
+            installed accessories.
+          examples:
+            - - Adaptive Cruise Control
+              - Apple CarPlay
+              - Heated Front Seats
+        photos:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: Public URLs of vehicle photos, ordered by relevance.
+          examples:
+            - - https://cdn.example.com/vehicles/h12345/1.jpg
+              - https://cdn.example.com/vehicles/h12345/2.jpg
+        vdp_url:
+          type: string
+          format: uri
+          description: Public Vehicle Detail Page (VDP) URL on the dealer's website.
+          examples:
+            - https://www.example.com/inventory/h12345
+        description:
+          type: string
+          description: Human-readable description / dealer marketing copy.
+          examples:
+            - Well-equipped EX-L with leather seating and a clean history report.
+        notes:
+          type: string
+          description: Dealer notes (e.g. 'recently arrived', 'service history available').
+          examples:
+            - Recently arrived
+            - Service history available
+        inventory_date:
+          type: string
+          format: date
+          description: Date (RFC 3339 full-date, e.g. '2026-04-21') the vehicle first appeared in the dealership's inventory.
+          examples:
+            - 2026-04-21
+        updated_at:
+          type: string
+          format: date-time
+          description: ISO 8601 / RFC 3339 timestamp (with timezone offset) of the last update to this vehicle's availability,
+            price, or status (e.g. '2026-04-30T08:42:00Z'). Buyer agents treat this as the freshness signal for
+            availability claims.
+          examples:
+            - 2026-04-30T08:42:00Z
+      additionalProperties: true
+    VehicleDetailResponse:
+      title: VehicleDetailResponse
+      description: Typed AAP response for the `inventory.vehicle` skill. The `data` field is a Vehicle (v1.0 unified the
+        former Vehicle + VehicleDetail into one type). Because it is always an inventory listing, `condition` is
+        constrained to `new` | `used` | `cpo` and `status` (one of `available` | `intransit` | `pending`) is required.
+        Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
+      type: object
+      properties:
+        type:
+          const: inventory.vehicle.response
+        data:
+          allOf:
+            - $ref: "#/components/schemas/Vehicle"
+            - type: object
+              properties:
+                condition:
+                  enum:
+                    - new
+                    - used
+                    - cpo
+              required:
+                - status
+        message:
+          type: string
+          description: Optional contextual note. MAY be omitted.
+          maxLength: 2000
+      required:
+        - type
+        - data
+      additionalProperties: false
+    VehicleDetailRequest:
+      title: VehicleDetailRequest
+      description: Typed AAP request for the `inventory.vehicle` skill. The request MUST identify a specific listing via at
+        least one of `vin`, `stock`, or `vehicle_id`. Carried inside an A2A `Message.parts[].data` DataPart via the A2A
+        `SendMessage` operation.
+      type: object
+      examples:
+        - type: inventory.vehicle.request
+          vin: 1HGCV1F30NA123456
+          zip: "94103"
+      properties:
+        type:
+          const: inventory.vehicle.request
+        vin:
+          type: string
+          pattern: ^[A-HJ-NPR-Z0-9]{17}$
+          description: Vehicle Identification Number. Preferred identifier when known.
+          examples:
+            - 1HGCV1F30NA123456
+        stock:
+          type: string
+          description: Dealer's stock number, used when VIN is not yet assigned (e.g. in-transit units).
+          examples:
+            - H12345
+        vehicle_id:
+          type: string
+          description: Dealer-internal vehicle identifier.
+          examples:
+            - veh_8f3c1a
+        zip:
+          type: string
+          description: Optional buyer ZIP code; when provided, the dealer MAY compute the regional offered_price field.
+          examples:
+            - "94103"
+      required:
+        - type
+      anyOf:
+        - required:
+            - vin
+        - required:
+            - stock
+        - required:
+            - vehicle_id
+      additionalProperties: false
+    LeadSubmitResponse:
+      title: LeadSubmitResponse
+      description: Dealer agent's response to a `lead.submit.request`. Carries the assigned `lead_id` and overall lead
+        `status`, plus an optional appointment block when the request included an `appointment` (the dealer can confirm
+        the requested time, propose alternatives, leave it as merely requested for human follow-up, or reject the
+        appointment while still accepting the lead). Carried inside an A2A `Message.parts[].data` DataPart via
+        `SendMessage`.
+      type: object
+      properties:
+        type:
+          const: lead.submit.response
+          description: AAP message type discriminator.
+        data:
+          type: object
+          properties:
+            lead_id:
+              type: string
+              description: Dealer-assigned identifier for this lead.
+            status:
+              type: string
+              enum:
+                - received
+                - duplicate
+                - rejected
+              description: Overall lead status. `duplicate` indicates the dealer recognized the same buyer/vehicle combination from a
+                recent prior submission and merged it. `rejected` indicates the dealer did not accept the lead (e.g.
+                consent invalid, vehicle no longer available, dealer not serving the buyer's region).
+            appointment:
+              type: object
+              description: Present iff the request included an `appointment` block AND the dealer is acknowledging it (whether
+                confirming, proposing alternatives, leaving it as requested for staff follow-up, or rejecting).
+              properties:
+                appointment_id:
+                  type: string
+                  description: Dealer-assigned identifier for this appointment.
+                status:
+                  type: string
+                  enum:
+                    - requested
+                    - proposed
+                    - confirmed
+                    - rejected
+                  description: Appointment status. `requested` = received but not yet scheduled (staff will follow up). `proposed` =
+                    dealer cannot honor the requested time but is offering alternatives in `proposed_times`. `confirmed`
+                    = dealer scheduled the appointment for `confirmed_at`. `rejected` = dealer cannot host this
+                    appointment (e.g. service unavailable).
+                confirmed_at:
+                  type: string
+                  format: date-time
+                  description: Present iff `status` is `confirmed`. The scheduled start time as an ISO 8601 / RFC 3339 timestamp with
+                    timezone offset.
+                proposed_times:
+                  type: array
+                  description: Present iff `status` is `proposed`. Alternative start times the dealer offers, each an ISO 8601 / RFC 3339
+                    timestamp with timezone offset.
+                  minItems: 1
+                  items:
+                    type: string
+                    format: date-time
+              required:
+                - appointment_id
+                - status
+              additionalProperties: false
+            dealer:
+              type: object
+              description: Convenience contact summary for the buyer agent to surface follow-up details to the user.
+              properties:
+                name:
+                  type: string
+                phone:
+                  type: string
+                  pattern: ^\+[1-9]\d{1,14}$
+                  description: E.164 phone number for buyer follow-up.
+              additionalProperties: false
+          required:
+            - lead_id
+            - status
+          additionalProperties: false
+        message:
+          type: string
+          maxLength: 2000
+          description: Contextual note from the dealer (e.g. 'A salesperson will call within 1 business hour.', 'We are unable to
+            honor your requested time; please pick from the alternatives.').
+      required:
+        - type
+        - data
+      additionalProperties: false
+    LeadSubmitRequest:
+      title: LeadSubmitRequest
+      description: >-
+        Unified lead submission for the `lead.submit` AAP skill. A single request carries the consented customer plus
+        any combination of `vehicle_of_interest`, `trade_in`, and `appointment` — matching how dealerships actually take
+        leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).
+
+
+        Design principle: capture whatever the customer actually provided. `vehicle_of_interest`, `trade_in`, and
+        `appointment` are entirely optional, and within them no individual field is required at the schema level — the
+        buyer agent should pass through whatever pieces of information the user shared (a VIN, a make+model, just a
+        year, mileage only — anything is welcome). The dealer is responsible for handling partial input gracefully.
+
+
+        Validation rules:
+
+        - `customer` and `consent` are always required (lead is never anonymous; consent is always required).
+
+        - If `vehicle_of_interest.condition` is set, it MUST be one of `new`, `used`, `cpo`.
+
+        - If `trade_in.condition` is set, it MUST be one of `excellent`, `good`, `fair`, `poor`.
+
+        - `consent.scope` MUST be `["lead_submission"]`.
+
+
+        Carried inside an A2A `Message.parts[].data` DataPart via `SendMessage` (JSON-RPC 2.0 or HTTP+JSON binding).
+      type: object
+      properties:
+        type:
+          const: lead.submit.request
+          description: AAP message type discriminator.
+        customer:
+          $ref: "#/components/schemas/Customer"
+          description: Buyer contact info. Required.
+        consent:
+          $ref: "#/components/schemas/ConsentGrant"
+          description: Consent record covering this submission. Required. `scope` MUST be ["lead_submission"].
+        vehicle_of_interest:
+          $ref: "#/components/schemas/Vehicle"
+          description: The vehicle the buyer is interested in purchasing. Optional. Pass through whatever the customer provided
+            (VIN alone, year+make+model, just a model name, etc.) — no individual field is required. When `condition` is
+            set it MUST be one of `new` | `used` | `cpo`.
+        trade_in:
+          $ref: "#/components/schemas/Vehicle"
+          description: The vehicle the buyer wants to trade in. Optional. Pass through whatever the customer provided (just a
+            make+model and a mileage is a perfectly valid trade-in lead). When `condition` is set it MUST be one of
+            `excellent` | `good` | `fair` | `poor`. Pricing fields are typically absent on the request side and are
+            populated by the dealer's appraisal response.
+        appointment:
+          $ref: "#/components/schemas/Appointment"
+          description: "An appointment request the buyer wants scheduled alongside this lead. Optional. `appointment_type` is one
+            of `sales` | `service` | `test_drive` | `trade_in`, and `appointment_at` is the requested start time. The
+            vehicle for the appointment is implicit: `vehicle_of_interest` for a test drive, `trade_in` for a trade-in
+            appraisal."
+        message:
+          type: string
+          maxLength: 4000
+          description: Optional free-text message from the buyer to the dealer.
+        source_agent:
+          type: object
+          description: "The buyer agent that originated this lead — a structured identity for analytics and the TCPA/consent audit
+            trail (who submitted it, and where their public agent card lives). In v1.1 this replaces the v1.0 string
+            form AND the duplicate `consent.source_agent`: there is now exactly ONE source_agent, here at the top
+            level."
+          properties:
+            name:
+              type: string
+              minLength: 1
+              description: Stable identifier of the buyer agent.
+              examples:
+                - chatgpt-shopping
+                - claude-auto-shopper
+                - lumika-bdc
+            url:
+              type: string
+              format: uri
+              description: Optional homepage / operator URL for the buyer agent.
+              examples:
+                - https://chat.openai.com
+            agent_card_url:
+              type: string
+              format: uri
+              description: Optional URL of the buyer agent's own A2A agent card, so the dealer can re-fetch and verify who submitted
+                the lead (recommended for compliance).
+              examples:
+                - https://shopper.example.com/.well-known/agent-card.json
+          required:
+            - name
+          additionalProperties: false
+          examples:
+            - name: claude-auto-shopper
+              agent_card_url: https://shopper.example.com/.well-known/agent-card.json
+        submitted_at:
+          type: string
+          format: date-time
+          description: ISO 8601 / RFC 3339 timestamp at which the buyer agent finalized this submission (e.g.
+            '2026-04-30T11:05:08Z').
+        idempotency_key:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: Optional client-generated key (UUID recommended) the dealer agent uses to dedupe retried submissions. Two
+            requests carrying the same `idempotency_key` MUST produce the same response (the dealer returns the original
+            `lead_id` and status). Strongly RECOMMENDED for production buyer agents that retry on network failure.
+      required:
+        - type
+        - customer
+        - consent
+        - source_agent
+      additionalProperties: false
+      allOf:
+        - description: vehicle_of_interest.condition (when set) must be in the sale-condition vocabulary
+          if:
+            type: object
+            required:
+              - vehicle_of_interest
+            properties:
+              vehicle_of_interest:
+                type: object
+                required:
+                  - condition
+          then:
+            properties:
+              vehicle_of_interest:
+                properties:
+                  condition:
+                    enum:
+                      - new
+                      - used
+                      - cpo
+        - description: trade_in.condition (when set) must be in the wear-condition vocabulary
+          if:
+            type: object
+            required:
+              - trade_in
+            properties:
+              trade_in:
+                type: object
+                required:
+                  - condition
+          then:
+            properties:
+              trade_in:
+                properties:
+                  condition:
+                    enum:
+                      - excellent
+                      - good
+                      - fair
+                      - poor
+    InventorySearchResponse:
+      title: InventorySearchResponse
+      description: Typed AAP response for the `inventory.search` skill. The `data` block contains pagination metadata, the
+        matched vehicles, and OPTIONALLY an embedded Facets aggregation. Carried inside an A2A `Message.parts[].data`
+        DataPart returned from the `SendMessage` operation.
+      type: object
+      properties:
+        type:
+          const: inventory.search.response
+        data:
+          type: object
+          properties:
+            total:
+              type: integer
+              minimum: 0
+              description: Total number of vehicles matching the request (across all pages).
+            skip:
+              type: integer
+              minimum: 0
+              description: Echo of the request's pagination.skip.
+            limit:
+              type: integer
+              minimum: 0
+              description: Echo of the request's effective pagination.limit.
+            vehicles:
+              type: array
+              description: Vehicles in this page, in the requested order. Each item is a Vehicle constrained to the sale-condition
+                vocabulary (`new`|`used`|`cpo`) — inventory listings never carry trade-in wear values — and MUST carry a
+                `status` of `available`, `intransit`, or `pending`. Out-of-stock vehicles are never returned.
+              items:
+                allOf:
+                  - $ref: "#/components/schemas/Vehicle"
+                  - type: object
+                    properties:
+                      condition:
+                        enum:
+                          - new
+                          - used
+                          - cpo
+                    required:
+                      - status
+            facets:
+              $ref: "#/components/schemas/Facets"
+              description: Optional aggregated facets over the matching set.
+          required:
+            - total
+            - vehicles
+          additionalProperties: false
+        message:
+          type: string
+          description: Optional contextual note. MAY be omitted.
+          maxLength: 2000
+      required:
+        - type
+        - data
+      additionalProperties: false
+    InventorySearchRequest:
+      title: InventorySearchRequest
+      description: Typed AAP request for the `inventory.search` skill. Filters are FLAT (no nested make/model trees) and
+        multi-value filters are arrays. Pagination uses skip/limit; sort is field+order. `privacy.anonymous` declares
+        whether the buyer agent is sharing user identity. Carried inside an A2A `Message.parts[].data` DataPart via the
+        A2A `SendMessage` operation.
+      type: object
+      examples:
+        - type: inventory.search.request
+          filters:
+            make:
+              - Honda
+            condition:
+              - new
+            body:
+              - suv
+            price_max: 40000
+            year_min: 2023
+          pagination:
+            skip: 0
+            limit: 25
+          sort:
+            field: price
+            order: asc
+          privacy:
+            anonymous: true
+      properties:
+        type:
+          const: inventory.search.request
+        filters:
+          $ref: "#/components/schemas/InventorySearchRequest/$defs/filters"
+          description: Optional filter block. All fields optional; absent fields mean 'no constraint'.
+        pagination:
+          type: object
+          description: Result paging. Default values are dealer-defined; spec recommends limit defaults <= 50 and limit cap of 100.
+          properties:
+            skip:
+              type: integer
+              minimum: 0
+              description: Number of results to skip from the start of the matching set.
+              examples:
+                - 0
+                - 25
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 1000
+              description: Maximum number of results to return on this page.
+              examples:
+                - 25
+          additionalProperties: false
+        sort:
+          type: object
+          description: Result ordering. Default ordering is dealer-defined.
+          properties:
+            field:
+              type: string
+              enum:
+                - price
+                - list_price
+                - offered_price
+                - msrp
+                - mileage
+                - year
+                - make
+                - model
+                - stock
+                - updated_at
+              description: Field to sort by. Sorting by 'price' uses the FTC-final 'price' field (which dealers MUST keep accurate);
+                'updated_at' sorts by listing freshness.
+              examples:
+                - price
+                - year
+            order:
+              type: string
+              enum:
+                - asc
+                - desc
+              examples:
+                - asc
+          required:
+            - field
+            - order
+          additionalProperties: false
+        privacy:
+          type: object
+          description: Privacy hints from the buyer agent. AAP RECOMMENDS anonymous searches by default; user identity is only
+            attached when a lead is submitted.
+          properties:
+            anonymous:
+              type: boolean
+              description: True when no user-identifying information is included with the request.
+              examples:
+                - true
+          additionalProperties: false
+      required:
+        - type
+      additionalProperties: false
+      $defs:
+        filters:
+          type: object
+          description: Flat filter block. Multi-value filters use arrays; range filters use *_min / *_max.
+          properties:
+            make:
+              type: array
+              items:
+                type: string
+              description: Vehicle makes to include (e.g. ['Honda','BMW']).
+              examples:
+                - - Honda
+                - - Honda
+                  - BMW
+            model:
+              type: array
+              items:
+                type: string
+              description: Vehicle models to include.
+              examples:
+                - - CR-V
+            trim:
+              type: array
+              items:
+                type: string
+              description: Trim levels to include.
+              examples:
+                - - EX-L
+            condition:
+              type: array
+              items:
+                type: string
+                enum:
+                  - new
+                  - used
+                  - cpo
+              description: Sale conditions to include. Inventory uses the sale-condition vocabulary (`new` | `used` | `cpo`).
+              examples:
+                - - new
+                - - used
+                  - cpo
+            transmission:
+              type: array
+              items:
+                type: string
+              examples:
+                - - automatic
+            fuel:
+              type: array
+              items:
+                type: string
+              examples:
+                - - hybrid
+                  - bev
+            driveline:
+              type: array
+              items:
+                type: string
+              examples:
+                - - awd
+            body:
+              type: array
+              items:
+                type: string
+              description: Body styles to include (e.g. ['sedan','suv','truck']).
+              examples:
+                - - suv
+            exterior_color:
+              type: array
+              items:
+                type: string
+              examples:
+                - - black
+            interior_color:
+              type: array
+              items:
+                type: string
+              examples:
+                - - black
+            rooftops:
+              type: array
+              items:
+                type: string
+              description: Rooftop names to include, matching `Vehicle.rooftop` and the rooftop `name` from `dealer.information`. For
+                multi-rooftop dealerships; omit to search across all rooftops.
+              examples:
+                - - Demo Toyota San Francisco
+            year_min:
+              type: integer
+              minimum: 1900
+              maximum: 2100
+              examples:
+                - 2023
+            year_max:
+              type: integer
+              minimum: 1900
+              maximum: 2100
+              examples:
+                - 2025
+            price_min:
+              type: integer
+              minimum: 0
+              description: Minimum price in whole US dollars, applied against the FTC-final 'price' field.
+              examples:
+                - 20000
+            price_max:
+              type: integer
+              minimum: 0
+              description: Maximum price in whole US dollars, applied against the FTC-final 'price' field.
+              examples:
+                - 40000
+            mileage_max:
+              type: integer
+              minimum: 0
+              examples:
+                - 60000
+            vin:
+              type: string
+              pattern: ^[A-HJ-NPR-Z0-9]{17}$
+              examples:
+                - 1HGCV1F30NA123456
+            stock:
+              type: string
+              examples:
+                - H12345
+            query:
+              type: string
+              maxLength: 200
+              description: Optional free-text query.
+              examples:
+                - AWD hybrid SUV under 40k
+          additionalProperties: false
+    InventoryFacetsResponse:
+      title: InventoryFacetsResponse
+      description: Typed AAP response for the `inventory.facets` skill. The `data` object is a Facets aggregation. Carried
+        inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
+      type: object
+      properties:
+        type:
+          const: inventory.facets.response
+        data:
+          $ref: "#/components/schemas/Facets"
+        message:
+          type: string
+          description: Optional contextual note. MAY be omitted.
+          maxLength: 2000
+      required:
+        - type
+        - data
+      additionalProperties: false
+    InventoryFacetsRequest:
+      title: InventoryFacetsRequest
+      description: "Typed AAP request for the `inventory.facets` skill. An optional `filters` block scopes the facets to a
+        subset of inventory (e.g. `condition: ['used']`). Carried inside an A2A `Message.parts[].data` DataPart via the
+        A2A `SendMessage` operation."
+      type: object
+      examples:
+        - type: inventory.facets.request
+          filters:
+            condition:
+              - used
+      properties:
+        type:
+          const: inventory.facets.request
+        filters:
+          $ref: "#/components/schemas/InventorySearchRequest/$defs/filters"
+          description: Optional filters to scope facet aggregation. Same shape as inventory.search filters; all fields are optional.
+      required:
+        - type
+      additionalProperties: false
+    Facets:
+      title: Facets
+      description: Aggregated facet counts and ranges over a dealer's inventory. Returned by the `inventory.facets` AAP skill
+        (wrapped in `inventory.facets.response`) and OPTIONALLY embedded in `inventory.search` responses. Both responses
+        travel inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
+      type: object
+      $defs:
+        term_facet:
+          type: array
+          description: "A term facet: each entry pairs a distinct field value with the count of matching vehicles."
+          examples:
+            - - value: Honda
+                count: 42
+              - value: Toyota
+                count: 31
+          items:
+            type: object
+            properties:
+              value:
+                type:
+                  - string
+                  - integer
+                description: A distinct value observed for this field across the matching set (e.g. a make, model, or year).
+                examples:
+                  - Honda
+                  - 2024
+              count:
+                type: integer
+                minimum: 0
+                description: Number of matching vehicles carrying this value.
+                examples:
+                  - 42
+            required:
+              - value
+              - count
+            additionalProperties: false
+        range_facet:
+          type: object
+          description: "A numeric range facet: the observed min and max for a field across the matching set."
+          examples:
+            - min: 18995
+              max: 64995
+          properties:
+            min:
+              type: number
+              description: Lowest observed value for this field across the matching set.
+              examples:
+                - 18995
+            max:
+              type: number
+              description: Highest observed value for this field across the matching set.
+              examples:
+                - 64995
+          required:
+            - min
+            - max
+          additionalProperties: false
+      properties:
+        makes:
+          $ref: "#/components/schemas/Facets/$defs/term_facet"
+        models:
+          $ref: "#/components/schemas/Facets/$defs/term_facet"
+        trims:
+          $ref: "#/components/schemas/Facets/$defs/term_facet"
+        years:
+          $ref: "#/components/schemas/Facets/$defs/term_facet"
+        conditions:
+          $ref: "#/components/schemas/Facets/$defs/term_facet"
+        transmissions:
+          $ref: "#/components/schemas/Facets/$defs/term_facet"
+        fuels:
+          $ref: "#/components/schemas/Facets/$defs/term_facet"
+        drivelines:
+          $ref: "#/components/schemas/Facets/$defs/term_facet"
+        bodies:
+          $ref: "#/components/schemas/Facets/$defs/term_facet"
+          description: Body-style facets, matching the `body` field on Vehicle and `filters.body` on InventorySearchRequest.
+        exterior_colors:
+          $ref: "#/components/schemas/Facets/$defs/term_facet"
+        interior_colors:
+          $ref: "#/components/schemas/Facets/$defs/term_facet"
+        rooftops:
+          $ref: "#/components/schemas/Facets/$defs/term_facet"
+          description: Rooftop facets — vehicle counts per dealership location, matching `Vehicle.rooftop` and `filters.rooftops`.
+        statuses:
+          $ref: "#/components/schemas/Facets/$defs/term_facet"
+        price_range:
+          $ref: "#/components/schemas/Facets/$defs/range_facet"
+        mileage_range:
+          $ref: "#/components/schemas/Facets/$defs/range_facet"
+        year_range:
+          $ref: "#/components/schemas/Facets/$defs/range_facet"
+      additionalProperties: false
+    Event:
+      title: Event
+      description: Minimal AAP event envelope. Used for asynchronous status updates (e.g. lead status changes, appointment
+        confirmations) delivered via A2A push notifications or task status update events.
+      type: object
+      properties:
+        type:
+          const: aap.event
+        event_kind:
+          type: string
+          enum:
+            - lead.status_changed
+            - appointment.status_changed
+          description: Concrete event kind. v1.0 defines two kinds; future versions may add more.
+          examples:
+            - lead.status_changed
+            - appointment.status_changed
+        entity_id:
+          type: string
+          description: Identifier of the affected entity (lead_id or appointment_id).
+          examples:
+            - lead_8f3c1a
+            - appt_2b7d9e
+        status:
+          type: string
+          description: "New status value for the entity. For 'lead.status_changed', one of: received | duplicate | rejected |
+            working | sold_to | lost. For 'appointment.status_changed', one of: requested | proposed | confirmed |
+            rejected | completed | no_show. Conditional `if/then` clauses below enforce the right subset for each
+            `event_kind`."
+          examples:
+            - received
+            - confirmed
+        occurred_at:
+          type: string
+          format: date-time
+          description: ISO 8601 / RFC 3339 timestamp at which the event occurred (e.g. '2026-04-30T10:15:30Z'). MUST include a
+            timezone offset (Z or ±HH:MM).
+          examples:
+            - 2026-04-30T10:15:30Z
+        payload:
+          type: object
+          description: Optional event-specific payload. Schema is event-kind-dependent and dealer-defined.
+          additionalProperties: true
+      required:
+        - type
+        - event_kind
+        - entity_id
+        - status
+        - occurred_at
+      additionalProperties: false
+      allOf:
+        - description: lead.status_changed restricts status to the lead-status vocabulary
+          if:
+            type: object
+            properties:
+              event_kind:
+                const: lead.status_changed
+            required:
+              - event_kind
+          then:
+            properties:
+              status:
+                enum:
+                  - received
+                  - duplicate
+                  - rejected
+                  - working
+                  - sold_to
+                  - lost
+        - description: appointment.status_changed restricts status to the appointment-status vocabulary
+          if:
+            type: object
+            properties:
+              event_kind:
+                const: appointment.status_changed
+            required:
+              - event_kind
+          then:
+            properties:
+              status:
+                enum:
+                  - requested
+                  - proposed
+                  - confirmed
+                  - rejected
+                  - completed
+                  - no_show
+    Error:
+      title: Error
+      description: Typed AAP error payload. Returned inside an A2A error envelope (JSON-RPC 'error' member or HTTP
+        'application/json' error body, per A2A spec sections 9.5 and 11.6). Buyer agents use 'code' and 'retryable' to
+        drive client behavior; humans see 'message'.
+      type: object
+      properties:
+        type:
+          const: aap.error
+        error_id:
+          type: string
+          description: Unique identifier for this error instance, suitable for support correlation (e.g. UUID).
+          examples:
+            - err_3f29c1a8b2
+            - 3f29c1a8-7b4d-4e2a-9c1f-8a6b2d0e5f31
+        code:
+          type: string
+          enum:
+            - UNSUPPORTED_SKILL
+            - SCHEMA_VALIDATION_FAILED
+            - MISSING_REQUIRED_FIELD
+            - INVALID_CONDITION
+            - VEHICLE_NOT_FOUND
+            - VEHICLE_UNAVAILABLE
+            - CONTACT_CONSENT_REQUIRED
+            - INVALID_CONSENT
+            - APPOINTMENT_TIME_UNAVAILABLE
+            - IDEMPOTENCY_CONFLICT
+            - RATE_LIMITED
+            - INTERNAL_ERROR
+          description: Machine-readable error code from the AAP error vocabulary.
+          examples:
+            - VEHICLE_NOT_FOUND
+            - RATE_LIMITED
+        message:
+          type: string
+          description: Human-readable error message suitable for end-user display.
+          examples:
+            - The requested vehicle could not be found.
+        retryable:
+          type: boolean
+          description: Whether the buyer agent SHOULD retry the same request after a backoff.
+          examples:
+            - false
+        details:
+          description: Optional, code-specific details (e.g. validation failure paths). Free shape.
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 / RFC 3339 timestamp at which the dealer agent generated this error (e.g. '2026-04-30T10:15:30Z').
+            MUST include a timezone offset (Z or ±HH:MM).
+          examples:
+            - 2026-04-30T10:15:30Z
+      required:
+        - type
+        - error_id
+        - code
+        - message
+        - retryable
+        - created_at
+      additionalProperties: false
+    DealerInformation:
+      title: DealerInformation
+      description: "Public dealership profile. v1.0 reduces this to the minimum: a dealer group `name`, an optional
+        `welcome_message`, and one or more `rooftops` (physical locations). Per-location identity, address, geo,
+        contacts, hours, and service capabilities live on each rooftop. Vehicles reference the rooftop that holds them
+        via `Vehicle.rooftop` = the rooftop's `name`. Returned by the `dealer.information` AAP skill, wrapped in
+        `dealer.information.response` and carried inside an A2A `Message.parts[].data` DataPart via the A2A
+        `SendMessage` operation."
+      type: object
+      properties:
+        name:
+          type: string
+          description: Dealer group / business name shown to buyers (e.g. 'Demo Auto Group').
+          examples:
+            - Demo Auto Group
+        welcome_message:
+          type: string
+          description: Optional greeting a buyer agent MAY surface to the user (e.g. 'Welcome to Demo Auto Group — happy to help
+            by phone, video, or in person.').
+          examples:
+            - Welcome to Demo Auto Group — happy to help by phone, video, or in person.
+        rooftops:
+          type: array
+          minItems: 1
+          description: One or more dealership locations (rooftops). A single-location dealer has one entry; a multi-rooftop group
+            lists each store.
+          items:
+            $ref: "#/components/schemas/DealerInformation/$defs/rooftop"
+      required:
+        - name
+        - rooftops
+      additionalProperties: false
+      $defs:
+        named_value:
+          type: object
+          description: A labeled contact value (e.g. name 'Sales', value '+14155550100' or 'sales@dealer.example').
+          properties:
+            name:
+              type: string
+              description: Channel label (e.g. 'Sales', 'Service', 'Parts').
+              examples:
+                - Sales
+                - Service
+            value:
+              type: string
+              description: The contact value itself — the email address or phone number.
+              examples:
+                - sales@dealer.example
+                - "+14155550100"
+          required:
+            - value
+          additionalProperties: false
+        day_hours:
+          description: A single day's hours — {open, close} in 24h HH:MM (rooftop local time) or null when closed.
+          oneOf:
+            - type: object
+              properties:
+                open:
+                  type: string
+                  pattern: ^([01]\d|2[0-3]):[0-5]\d$
+                  examples:
+                    - 09:00
+                close:
+                  type: string
+                  pattern: ^([01]\d|2[0-3]):[0-5]\d$
+                  examples:
+                    - 18:00
+              required:
+                - open
+                - close
+              additionalProperties: false
+            - type: "null"
+        weekly_hours:
+          type: object
+          description: Hours keyed by day. Each day is {open, close} or null when closed.
+          properties:
+            monday:
+              $ref: "#/components/schemas/DealerInformation/$defs/day_hours"
+            tuesday:
+              $ref: "#/components/schemas/DealerInformation/$defs/day_hours"
+            wednesday:
+              $ref: "#/components/schemas/DealerInformation/$defs/day_hours"
+            thursday:
+              $ref: "#/components/schemas/DealerInformation/$defs/day_hours"
+            friday:
+              $ref: "#/components/schemas/DealerInformation/$defs/day_hours"
+            saturday:
+              $ref: "#/components/schemas/DealerInformation/$defs/day_hours"
+            sunday:
+              $ref: "#/components/schemas/DealerInformation/$defs/day_hours"
+          additionalProperties: false
+        schedule:
+          type: object
+          description: A named weekly schedule (e.g. name 'sales' or 'service' with its own weekly hours).
+          properties:
+            name:
+              type: string
+              description: Schedule label (e.g. 'sales', 'service').
+              examples:
+                - sales
+                - service
+            value:
+              $ref: "#/components/schemas/DealerInformation/$defs/weekly_hours"
+          required:
+            - value
+          additionalProperties: false
+        rooftop:
+          type: object
+          description: A single dealership location.
+          properties:
+            name:
+              type: string
+              description: Rooftop name shown to buyers and referenced by `Vehicle.rooftop` (e.g. 'Demo Toyota San Francisco').
+              examples:
+                - Demo Toyota San Francisco
+            legal_name:
+              type: string
+              description: Legal / registered business name for this location.
+              examples:
+                - Demo Toyota of San Francisco, LLC
+            website:
+              type: string
+              format: uri
+              description: Public website for this rooftop.
+              examples:
+                - https://www.demotoyotasf.example
+            geo:
+              type: object
+              description: Geographic coordinates of this rooftop.
+              properties:
+                latitude:
+                  type: number
+                  minimum: -90
+                  maximum: 90
+                  examples:
+                    - 37.7749
+                longitude:
+                  type: number
+                  minimum: -180
+                  maximum: 180
+                  examples:
+                    - -122.4194
+              required:
+                - latitude
+                - longitude
+              additionalProperties: false
+            emails:
+              type: array
+              description: Email contact channels for this rooftop.
+              items:
+                $ref: "#/components/schemas/DealerInformation/$defs/named_value"
+            phones:
+              type: array
+              description: Phone contact channels for this rooftop.
+              items:
+                $ref: "#/components/schemas/DealerInformation/$defs/named_value"
+            address:
+              $ref: "#/components/schemas/Address"
+              description: Physical address of this rooftop.
+            schedules:
+              type: array
+              description: Named weekly schedules for this rooftop (e.g. a 'sales' schedule and a 'service' schedule).
+              items:
+                $ref: "#/components/schemas/DealerInformation/$defs/schedule"
+            timezone:
+              type: string
+              description: IANA timezone identifier for this rooftop's schedules (e.g. 'America/Los_Angeles').
+              examples:
+                - America/Los_Angeles
+            notes:
+              type: string
+              description: Free-text notes (e.g. 'closed major holidays').
+              examples:
+                - Closed major holidays
+            capabilities:
+              type: array
+              description: Services this rooftop offers, as free-text tags (e.g. 'sales', 'service', 'parts', 'financing', 'trade_in',
+                'delivery').
+              items:
+                type: string
+              examples:
+                - - sales
+                  - service
+                  - parts
+                  - financing
+                  - trade_in
+                  - delivery
+          required:
+            - name
+          additionalProperties: false
+    DealerInformationResponse:
+      title: DealerInformationResponse
+      description: Typed AAP response for the `dealer.information` skill. Wraps a DealerInformation object inside the standard
+        AAP response envelope (`{ type, data, message? }`). Carried inside an A2A `Message.parts[].data` DataPart
+        returned from the `SendMessage` operation.
+      type: object
+      properties:
+        type:
+          const: dealer.information.response
+        data:
+          $ref: "#/components/schemas/DealerInformation"
+        message:
+          type: string
+          description: Optional contextual note from the dealer or LLM. MAY be omitted.
+          maxLength: 2000
+      required:
+        - type
+        - data
+      additionalProperties: false
+    DealerInformationRequest:
+      title: DealerInformationRequest
+      description: Typed AAP request for the `dealer.information` skill. The request carries no parameters; it asks for the
+        dealer's static profile. Carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage`
+        operation.
+      type: object
+      examples:
+        - type: dealer.information.request
+      properties:
+        type:
+          const: dealer.information.request
+          description: AAP message type. Skill ID plus role.
+      required:
+        - type
+      additionalProperties: false
+    Customer:
+      title: Customer
+      description: Buyer/customer contact info attached to a `lead.submit.request` (which travels inside an A2A
+        `Message.parts[].data` DataPart). At least one of email or phone MUST be present. When customer is present a
+        ConsentGrant MUST also be present.
+      type: object
+      examples:
+        - first_name: Ada
+          last_name: Lovelace
+          email: ada@example.com
+          phone: "+14155550123"
+          preferred_contact: email
+          address:
+            city: San Francisco
+            state: CA
+            zip: "94103"
+      properties:
+        first_name:
+          type: string
+          description: Customer's given (first) name.
+          examples:
+            - Ada
+            - Grace
+        last_name:
+          type: string
+          description: Customer's family (last) name.
+          examples:
+            - Lovelace
+            - Hopper
+        email:
+          type: string
+          format: email
+          description: Customer email address (RFC 5322). At least one of `email` or `phone` MUST be present.
+          examples:
+            - ada@example.com
+        phone:
+          type: string
+          pattern: ^\+[1-9]\d{1,14}$
+          description: Customer phone number in E.164 format (leading '+' and country code, digits only). At least one of `email`
+            or `phone` MUST be present.
+          examples:
+            - "+14155550123"
+        preferred_contact:
+          type: string
+          enum:
+            - email
+            - phone
+            - sms
+            - any
+          description: Channel preferred for follow-up. 'sms' is treated as text-message via 'phone'.
+          examples:
+            - email
+            - phone
+        address:
+          $ref: "#/components/schemas/Address"
+          description: Optional postal address (used for residency, registration, or remote delivery).
+      required:
+        - first_name
+        - last_name
+      anyOf:
+        - required:
+            - email
+        - required:
+            - phone
+      additionalProperties: false
+    ConsentGrant:
+      title: ConsentGrant
+      description: >-
+        Explicit consent record for a single `lead.submit` submission. Required whenever a `lead.submit.request`
+        includes customer contact info (which is always — `customer` is required on the unified lead). Provides an
+        auditable record of what the user authorized, when, through which channels, and via which buyer agent.
+
+
+        Error-code mapping: a dealer agent MUST reject lead submissions with `CONTACT_CONSENT_REQUIRED` if `consent` is
+        missing entirely; with `INVALID_CONSENT` if the grant is malformed, `expires_at` has passed at the time the
+        dealer would use the contact data, or the dealer intends to use a contact channel not present in
+        `allowed_channels`.
+      type: object
+      properties:
+        granted_at:
+          type: string
+          format: date-time
+          description: ISO 8601 / RFC 3339 timestamp at which the user authorized this share (e.g. '2026-04-30T11:05:00Z'). MUST
+            include a timezone offset (Z or ±HH:MM).
+        allowed_channels:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - email
+              - phone
+              - sms
+          description: Channels the user has authorized the dealer to use for follow-up.
+        consent_text:
+          type: string
+          minLength: 1
+          description: Verbatim text the user agreed to (e.g. the disclosure shown by the buyer agent). MUST be non-empty — this
+            is the audit trail of what the user actually saw.
+        scope:
+          type: array
+          minItems: 1
+          maxItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - lead_submission
+          description: Scope of the consent. AAP defines a single value `lead_submission` covering the unified `lead.submit` skill
+            (which spans general inquiries, vehicle interest, trade-in, and appointments). The request body itself shows
+            what was actually submitted; the meaningful audit granularity is `allowed_channels`.
+        expires_at:
+          type: string
+          format: date-time
+          description: Optional ISO 8601 / RFC 3339 timestamp after which this consent grant is no longer valid (e.g.
+            '2027-04-30T11:05:00Z'). Useful for jurisdictions with mandatory re-consent windows (some US state
+            TCPA-style rules cap consent at ~12 months for SMS). The dealer MUST reject `lead.submit` with
+            `INVALID_CONSENT` if `expires_at` is in the past at the time the dealer would use the contact data.
+      required:
+        - granted_at
+        - allowed_channels
+        - consent_text
+        - scope
+      additionalProperties: false
+    Appointment:
+      title: Appointment
+      description: An appointment request piggybacked on a `lead.submit.request`. The vehicle reference for the appointment is
+        IMPLICIT — it is whatever is in the parent `vehicle_of_interest` (or `trade_in` for a trade-in appraisal). A
+        standalone sales or service visit can omit any vehicle.
+      type: object
+      examples:
+        - appointment_type: test_drive
+          appointment_at: 2026-05-03T11:00:00-07:00
+          duration_minutes: 45
+          notes: I'd like to bring my partner.
+      properties:
+        appointment_type:
+          type: string
+          enum:
+            - sales
+            - service
+            - test_drive
+            - trade_in
+          description: Kind of appointment the buyer is requesting. `sales` = general sales consultation, `service` =
+            service/maintenance visit, `test_drive` = test drive of the `vehicle_of_interest`, `trade_in` = in-person
+            trade-in appraisal of the `trade_in` vehicle.
+          examples:
+            - test_drive
+            - sales
+        appointment_at:
+          type: string
+          format: date-time
+          description: Requested start time of the appointment as an ISO 8601 / RFC 3339 timestamp that MUST include a timezone
+            offset (Z or ±HH:MM), e.g. '2026-05-03T11:00:00-07:00'. Optional — when omitted, the dealer follows up to
+            schedule a time.
+          examples:
+            - 2026-05-03T11:00:00-07:00
+        duration_minutes:
+          type: integer
+          minimum: 15
+          description: Expected appointment duration in minutes. If omitted, the dealer applies its default for `appointment_type`.
+          examples:
+            - 30
+            - 45
+        notes:
+          type: string
+          maxLength: 2000
+          description: Free-text note from the buyer (e.g. 'I'd like to bring my partner', 'parking instructions please').
+          examples:
+            - I'd like to bring my partner.
+      required:
+        - appointment_type
+      additionalProperties: false
+    AgentCard:
+      title: AgentCard
+      description: A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json
+        on a dealer-controlled domain. A2A v1.0 declares every transport in 'supportedInterfaces[]' (it replaced the
+        earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). To be a
+        compliant AAP dealer agent, 'capabilities.extensions' MUST include an entry whose 'uri' equals
+        'https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1'.
+      type: object
+      properties:
+        name:
+          type: string
+          description: Human-readable agent name.
+        description:
+          type: string
+          description: Short description of what this agent does.
+        supportedInterfaces:
+          type: array
+          minItems: 1
+          description: "The A2A v1.0 service interfaces (transport + endpoint). AAP keeps the transport surface minimal: a JSONRPC
+            interface is REQUIRED (every AAP client can rely on it); an HTTP+JSON interface MAY be added; gRPC is out of
+            scope."
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+                format: uri
+                description: Endpoint URL for this interface.
+              protocolBinding:
+                type: string
+                enum:
+                  - JSONRPC
+                  - HTTP+JSON
+                description: The A2A transport binding available at this URL.
+              protocolVersion:
+                type: string
+                description: The A2A protocol version this interface exposes (Major.Minor), e.g. '1.0'.
+            required:
+              - url
+              - protocolBinding
+              - protocolVersion
+            additionalProperties: true
+          contains:
+            type: object
+            properties:
+              protocolBinding:
+                const: JSONRPC
+            required:
+              - protocolBinding
+        provider:
+          type: object
+          description: Organization operating the agent.
+          properties:
+            organization:
+              type: string
+            url:
+              type: string
+              format: uri
+          required:
+            - organization
+            - url
+          additionalProperties: true
+        version:
+          type: string
+          description: Agent document version string (semver recommended).
+        documentationUrl:
+          type: string
+          format: uri
+          description: URL to human-readable documentation describing this agent's behavior.
+        capabilities:
+          type: object
+          description: A2A capability flags and extensions.
+          properties:
+            streaming:
+              type: boolean
+            pushNotifications:
+              type: boolean
+            extensions:
+              type: array
+              description: Declared A2A extensions. MUST include the AAP automotive-retail v1.1 entry.
+              items:
+                $ref: "#/components/schemas/AgentCard/$defs/extension"
+              contains:
+                type: object
+                properties:
+                  uri:
+                    const: https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1
+                required:
+                  - uri
+          required:
+            - extensions
+          additionalProperties: true
+        defaultInputModes:
+          type: array
+          items:
+            type: string
+          description: Default media types accepted by this agent across all skills.
+        defaultOutputModes:
+          type: array
+          items:
+            type: string
+          description: Default media types produced by this agent across all skills.
+        skills:
+          type: array
+          description: Skills the agent exposes. AAP defines 5 standard skill IDs (`dealer.information`, `inventory.facets`,
+            `inventory.search`, `inventory.vehicle`, `lead.submit`); a compliant agent declares the subset it
+            implements. Buyer agents MUST inspect `skills[]` to discover what is supported.
+          items:
+            $ref: "#/components/schemas/AgentCard/$defs/skill"
+        securitySchemes:
+          type: object
+          description: A2A security scheme definitions. AAP agents are public by default (no scheme).
+          additionalProperties: true
+        security:
+          type: array
+          description: Required security schemes (alternatives, by name). Empty or absent means anonymous access is allowed.
+          items:
+            type: object
+        iconUrl:
+          type: string
+          format: uri
+      required:
+        - name
+        - description
+        - supportedInterfaces
+        - version
+        - capabilities
+        - defaultInputModes
+        - defaultOutputModes
+        - skills
+      additionalProperties: true
+      $defs:
+        extension:
+          type: object
+          properties:
+            uri:
+              type: string
+              format: uri
+            description:
+              type: string
+            required:
+              type: boolean
+            params:
+              type: object
+          required:
+            - uri
+          additionalProperties: true
+        skill:
+          type: object
+          properties:
+            id:
+              type: string
+              description: "Skill identifier. AAP standard skill IDs: `dealer.information`, `inventory.facets`, `inventory.search`,
+                `inventory.vehicle`, `lead.submit`. Agents MAY declare any subset, plus additional non-AAP skill IDs."
+            name:
+              type: string
+            description:
+              type: string
+            tags:
+              type: array
+              items:
+                type: string
+              minItems: 1
+              description: Keywords describing the skill. REQUIRED by A2A so clients/LLMs can categorize and rank skills.
+            examples:
+              type: array
+              items:
+                type: string
+            inputModes:
+              type: array
+              items:
+                type: string
+            outputModes:
+              type: array
+              items:
+                type: string
+            inputSchema:
+              type: object
+              description: 'JSON Schema (or a `{ "$ref": "<uri>" }`) describing the JSON DataPart this skill accepts. Lets a buyer
+                agent discover and fetch the full request payload schema directly from the AgentCard. SHOULD reference
+                the AAP per-skill request schema, e.g. `{ "$ref":
+                "https://autoagentprotocol.org/v1.1/schemas/inventory-search-request.schema.json" }`.'
+            outputSchema:
+              type: object
+              description: 'JSON Schema (or a `{ "$ref": "<uri>" }`) describing the JSON DataPart this skill returns. Lets a buyer
+                agent discover and fetch the full response payload schema directly from the AgentCard. SHOULD reference
+                the AAP per-skill response schema, e.g. `{ "$ref":
+                "https://autoagentprotocol.org/v1.1/schemas/inventory-search-response.schema.json" }`.'
+            schemaUrl:
+              type: string
+              format: uri
+              description: URL of the JSON Schema for this skill's request DataPart. Convenience alias for `inputSchema.$ref` when the
+                card carries a bare URL instead of an inline `$ref` object.
+            requestSchemaUrl:
+              type: string
+              format: uri
+              description: URL of the JSON Schema for this skill's request DataPart. Synonym of `schemaUrl`.
+          required:
+            - id
+            - name
+            - description
+            - tags
+          additionalProperties: true
+    Address:
+      title: Address
+      description: Postal address. All fields are OPTIONAL by design — the buyer agent should pass through whatever pieces of
+        the address are available (e.g. just a ZIP for regional pricing, or just city+state, or the full street
+        address). The dealer is responsible for handling partial addresses gracefully.
+      type: object
+      examples:
+        - address_line_1: 1280 Howard Street
+          city: San Francisco
+          state: CA
+          zip: "94103"
+          country: US
+      properties:
+        country:
+          type: string
+          description: Country code or name (e.g. 'US'). Optional; defaults to 'US' when omitted.
+          examples:
+            - US
+        state:
+          type: string
+          description: State / region code or full name (e.g. 'CA' or 'California').
+          examples:
+            - CA
+            - California
+        city:
+          type: string
+          description: City or locality (e.g. 'San Francisco').
+          examples:
+            - San Francisco
+        address_line_1:
+          type: string
+          description: Primary street line (e.g. '1280 Howard Street').
+          examples:
+            - 1280 Howard Street
+        address_line_2:
+          type: string
+          description: Secondary street line (suite, apartment, building, floor).
+          examples:
+            - Suite 200
+        zip:
+          type: string
+          description: Postal / ZIP code (e.g. '94103' or '94103-1234').
+          examples:
+            - "94103"
+            - 94103-1234
+      additionalProperties: false
+    AapMessage:
+      title: AapMessage
+      description: Abstract base shape for every typed Auto Agent Protocol payload that travels inside an A2A DataPart.
+        Concrete request and response schemas restrict 'type' to a constant skill-id-shaped value (e.g.
+        inventory.search.request, lead.appointment.response). The AAP version is announced once via the agent-card
+        extension URI ('https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1') and reflected in schema
+        $id URLs; it is NOT repeated on the wire. Responses additionally carry a 'data' object and an optional 'message'
+        note. Errors use the Error schema instead.
+      type: object
+      properties:
+        type:
+          type: string
+          description: "AAP message type identifier. For skill calls: '<scope>.<thing>.request' or '<scope>.<thing>.response'
+            (e.g. 'inventory.search.request', 'lead.appointment.response'). For envelopes: 'aap.event', 'aap.error'."
+          pattern: ^[a-z_]+(\.[a-z_]+){1,2}$
+          examples:
+            - inventory.search.request
+            - dealer.information.response
+            - aap.error
+        data:
+          type: object
+          description: Response payload (responses only). Requests carry their fields at the top level next to 'type'.
+        message:
+          type: string
+          description: Optional contextual note from the dealer or LLM, intended for the buyer agent or end user. MAY be absent or
+            empty.
+          maxLength: 2000
+          examples:
+            - 12 matching vehicles found.
+      required:
+        - type
+      additionalProperties: true
+    JsonRpcRequest:
+      type: object
+      properties:
+        jsonrpc:
+          const: "2.0"
+        id:
+          type:
+            - string
+            - number
+        method:
+          const: SendMessage
+        params:
+          type: object
+          properties:
+            message:
+              $ref: "#/components/schemas/A2aMessage"
+            configuration:
+              type: object
+              properties:
+                acceptedOutputModes:
+                  type: array
+                  items:
+                    type: string
+          required:
+            - message
+      required:
+        - jsonrpc
+        - id
+        - method
+        - params
+    JsonRpcResponse:
+      type: object
+      properties:
+        jsonrpc:
+          const: "2.0"
+        id:
+          type:
+            - string
+            - number
+        result:
+          type: object
+          properties:
+            message:
+              $ref: "#/components/schemas/A2aMessage"
+        error:
+          $ref: "#/components/schemas/Error"
+      required:
+        - jsonrpc
+        - id
+    A2aMessage:
+      type: object
+      description: A2A v1.0 Message envelope. `messageId` is required on every Message; `role` is the protobuf enum string
+        `ROLE_USER` (buyer agent) or `ROLE_AGENT` (dealer agent). Parts identify their kind by the member they carry —
+        `data` for DataParts (no `kind` discriminator).
+      properties:
+        messageId:
+          type: string
+          description: Unique identifier for this message (e.g. ULID or UUID).
+        role:
+          enum:
+            - ROLE_USER
+            - ROLE_AGENT
+        parts:
+          type: array
+          items:
+            $ref: "#/components/schemas/A2aDataPart"
+      required:
+        - messageId
+        - role
+        - parts
+    A2aDataPart:
+      type: object
+      description: A2A v1.0 DataPart. The presence of the `data` member identifies this as a DataPart; there is no `kind`
+        field. `mediaType` advertises the AAP media type so generic A2A middleware can route or filter without parsing
+        `data`.
+      properties:
+        data:
+          type: object
+        mediaType:
+          type: string
+          description: AAP media type (e.g. `application/vnd.autoagent.<skill>-request+json`). Version-free; the AAP version is
+            announced once via the agent-card extension URI.
+      required:
+        - data

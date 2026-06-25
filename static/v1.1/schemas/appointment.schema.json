@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v1.1/schemas/appointment.schema.json",
+  "title": "Appointment",
+  "description": "An appointment request piggybacked on a `lead.submit.request`. The vehicle reference for the appointment is IMPLICIT — it is whatever is in the parent `vehicle_of_interest` (or `trade_in` for a trade-in appraisal). A standalone sales or service visit can omit any vehicle.",
+  "type": "object",
+  "examples": [
+    {
+      "appointment_type": "test_drive",
+      "appointment_at": "2026-05-03T11:00:00-07:00",
+      "duration_minutes": 45,
+      "notes": "I'd like to bring my partner."
+    }
+  ],
+  "properties": {
+    "appointment_type": {
+      "type": "string",
+      "enum": ["sales", "service", "test_drive", "trade_in"],
+      "description": "Kind of appointment the buyer is requesting. `sales` = general sales consultation, `service` = service/maintenance visit, `test_drive` = test drive of the `vehicle_of_interest`, `trade_in` = in-person trade-in appraisal of the `trade_in` vehicle.",
+      "examples": ["test_drive", "sales"]
+    },
+    "appointment_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Requested start time of the appointment as an ISO 8601 / RFC 3339 timestamp that MUST include a timezone offset (Z or ±HH:MM), e.g. '2026-05-03T11:00:00-07:00'. Optional — when omitted, the dealer follows up to schedule a time.",
+      "examples": ["2026-05-03T11:00:00-07:00"]
+    },
+    "duration_minutes": {
+      "type": "integer",
+      "minimum": 15,
+      "description": "Expected appointment duration in minutes. If omitted, the dealer applies its default for `appointment_type`.",
+      "examples": [30, 45]
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Free-text note from the buyer (e.g. 'I'd like to bring my partner', 'parking instructions please').",
+      "examples": ["I'd like to bring my partner."]
+    }
+  },
+  "required": ["appointment_type"],
+  "additionalProperties": false
+}

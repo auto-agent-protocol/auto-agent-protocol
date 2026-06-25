@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v1.1/schemas/agent-card.schema.json",
+  "title": "AgentCard",
+  "description": "A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. A2A v1.0 declares every transport in 'supportedInterfaces[]' (it replaced the earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). To be a compliant AAP dealer agent, 'capabilities.extensions' MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1'.",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "description": "Human-readable agent name." },
+    "description": { "type": "string", "description": "Short description of what this agent does." },
+    "supportedInterfaces": {
+      "type": "array",
+      "minItems": 1,
+      "description": "The A2A v1.0 service interfaces (transport + endpoint). AAP keeps the transport surface minimal: a JSONRPC interface is REQUIRED (every AAP client can rely on it); an HTTP+JSON interface MAY be added; gRPC is out of scope.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "format": "uri", "description": "Endpoint URL for this interface." },
+          "protocolBinding": {
+            "type": "string",
+            "enum": ["JSONRPC", "HTTP+JSON"],
+            "description": "The A2A transport binding available at this URL."
+          },
+          "protocolVersion": {
+            "type": "string",
+            "description": "The A2A protocol version this interface exposes (Major.Minor), e.g. '1.0'."
+          }
+        },
+        "required": ["url", "protocolBinding", "protocolVersion"],
+        "additionalProperties": true
+      },
+      "contains": {
+        "type": "object",
+        "properties": { "protocolBinding": { "const": "JSONRPC" } },
+        "required": ["protocolBinding"]
+      }
+    },
+    "provider": {
+      "type": "object",
+      "description": "Organization operating the agent.",
+      "properties": {
+        "organization": { "type": "string" },
+        "url": { "type": "string", "format": "uri" }
+      },
+      "required": ["organization", "url"],
+      "additionalProperties": true
+    },
+    "version": { "type": "string", "description": "Agent document version string (semver recommended)." },
+    "documentationUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to human-readable documentation describing this agent's behavior."
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "A2A capability flags and extensions.",
+      "properties": {
+        "streaming": { "type": "boolean" },
+        "pushNotifications": { "type": "boolean" },
+        "extensions": {
+          "type": "array",
+          "description": "Declared A2A extensions. MUST include the AAP automotive-retail v1.1 entry.",
+          "items": { "$ref": "#/$defs/extension" },
+          "contains": {
+            "type": "object",
+            "properties": {
+              "uri": { "const": "https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.1" }
+            },
+            "required": ["uri"]
+          }
+        }
+      },
+      "required": ["extensions"],
+      "additionalProperties": true
+    },
+    "defaultInputModes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Default media types accepted by this agent across all skills."
+    },
+    "defaultOutputModes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Default media types produced by this agent across all skills."
+    },
+    "skills": {
+      "type": "array",
+      "description": "Skills the agent exposes. AAP defines 5 standard skill IDs (`dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`); a compliant agent declares the subset it implements. Buyer agents MUST inspect `skills[]` to discover what is supported.",
+      "items": { "$ref": "#/$defs/skill" }
+    },
+    "securitySchemes": {
+      "type": "object",
+      "description": "A2A security scheme definitions. AAP agents are public by default (no scheme).",
+      "additionalProperties": true
+    },
+    "security": {
+      "type": "array",
+      "description": "Required security schemes (alternatives, by name). Empty or absent means anonymous access is allowed.",
+      "items": { "type": "object" }
+    },
+    "iconUrl": { "type": "string", "format": "uri" }
+  },
+  "required": [
+    "name",
+    "description",
+    "supportedInterfaces",
+    "version",
+    "capabilities",
+    "defaultInputModes",
+    "defaultOutputModes",
+    "skills"
+  ],
+  "additionalProperties": true,
+  "$defs": {
+    "extension": {
+      "type": "object",
+      "properties": {
+        "uri": { "type": "string", "format": "uri" },
+        "description": { "type": "string" },
+        "required": { "type": "boolean" },
+        "params": { "type": "object" }
+      },
+      "required": ["uri"],
+      "additionalProperties": true
+    },
+    "skill": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Skill identifier. AAP standard skill IDs: `dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`. Agents MAY declare any subset, plus additional non-AAP skill IDs."
+        },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "description": "Keywords describing the skill. REQUIRED by A2A so clients/LLMs can categorize and rank skills."
+        },
+        "examples": { "type": "array", "items": { "type": "string" } },
+        "inputModes": { "type": "array", "items": { "type": "string" } },
+        "outputModes": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["id", "name", "description", "tags"],
+      "additionalProperties": true,
+      "description": "An A2A AgentSkill. NOTE: AAP publishes each skill's request/response JSON Schema URLs in the AAP extension's `params.skills` map (see capabilities.extensions[].params) — NOT as fields on the skill — because strict A2A AgentCard parsers reject unknown skill fields."
+    }
+  }
+}

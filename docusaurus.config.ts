@@ -52,16 +52,16 @@ const config: Config = {
           editUrl:
             "https://github.com/auto-agent-protocol/auto-agent-protocol/tree/main/",
           // The `current` docs (the `docs/` folder) are the actively-edited
-          // v1.0.0. `lastVersion: "current"` makes v1.0 the default served at
+          // v1.1.0. `lastVersion: "current"` makes v1.1 the default served at
           // the docs root and the version the dropdown opens on. The frozen
-          // v0.1 and v0.2 live in `versioned_docs/version-*` (listed in
+          // v0.1, v0.2 and v1.0 live in `versioned_docs/version-*` (listed in
           // versions.json) and are reachable via the version dropdown at
-          // /docs/v0.1/* and /docs/v0.2/*.
+          // /docs/v0.1/*, /docs/v0.2/* and /docs/v1.0/*.
           lastVersion: "current",
           versions: {
             current: {
-              label: "v1.0.0",
-              path: "v1.0",
+              label: "v1.1.0",
+              path: "v1.1",
             },
           },
         },
@@ -78,10 +78,10 @@ const config: Config = {
       "@docusaurus/plugin-client-redirects",
       {
         createRedirects(existingPath: string) {
-          // Alias the latest version (v1.0) under /docs/latest/* so consumers
+          // Alias the latest version (v1.1) under /docs/latest/* so consumers
           // can deep-link to the most recent docs without pinning a version.
-          if (existingPath.startsWith("/docs/v1.0/")) {
-            return [existingPath.replace("/docs/v1.0/", "/docs/latest/")];
+          if (existingPath.startsWith("/docs/v1.1/")) {
+            return [existingPath.replace("/docs/v1.1/", "/docs/latest/")];
           }
           return undefined;
         },
@@ -126,26 +126,26 @@ const config: Config = {
         {
           title: "Specification",
           items: [
-            { label: "Introduction", to: "/docs/v1.0/intro" },
-            { label: "A2A profile", to: "/docs/v1.0/a2a-profile" },
-            { label: "Discovery", to: "/docs/v1.0/discovery" },
-            { label: "Pricing and FTC", to: "/docs/v1.0/pricing-and-ftc" },
+            { label: "Introduction", to: "/docs/v1.1/intro" },
+            { label: "A2A profile", to: "/docs/v1.1/a2a-profile" },
+            { label: "Discovery", to: "/docs/v1.1/discovery" },
+            { label: "Pricing and FTC", to: "/docs/v1.1/pricing-and-ftc" },
           ],
         },
         {
           title: "Bindings & Skills",
           items: [
-            { label: "JSON-RPC binding", to: "/docs/v1.0/bindings/json-rpc" },
-            { label: "REST binding", to: "/docs/v1.0/bindings/rest" },
-            { label: "Inventory search", to: "/docs/v1.0/skills/inventory-search" },
-            { label: "Submit lead", to: "/docs/v1.0/skills/lead-submit" },
+            { label: "JSON-RPC binding", to: "/docs/v1.1/bindings/json-rpc" },
+            { label: "REST binding", to: "/docs/v1.1/bindings/rest" },
+            { label: "Inventory search", to: "/docs/v1.1/skills/inventory-search" },
+            { label: "Submit lead", to: "/docs/v1.1/skills/lead-submit" },
           ],
         },
         {
           title: "Compatibility",
           items: [
-            { label: "ADF mapping", to: "/docs/v1.0/compatibility/adf-mapping" },
-            { label: "MCP", to: "/docs/v1.0/compatibility/mcp" },
+            { label: "ADF mapping", to: "/docs/v1.1/compatibility/adf-mapping" },
+            { label: "MCP", to: "/docs/v1.1/compatibility/mcp" },
           ],
         },
         {
@@ -161,7 +161,7 @@ const config: Config = {
             },
             {
               label: "How AAP profiles A2A",
-              to: "/docs/v1.0/a2a-profile",
+              to: "/docs/v1.1/a2a-profile",
             },
           ],
         },
@@ -174,7 +174,7 @@ const config: Config = {
             },
             {
               label: "Contributing",
-              to: "/docs/v1.0/contributing",
+              to: "/docs/v1.1/contributing",
             },
           ],
         },

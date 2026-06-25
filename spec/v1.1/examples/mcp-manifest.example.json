@@ -1,0 +1,43 @@
+{
+  "name": "auto-agent-protocol",
+  "version": "1.0.0",
+  "description": "MCP wrapper exposing AAP automotive skills as MCP tools. Each tool corresponds to one AAP v1.0 skill and accepts/returns the matching AAP request/response payload.",
+  "protocolVersion": "2025-06-18",
+  "tools": [
+    {
+      "name": "aap_dealer_information",
+      "description": "Return the dealership profile (group name, welcome message, and rooftops with address, hours, contacts, and capabilities). Anonymous-safe; no consent required.",
+      "inputSchema": {
+        "$ref": "https://autoagentprotocol.org/v1.1/schemas/dealer-information-request.schema.json"
+      }
+    },
+    {
+      "name": "aap_inventory_facets",
+      "description": "Return aggregated facets (makes, models, years, conditions, price/mileage ranges) over the dealer's inventory. Anonymous-safe; no consent required.",
+      "inputSchema": {
+        "$ref": "https://autoagentprotocol.org/v1.1/schemas/inventory-facets-request.schema.json"
+      }
+    },
+    {
+      "name": "aap_inventory_search",
+      "description": "Search the dealer's inventory by make, model, year, condition, price, mileage, body, fuel, drivetrain, VIN, stock, or free-text query. Anonymous-safe; no consent required.",
+      "inputSchema": {
+        "$ref": "https://autoagentprotocol.org/v1.1/schemas/inventory-search-request.schema.json"
+      }
+    },
+    {
+      "name": "aap_inventory_vehicle",
+      "description": "Return full detail for a specific vehicle by VIN, stock, or vehicle_id, including FTC-compliant pricing fields and (optionally) regional offered_price for a given ZIP. Anonymous-safe; no consent required.",
+      "inputSchema": {
+        "$ref": "https://autoagentprotocol.org/v1.1/schemas/vehicle-detail-request.schema.json"
+      }
+    },
+    {
+      "name": "aap_lead_submit",
+      "description": "Submit a consented lead carrying customer info plus any combination of vehicle_of_interest, trade_in, and appointment. ConsentGrant with scope ['lead_submission'] is REQUIRED.",
+      "inputSchema": {
+        "$ref": "https://autoagentprotocol.org/v1.1/schemas/lead-submit-request.schema.json"
+      }
+    }
+  ]
+}
