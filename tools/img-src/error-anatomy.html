@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Source for static/img/v1.0/error-anatomy.png.
+<!-- Source for static/img/v1.1/error-anatomy.png.
      Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <html>
 <head>
@@ -9,93 +9,101 @@
   html, body { width: 1600px; height: 900px; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
-    color: #0f1d33;
+    color: #26231c;
     display: flex; flex-direction: column; align-items: center;
   }
-  h1 { font-size: 54px; font-weight: 700; margin-top: 50px; letter-spacing: -0.5px; }
-  .stage { position: relative; width: 1600px; height: 578px; margin-top: 48px; }
+  h1 { font-size: 54px; font-weight: 800; margin-top: 48px; letter-spacing: -1px; }
+  .stage { position: relative; width: 1600px; height: 600px; margin-top: 40px; }
 
   .json-card {
-    position: absolute; left: 118px; top: 0; width: 830px;
-    background: #fff; border-radius: 24px; padding: 26px 32px;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    position: absolute; left: 112px; top: 0; width: 858px;
+    background: #fbf9f4; border-radius: 22px; padding: 26px 34px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
   }
-  .code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 22px; color: #41506b; }
-  .ln { white-space: pre; height: 34px; line-height: 34px; }
-  .k { color: #1d4ed8; }
-  .s { color: #15803d; }
-  .n { color: #b45309; }
-  .hl { background: #dbe7fb; border-radius: 8px; padding: 3px 10px; margin: -3px -10px; }
+  .code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 21px; color: #4a4338; }
+  .ln { white-space: pre; height: 32px; line-height: 32px; }
+  .k { color: #0e5a52; }
+  .s { color: #26231c; }
+  .n { color: #bd7b34; }
+  .hl { background: #dcebe7; border-radius: 8px; padding: 3px 10px; margin: -3px -10px; }
   .hl .k { font-weight: 700; }
+  .ha { background: #f1e4d0; border-radius: 8px; padding: 3px 10px; margin: -3px -10px; }
+  .ha .k { font-weight: 700; color: #bd7b34; }
 
-  .conn { position: absolute; background: #b9cdf0; }
+  .conn { position: absolute; background: #d8cdb8; }
 
   .anno {
-    position: absolute; left: 1023px; width: 460px;
-    background: #fff; border-radius: 16px; padding: 16px 24px;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    position: absolute; left: 1042px; width: 446px;
+    background: #fbf9f4; border-radius: 16px; padding: 15px 24px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
   }
   .anno .chip {
-    display: inline-block; background: #dbe7fb; color: #1d4ed8;
+    display: inline-block; background: #dcebe7; color: #0a463f;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 22px; font-weight: 600; padding: 5px 18px; border-radius: 999px;
+    font-size: 21px; font-weight: 600; padding: 5px 18px; border-radius: 999px;
   }
-  .anno .label { margin-top: 9px; font-size: 23px; color: #5b6b84; }
+  .anno.amber .chip { background: #f1e4d0; color: #bd7b34; }
+  .anno .label { margin-top: 9px; font-size: 22px; color: #6f665a; }
 
-  .footer { margin-top: 48px; font-size: 26px; color: #5b6b84; }
-  .footer code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #41506b; font-size: 24px; }
+  .footer { margin-top: 34px; font-size: 26px; color: #6f665a; }
+  .footer code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #4a4338; font-size: 24px; }
+  .footer b { color: #0a463f; }
 </style>
 </head>
 <body>
-  <h1>Typed errors — machines can react, humans can read</h1>
+  <h1>Typed errors — machines react, humans read</h1>
 
   <div class="stage">
     <div class="json-card">
       <div class="code">
         <div class="ln">{</div>
-        <div class="ln">  <span class="k">"jsonrpc"</span>: <span class="s">"2.0"</span>,</div>
-        <div class="ln">  <span class="k">"id"</span>: <span class="n">7</span>,</div>
+        <div class="ln">  <span class="k">"jsonrpc"</span>: <span class="s">"2.0"</span>, <span class="k">"id"</span>: <span class="n">7</span>,</div>
         <div class="ln">  <span class="k">"error"</span>: {</div>
-        <div class="ln">    <span class="hl"><span class="k">"code"</span>: <span class="n">-32000</span>,</span></div>
-        <div class="ln">    <span class="k">"message"</span>: <span class="s">"a ConsentGrant is required for a lead"</span>,</div>
+        <div class="ln">    <span class="hl"><span class="k">"code"</span>: <span class="n">-32602</span>,</span></div>
+        <div class="ln">    <span class="k">"message"</span>: <span class="s">"Invalid params",</span></div>
         <div class="ln">    <span class="k">"data"</span>: {</div>
-        <div class="ln">      <span class="k">"type"</span>: <span class="s">"aap.error"</span>,</div>
-        <div class="ln">      <span class="k">"error_id"</span>: <span class="s">"err_…"</span>,</div>
-        <div class="ln">      <span class="hl"><span class="k">"code"</span>: <span class="s">"CONTACT_CONSENT_REQUIRED"</span>,</span></div>
-        <div class="ln">      <span class="hl"><span class="k">"retryable"</span>: <span class="n">false</span>,</span></div>
-        <div class="ln">      <span class="k">"details"</span>: { <span class="k">"missing"</span>: <span class="s">"consent"</span> }</div>
+        <div class="ln">      <span class="k">"type"</span>: <span class="s">"aap.error"</span>, <span class="k">"error_id"</span>: <span class="s">"err_…"</span>,</div>
+        <div class="ln">      <span class="hl"><span class="k">"code"</span>: <span class="s">"SCHEMA_VALIDATION_FAILED"</span>,</span></div>
+        <div class="ln">      <span class="k">"retryable"</span>: <span class="n">false</span>,</div>
+        <div class="ln">      <span class="ha"><span class="k">"errors"</span>: [</span></div>
+        <div class="ln">        <span class="ha">{ <span class="k">"instanceLocation"</span>: <span class="s">"/filters/year_min"</span>,</span></div>
+        <div class="ln">          <span class="k">"keyword"</span>: <span class="s">"type"</span>, <span class="k">"error"</span>: <span class="s">"must be integer"</span> },</div>
+        <div class="ln">        { <span class="k">"instanceLocation"</span>: <span class="s">"/filters/make"</span>, … }</div>
+        <div class="ln">      ]</div>
         <div class="ln">    }</div>
         <div class="ln">  }</div>
         <div class="ln">}</div>
       </div>
     </div>
 
-    <!-- connector: error.code (line 5, center y=179) -->
-    <div class="conn" style="left: 948px; top: 177px; width: 75px; height: 3px;"></div>
-    <!-- connector: data.code (line 10, center y=349) -->
-    <div class="conn" style="left: 948px; top: 347px; width: 75px; height: 3px;"></div>
-    <!-- connector: retryable (line 11, center y=383) elbow down to y=510 -->
-    <div class="conn" style="left: 948px; top: 381px; width: 37px; height: 3px;"></div>
-    <div class="conn" style="left: 982px; top: 381px; width: 3px; height: 130px;"></div>
-    <div class="conn" style="left: 982px; top: 508px; width: 41px; height: 3px;"></div>
+    <!-- connector: error.code (line 4, y≈131) -->
+    <div class="conn" style="left: 970px; top: 129px; width: 72px; height: 3px;"></div>
+    <!-- connector: data.code (line 8, y≈259) -->
+    <div class="conn" style="left: 970px; top: 257px; width: 72px; height: 3px;"></div>
+    <!-- connector: errors[] (line 10, y≈323) elbow to y=470 -->
+    <div class="conn" style="left: 970px; top: 321px; width: 38px; height: 3px;"></div>
+    <div class="conn" style="left: 1005px; top: 321px; width: 3px; height: 150px;"></div>
+    <div class="conn" style="left: 1005px; top: 468px; width: 40px; height: 3px;"></div>
 
-    <div class="anno" style="top: 127px;">
+    <div class="anno" style="top: 80px;">
       <div class="chip">error.code</div>
       <div class="label">JSON-RPC layer</div>
     </div>
-    <div class="anno" style="top: 297px;">
+    <div class="anno" style="top: 208px;">
       <div class="chip">data.code</div>
       <div class="label">AAP error vocabulary</div>
     </div>
-    <div class="anno" style="top: 458px;">
-      <div class="chip">retryable</div>
-      <div class="label">agents know whether to retry</div>
+    <div class="anno amber" style="top: 418px;">
+      <div class="chip">errors[]</div>
+      <div class="label">every failure at once — instanceLocation · keyword · error</div>
     </div>
   </div>
 
-  <div class="footer">Same envelope on HTTP+JSON — the typed <code>aap.error</code> rides in error details</div>
+  <div class="footer">One typed <code>aap.error</code> — and <b>all</b> validation problems in <code>errors[]</code></div>
 </body>
 </html>

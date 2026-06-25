@@ -6,9 +6,9 @@ description: The gap AAP fills against A2A, ACP, MCP, and ADF — and why it is 
 
 # Why automotive needs AAP
 
-![Before AAP: every buyer agent and dealership pair needs a custom integration. After AAP: one open profile connects them all](/img/v1.0/why-before-after.png)
+![Before AAP: every buyer agent and dealership pair needs a custom integration. After AAP: one open profile connects them all](/img/v1.1/why-before-after.png)
 
-![Five AAP skills covering the read-and-lead lifecycle](/img/v1.0/skills-overview.png)
+![Five AAP skills covering the read-and-lead lifecycle](/img/v1.1/skills-overview.png)
 
 Automotive retail has unusual constraints that no general-purpose agent protocol addresses end-to-end:
 

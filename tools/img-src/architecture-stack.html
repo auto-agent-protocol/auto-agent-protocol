@@ -1,4 +1,4 @@
-<!-- Source for static/img/v1.0/architecture-stack.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.1/architecture-stack.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,46 +8,38 @@
   html, body { width: 1600px; height: 900px; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
-    color: #0f1d33;
+    color: #26231c;
   }
   .wrap {
     width: 100%; height: 100%;
     padding: 46px 84px 38px;
     display: flex; flex-direction: column;
   }
-  h1 { font-size: 54px; font-weight: 800; letter-spacing: -0.5px; }
+  h1 { font-size: 54px; font-weight: 800; letter-spacing: -1px; }
   .stack { flex: 1; display: flex; flex-direction: column; justify-content: center; }
 
-  .card {
-    border-radius: 22px;
-    padding: 28px 32px;
-  }
+  .card { border-radius: 22px; padding: 28px 34px; }
   .card-head { display: flex; align-items: baseline; justify-content: space-between; }
   .card h2 { font-size: 33px; font-weight: 800; letter-spacing: -0.3px; }
-  .layer-tag {
-    font-size: 17px; font-weight: 700; letter-spacing: 2.5px;
-    white-space: nowrap;
-  }
+  .layer-tag { font-size: 17px; font-weight: 700; letter-spacing: 2.5px; white-space: nowrap; }
   .pills { display: flex; gap: 14px; margin-top: 18px; flex-wrap: nowrap; }
   .pill {
-    border-radius: 999px;
-    font-size: 22px; line-height: 1;
-    padding: 12px 18px;
-    white-space: nowrap;
+    border-radius: 999px; font-size: 22px; line-height: 1;
+    padding: 12px 18px; white-space: nowrap;
     display: inline-flex; align-items: center; gap: 9px;
   }
 
-  /* TOP — AAP profile (blue) */
+  /* TOP — AAP profile (teal) */
   .card.aap {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #0e5a52 0%, #0a463f 100%);
     color: #fff;
-    box-shadow: 0 14px 32px rgba(37,99,235,.25);
+    box-shadow: 0 16px 36px rgba(14,90,82,.22);
   }
   .card.aap h2 .thin { font-weight: 600; opacity: .85; }
-  .card.aap .layer-tag { color: rgba(255,255,255,.7); }
+  .card.aap .layer-tag { color: rgba(255,255,255,.72); }
   .pill.skill {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     background: rgba(255,255,255,.14);
@@ -55,16 +47,17 @@
     color: #fff;
   }
 
-  /* MIDDLE — A2A (white) */
+  /* MIDDLE — A2A (ivory card) */
   .card.a2a {
-    background: #fff;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    background: #fbf9f4;
+    border: 1px solid #ece4d3;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
   }
-  .card.a2a .layer-tag { color: #9aa7bd; }
+  .card.a2a .layer-tag { color: #9c9486; }
   .pill.feat {
-    background: #f3f6fc;
-    border: 1.5px solid #dde4f0;
-    color: #41506b;
+    background: #f4efe6;
+    border: 1.5px solid #ece4d3;
+    color: #4a4338;
     font-weight: 600;
   }
   .mini {
@@ -72,37 +65,32 @@
     font-size: 14px; font-weight: 700; letter-spacing: 1px;
     padding: 5px 10px;
   }
-  .mini.req { background: #dbe7fb; color: #1d4ed8; }
-  .mini.opt { background: #e4e9f2; color: #5b6b84; }
+  .mini.sole { background: #dcebe7; color: #0a463f; }
 
-  /* BOTTOM — HTTPS (neutral grey-blue) */
+  /* BOTTOM — HTTPS (warm neutral) */
   .card.https {
-    background: #dfe5f0;
-    border: 1.5px solid #cdd6e6;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    background: #ece6d8;
+    border: 1px solid #ddd3bf;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
     padding: 22px 36px;
   }
-  .card.https h2 { color: #41506b; }
-  .card.https .layer-tag { color: #9aa7bd; }
-  .card.https .sub { font-size: 21px; color: #5b6b84; font-weight: 500; margin-left: 18px; }
+  .card.https h2 { color: #4a4338; }
+  .card.https .layer-tag { color: #9c9486; }
+  .card.https .subtxt { font-size: 21px; color: #6f665a; font-weight: 500; margin-left: 18px; }
 
   /* Connectors */
   .connector { height: 44px; position: relative; }
-  .arrow { position: absolute; top: 7px; width: 2px; height: 22px; background: #9aa7bd; }
+  .arrow { position: absolute; top: 7px; width: 2px; height: 22px; background: #b6ab97; }
   .arrow::after {
     content: ""; position: absolute; left: -5px; bottom: -8px;
     border-left: 6px solid transparent; border-right: 6px solid transparent;
-    border-top: 9px solid #9aa7bd;
+    border-top: 9px solid #b6ab97;
   }
   .arrow.a1 { left: 31%; }
   .arrow.a2 { left: 69%; }
 
-  .footer {
-    margin-top: 26px;
-    text-align: center;
-    font-size: 25px; color: #5b6b84; font-weight: 500;
-  }
-  .footer b { color: #0f1d33; font-weight: 700; }
+  .footer { margin-top: 26px; text-align: center; font-size: 25px; color: #6f665a; font-weight: 500; }
+  .footer b { color: #26231c; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -112,7 +100,7 @@
   <div class="stack">
     <div class="card aap">
       <div class="card-head">
-        <h2>Auto Agent Protocol <span class="thin">— A2A Automotive Retail Profile</span></h2>
+        <h2>Auto Agent Protocol <span class="thin">— v1.1 automotive payloads</span></h2>
         <span class="layer-tag">PAYLOAD PROFILE</span>
       </div>
       <div class="pills">
@@ -132,9 +120,9 @@
         <span class="layer-tag">AGENT PROTOCOL</span>
       </div>
       <div class="pills">
-        <span class="pill feat">Data model (Message · Part · AgentCard)</span>
-        <span class="pill feat">Operation: SendMessage</span>
-        <span class="pill feat">Bindings: JSON-RPC <span class="mini req">REQUIRED</span> · HTTP+JSON <span class="mini opt">OPTIONAL</span></span>
+        <span class="pill feat">Data model (Message · DataPart · AgentCard)</span>
+        <span class="pill feat">Method: SendMessage</span>
+        <span class="pill feat">Binding: JSON-RPC 2.0 <span class="mini sole">SOLE</span> · POST {base}/a2a</span>
       </div>
     </div>
 
@@ -142,13 +130,13 @@
 
     <div class="card https">
       <div class="card-head">
-        <h2>HTTPS<span class="sub">TLS-secured transport</span></h2>
+        <h2>HTTPS<span class="subtxt">TLS-secured transport</span></h2>
         <span class="layer-tag">TRANSPORT</span>
       </div>
     </div>
   </div>
 
-  <div class="footer"><b>AAP defines the typed automotive payloads — A2A carries them;</b> AAP adds no wire format of its own.</div>
+  <div class="footer"><b>AAP defines the typed automotive payloads — A2A carries them over JSON-RPC;</b> AAP adds no wire format of its own.</div>
 </div>
 </body>
 </html>

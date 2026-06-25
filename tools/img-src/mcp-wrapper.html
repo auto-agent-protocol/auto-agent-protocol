@@ -1,4 +1,4 @@
-<!-- Source for static/img/v1.0/mcp-wrapper.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.1/mcp-wrapper.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,9 +8,9 @@
   html, body { width: 1600px; height: 900px; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: #0f1d33;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    color: #26231c;
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
     overflow: hidden;
   }
@@ -18,21 +18,22 @@
 
   .wrap { width: 1600px; height: 900px; padding: 56px 70px 44px; display: flex; flex-direction: column; }
 
-  h1 { font-size: 58px; font-weight: 700; letter-spacing: -0.5px; }
-  .subtitle { font-size: 27px; color: #5b6b84; margin-top: 10px; }
+  h1 { font-size: 58px; font-weight: 800; letter-spacing: -1px; }
+  .subtitle { font-size: 27px; color: #6f665a; margin-top: 12px; }
 
   .row {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 34px;
+    margin-top: 30px;
   }
 
   .card {
-    background: #ffffff;
-    border-radius: 24px;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    background: #fbf9f4;
+    border-radius: 22px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
     padding: 34px 36px;
   }
 
@@ -41,11 +42,11 @@
     font-weight: 700;
     letter-spacing: 1.6px;
     text-transform: uppercase;
-    color: #9aa7bd;
-    margin-bottom: 10px;
+    color: #9c9486;
+    margin-bottom: 12px;
   }
-  .card-title { font-size: 28px; font-weight: 700; line-height: 1.3; }
-  .card-sub { font-size: 23px; color: #5b6b84; margin-top: 8px; }
+  .card-title { font-size: 28px; font-weight: 800; line-height: 1.3; letter-spacing: -0.3px; }
+  .card-sub { font-size: 23px; color: #6f665a; margin-top: 8px; }
 
   /* Left: MCP host */
   .host { width: 472px; }
@@ -53,8 +54,8 @@
   .tool {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 22px;
-    color: #1d4ed8;
-    background: #dbe7fb;
+    color: #0a463f;
+    background: #dcebe7;
     border-radius: 999px;
     padding: 11px 24px;
     align-self: flex-start;
@@ -64,55 +65,54 @@
   .adapter { width: 430px; }
   .manifest {
     margin-top: 22px;
-    background: #f3f6fb;
-    border: 1px solid #e4e9f2;
+    background: #efe9dd;
+    border: 1px solid #ece4d3;
     border-radius: 14px;
     padding: 16px 20px;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 22px;
-    color: #41506b;
+    color: #4a4338;
   }
   .caption {
     margin-top: 20px;
     font-size: 23px;
-    color: #5b6b84;
+    color: #6f665a;
     line-height: 1.4;
   }
-  .caption .mono { color: #41506b; font-size: 22px; }
+  .caption .mono { color: #4a4338; font-size: 22px; }
 
   /* Right: dealer agent */
-  .dealer { width: 380px; background: #2563eb; box-shadow: 0 14px 32px rgba(37,99,235,.25); color: #ffffff; }
+  .dealer { width: 392px; background: #0e5a52; box-shadow: 0 16px 36px rgba(14,90,82,.28); border: none; color: #fbf9f4; }
   .dealer .emoji { font-size: 52px; }
-  .dealer .who { font-size: 20px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: #bdd3fa; margin-top: 12px; }
-  .dealer .card-title { color: #ffffff; margin-top: 8px; }
+  .dealer .who { font-size: 20px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: #aed1c9; margin-top: 12px; }
+  .dealer .card-title { color: #fbf9f4; margin-top: 8px; }
   .send {
     margin-top: 18px;
     display: inline-block;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 23px;
     font-weight: 600;
-    color: #1d4ed8;
-    background: #ffffff;
+    color: #0a463f;
+    background: #fbf9f4;
     border-radius: 999px;
     padding: 10px 24px;
   }
   .bindings { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
   .bind {
-    font-size: 18px; font-weight: 700;
+    font-size: 18px; font-weight: 600;
     border-radius: 999px; padding: 7px 16px;
+    background: rgba(255,255,255,.16); color: #eef4f2;
   }
-  .bind.req { background: #dbe7fb; color: #1d4ed8; }
-  .bind.opt { background: #e4e9f2; color: #5b6b84; }
-  .bind .lbl { font-weight: 600; }
+  .bind .lbl { font-weight: 700; }
 
   /* Arrows */
   .arrow { display: flex; align-items: center; flex: 0 0 auto; padding: 0 6px; }
-  .arrow .shaft { width: 56px; height: 5px; background: #2563eb; border-radius: 3px; }
+  .arrow .shaft { width: 52px; height: 5px; background: #0e5a52; border-radius: 3px; }
   .arrow .head {
     width: 0; height: 0;
     border-top: 11px solid transparent;
     border-bottom: 11px solid transparent;
-    border-left: 16px solid #2563eb;
+    border-left: 16px solid #0e5a52;
     margin-left: -2px;
   }
 
@@ -120,15 +120,16 @@
     margin-top: 30px;
     text-align: center;
     font-size: 26px;
-    color: #5b6b84;
+    color: #6f665a;
   }
-  .footer b { color: #0f1d33; font-weight: 700; }
+  .footer b { color: #26231c; font-weight: 700; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div>
     <h1>MCP tools, AAP wire</h1>
+    <div class="subtitle">One manifest exposes every AAP skill as an MCP tool.</div>
   </div>
 
   <div class="row">
@@ -165,13 +166,13 @@
       <div class="card-title">A2A v1.0 endpoint</div>
       <div class="send">SendMessage</div>
       <div class="bindings">
-        <div class="bind req"><span class="lbl">JSON-RPC</span> · REQUIRED</div>
-        <div class="bind opt"><span class="lbl">HTTP+JSON</span> · OPTIONAL</div>
+        <div class="bind"><span class="lbl">JSON-RPC 2.0</span> · the sole binding</div>
+        <div class="bind" style="background:rgba(255,255,255,.1);"><span class="mono">POST {base}/a2a</span></div>
       </div>
     </div>
   </div>
 
-  <div class="footer">One manifest exposes every AAP skill as an MCP tool — <b>the call still rides standard A2A</b></div>
+  <div class="footer">Every tool call rides standard A2A — <b>JSON-RPC <span class="mono">SendMessage</span>, no REST</b></div>
 </div>
 </body>
 </html>

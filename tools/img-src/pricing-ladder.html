@@ -1,4 +1,4 @@
-<!-- Source for static/img/v1.0/pricing-ladder.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.1/pricing-ladder.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <!doctype html>
 <html>
 <head>
@@ -8,18 +8,18 @@
   html, body { width: 1600px; height: 900px; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
-    color: #0f1d33;
+    color: #26231c;
     position: relative;
     overflow: hidden;
   }
   .title {
     text-align: center;
     font-size: 56px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
+    font-weight: 800;
+    letter-spacing: -1px;
     padding-top: 72px;
   }
   .ladder {
@@ -31,24 +31,25 @@
   }
   .step {
     position: absolute;
-    width: 310px;
-    min-height: 175px;
-    background: #ffffff;
+    width: 320px;
+    min-height: 178px;
+    background: #fbf9f4;
     border-radius: 22px;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
-    padding: 32px 32px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
+    padding: 30px 32px;
   }
   .field {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 30px;
     font-weight: 700;
-    color: #1d4ed8;
+    color: #0e5a52;
     margin-bottom: 14px;
   }
   .desc {
-    font-size: 23px;
+    font-size: 22px;
     line-height: 1.4;
-    color: #5b6b84;
+    color: #6f665a;
   }
   .s1 { left: 0;      top: 0;   }
   .s2 { left: 360px;  top: 95px;  }
@@ -56,21 +57,24 @@
   .s4 {
     left: 1080px; top: 285px;
     width: 380px;
-    min-height: 235px;
-    background: #2563eb;
-    box-shadow: 0 14px 32px rgba(37,99,235,.25);
+    min-height: 240px;
+    background: #0e5a52;
+    border-color: #0a463f;
+    box-shadow: 0 16px 36px rgba(14,90,82,.28);
   }
   .s4 .field { color: #ffffff; }
   .s4 .desc  { color: rgba(255,255,255,.92); }
+  .s4 .tag { display: inline-block; margin-bottom: 12px; font-size: 17px; font-weight: 700;
+             letter-spacing: .5px; background: #bd7b34; color: #fff; padding: 4px 14px; border-radius: 999px; }
   .arrow {
     position: absolute;
     font-size: 42px;
     font-weight: 700;
-    color: #9aa7bd;
+    color: #bd7b34;
   }
-  .a1 { left: 314px;  top: 96px;  }
-  .a2 { left: 674px;  top: 191px; }
-  .a3 { left: 1034px; top: 286px; }
+  .a1 { left: 318px;  top: 96px;  }
+  .a2 { left: 678px;  top: 191px; }
+  .a3 { left: 1038px; top: 286px; }
   .footer {
     position: absolute;
     left: 0;
@@ -78,12 +82,15 @@
     bottom: 56px;
     text-align: center;
     font-size: 24px;
-    color: #5b6b84;
+    color: #6f665a;
   }
   .footer code {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    color: #41506b;
+    color: #4a4338;
     font-weight: 600;
+    background: #efe9dd;
+    padding: 3px 11px;
+    border-radius: 8px;
   }
 </style>
 </head>
@@ -110,8 +117,9 @@
     <div class="arrow a3">&searr;</div>
 
     <div class="step s4">
+      <div class="tag">FTC-FINAL</div>
       <div class="field">price</div>
-      <div class="desc">FTC-final out-the-door amount the buyer can actually pay &mdash; fees included</div>
+      <div class="desc">out-the-door amount the buyer can actually pay &mdash; fees included</div>
     </div>
   </div>
 

@@ -6,9 +6,9 @@ description: SemVer policy. Released versions are immutable, "latest" aliases th
 
 # Versioning
 
-![Versioning timeline: v0.1 (frozen), v0.2 (frozen), v1.0.0 (current), with the latest arrow pointing at the highest released version](/img/v1.0/versioning-timeline.png)
+![Versioning timeline: v0.1 (frozen), v0.2 (frozen), v1.0.0 (current), with the latest arrow pointing at the highest released version](/img/v1.1/versioning-timeline.png)
 
-![One URI pins everything: the agent-card extension URI determines schemas, skill contracts, error vocabulary, and pricing/consent rules](/img/v1.0/discovery-versioning-pair.png)
+![One URI pins everything: the agent-card extension URI determines schemas, skill contracts, error vocabulary, and pricing/consent rules](/img/v1.1/discovery-versioning-pair.png)
 
 Auto Agent Protocol uses [Semantic Versioning](https://semver.org/) (SemVer) for the published specification, schemas, and contract identifiers. The rules below are normative.
 

@@ -1,0 +1,105 @@
+<!doctype html>
+<!-- Source for static/img/v1.1/errors-aggregated.png.
+     Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #26231c;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  h1 { font-size: 60px; font-weight: 800; margin-top: 56px; letter-spacing: -1px; }
+  .sub { margin-top: 16px; font-size: 25px; color: #6f665a; }
+
+  .cols { display: flex; gap: 56px; margin-top: 50px; }
+  .col {
+    width: 700px;
+    background: #fbf9f4;
+    border-radius: 22px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
+    padding: 32px 38px 36px;
+  }
+  .ch { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+  .tag { font-size: 19px; font-weight: 700; letter-spacing: 1px; border-radius: 999px; padding: 7px 20px; }
+  .tag.before { background: #ece6d8; color: #6f665a; }
+  .tag.after { background: #dcebe7; color: #0a463f; }
+  .h2 { font-size: 30px; font-weight: 800; }
+  .h2 .num { color: #bd7b34; }
+  .h2.good .num { color: #0e5a52; }
+  .desc { font-size: 21px; color: #6f665a; margin: 6px 0 22px; }
+
+  /* BEFORE: stack of retries */
+  .try {
+    display: flex; align-items: center; gap: 14px;
+    font-size: 20px; color: #4a4338;
+    padding: 11px 16px; border-radius: 12px;
+    background: #f6f1e7; border: 1px solid #e8dfcd; margin-bottom: 9px;
+  }
+  .try .n { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 18px; color: #9c9486; width: 56px; }
+  .try .x { color: #bd7b34; font-weight: 800; font-size: 22px; }
+  .try .field { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #4a4338; }
+  .dots { text-align: center; color: #b8ad98; font-size: 26px; letter-spacing: 4px; margin: 4px 0 8px; }
+
+  /* AFTER: one response with errors[] */
+  .code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 20px; line-height: 33px;
+    background: #f6f1e7; border: 1px solid #e8dfcd; border-radius: 14px;
+    padding: 18px 22px;
+  }
+  .ln { white-space: pre; }
+  .k { color: #0e5a52; }
+  .p { color: #9c9486; }
+  .v { color: #26231c; }
+  .hl { color: #bd7b34; font-weight: 700; }
+
+  .footer { margin-top: 46px; font-size: 27px; color: #6f665a; }
+  .footer b { color: #0a463f; font-weight: 700; }
+</style>
+</head>
+<body>
+  <h1>8 attempts <span style="color:#bd7b34">→</span> 1</h1>
+  <div class="sub">Validation returns <b style="color:#26231c">every</b> problem at once — the buyer fixes them all in a single pass.</div>
+
+  <div class="cols">
+    <div class="col">
+      <div class="ch"><span class="tag before">BEFORE</span></div>
+      <div class="h2">One error per try — <span class="num">8 round-trips</span></div>
+      <div class="desc">Fix one field, resubmit, hit the next. Repeat.</div>
+
+      <div class="try"><span class="n">try 1</span> <span class="x">✕</span> <span class="field">/filters/year_min</span> must be integer</div>
+      <div class="try"><span class="n">try 2</span> <span class="x">✕</span> <span class="field">/filters/make</span> unknown key</div>
+      <div class="try"><span class="n">try 3</span> <span class="x">✕</span> <span class="field">/filters/price_max</span> must be integer</div>
+      <div class="dots">⋮</div>
+      <div class="try"><span class="n">try 8</span> <span class="x">✕</span> <span class="field">/sort</span> not in enum</div>
+    </div>
+
+    <div class="col">
+      <div class="ch"><span class="tag after">AFTER</span></div>
+      <div class="h2 good">All errors at once — <span class="num">1 round-trip</span></div>
+      <div class="desc">A single <span style="font-family:ui-monospace,Menlo,monospace;color:#0e5a52">errors[]</span> array lists them all.</div>
+
+      <div class="code">
+        <div class="ln"><span class="k">"code"</span><span class="p">:</span> <span class="hl">"SCHEMA_VALIDATION_FAILED"</span><span class="p">,</span></div>
+        <div class="ln"><span class="k">"errors"</span><span class="p">: [</span></div>
+        <div class="ln">  <span class="p">{</span> <span class="k">"instanceLocation"</span><span class="p">:</span> <span class="v">"/filters/year_min"</span><span class="p">,</span></div>
+        <div class="ln">    <span class="k">"keyword"</span><span class="p">:</span> <span class="v">"type"</span><span class="p">,</span> <span class="k">"error"</span><span class="p">:</span> <span class="v">"must be integer"</span> <span class="p">},</span></div>
+        <div class="ln">  <span class="p">{</span> <span class="k">"instanceLocation"</span><span class="p">:</span> <span class="v">"/filters/make"</span><span class="p">, … },</span></div>
+        <div class="ln">  <span class="p">{</span> <span class="k">"instanceLocation"</span><span class="p">:</span> <span class="v">"/filters/price_max"</span><span class="p">, … },</span></div>
+        <div class="ln">  <span class="p">… }</span> <span class="p">,</span> <span class="p">{</span> <span class="k">"instanceLocation"</span><span class="p">:</span> <span class="v">"/sort"</span><span class="p">, … }</span></div>
+        <div class="ln"><span class="p">]</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer"><b>One validation pass</b> — fewer round-trips, faster onboarding.</div>
+</body>
+</html>

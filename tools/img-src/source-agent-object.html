@@ -1,0 +1,151 @@
+<!-- Source for static/img/v1.1/source-agent-object.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
+    background-size: 56px 56px;
+    color: #26231c;
+    padding: 48px 64px 44px;
+    display: flex;
+    flex-direction: column;
+  }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  h1 { font-size: 54px; font-weight: 800; letter-spacing: -1px; }
+  h1 .mono { color: #0e5a52; }
+  .subtitle { font-size: 26px; color: #6f665a; margin-top: 12px; }
+
+  .row {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+    gap: 30px;
+    margin-top: 32px;
+  }
+
+  .card {
+    background: #fbf9f4;
+    border-radius: 22px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
+    padding: 30px 32px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* before (string) */
+  .before { width: 430px; flex: 0 0 430px; }
+  .tag {
+    display: inline-flex; align-self: flex-start;
+    font-size: 17px; font-weight: 700; letter-spacing: .5px;
+    border-radius: 999px; padding: 7px 18px;
+    margin-bottom: 18px;
+  }
+  .tag.old { background: #ece6d8; color: #6f665a; }
+  .tag.new { background: #dcebe7; color: #0a463f; }
+  .card h2 { font-size: 27px; font-weight: 800; letter-spacing: -0.3px; }
+  .card .note { font-size: 20px; color: #6f665a; margin-top: 10px; line-height: 1.4; }
+
+  pre {
+    margin-top: 20px;
+    background: #efe9dd;
+    border: 1px solid #ece4d3;
+    border-radius: 14px;
+    padding: 20px 22px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 20px;
+    line-height: 1.5;
+    color: #4a4338;
+    white-space: pre;
+  }
+  pre.teal { background: #dcebe7; border-color: #cfe2dc; }
+  .k { color: #0e5a52; }
+  .s { color: #26231c; }
+  .c { color: #9c9486; }
+  .strike { color: #9c9486; text-decoration: line-through; }
+
+  .miss { margin-top: auto; padding-top: 18px; }
+  .miss .item { font-size: 19px; color: #6f665a; margin-top: 8px; }
+  .miss .item b { color: #bd7b34; }
+
+  /* after (object) */
+  .after { flex: 1; }
+  .after pre { font-size: 21px; }
+
+  .audit {
+    margin-top: 22px;
+    display: flex; flex-wrap: wrap; gap: 12px;
+  }
+  .badge {
+    background: #dcebe7; color: #0a463f;
+    font-size: 19px; font-weight: 700;
+    border-radius: 999px; padding: 9px 20px;
+  }
+  .badge .mono { color: #0a463f; }
+
+  .footer {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 26px;
+    color: #6f665a;
+  }
+  .footer b { color: #26231c; font-weight: 700; }
+  .footer .mono { color: #0e5a52; }
+</style>
+</head>
+<body>
+  <h1><span class="mono">source_agent</span> — the consent audit trail</h1>
+  <div class="subtitle">A structured object at the top level of every lead names who sent it — the TCPA / consent record that a bare string never could.</div>
+
+  <div class="row">
+
+    <div class="card before">
+      <span class="tag old">v1.0 · removed</span>
+      <h2>Was a string</h2>
+      <div class="note">Tucked inside <span class="mono">consent</span>, free-text, unverifiable.</div>
+      <pre><span class="k">"consent"</span>: {
+  <span class="strike">"source_agent":</span>
+  <span class="strike">  "some bot"</span>,
+  <span class="k">"scope"</span>:
+    [<span class="s">"lead_submission"</span>]
+}</pre>
+      <div class="miss">
+        <div class="item">✕ <b>no URL</b> to reach the sender</div>
+        <div class="item">✕ <b>no agent card</b> to verify</div>
+        <div class="item">✕ not an auditable identity</div>
+      </div>
+    </div>
+
+    <div class="card after">
+      <span class="tag new">v1.1 · top-level object</span>
+      <h2>Now a structured identity</h2>
+      <div class="note">A first-class <span class="mono">source_agent</span> object on the lead — name plus resolvable, verifiable links.</div>
+      <pre class="teal">{
+  <span class="k">"type"</span>: <span class="s">"lead.submit.request"</span>,
+  <span class="k">"source_agent"</span>: {
+    <span class="k">"name"</span>:           <span class="s">"Acme Buyer Agent"</span>,
+    <span class="k">"url"</span>:            <span class="s">"https://acme.example"</span>,
+    <span class="k">"agent_card_url"</span>: <span class="s">"https://acme.example/…/agent-card.json"</span>
+  },
+  <span class="k">"customer"</span>: { <span class="c">… }</span>,
+  <span class="k">"consent"</span>:  { <span class="k">"scope"</span>: [<span class="s">"lead_submission"</span>] }
+}</pre>
+      <div class="audit">
+        <div class="badge">🏬 who do I call back?</div>
+        <div class="badge">🔎 verify via <span class="mono">agent_card_url</span></div>
+        <div class="badge">📜 TCPA-ready provenance</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer"><span class="mono">consent.source_agent</span> is gone — provenance is now a <b>top-level, verifiable object</b></div>
+</body>
+</html>

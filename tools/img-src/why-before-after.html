@@ -1,4 +1,4 @@
-<!-- Source for static/img/v1.0/why-before-after.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.1/why-before-after.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,600 --hide-scrollbars this-file.html -->
 <!doctype html>
 <html>
 <head>
@@ -6,85 +6,81 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body {
-    width: 1600px; height: 900px; overflow: hidden;
+    width: 1600px; height: 600px; overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
-    color: #0f1d33;
+    color: #26231c;
   }
-  .stage { position: relative; width: 1600px; height: 900px; }
+  .stage { position: relative; width: 1600px; height: 600px; }
 
   h1 {
-    position: absolute; top: 54px; left: 0; width: 1600px;
-    text-align: center; font-size: 52px; font-weight: 700; letter-spacing: -0.5px;
+    position: absolute; top: 40px; left: 0; width: 1600px;
+    text-align: center; font-size: 50px; font-weight: 800; letter-spacing: -1px;
+    color: #26231c;
   }
 
   .panel {
-    position: absolute; top: 170px; width: 680px; height: 600px;
-    background: #fff; border-radius: 24px;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    position: absolute; top: 132px; width: 680px; height: 388px;
+    background: #fbf9f4; border-radius: 22px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09); border: 1px solid #ece4d3;
   }
   .panel.before { left: 56px; }
   .panel.after  { left: 864px; }
 
   .tag {
-    position: absolute; top: 198px; font-size: 17px; font-weight: 700;
+    position: absolute; top: 156px; font-size: 17px; font-weight: 700;
     letter-spacing: 2.5px; border-radius: 999px; padding: 8px 22px;
   }
-  .tag.before { left: 346px; background: #e4e9f2; color: #5b6b84; }
-  .tag.after  { left: 1162px; background: #dbe7fb; color: #1d4ed8; }
+  .tag.before { left: 342px; background: #ece6d8; color: #6f665a; }
+  .tag.after  { left: 1158px; background: #dcebe7; color: #0a463f; }
 
   svg.wires { position: absolute; left: 0; top: 0; }
   svg.wires text {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12.5px; letter-spacing: .3px; fill: #9aa7bd;
-    paint-order: stroke; stroke: #ffffff; stroke-width: 5px; stroke-linejoin: round;
+    font-size: 12.5px; letter-spacing: .3px; fill: #9c9486;
+    paint-order: stroke; stroke: #fbf9f4; stroke-width: 5px; stroke-linejoin: round;
     text-anchor: middle;
   }
 
   .chip {
-    position: absolute; width: 170px; height: 62px;
-    background: #fff; border: 1.5px solid #e2e8f2; border-radius: 999px;
-    box-shadow: 0 8px 20px rgba(15,29,51,.08);
+    position: absolute; width: 170px; height: 56px;
+    background: #fbf9f4; border: 1px solid #ece4d3; border-radius: 999px;
+    box-shadow: 0 8px 20px rgba(38,35,28,.08);
     display: flex; align-items: center; gap: 10px; padding: 0 18px;
   }
   .chip .emoji { font-size: 24px; line-height: 1; }
-  .chip .label { font-size: 18px; font-weight: 600; color: #0f1d33; }
+  .chip .label { font-size: 18px; font-weight: 600; color: #26231c; }
 
   .bus {
-    position: absolute; left: 1109px; top: 311px; width: 190px; height: 300px;
-    background: linear-gradient(160deg, #2563eb, #1d4ed8);
-    border-radius: 22px;
-    box-shadow: 0 14px 32px rgba(37,99,235,.25);
+    position: absolute; left: 1109px; top: 222px; width: 190px; height: 208px;
+    background: linear-gradient(160deg, #0e5a52, #0a463f);
+    border-radius: 20px;
+    box-shadow: 0 16px 36px rgba(14,90,82,.28);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center;
   }
-  .bus .name { font-size: 38px; font-weight: 700; color: #fff; letter-spacing: 1px; }
-  .bus .rule { width: 46px; height: 2px; background: rgba(255,255,255,.4); margin: 12px 0 14px; }
+  .bus .name { font-size: 36px; font-weight: 800; color: #fff; letter-spacing: 1px; }
+  .bus .rule { width: 46px; height: 2px; background: rgba(255,255,255,.4); margin: 10px 0 12px; }
   .bus .code {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 16px; line-height: 1.6; color: rgba(255,255,255,.95);
+    font-size: 15px; line-height: 1.6; color: rgba(255,255,255,.95);
   }
 
   .caption {
-    position: absolute; top: 702px; width: 680px;
-    text-align: center; font-size: 23px; color: #5b6b84;
+    position: absolute; top: 532px; width: 680px;
+    text-align: center; font-size: 22px; color: #6f665a;
   }
   .caption.before { left: 56px; }
   .caption.after  { left: 864px; }
 
   .divider {
-    position: absolute; left: 768px; top: 438px; width: 64px; height: 64px;
-    background: #fff; border-radius: 50%;
-    box-shadow: 0 10px 24px rgba(15,29,51,.12);
+    position: absolute; left: 768px; top: 294px; width: 64px; height: 64px;
+    background: #fbf9f4; border-radius: 50%;
+    box-shadow: 0 10px 24px rgba(38,35,28,.12); border: 1px solid #ece4d3;
     display: flex; align-items: center; justify-content: center;
-    font-size: 32px; font-weight: 700; color: #2563eb;
-  }
-
-  .footer {
-    position: absolute; bottom: 46px; left: 0; width: 1600px;
-    text-align: center; font-size: 26px; color: #5b6b84;
+    font-size: 32px; font-weight: 700; color: #0e5a52;
   }
 </style>
 </head>
@@ -95,69 +91,69 @@
   <div class="panel before"></div>
   <div class="panel after"></div>
 
-  <svg class="wires" width="1600" height="900" viewBox="0 0 1600 900" fill="none">
+  <svg class="wires" width="1600" height="600" viewBox="0 0 1600 600" fill="none">
     <!-- BEFORE: 9 crossing point-to-point lines -->
-    <line x1="248" y1="321" x2="544" y2="321" stroke="#aebbd3" stroke-width="2"/>
-    <line x1="248" y1="321" x2="544" y2="461" stroke="#aebbd3" stroke-width="2"/>
-    <line x1="248" y1="321" x2="544" y2="601" stroke="#aebbd3" stroke-width="2"/>
-    <line x1="248" y1="461" x2="544" y2="321" stroke="#aebbd3" stroke-width="2"/>
-    <line x1="248" y1="461" x2="544" y2="461" stroke="#aebbd3" stroke-width="2"/>
-    <line x1="248" y1="461" x2="544" y2="601" stroke="#aebbd3" stroke-width="2"/>
-    <line x1="248" y1="601" x2="544" y2="321" stroke="#aebbd3" stroke-width="2"/>
-    <line x1="248" y1="601" x2="544" y2="461" stroke="#aebbd3" stroke-width="2"/>
-    <line x1="248" y1="601" x2="544" y2="601" stroke="#aebbd3" stroke-width="2"/>
+    <line x1="248" y1="263" x2="544" y2="263" stroke="#c8bda6" stroke-width="2"/>
+    <line x1="248" y1="263" x2="544" y2="378" stroke="#c8bda6" stroke-width="2"/>
+    <line x1="248" y1="263" x2="544" y2="493" stroke="#c8bda6" stroke-width="2"/>
+    <line x1="248" y1="378" x2="544" y2="263" stroke="#c8bda6" stroke-width="2"/>
+    <line x1="248" y1="378" x2="544" y2="378" stroke="#c8bda6" stroke-width="2"/>
+    <line x1="248" y1="378" x2="544" y2="493" stroke="#c8bda6" stroke-width="2"/>
+    <line x1="248" y1="493" x2="544" y2="263" stroke="#c8bda6" stroke-width="2"/>
+    <line x1="248" y1="493" x2="544" y2="378" stroke="#c8bda6" stroke-width="2"/>
+    <line x1="248" y1="493" x2="544" y2="493" stroke="#c8bda6" stroke-width="2"/>
     <!-- BEFORE endpoint dots -->
-    <circle cx="248" cy="321" r="4" fill="#aebbd3"/>
-    <circle cx="248" cy="461" r="4" fill="#aebbd3"/>
-    <circle cx="248" cy="601" r="4" fill="#aebbd3"/>
-    <circle cx="544" cy="321" r="4" fill="#aebbd3"/>
-    <circle cx="544" cy="461" r="4" fill="#aebbd3"/>
-    <circle cx="544" cy="601" r="4" fill="#aebbd3"/>
+    <circle cx="248" cy="263" r="4" fill="#c8bda6"/>
+    <circle cx="248" cy="378" r="4" fill="#c8bda6"/>
+    <circle cx="248" cy="493" r="4" fill="#c8bda6"/>
+    <circle cx="544" cy="263" r="4" fill="#c8bda6"/>
+    <circle cx="544" cy="378" r="4" fill="#c8bda6"/>
+    <circle cx="544" cy="493" r="4" fill="#c8bda6"/>
     <!-- BEFORE: one tiny label per line -->
-    <text x="396" y="316">custom API</text>
-    <text x="313" y="356">custom API</text>
-    <text x="337" y="409">custom API</text>
-    <text x="479" y="356">custom API</text>
-    <text x="396" y="456">custom API</text>
-    <text x="313" y="496">custom API</text>
-    <text x="455" y="409">custom API</text>
-    <text x="479" y="496">custom API</text>
-    <text x="396" y="596">custom API</text>
+    <text x="396" y="258">custom API</text>
+    <text x="316" y="300">custom API</text>
+    <text x="340" y="349">custom API</text>
+    <text x="476" y="300">custom API</text>
+    <text x="396" y="373">custom API</text>
+    <text x="316" y="425">custom API</text>
+    <text x="452" y="349">custom API</text>
+    <text x="476" y="425">custom API</text>
+    <text x="396" y="488">custom API</text>
 
     <!-- AFTER: everyone connects to the AAP bus -->
-    <line x1="1056" y1="321" x2="1109" y2="321" stroke="#2563eb" stroke-width="2.5"/>
-    <line x1="1056" y1="461" x2="1109" y2="461" stroke="#2563eb" stroke-width="2.5"/>
-    <line x1="1056" y1="601" x2="1109" y2="601" stroke="#2563eb" stroke-width="2.5"/>
-    <line x1="1299" y1="321" x2="1352" y2="321" stroke="#2563eb" stroke-width="2.5"/>
-    <line x1="1299" y1="461" x2="1352" y2="461" stroke="#2563eb" stroke-width="2.5"/>
-    <line x1="1299" y1="601" x2="1352" y2="601" stroke="#2563eb" stroke-width="2.5"/>
+    <line x1="1056" y1="263" x2="1109" y2="263" stroke="#0e5a52" stroke-width="2.5"/>
+    <line x1="1056" y1="378" x2="1109" y2="378" stroke="#0e5a52" stroke-width="2.5"/>
+    <line x1="1056" y1="493" x2="1109" y2="493" stroke="#0e5a52" stroke-width="2.5"/>
+    <line x1="1299" y1="263" x2="1352" y2="263" stroke="#0e5a52" stroke-width="2.5"/>
+    <line x1="1299" y1="378" x2="1352" y2="378" stroke="#0e5a52" stroke-width="2.5"/>
+    <line x1="1299" y1="493" x2="1352" y2="493" stroke="#0e5a52" stroke-width="2.5"/>
     <!-- AFTER endpoint dots -->
-    <circle cx="1056" cy="321" r="4" fill="#2563eb"/>
-    <circle cx="1056" cy="461" r="4" fill="#2563eb"/>
-    <circle cx="1056" cy="601" r="4" fill="#2563eb"/>
-    <circle cx="1352" cy="321" r="4" fill="#2563eb"/>
-    <circle cx="1352" cy="461" r="4" fill="#2563eb"/>
-    <circle cx="1352" cy="601" r="4" fill="#2563eb"/>
+    <circle cx="1056" cy="263" r="4" fill="#0e5a52"/>
+    <circle cx="1056" cy="378" r="4" fill="#0e5a52"/>
+    <circle cx="1056" cy="493" r="4" fill="#0e5a52"/>
+    <circle cx="1352" cy="263" r="4" fill="#0e5a52"/>
+    <circle cx="1352" cy="378" r="4" fill="#0e5a52"/>
+    <circle cx="1352" cy="493" r="4" fill="#0e5a52"/>
   </svg>
 
   <div class="tag before">BEFORE</div>
   <div class="tag after">AFTER</div>
 
   <!-- BEFORE chips -->
-  <div class="chip" style="left:78px;  top:290px;"><span class="emoji">&#129302;</span><span class="label">agent 1</span></div>
-  <div class="chip" style="left:78px;  top:430px;"><span class="emoji">&#129302;</span><span class="label">agent 2</span></div>
-  <div class="chip" style="left:78px;  top:570px;"><span class="emoji">&#129302;</span><span class="label">agent 3</span></div>
-  <div class="chip" style="left:544px; top:290px;"><span class="emoji">&#127980;</span><span class="label">dealer A</span></div>
-  <div class="chip" style="left:544px; top:430px;"><span class="emoji">&#127980;</span><span class="label">dealer B</span></div>
-  <div class="chip" style="left:544px; top:570px;"><span class="emoji">&#127980;</span><span class="label">dealer C</span></div>
+  <div class="chip" style="left:78px;  top:235px;"><span class="emoji">&#129302;</span><span class="label">agent 1</span></div>
+  <div class="chip" style="left:78px;  top:350px;"><span class="emoji">&#129302;</span><span class="label">agent 2</span></div>
+  <div class="chip" style="left:78px;  top:465px;"><span class="emoji">&#129302;</span><span class="label">agent 3</span></div>
+  <div class="chip" style="left:544px; top:235px;"><span class="emoji">&#127980;</span><span class="label">dealer A</span></div>
+  <div class="chip" style="left:544px; top:350px;"><span class="emoji">&#127980;</span><span class="label">dealer B</span></div>
+  <div class="chip" style="left:544px; top:465px;"><span class="emoji">&#127980;</span><span class="label">dealer C</span></div>
 
   <!-- AFTER chips -->
-  <div class="chip" style="left:886px;  top:290px;"><span class="emoji">&#129302;</span><span class="label">agent 1</span></div>
-  <div class="chip" style="left:886px;  top:430px;"><span class="emoji">&#129302;</span><span class="label">agent 2</span></div>
-  <div class="chip" style="left:886px;  top:570px;"><span class="emoji">&#129302;</span><span class="label">agent 3</span></div>
-  <div class="chip" style="left:1352px; top:290px;"><span class="emoji">&#127980;</span><span class="label">dealer A</span></div>
-  <div class="chip" style="left:1352px; top:430px;"><span class="emoji">&#127980;</span><span class="label">dealer B</span></div>
-  <div class="chip" style="left:1352px; top:570px;"><span class="emoji">&#127980;</span><span class="label">dealer C</span></div>
+  <div class="chip" style="left:886px;  top:235px;"><span class="emoji">&#129302;</span><span class="label">agent 1</span></div>
+  <div class="chip" style="left:886px;  top:350px;"><span class="emoji">&#129302;</span><span class="label">agent 2</span></div>
+  <div class="chip" style="left:886px;  top:465px;"><span class="emoji">&#129302;</span><span class="label">agent 3</span></div>
+  <div class="chip" style="left:1352px; top:235px;"><span class="emoji">&#127980;</span><span class="label">dealer A</span></div>
+  <div class="chip" style="left:1352px; top:350px;"><span class="emoji">&#127980;</span><span class="label">dealer B</span></div>
+  <div class="chip" style="left:1352px; top:465px;"><span class="emoji">&#127980;</span><span class="label">dealer C</span></div>
 
   <!-- AFTER central bus -->
   <div class="bus">
@@ -170,8 +166,6 @@
   <div class="caption after">one open profile &mdash; any agent, any dealership</div>
 
   <div class="divider">&#8594;</div>
-
-  <div class="footer">Typed automotive messages over A2A v1.0 &mdash; integrate once, reach everyone</div>
 </div>
 </body>
 </html>

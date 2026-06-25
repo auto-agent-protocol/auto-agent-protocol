@@ -1,6 +1,5 @@
 <!doctype html>
-<!-- Source for static/img/v1.0/discovery-flow.png.
-     Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.1/discovery-flow.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <html>
 <head>
 <meta charset="utf-8">
@@ -9,29 +8,54 @@
   html, body { width: 1600px; height: 900px; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
-    color: #0f1d33;
+    color: #26231c;
     display: flex; flex-direction: column; align-items: center;
   }
-  h1 { font-size: 52px; font-weight: 700; margin-top: 56px; letter-spacing: -0.5px; }
-  .row { display: flex; align-items: center; gap: 56px; margin-top: 64px; }
-  .actor { display: flex; flex-direction: column; align-items: center; gap: 18px; width: 300px; }
-  .actor .icon { width: 150px; height: 150px; border-radius: 32px; background: #2563eb; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 64px; box-shadow: 0 14px 30px rgba(37,99,235,.25); }
-  .actor .label { font-size: 30px; font-weight: 600; }
-  .arrow { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-  .arrow .get { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 26px; color: #1d4ed8; background: #dbe7fb; padding: 10px 24px; border-radius: 999px; }
-  .arrow .line { width: 380px; height: 5px; background: #2563eb; position: relative; border-radius: 3px; }
-  .arrow .line::after { content: ""; position: absolute; right: -2px; top: -10px; border-left: 26px solid #2563eb; border-top: 12px solid transparent; border-bottom: 12px solid transparent; }
-  .card { margin-top: 56px; width: 980px; background: #fff; border-radius: 22px; padding: 30px 38px; box-shadow: 0 14px 32px rgba(15,29,51,.08); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 25px; line-height: 1.75; color: #41506b; }
-  .card .k { color: #1d4ed8; }
-  .card .pills { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0 4px 38px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  .card .pill { background: #dbe7fb; color: #1d4ed8; font-size: 22px; padding: 7px 18px; border-radius: 999px; }
+  h1 { font-size: 50px; font-weight: 800; margin-top: 38px; letter-spacing: -1px; }
+  .sub { font-size: 23px; color: #6f665a; margin-top: 12px; }
+
+  .row { display: flex; align-items: center; gap: 40px; margin-top: 32px; }
+  .actor { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 240px; }
+  .actor .icon {
+    width: 116px; height: 116px; border-radius: 28px; background: #0e5a52; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 52px;
+    box-shadow: 0 16px 36px rgba(14,90,82,.22);
+  }
+  .actor .label { font-size: 26px; font-weight: 700; }
+  .arrow { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .arrow .get {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 23px;
+    color: #0a463f; background: #dcebe7; font-weight: 600;
+    padding: 11px 22px; border-radius: 999px;
+  }
+  .arrow .line { width: 420px; height: 5px; background: #0e5a52; position: relative; border-radius: 3px; }
+  .arrow .line::after {
+    content: ""; position: absolute; right: -2px; top: -10px;
+    border-left: 26px solid #0e5a52; border-top: 12px solid transparent; border-bottom: 12px solid transparent;
+  }
+
+  .card {
+    margin-top: 30px; width: 1180px;
+    background: #fbf9f4; border-radius: 22px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09); border: 1px solid #ece4d3;
+    padding: 24px 36px 26px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 21px; line-height: 1.5; color: #4a4338;
+  }
+  .card .k { color: #0e5a52; }
+  .card .pills { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0 4px 36px; }
+  .card .pill { background: #efe9dd; color: #4a4338; font-size: 19px; padding: 6px 16px; border-radius: 999px; }
+  .card .schema { display: flex; flex-direction: column; gap: 4px; margin: 8px 0 4px 36px; }
+  .card .schema .sline { color: #4a4338; }
+  .card .schema .sk { color: #bd7b34; }
+  .card .note { color: #9c9486; }
 </style>
 </head>
 <body>
   <h1>Discovery: one GET, full capability map</h1>
+  <div class="sub">JSON-RPC is the sole binding — discovery is the only plain GET</div>
   <div class="row">
     <div class="actor">
       <div class="icon">🤖</div>
@@ -49,9 +73,16 @@
   <div class="card">
     <div>{</div>
     <div>&nbsp;&nbsp;<span class="k">"name"</span>: "Demo Toyota",</div>
-    <div>&nbsp;&nbsp;<span class="k">"capabilities.extensions[].uri"</span>:</div>
-    <div>&nbsp;&nbsp;&nbsp;&nbsp;"https://autoagentprotocol.org/extensions/a2a-automotive-retail/v1.0",</div>
-    <div>&nbsp;&nbsp;<span class="k">"skills[]"</span>:</div>
+    <div>&nbsp;&nbsp;<span class="k">"capabilities"</span>: { <span class="k">"extensions"</span>: [{</div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">"uri"</span>: "https://autoagentprotocol.org/extensions/aap/v1.1",</div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">"params"</span>: { <span class="k">"skills"</span>: {  <span class="note">// schema URLs live here, per skill</span></div>
+    <div class="schema">
+      <div class="sline"><span class="sk">"lead.submit"</span>: { request_schema, response_schema },</div>
+      <div class="sline"><span class="sk">"inventory.search"</span>: { request_schema, response_schema }, …</div>
+    </div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;} }</div>
+    <div>&nbsp;&nbsp;}] },</div>
+    <div>&nbsp;&nbsp;<span class="k">"skills"</span>: [ <span class="note">// id · name · description · tags only</span></div>
     <div class="pills">
       <div class="pill">dealer.information</div>
       <div class="pill">inventory.facets</div>
@@ -59,6 +90,7 @@
       <div class="pill">inventory.vehicle</div>
       <div class="pill">lead.submit</div>
     </div>
+    <div>&nbsp;&nbsp;]</div>
     <div>}</div>
   </div>
 </body>

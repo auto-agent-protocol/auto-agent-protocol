@@ -6,7 +6,7 @@ description: Field-by-field mapping from a lead.submit request to ADF/XML so dea
 
 # ADF/XML mapping
 
-![ADF bridge: AAP lead.submit JSON on the left, ADF/XML on the right, dealer CRM ingesting at the end](/img/v1.0/adf-bridge.png)
+![ADF bridge: AAP lead.submit JSON on the left, ADF/XML on the right, dealer CRM ingesting at the end](/img/v1.1/adf-bridge.png)
 
 The Auto-lead Data Format (ADF/XML) has been the de-facto standard for delivering leads to dealer CRMs for over two decades. AAP's [`lead.submit`](../skills/lead-submit.md) request is designed to translate losslessly to ADF/XML so a dealer's existing pipeline accepts the lead unchanged.
 

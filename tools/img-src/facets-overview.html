@@ -1,4 +1,4 @@
-<!-- Source for static/img/v1.0/facets-overview.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.1/facets-overview.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,25 +8,26 @@
   html, body { width: 1600px; height: 900px; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef1f7;
-    background-image: radial-gradient(#d4dae6 1.6px, transparent 1.6px);
+    background-color: #f4efe6;
+    background-image: radial-gradient(#e1d9c8 1.6px, transparent 1.6px);
     background-size: 56px 56px;
-    color: #0f1d33;
+    color: #26231c;
     overflow: hidden;
   }
   .code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 
-  header { text-align: center; padding-top: 38px; }
-  h1 { font-size: 52px; font-weight: 700; letter-spacing: -0.5px; }
-  h1 .code { letter-spacing: 0; }
-  .subtitle { margin-top: 10px; font-size: 25px; color: #5b6b84; }
-  .subtitle .code { color: #41506b; }
+  header { text-align: center; padding-top: 40px; }
+  h1 { font-size: 52px; font-weight: 800; letter-spacing: -1px; }
+  h1 .code { letter-spacing: 0; color: #0e5a52; }
+  .subtitle { margin-top: 12px; font-size: 24px; color: #6f665a; }
+  .subtitle .code { color: #4a4338; background: #efe9dd; border-radius: 8px; padding: 2px 10px; }
 
   /* ---- dashboard card ---- */
   .dash {
-    width: 1400px; margin: 22px auto 0;
-    background: #fff; border-radius: 24px;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
+    width: 1400px; margin: 24px auto 0;
+    background: #fbf9f4; border-radius: 22px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
     padding: 24px 28px 26px;
   }
   .dash-head {
@@ -34,22 +35,22 @@
     margin-bottom: 18px;
   }
   .type-chip {
-    background: #dbe7fb; color: #1d4ed8; border-radius: 999px;
+    background: #dcebe7; color: #0a463f; border-radius: 999px;
     padding: 6px 18px; font-size: 19px; font-weight: 600;
   }
-  .dash-head .meta { font-size: 20px; color: #9aa7bd; }
-  .dash-head .meta b { color: #41506b; font-weight: 600; }
+  .dash-head .meta { font-size: 20px; color: #9c9486; }
+  .dash-head .meta b { color: #4a4338; font-weight: 600; }
 
   .grid {
     display: grid; grid-template-columns: repeat(3, 1fr);
     gap: 18px;
   }
   .tile {
-    background: #f7f9fd; border: 1.5px solid #e4e9f2; border-radius: 16px;
+    background: #f7f2e7; border: 1px solid #ece4d3; border-radius: 16px;
     padding: 16px 20px 18px; height: 212px;
   }
   .tile-label {
-    display: inline-block; background: #dbe7fb; color: #1d4ed8;
+    display: inline-block; background: #dcebe7; color: #0a463f;
     border-radius: 999px; padding: 3px 14px;
     font-size: 17px; font-weight: 600; margin-bottom: 14px;
   }
@@ -57,57 +58,58 @@
   /* horizontal bar rows (makes, rooftops) */
   .hrow { display: flex; align-items: center; gap: 12px; margin-top: 13px; }
   .hrow:first-of-type { margin-top: 2px; }
-  .hrow .name { width: 128px; font-size: 21px; color: #41506b; }
-  .hrow .track { flex: 1; height: 18px; background: #e4e9f2; border-radius: 9px; overflow: hidden; }
-  .hrow .fill { display: block; height: 100%; background: linear-gradient(90deg, #2563eb, #1d4ed8); border-radius: 9px; }
-  .hrow .count { width: 34px; text-align: right; font-size: 21px; font-weight: 700; color: #0f1d33; }
+  .hrow .name { width: 128px; font-size: 21px; color: #4a4338; }
+  .hrow .track { flex: 1; height: 18px; background: #e7decd; border-radius: 9px; overflow: hidden; }
+  .hrow .fill { display: block; height: 100%; background: linear-gradient(90deg, #0e5a52, #0a463f); border-radius: 9px; }
+  .hrow .count { width: 34px; text-align: right; font-size: 21px; font-weight: 800; color: #26231c; }
   .rooftops .name { width: 156px; }
 
   /* histogram (years) */
   .hist { display: flex; align-items: flex-end; justify-content: space-between; height: 112px; padding: 0 4px; }
   .hist .col { display: flex; flex-direction: column; align-items: center; width: 44px; }
-  .hist .n { font-size: 14px; color: #9aa7bd; margin-bottom: 4px; }
-  .hist .bar { width: 26px; background: linear-gradient(180deg, #2563eb, #1d4ed8); border-radius: 6px 6px 3px 3px; }
+  .hist .n { font-size: 14px; color: #9c9486; margin-bottom: 4px; }
+  .hist .bar { width: 26px; background: linear-gradient(180deg, #0e5a52, #0a463f); border-radius: 6px 6px 3px 3px; }
   .hist-years { display: flex; justify-content: space-between; padding: 0 4px; margin-top: 7px; }
-  .hist-years span { width: 44px; text-align: center; font-size: 15px; color: #5b6b84; }
+  .hist-years span { width: 44px; text-align: center; font-size: 15px; color: #6f665a; }
 
   /* range tiles */
   .range-vals { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; }
-  .range-vals .cap { font-size: 16px; color: #9aa7bd; margin-bottom: 4px; }
-  .range-vals .val { font-size: 29px; font-weight: 700; color: #0f1d33; }
+  .range-vals .cap { font-size: 16px; color: #9c9486; margin-bottom: 4px; }
+  .range-vals .val { font-size: 29px; font-weight: 800; color: #26231c; }
   .range-vals .side.max { text-align: right; }
-  .range-track { position: relative; height: 14px; background: #e4e9f2; border-radius: 7px; margin-top: 18px; }
-  .range-track .span { position: absolute; top: 0; left: 4%; right: 4%; height: 100%; background: linear-gradient(90deg, #2563eb, #1d4ed8); border-radius: 7px; }
+  .range-track { position: relative; height: 14px; background: #e7decd; border-radius: 7px; margin-top: 18px; }
+  .range-track .span { position: absolute; top: 0; left: 4%; right: 4%; height: 100%; background: linear-gradient(90deg, #0e5a52, #0a463f); border-radius: 7px; }
   .range-track .knob {
     position: absolute; top: 50%; width: 24px; height: 24px; border-radius: 50%;
-    background: #fff; border: 5px solid #1d4ed8; transform: translateY(-50%);
-    box-shadow: 0 3px 8px rgba(15,29,51,.18);
+    background: #fbf9f4; border: 5px solid #0a463f; transform: translateY(-50%);
+    box-shadow: 0 3px 8px rgba(38,35,28,.18);
   }
   .range-track .knob.lo { left: 4%; margin-left: -12px; }
   .range-track .knob.hi { right: 4%; margin-right: -12px; }
-  .range-note { margin-top: 16px; font-size: 16px; color: #9aa7bd; }
+  .range-note { margin-top: 16px; font-size: 16px; color: #9c9486; }
 
   /* conditions: stacked segment bar + legend */
   .stack { display: flex; height: 26px; border-radius: 13px; overflow: hidden; margin-top: 4px; }
-  .stack .seg-new { width: 40%; background: #2563eb; }
-  .stack .seg-used { width: 44%; background: #6d9bf0; }
-  .stack .seg-cpo { width: 16%; background: #c5d8f7; }
+  .stack .seg-new { width: 40%; background: #0e5a52; }
+  .stack .seg-used { width: 44%; background: #bd7b34; }
+  .stack .seg-cpo { width: 16%; background: #d9b483; }
   .legend { margin-top: 14px; }
   .legend .lrow { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 20px; }
   .legend .swatch { width: 14px; height: 14px; border-radius: 4px; }
-  .legend .lname { color: #41506b; width: 80px; }
-  .legend .lcount { font-weight: 700; color: #0f1d33; }
+  .legend .lname { color: #4a4338; width: 80px; }
+  .legend .lcount { font-weight: 800; color: #26231c; }
 
   /* ---- footer ---- */
   footer { display: flex; justify-content: center; margin-top: 22px; }
   .footer-pill {
-    background: #fff; border-radius: 999px; padding: 15px 34px;
-    box-shadow: 0 14px 32px rgba(15,29,51,.08);
-    font-size: 23px; color: #41506b;
+    background: #fbf9f4; border-radius: 999px; padding: 15px 34px;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
+    font-size: 23px; color: #4a4338;
     display: flex; align-items: center; gap: 12px;
   }
   .footer-pill .chip {
-    background: #dbe7fb; color: #1d4ed8; border-radius: 999px;
+    background: #dcebe7; color: #0a463f; border-radius: 999px;
     padding: 4px 16px; font-size: 21px; font-weight: 600;
   }
 </style>
@@ -155,9 +157,9 @@
         <span class="tile-label code">conditions</span>
         <div class="stack"><span class="seg-new"></span><span class="seg-used"></span><span class="seg-cpo"></span></div>
         <div class="legend">
-          <div class="lrow"><span class="swatch" style="background:#2563eb"></span><span class="lname code">new</span><span class="lcount">10</span></div>
-          <div class="lrow"><span class="swatch" style="background:#6d9bf0"></span><span class="lname code">used</span><span class="lcount">11</span></div>
-          <div class="lrow"><span class="swatch" style="background:#c5d8f7"></span><span class="lname code">cpo</span><span class="lcount">4</span></div>
+          <div class="lrow"><span class="swatch" style="background:#0e5a52"></span><span class="lname code">new</span><span class="lcount">10</span></div>
+          <div class="lrow"><span class="swatch" style="background:#bd7b34"></span><span class="lname code">used</span><span class="lcount">11</span></div>
+          <div class="lrow"><span class="swatch" style="background:#d9b483"></span><span class="lname code">cpo</span><span class="lcount">4</span></div>
         </div>
       </div>
 

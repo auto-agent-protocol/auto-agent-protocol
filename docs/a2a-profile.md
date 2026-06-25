@@ -6,7 +6,7 @@ description: How AAP slots into A2A's three-layer architecture (data model, abst
 
 # AAP as an A2A profile
 
-![Three-layer stack: HTTP, A2A v1.0, and the AAP automotive profile](/img/v1.0/architecture-stack.png)
+![Three-layer stack: HTTP, A2A v1.0, and the AAP automotive profile](/img/v1.1/architecture-stack.png)
 
 The Auto Agent Protocol is a strict profile of [A2A v1.0](https://a2a-protocol.org). It does not redefine discovery, message envelopes, the task model, or transport. It only constrains the shape of one specific A2A construct: typed `DataParts` carried inside `Message.parts[]`.
 
@@ -48,7 +48,7 @@ AAP does NOT redefine layer 2 (abstract operations) or layer 3 (protocol binding
 
 ## The typed `DataPart` pattern
 
-![Anatomy of an A2A v1.0 Message: messageId, role: ROLE_USER, and a typed DataPart with data + mediaType](/img/v1.0/datapart-anatomy.png)
+![Anatomy of an A2A v1.0 Message: messageId, role: ROLE_USER, and a typed DataPart with data + mediaType](/img/v1.1/datapart-anatomy.png)
 
 A2A messages are composed of one or more `parts`. Each part identifies its kind by the member it carries — a part with a `text` member is a `TextPart`, with a `file` member is a `FilePart`, with a `data` member is a `DataPart`. AAP only uses `DataParts` — it never relies on free-text natural-language parsing for protocol semantics.
 
