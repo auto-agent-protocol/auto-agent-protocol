@@ -1,11 +1,18 @@
 import Ajv, { type ValidateFunction, type ErrorObject } from "ajv";
 import addFormats from "ajv-formats";
-import { readdirSync, readFileSync, statSync, existsSync } from "fs";
-import { dirname, resolve, basename, join, sep } from "path";
+import { readdirSync, readFileSync, statSync } from "fs";
+import { basename, join, sep } from "path";
+import { allSchemas } from "@autoagentprotocol/schemas";
 
 export interface ValidationResult {
   valid: boolean;
   errors: ErrorObject[] | null;
+}
+
+interface SchemaEntry {
+  schema: Record<string, unknown>;
+  name: string;
+  isPrimitive: boolean;
 }
 
 export class AAPValidator {
@@ -18,49 +25,48 @@ export class AAPValidator {
   }
 
   /**
-   * Load the schemas bundled with @autoagentprotocol/schemas. Works in Node
-   * runtimes that can resolve the peer package; throws if it cannot. Browsers
-   * and edge runtimes should use `loadSchemas(dir)` with their own path.
+   * Load the schemas bundled with @autoagentprotocol/schemas (the latest spec
+   * version). Pure data — imported directly, with no filesystem access.
    */
   loadDefaults(): void {
-    // Resolve the schemas package's main entry (dist/index.js) and load the
-    // schemas it ships from the sibling, version-agnostic `schemas/` directory.
-    // The schemas package always ships the latest spec version there, so this
-    // never hardcodes a version.
-    const mainEntry = require.resolve("@autoagentprotocol/schemas");
-    const dir = resolve(dirname(mainEntry), "schemas");
-    if (!existsSync(dir)) {
-      throw new Error(
-        `@autoagentprotocol/schemas did not ship a schemas/ directory at ${dir}. ` +
-          "Upgrade @autoagentprotocol/schemas, or call loadSchemas(dir) with an explicit path."
-      );
-    }
-    this.loadSchemas(dir);
+    this.registerSchemas(
+      allSchemas.map((schema) => {
+        const id = typeof schema.$id === "string" ? schema.$id : "";
+        return {
+          schema,
+          name: basename(id, ".schema.json"),
+          isPrimitive: id.includes("/_primitives/"),
+        };
+      })
+    );
   }
 
+  /** Load schemas from a directory of `*.schema.json` files (e.g. a `spec/<version>/schemas` dir). */
   loadSchemas(schemasDir: string): void {
-    const schemaFiles = this.findSchemaFiles(schemasDir);
+    const primitiveSegment = `${sep}_primitives${sep}`;
+    this.registerSchemas(
+      this.findSchemaFiles(schemasDir).map((file) => ({
+        schema: JSON.parse(readFileSync(file, "utf-8")) as Record<string, unknown>,
+        name: basename(file, ".schema.json"),
+        isPrimitive: file.includes(primitiveSegment),
+      }))
+    );
+  }
 
-    // Pre-register all schemas so cross-file $refs resolve at compile time.
-    const loaded: Array<{ file: string; name: string; schema: any }> = [];
-    for (const file of schemaFiles) {
-      const schema = JSON.parse(readFileSync(file, "utf-8"));
-      const name = basename(file, ".schema.json");
+  private registerSchemas(entries: SchemaEntry[]): void {
+    // Pre-register every schema so cross-file $refs resolve at compile time.
+    for (const { schema } of entries) {
       try {
         this.ajv.addSchema(schema);
       } catch {
         // Duplicate $id — fine; first wins.
       }
-      loaded.push({ file, name, schema });
     }
-
-    // Compile each top-level schema. Skip primitives (under _primitives/) since
-    // they're only referenced, not validated directly.
-    const primitiveSegment = `${sep}_primitives${sep}`;
-    for (const { file, name, schema } of loaded) {
-      if (file.includes(primitiveSegment)) continue;
-      const validate = this.ajv.compile(schema);
-      this.validators.set(name, validate);
+    // Compile each top-level schema (primitives are only referenced, not
+    // validated directly) and key it by name for validate().
+    for (const { schema, name, isPrimitive } of entries) {
+      if (isPrimitive) continue;
+      this.validators.set(name, this.ajv.compile(schema));
     }
   }
 
