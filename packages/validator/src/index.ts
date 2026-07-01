@@ -1,6 +1,6 @@
 import Ajv, { type ValidateFunction, type ErrorObject } from "ajv";
 import addFormats from "ajv-formats";
-import { readdirSync, readFileSync, statSync } from "fs";
+import { readdirSync, readFileSync, statSync, existsSync } from "fs";
 import { dirname, resolve, basename, join, sep } from "path";
 
 export interface ValidationResult {
@@ -23,19 +23,18 @@ export class AAPValidator {
    * and edge runtimes should use `loadSchemas(dir)` with their own path.
    */
   loadDefaults(): void {
-    // Resolve the schemas package's main entry (dist/index.js) and walk down to
-    // its latest version directory. The version is read from the package's own
-    // `LATEST` export (single source of truth) rather than hardcoded, so this
-    // tracks the current spec as new versions ship.
+    // Resolve the schemas package's main entry (dist/index.js) and load the
+    // schemas it ships from the sibling, version-agnostic `schemas/` directory.
+    // The schemas package always ships the latest spec version there, so this
+    // never hardcodes a version.
     const mainEntry = require.resolve("@autoagentprotocol/schemas");
-    const pkg = require("@autoagentprotocol/schemas") as { LATEST?: string };
-    if (typeof pkg.LATEST !== "string") {
+    const dir = resolve(dirname(mainEntry), "schemas");
+    if (!existsSync(dir)) {
       throw new Error(
-        "@autoagentprotocol/schemas is too old to expose a LATEST version. " +
-          "Upgrade @autoagentprotocol/schemas to >=1.1.0, or call loadSchemas(dir) with an explicit schemas directory."
+        `@autoagentprotocol/schemas did not ship a schemas/ directory at ${dir}. ` +
+          "Upgrade @autoagentprotocol/schemas, or call loadSchemas(dir) with an explicit path."
       );
     }
-    const dir = resolve(dirname(mainEntry), pkg.LATEST);
     this.loadSchemas(dir);
   }
 
