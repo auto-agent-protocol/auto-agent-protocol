@@ -1,7 +1,7 @@
 {
   "name": "@autoagentprotocol/types",
-  "version": "1.0.0",
-  "description": "TypeScript types for Auto Agent Protocol v1.0",
+  "version": "1.1.0",
+  "description": "TypeScript types for the Auto Agent Protocol",
   "license": "Apache-2.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -24,6 +24,7 @@
     "validate:examples": "tsx tools/validate-examples.ts",
     "freeze-check": "tsx tools/freeze-check.ts",
     "copy-static": "tsx tools/copy-static.ts",
+    "check:packages": "tsx tools/check-packages.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
