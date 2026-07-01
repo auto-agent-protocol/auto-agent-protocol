@@ -89,7 +89,85 @@ const config: Config = {
     ],
   ],
 
+  // Site-wide schema.org structured data (WebSite + Organization) for rich
+  // results and AI/search grounding. Page-specific structured data (the spec
+  // APIReference) is injected on the homepage via <Head> in src/pages/index.tsx.
+  headTags: [
+    {
+      tagName: "script",
+      attributes: { type: "application/ld+json" },
+      innerHTML: JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://autoagentprotocol.org/#website",
+            name: "Auto Agent Protocol",
+            alternateName: "AAP",
+            url: "https://autoagentprotocol.org/",
+            description:
+              "The open standard that lets AI assistants find dealerships, browse real inventory, and send consented leads — built on A2A v1.0.",
+            inLanguage: "en",
+            publisher: { "@id": "https://autoagentprotocol.org/#organization" },
+            potentialAction: {
+              "@type": "SearchAction",
+              target: {
+                "@type": "EntryPoint",
+                urlTemplate:
+                  "https://autoagentprotocol.org/search?q={search_term_string}",
+              },
+              "query-input": "required name=search_term_string",
+            },
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://autoagentprotocol.org/#organization",
+            name: "Auto Agent Protocol",
+            alternateName: "AAP",
+            url: "https://autoagentprotocol.org/",
+            logo: {
+              "@type": "ImageObject",
+              url: "https://autoagentprotocol.org/img/logo.png",
+            },
+            description:
+              "An open A2A v1.0 profile for automotive: buyer-agent discovery, real inventory browsing, and consented lead submission.",
+            sameAs: [
+              "https://github.com/auto-agent-protocol/auto-agent-protocol",
+            ],
+          },
+        ],
+      }),
+    },
+  ],
+
   themeConfig: {
+    // Default social-share image (og:image + twitter:image). Relative to
+    // static/; Docusaurus expands it to an absolute URL per page.
+    image: "img/v1.1/aap-hero-banner.png",
+    // Global-additive social/SEO tags. Per-page og:title/og:description/og:url
+    // and description are emitted by Docusaurus from each page's frontmatter, so
+    // they are intentionally NOT set here (setting them globally would override).
+    metadata: [
+      {
+        name: "keywords",
+        content:
+          "Auto Agent Protocol, AAP, A2A, Agent2Agent, agentic commerce, automotive retail, dealership API, agent card, .well-known/agent-card.json, vehicle inventory API, MCP, JSON-RPC, AI agents, buyer agent, consented leads, car buying, ADF/XML",
+      },
+      {
+        name: "twitter:image:alt",
+        content:
+          "Auto Agent Protocol — typed automotive commerce over A2A v1.0, JSON-RPC only",
+      },
+      { property: "og:site_name", content: "Auto Agent Protocol" },
+      { property: "og:type", content: "website" },
+      {
+        property: "og:image:alt",
+        content:
+          "Auto Agent Protocol — typed automotive commerce over A2A v1.0, JSON-RPC only",
+      },
+      { property: "og:image:width", content: "1600" },
+      { property: "og:image:height", content: "600" },
+    ],
     navbar: {
       title: "Auto Agent Protocol",
       logo: {

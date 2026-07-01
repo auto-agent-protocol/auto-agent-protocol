@@ -2,6 +2,7 @@ import clsx from "clsx";
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
+import Head from "@docusaurus/Head";
 import styles from "./index.module.css";
 
 function Hero() {
@@ -207,12 +208,61 @@ function Protocols() {
   );
 }
 
+// Page-specific schema.org structured data for the homepage: the AAP spec as an
+// APIReference, cross-linked (@id) to the site-wide WebSite/Organization graph
+// declared in docusaurus.config.ts headTags.
+const specStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "APIReference",
+  "@id": "https://autoagentprotocol.org/#spec",
+  name: "Auto Agent Protocol (AAP) v1.1 Specification",
+  headline:
+    "Auto Agent Protocol — an open A2A v1.0 profile for automotive retail",
+  url: "https://autoagentprotocol.org/docs/v1.1/intro",
+  description:
+    "AAP defines five A2A skills — dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit — carried over A2A SendMessage on JSON-RPC 2.0, with discovery via /.well-known/agent-card.json.",
+  abstract:
+    "Open standard letting AI buyer-agents discover a dealership, browse real inventory, and submit consented leads.",
+  articleSection: "Specification",
+  inLanguage: "en",
+  version: "1.1.0",
+  keywords:
+    "Auto Agent Protocol, AAP, A2A, Agent2Agent, JSON-RPC, agent card, automotive inventory, dealership AI, consented leads, agentic commerce",
+  isBasedOn: "https://a2a-protocol.org/latest/specification/",
+  isPartOf: { "@id": "https://autoagentprotocol.org/#website" },
+  author: { "@id": "https://autoagentprotocol.org/#organization" },
+  publisher: { "@id": "https://autoagentprotocol.org/#organization" },
+  image: "https://autoagentprotocol.org/img/v1.1/aap-hero-banner.png",
+  license: "https://www.apache.org/licenses/LICENSE-2.0",
+  workExample: [
+    {
+      "@type": "SoftwareSourceCode",
+      name: "AAP JSON-RPC OpenAPI",
+      codeRepository:
+        "https://github.com/auto-agent-protocol/auto-agent-protocol",
+      url: "https://autoagentprotocol.org/v1.1/openapi-jsonrpc.yaml",
+      programmingLanguage: "OpenAPI",
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      name: "AAP MCP manifest",
+      url: "https://autoagentprotocol.org/v1.1/mcp.json",
+      programmingLanguage: "JSON",
+    },
+  ],
+};
+
 export default function Home(): JSX.Element {
   return (
     <Layout
       title="Auto Agent Protocol"
       description="The A2A v1.0 Automotive Retail Profile — typed messages for dealer agents"
     >
+      <Head>
+        <script type="application/ld+json">
+          {JSON.stringify(specStructuredData)}
+        </script>
+      </Head>
       <Hero />
       <main>
         <Features />

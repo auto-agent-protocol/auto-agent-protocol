@@ -1,0 +1,10 @@
+# security.txt for Auto Agent Protocol — https://autoagentprotocol.org
+# Format: RFC 9116 (https://www.rfc-editor.org/rfc/rfc9116)
+# Please report privately. Do NOT open a public GitHub issue for security reports.
+
+Contact: mailto:security@autoagentprotocol.org
+Contact: https://github.com/auto-agent-protocol/auto-agent-protocol/security/advisories/new
+Expires: 2027-06-30T00:00:00.000Z
+Policy: https://github.com/auto-agent-protocol/auto-agent-protocol/blob/main/SECURITY.md
+Preferred-Languages: en
+Canonical: https://autoagentprotocol.org/.well-known/security.txt
