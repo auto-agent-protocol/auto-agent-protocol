@@ -1,0 +1,258 @@
+# Auto Agent Protocol (AAP) — Full Specification (v1.1)
+
+Canonical URL: https://autoagentprotocol.org
+Version: 1.1.0  |  Extension URI: https://autoagentprotocol.org/extensions/aap/v1.1
+Transport: A2A `SendMessage` over JSON-RPC 2.0 — sole binding
+Discovery: GET https://{dealer-domain}/.well-known/agent-card.json
+Built on: A2A v1.0 (Agent2Agent, https://a2a-protocol.org)
+License: Specification & schemas Apache-2.0; documentation prose CC-BY-4.0
+How to use this file: this is the AAP specification inlined as a single self-contained
+document. Each section is meaningful in isolation. The strict machine-readable artifacts
+(OpenAPI, MCP manifest, JSON Schemas, agent-card example) are linked at the end and are
+AUTHORITATIVE over the illustrative shapes below.
+
+## Table of contents
+1. Overview
+2. Why AAP
+3. Discovery & the Agent Card
+4. AAP as an A2A profile
+5. Transport & the JSON-RPC envelope
+6. Error model
+7. Skills
+   7.1 dealer.information
+   7.2 inventory.facets
+   7.3 inventory.search
+   7.4 inventory.vehicle
+   7.5 lead.submit
+8. Consent & lead rules
+9. Pricing & FTC compliance
+10. Versioning
+11. Compatibility (MCP, ADF) & SDK
+12. Machine-readable artifacts
+
+## 1. Overview
+The Auto Agent Protocol (AAP) lets AI assistants shop at car dealerships. It is a strict
+A2A v1.0 (Agent2Agent) profile that defines the typed automotive data shapes AI buyer-agents
+and dealer agents exchange when they discover, browse, and submit leads. AAP does not invent
+a new wire protocol: a buyer-agent discovers a dealership's A2A agent, calls `SendMessage`,
+and every AAP skill defines a strict JSON request and response schema. The payloads travel
+inside A2A messages as typed data parts. The whole surface is five skills — dealer.information,
+inventory.facets, inventory.search, inventory.vehicle, and lead.submit.
+
+## 2. Why AAP
+Buyer-facing AI assistants are becoming a primary way people research and purchase cars, but
+dealership inventory and lead intake are locked behind bespoke websites and legacy CRM lead
+formats. AAP gives AI agents one open, typed, vendor-neutral contract to:
+- discover a dealership and its rooftops (locations),
+- read the real, live inventory with the same filters a shopper would use,
+- fetch a specific vehicle's disclosed pricing and details, and
+- submit a legally consented lead that maps cleanly onto how dealers already take leads
+  (including trade-ins and appointment requests).
+Because AAP is an A2A profile rather than a proprietary API, any A2A-capable agent can speak
+it, and dealers expose it through the same A2A agent card they already publish.
+
+## 3. Discovery & the Agent Card
+A dealer agent is discovered exactly the way any A2A agent is: by fetching its Agent Card.
+
+  GET https://{dealer-domain}/.well-known/agent-card.json
+
+There is no second AAP-specific well-known file. The Agent Card is a standard A2A card. A
+dealer signals AAP support by declaring the AAP extension in the card's
+`capabilities.extensions[]`, using the single canonical extension URI:
+
+  https://autoagentprotocol.org/extensions/aap/v1.1
+
+The card advertises which of the five AAP skills the dealer implements (at least one), the
+per-skill request/response schema URLs (in the extension params), and a JSONRPC service
+interface in `supportedInterfaces[]` with the endpoint `url`. A copy-pasteable example card
+is hosted at https://autoagentprotocol.org/v1.1/examples/agent-card.example.json
+
+No single skill is individually mandatory; the recommended minimum subset for an end-to-end
+shopping flow is inventory.search + lead.submit. A small used-car lot might implement only
+those two; a franchise dealership might implement all five.
+
+## 4. AAP as an A2A profile
+AAP constrains A2A to exactly what automotive retail needs:
+- Exactly ONE A2A operation is used: `SendMessage` (a `Message` in, a `Message` out). The
+  rest of the A2A surface (streaming, task Get/List/Cancel/Subscribe, push notification
+  configs, extended agent card) is out of scope: dealer agents need not implement it and
+  buyer agents MUST NOT require it.
+- The only transport binding is JSON-RPC 2.0 (`protocolBinding: "JSONRPC"`, REQUIRED). The
+  HTTP+JSON (REST) binding that existed earlier was removed in v1.1; gRPC is out of scope.
+- AAP payloads travel inside `Message.parts[]` as typed `DataPart`s. Each request and
+  response object has a `type` and validates against a published JSON Schema.
+An AAP interaction is therefore a normal A2A message exchange whose data parts happen to
+carry AAP-typed automotive objects.
+
+## 5. Transport & the JSON-RPC envelope
+AAP rides on A2A v1.0, whose single canonical wire format is the ProtoJSON form:
+- the JSON-RPC method name is `SendMessage`;
+- `role` is the enum name `"ROLE_USER"` (request) or `"ROLE_AGENT"` (response);
+- a `Part` has NO `kind` discriminator — it is typed by the member it carries; AAP uses the
+  `data` member and sets a `mediaType`;
+- every `Message` carries a `messageId`;
+- the JSON-RPC `result` is the `SendMessageResponse`, serialized as `{ "message": <Message> }`.
+
+An AAP request object carries its fields at the top level next to `type`. An AAP response
+object carries a nested `data` object.
+
+Illustrative request (an inventory.search call):
+
+  {
+    "jsonrpc": "2.0",
+    "id": "req-1",
+    "method": "SendMessage",
+    "params": {
+      "message": {
+        "messageId": "01HZ9F4M7C0X3K5RN8B3WJTW2P",
+        "role": "ROLE_USER",
+        "parts": [
+          {
+            "data": {
+              "type": "inventory.search.request",
+              "filters": { "make": ["Toyota"], "condition": ["used"] },
+              "pagination": { "skip": 0, "limit": 20 }
+            },
+            "mediaType": "application/vnd.autoagent.inventory-search-request+json"
+          }
+        ]
+      },
+      "configuration": {
+        "acceptedOutputModes": ["application/vnd.autoagent.inventory-search-response+json"]
+      }
+    }
+  }
+
+Illustrative response:
+
+  {
+    "jsonrpc": "2.0",
+    "id": "req-1",
+    "result": {
+      "message": {
+        "messageId": "01HZ9F4N1JZ7QS8VKR2A3B4C5D",
+        "role": "ROLE_AGENT",
+        "parts": [
+          {
+            "data": {
+              "type": "inventory.search.response",
+              "data": { "total": 1, "skip": 0, "limit": 20, "vehicles": [ /* vehicle objects */ ] }
+            },
+            "mediaType": "application/vnd.autoagent.inventory-search-response+json"
+          }
+        ]
+      }
+    }
+  }
+
+The exact field names and required properties for each request/response object are defined by
+the JSON Schemas at https://autoagentprotocol.org/v1.1/schemas/ — treat those schemas as
+authoritative over the illustrative shapes above.
+
+## 6. Error model
+When a skill cannot be fulfilled, the dealer agent returns a JSON-RPC error envelope whose
+`error.data` is a typed AAP error object (`type: "aap.error"`) defined by error.schema.json.
+Validation errors list EVERY failing field at once in `details.errors[]` (each entry carrying
+`instanceLocation`, `keyword`, and `error`) so a caller can fix the whole payload in one pass.
+
+The AAP error code vocabulary (12 codes) and their recommended JSON-RPC codes:
+- UNSUPPORTED_SKILL (-32601) — the dealer agent does not implement the requested skill
+- SCHEMA_VALIDATION_FAILED (-32602) — the request object failed JSON Schema validation
+- MISSING_REQUIRED_FIELD (-32602) — a required field was absent
+- INVALID_CONDITION (-32602) — a `condition` value is in the wrong vocabulary
+- VEHICLE_NOT_FOUND (-32000) — no vehicle matches the given VIN / stock / vehicle_id
+- VEHICLE_UNAVAILABLE (-32000) — the vehicle exists but its status is not available/intransit/pending
+- CONTACT_CONSENT_REQUIRED (-32000) — customer info was supplied without required consent
+- INVALID_CONSENT (-32000) — supplied consent was malformed, expired, or out of scope
+- APPOINTMENT_TIME_UNAVAILABLE (-32000) — the requested appointment slot cannot be honored
+- IDEMPOTENCY_CONFLICT (-32000) — an idempotency key was reused with a different payload
+- RATE_LIMITED (-32002) — the caller exceeded the dealer agent's rate limit
+- INTERNAL_ERROR (-32603) — an unexpected dealer-side failure
+Each error also carries a `retryable` flag; buyer agents MUST honor the value the dealer
+returns rather than assuming from the code.
+
+## 7. Skills
+Each skill is a single AAP request/response contract carried over the `SendMessage` envelope
+in section 5: the request object is a DataPart of the outbound Message; the response object is
+a DataPart of the returned Message.
+
+### 7.1 dealer.information (type: dealer.information.request / .response)
+Purpose: Return the dealership profile — group name, welcome message, and one or more rooftops
+(locations) with their address, geo, contacts, business hours, timezone, and service
+capabilities. Anonymous-safe; no consent required. Typical errors: UNSUPPORTED_SKILL,
+INTERNAL_ERROR.
+
+### 7.2 inventory.facets (type: inventory.facets.request / .response)
+Purpose: Return searchable inventory facets such as makes, models, years, conditions, body
+styles, price ranges, mileage ranges, drivetrain, fuel type, and statuses. This lets an agent
+learn the dealer's real filterable dimensions before searching. Anonymous-safe. Typical
+errors: UNSUPPORTED_SKILL, INTERNAL_ERROR.
+
+### 7.3 inventory.search (type: inventory.search.request / .response)
+Purpose: Search vehicle inventory by query, make, model, trim, year, condition, price,
+mileage, body style, VIN, stock, features, and availability. The request carries `filters`
+plus `pagination` and optional `sort`; the response is a paginated list of matching vehicles.
+Anonymous-safe. Typical errors: SCHEMA_VALIDATION_FAILED, INVALID_CONDITION, RATE_LIMITED.
+
+### 7.4 inventory.vehicle (type: inventory.vehicle.request / .response)
+Purpose: Return details for a specific vehicle by VIN, stock number, or vehicle_id, including
+status, pricing disclosure, photos, mileage, trim, features, fuel economy, and dealer page
+URL. Anonymous-safe. Typical errors: VEHICLE_NOT_FOUND, VEHICLE_UNAVAILABLE,
+MISSING_REQUIRED_FIELD.
+
+### 7.5 lead.submit (type: lead.submit.request / .response)
+Purpose: Submit a consented lead carrying customer info plus any combination of vehicle of
+interest, trade-in, and appointment request — a single unified contract that matches how
+dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised
+in the same visit). The request REQUIRES `customer`, a `consent` grant, and a `source_agent`
+(the buyer agent's identity). Typical errors: CONTACT_CONSENT_REQUIRED, INVALID_CONSENT,
+APPOINTMENT_TIME_UNAVAILABLE, IDEMPOTENCY_CONFLICT, MISSING_REQUIRED_FIELD,
+SCHEMA_VALIDATION_FAILED.
+
+## 8. Consent & lead rules
+A lead MUST carry an explicit, valid consent grant for the dealer to contact the customer.
+Omitting consent yields CONTACT_CONSENT_REQUIRED; malformed/expired/out-of-scope consent
+yields INVALID_CONSENT. Consent is validated on `granted_at`, `allowed_channels`, and `scope`
+(scope `["lead_submission"]` is required for lead.submit). The unified lead contract is
+deliberate: one submission can bundle a vehicle of interest, a trade-in, and an appointment
+request together, mirroring real dealership intake. lead.submit supports an idempotency key so
+retries don't create duplicate leads; reuse with a different payload surfaces as
+IDEMPOTENCY_CONFLICT.
+
+## 9. Pricing & FTC compliance
+Every Vehicle MAY carry three integer price fields (whole US dollars) so agents never conflate
+sticker, advertised, and out-the-door numbers:
+- msrp — manufacturer's suggested retail price (informational; set by the OEM)
+- list_price — the dealer's advertised base list price BEFORE incentives and fees
+- price — the FTC-final out-the-door amount, including all required fees, mandatory add-ons,
+  and any conditions on dealer financing. `price` is RECOMMENDED, and it is the only field
+  buyer agents use for `inventory.search` `price_min`/`price_max` filters and `sort.field:
+  "price"`. Publishing a `price` that omits required fees is exactly the deceptive pattern the
+  FTC CARS Rule targets. See https://autoagentprotocol.org/docs/v1.1/pricing-and-ftc.
+
+## 10. Versioning
+The current version is v1.1.0, served at /docs/v1.1/* (also aliased at /docs/latest/*). Each
+protocol version has its own extension URI; v1.1 is
+https://autoagentprotocol.org/extensions/aap/v1.1. Released versions are immutable; frozen
+prior versions are v1.0, v0.2, and v0.1 (reachable via the docs version dropdown). Schemas are
+versioned under https://autoagentprotocol.org/v1.1/schemas/. See
+https://autoagentprotocol.org/docs/v1.1/versioning for the full SemVer policy.
+
+## 11. Compatibility (MCP, ADF) & SDK
+- MCP: AAP ships an official MCP reference manifest so the five skills can be exposed as MCP
+  tools. See https://autoagentprotocol.org/docs/v1.1/compatibility/mcp and the manifest at
+  https://autoagentprotocol.org/v1.1/mcp.json.
+- ADF/XML: a submitted lead maps field-by-field onto the legacy Auto-lead Data Format used by
+  dealer CRMs, so an AAP lead bridges into existing pipelines without CRM code changes. See
+  https://autoagentprotocol.org/docs/v1.1/compatibility/adf-mapping.
+- SDK (open source, npm): @autoagentprotocol/types (TypeScript types generated from the
+  schemas), @autoagentprotocol/schemas (raw JSON Schema modules), and
+  @autoagentprotocol/validator (Ajv-based validators for all AAP objects).
+
+## 12. Machine-readable artifacts
+- OpenAPI (JSON-RPC, OpenAPI 3.1): https://autoagentprotocol.org/v1.1/openapi-jsonrpc.yaml
+- MCP manifest:                    https://autoagentprotocol.org/v1.1/mcp.json
+- JSON Schemas (2020-12):          https://autoagentprotocol.org/v1.1/schemas/<name>.schema.json (e.g. agent-card.schema.json)
+- Agent Card example:              https://autoagentprotocol.org/v1.1/examples/agent-card.example.json
+- Human docs (v1.1):               https://autoagentprotocol.org/docs/v1.1/intro
+- Source repository:               https://github.com/auto-agent-protocol/auto-agent-protocol

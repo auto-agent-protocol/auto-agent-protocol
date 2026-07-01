@@ -1,0 +1,78 @@
+# robots.txt — Auto Agent Protocol (https://autoagentprotocol.org)
+# AAP is an open A2A v1.0 profile. This site WANTS to be crawled, indexed,
+# and cited by search engines and AI agents. Everything here is public by design.
+# Machine-readable guide for LLMs: https://autoagentprotocol.org/llms.txt
+# Full spec for one-fetch ingestion:  https://autoagentprotocol.org/llms-full.txt
+
+# --- Default: welcome everyone ---
+User-agent: *
+Allow: /
+
+# --- OpenAI ---
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# --- Anthropic ---
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+# --- Google (Extended = opt IN to Gemini/Vertex grounding & training) ---
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Google-CloudVertexBot
+Allow: /
+
+# --- Apple (Extended = opt IN to Apple Intelligence) ---
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# --- Perplexity ---
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# --- Microsoft / Meta / Amazon / Mistral / DuckDuckGo / Cohere ---
+User-agent: Bingbot
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: MistralAI-User
+Allow: /
+
+User-agent: DuckAssistBot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+# --- Common Crawl (upstream corpus for many open LLM training sets) ---
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://autoagentprotocol.org/sitemap.xml
