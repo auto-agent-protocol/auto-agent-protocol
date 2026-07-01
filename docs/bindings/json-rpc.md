@@ -592,22 +592,26 @@ The unified lead carries customer info plus any combination of `vehicle_of_inter
 
 When a skill cannot be fulfilled, the dealer agent MUST return a JSON-RPC error envelope. AAP defines a typed error payload (`aap.error`) carried in `error.data`. The mapping uses the standard JSON-RPC `code` for transport errors and AAP's own `code` for business errors.
 
+Validation errors (`SCHEMA_VALIDATION_FAILED`, `MISSING_REQUIRED_FIELD`, `INVALID_CONDITION`) MUST list **every** failing field at once in `details.errors[]` — each entry carrying `instanceLocation`, `keyword`, and `error` — so the buyer agent can fix the whole payload in a single retry instead of one round-trip per error. See [Errors](../errors.md) for the full shape.
+
 ```json
 {
   "jsonrpc": "2.0",
   "id": "req-3",
   "error": {
     "code": -32602,
-    "message": "Invalid params: filters.year_min must be an integer",
+    "message": "Invalid params: 2 validation errors",
     "data": {
       "type": "aap.error",
       "error_id": "err_01HZ9EXAMPLE",
       "code": "SCHEMA_VALIDATION_FAILED",
-      "message": "filters.year_min must be an integer",
+      "message": "Request failed validation with 2 errors; see details.errors[].",
       "retryable": false,
       "details": {
-        "instancePath": "/filters/year_min",
-        "received": "twenty-twenty"
+        "errors": [
+          { "instanceLocation": "/filters/year_min", "keyword": "type", "error": "must be integer" },
+          { "instanceLocation": "/filters/condition/0", "keyword": "enum", "error": "must be one of: new, used, cpo" }
+        ]
       },
       "created_at": "2026-04-30T10:15:30Z"
     }
@@ -621,12 +625,14 @@ Recommended JSON-RPC code mapping:
 |---|---|---|
 | `SCHEMA_VALIDATION_FAILED` | -32602 | JSON-RPC "Invalid params". |
 | `MISSING_REQUIRED_FIELD` | -32602 | "Invalid params". |
+| `INVALID_CONDITION` | -32602 | "Invalid params" — a `condition` value is in the wrong vocabulary. |
 | `UNSUPPORTED_SKILL` | -32601 | JSON-RPC "Method not found" — the dealer does not implement this skill (rare for AAP-compliant agents but allowed for forward compat). |
 | `VEHICLE_NOT_FOUND` | -32000 | Application error. |
 | `VEHICLE_UNAVAILABLE` | -32000 | Application error. |
 | `CONTACT_CONSENT_REQUIRED` | -32000 | Application error. |
 | `INVALID_CONSENT` | -32000 | Application error. |
 | `APPOINTMENT_TIME_UNAVAILABLE` | -32000 | Application error. |
+| `IDEMPOTENCY_CONFLICT` | -32000 | Application error — an `idempotency_key` was reused with a different payload. |
 | `RATE_LIMITED` | -32002 | Reserved server-error range; AAP-specific. |
 | `INTERNAL_ERROR` | -32603 | JSON-RPC "Internal error". |
 

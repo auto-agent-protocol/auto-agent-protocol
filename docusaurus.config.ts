@@ -136,7 +136,6 @@ const config: Config = {
           title: "Bindings & Skills",
           items: [
             { label: "JSON-RPC binding", to: "/docs/v1.1/bindings/json-rpc" },
-            { label: "REST binding", to: "/docs/v1.1/bindings/rest" },
             { label: "Inventory search", to: "/docs/v1.1/skills/inventory-search" },
             { label: "Submit lead", to: "/docs/v1.1/skills/lead-submit" },
           ],
