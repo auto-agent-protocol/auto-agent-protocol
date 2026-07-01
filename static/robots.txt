@@ -7,6 +7,9 @@
 # --- Default: welcome everyone ---
 User-agent: *
 Allow: /
+# Content Signals (contentsignals.org) — AAP is an open standard and WANTS to be
+# used by AI: allow model training, search indexing, and AI input/grounding.
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 # --- OpenAI ---
 User-agent: GPTBot
