@@ -23,10 +23,14 @@ export class AAPValidator {
    * and edge runtimes should use `loadSchemas(dir)` with their own path.
    */
   loadDefaults(): void {
-    // Resolve the schemas package's main entry (dist/index.js) and walk down
-    // to its v1.0 directory of JSON Schema files.
+    // Resolve the schemas package's main entry (dist/index.js) and walk down to
+    // its latest version directory. The version is read from the package's own
+    // `LATEST` export (single source of truth) rather than hardcoded, so this
+    // tracks the current spec as new versions ship.
     const mainEntry = require.resolve("@autoagentprotocol/schemas");
-    const dir = resolve(dirname(mainEntry), "v1.0");
+    const pkg = require("@autoagentprotocol/schemas") as { LATEST?: string };
+    const latest = typeof pkg.LATEST === "string" ? pkg.LATEST : "v1.0";
+    const dir = resolve(dirname(mainEntry), latest);
     this.loadSchemas(dir);
   }
 
