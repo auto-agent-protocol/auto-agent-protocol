@@ -1,0 +1,31 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://autoagentprotocol.org/",
+      "service-desc": [
+        {
+          "href": "https://autoagentprotocol.org/latest/openapi-jsonrpc.yaml",
+          "type": "application/vnd.oai.openapi",
+          "title": "AAP JSON-RPC OpenAPI 3.1 description"
+        },
+        {
+          "href": "https://autoagentprotocol.org/latest/mcp.json",
+          "type": "application/json",
+          "title": "AAP MCP manifest (skills as MCP tools)"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://autoagentprotocol.org/docs/latest/intro",
+          "type": "text/html",
+          "title": "Auto Agent Protocol documentation"
+        },
+        {
+          "href": "https://autoagentprotocol.org/llms-full.txt",
+          "type": "text/plain",
+          "title": "Full specification inlined for LLM ingestion"
+        }
+      ]
+    }
+  ]
+}
