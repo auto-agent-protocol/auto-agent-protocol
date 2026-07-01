@@ -49,6 +49,11 @@ jobs:
       - name: Validate examples
         run: pnpm run validate:examples
 
+      - name: Validator CLI smoke test
+        run: |
+          pnpm --filter @autoagentprotocol/validator run build
+          pnpm --filter @autoagentprotocol/validator run test
+
       - name: Generate artifacts
         run: pnpm run generate
 
