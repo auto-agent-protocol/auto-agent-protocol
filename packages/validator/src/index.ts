@@ -29,8 +29,13 @@ export class AAPValidator {
     // tracks the current spec as new versions ship.
     const mainEntry = require.resolve("@autoagentprotocol/schemas");
     const pkg = require("@autoagentprotocol/schemas") as { LATEST?: string };
-    const latest = typeof pkg.LATEST === "string" ? pkg.LATEST : "v1.0";
-    const dir = resolve(dirname(mainEntry), latest);
+    if (typeof pkg.LATEST !== "string") {
+      throw new Error(
+        "@autoagentprotocol/schemas is too old to expose a LATEST version. " +
+          "Upgrade @autoagentprotocol/schemas to >=1.1.0, or call loadSchemas(dir) with an explicit schemas directory."
+      );
+    }
+    const dir = resolve(dirname(mainEntry), pkg.LATEST);
     this.loadSchemas(dir);
   }
 

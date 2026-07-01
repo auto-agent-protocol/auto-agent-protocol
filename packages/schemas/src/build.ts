@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, writeFileSync, readdirSync } from "fs";
+import { cpSync, mkdirSync, writeFileSync, readdirSync, rmSync } from "fs";
 import { resolve, basename } from "path";
 
 const ROOT = resolve(__dirname, "../../..");
@@ -28,6 +28,10 @@ function main() {
   const versions = allVersions();
   if (versions.length === 0) throw new Error("no spec/v*/ directories found");
   const latest = versions[versions.length - 1];
+
+  // Start from a clean dist so a schema renamed/removed in the current (unfrozen)
+  // spec dir can't linger as a stale file and get published under files:["dist"].
+  rmSync(OUT, { recursive: true, force: true });
 
   // Copy every version's schemas so consumers pinned to an older version keep
   // working via the `./vX.Y/*` subpath exports; the main entry tracks `latest`.
