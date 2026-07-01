@@ -86,7 +86,7 @@ These are normative; they are also restated in the [Behavior rules](./behavior-r
 ## How `price` is used elsewhere in AAP
 
 - `inventory.search` — `filters.price_min` and `filters.price_max` apply to `price`. `sort.field` accepts `"price"` (default sort comparator) and also `"list_price"`, `"msrp"` for those who want to sort on a specific field.
-- `inventory.vehicle` — the response always carries `price`.
+- `inventory.vehicle` — the response SHOULD carry `price` (RECOMMENDED); when present, it follows the FTC all-in rules above.
 - `inventory.facets` — `price_range` aggregates min/max `price` values across the matching set.
 
 For full request/response shapes see the [skills reference](./skills/inventory-search.md).

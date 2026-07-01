@@ -54,7 +54,7 @@ A complete MCP server descriptor that exposes all five AAP skills as tools:
   "tools": [
     {
       "name": "aap_dealer_information",
-      "description": "Return dealership profile, rooftops, business hours, contact policies, and supported capabilities.",
+      "description": "Return the dealership profile — group name, welcome message, and one or more rooftops (locations) with their address, geo, contacts, business hours, timezone, and service capabilities.",
       "inputSchema": {
         "$ref": "https://autoagentprotocol.org/v1.1/schemas/dealer-information-request.schema.json"
       },
@@ -67,7 +67,7 @@ A complete MCP server descriptor that exposes all five AAP skills as tools:
     },
     {
       "name": "aap_inventory_facets",
-      "description": "Return aggregated facets (makes, models, years, conditions, body styles, price ranges, mileage ranges, drivetrain, fuel type) over the dealer's inventory.",
+      "description": "Return searchable inventory facets such as makes, models, years, conditions, body styles, price ranges, mileage ranges, drivetrain, fuel type, and statuses.",
       "inputSchema": {
         "$ref": "https://autoagentprotocol.org/v1.1/schemas/inventory-facets-request.schema.json"
       },
@@ -80,7 +80,7 @@ A complete MCP server descriptor that exposes all five AAP skills as tools:
     },
     {
       "name": "aap_inventory_search",
-      "description": "Search vehicle inventory by query, make, model, trim, year, condition, price, mileage, body, VIN, stock, features, and availability.",
+      "description": "Search vehicle inventory by query, make, model, trim, year, condition, price, mileage, body style, VIN, stock, features, and availability.",
       "inputSchema": {
         "$ref": "https://autoagentprotocol.org/v1.1/schemas/inventory-search-request.schema.json"
       },
@@ -93,7 +93,7 @@ A complete MCP server descriptor that exposes all five AAP skills as tools:
     },
     {
       "name": "aap_inventory_vehicle",
-      "description": "Return details for a specific vehicle by VIN, stock number, or vehicle_id, including availability, pricing disclosure, media, mileage, trim, features, and dealer page URL.",
+      "description": "Return details for a specific vehicle by VIN, stock number, or vehicle_id, including status, pricing disclosure, photos, mileage, trim, features, fuel economy, and dealer page URL.",
       "inputSchema": {
         "$ref": "https://autoagentprotocol.org/v1.1/schemas/vehicle-detail-request.schema.json"
       },
@@ -106,7 +106,7 @@ A complete MCP server descriptor that exposes all five AAP skills as tools:
     },
     {
       "name": "aap_lead_submit",
-      "description": "Submit a consented lead carrying customer info plus any combination of vehicle of interest, trade-in, and appointment request.",
+      "description": "Submit a consented lead carrying customer info plus any combination of vehicle of interest, trade-in, and appointment request — a single unified contract that matches how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).",
       "inputSchema": {
         "$ref": "https://autoagentprotocol.org/v1.1/schemas/lead-submit-request.schema.json"
       },

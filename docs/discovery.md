@@ -38,7 +38,7 @@ AAP v1.1 agents are **public by default** — the simplest setup needs no authen
 
 ## Full example agent card
 
-This is the **smallest** card that satisfies the three requirements above — a public dealer agent on the JSON-RPC binding. Copy it, change the `name`, the `supportedInterfaces[].url`, and `params.id`, and keep only the `skills[]` you actually implement. A copy-pasteable copy is published at [`/v1.1/examples/agent-card.example.json`](https://autoagentprotocol.org/v1.1/examples/agent-card.example.json).
+This is the **smallest** card that satisfies the three requirements above — a public dealer agent on the JSON-RPC binding. Copy it, change the `name`, the `supportedInterfaces[].url`, and `params.id`, and keep only the skills you actually implement — pruning both `skills[]` and `params.skills` to match. A copy-pasteable copy is published at [`/v1.1/examples/agent-card.example.json`](https://autoagentprotocol.org/v1.1/examples/agent-card.example.json).
 
 ```json
 {
@@ -63,7 +63,31 @@ This is the **smallest** card that satisfies the three requirements above — a 
         "description": "Auto Agent Protocol v1.1 — A2A Automotive Retail Profile.",
         "required": true,
         "params": {
-          "id": "0192f3c0-1a2b-7c3d-8e4f-5a6b7c8d9e0f"
+          "id": "0192f3c0-1a2b-7c3d-8e4f-5a6b7c8d9e0f",
+          "version": "1.1.0",
+          "schema_base_url": "https://autoagentprotocol.org/v1.1/schemas/",
+          "skills": {
+            "dealer.information": {
+              "request_schema": "https://autoagentprotocol.org/v1.1/schemas/dealer-information-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v1.1/schemas/dealer-information-response.schema.json"
+            },
+            "inventory.facets": {
+              "request_schema": "https://autoagentprotocol.org/v1.1/schemas/inventory-facets-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v1.1/schemas/inventory-facets-response.schema.json"
+            },
+            "inventory.search": {
+              "request_schema": "https://autoagentprotocol.org/v1.1/schemas/inventory-search-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v1.1/schemas/inventory-search-response.schema.json"
+            },
+            "inventory.vehicle": {
+              "request_schema": "https://autoagentprotocol.org/v1.1/schemas/vehicle-detail-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v1.1/schemas/vehicle-detail-response.schema.json"
+            },
+            "lead.submit": {
+              "request_schema": "https://autoagentprotocol.org/v1.1/schemas/lead-submit-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v1.1/schemas/lead-submit-response.schema.json"
+            }
+          }
         }
       }
     ]
