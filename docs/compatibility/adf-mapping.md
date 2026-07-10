@@ -6,7 +6,7 @@ description: Field-by-field mapping from a lead.submit request to ADF/XML so dea
 
 # ADF/XML mapping
 
-![ADF bridge: AAP lead.submit JSON on the left, ADF/XML on the right, dealer CRM ingesting at the end](/img/v1.1/adf-bridge.png)
+![ADF bridge: AAP lead.submit JSON on the left, ADF/XML on the right, dealer CRM ingesting at the end](/img/v1.2/adf-bridge.png)
 
 The Auto-lead Data Format (ADF/XML) has been the de-facto standard for delivering leads to dealer CRMs for over two decades. AAP's [`lead.submit`](../skills/lead-submit.md) request is designed to translate losslessly to ADF/XML so a dealer's existing pipeline accepts the lead unchanged.
 
@@ -28,7 +28,9 @@ This page documents the field-by-field translation. The dealer agent (or the dea
 | `vehicle_of_interest.vin` | `<vehicle interest="buy"><vin>...</vin></vehicle>` | Optional but recommended. |
 | `vehicle_of_interest.stock` | `<vehicle interest="buy"><stock>...</stock></vehicle>` | Optional. |
 | `vehicle_of_interest.condition` | `<vehicle interest="buy" status="...">` (one of `new`, `used`) | ADF accepts only `new` or `used`. AAP `cpo` MAPS TO `status="used"` AND a free-text `<comments>certified pre-owned</comments>` on the vehicle. |
-| `vehicle_of_interest.body` | `<vehicle interest="buy"><bodystyle>...</bodystyle></vehicle>` | Optional. |
+| `vehicle_of_interest.body` | `<vehicle interest="buy"><bodystyle>...</bodystyle></vehicle>` | Optional. Automobile context (`inventory_class` absent or `automobile`). |
+| `vehicle_of_interest.motorcycle_category` | `<vehicle interest="buy"><bodystyle>...</bodystyle></vehicle>` | Optional. Motorcycle context (`inventory_class: "motorcycle"`). The mapper writes the category (e.g. `cruiser`, `touring`) into ADF's `<bodystyle>` since ADF has no motorcycle-specific element. |
+| `vehicle_of_interest.engine_displacement_cc` | `<vehicle interest="buy"><comments>Displacement: {cc}cc</comments></vehicle>` | Optional. Motorcycle context. ADF has no displacement element, so the mapper folds it into vehicle `<comments>` (other motorcycle fields such as `wheel_count` / `final_drive` are handled the same way). |
 | `vehicle_of_interest.transmission` | `<vehicle interest="buy"><transmission>...</transmission></vehicle>` | Optional. ADF expects `A` or `M`; the mapper folds `automatic`/`manual` (and variants like `8-speed automatic`) accordingly. |
 | `vehicle_of_interest.mileage` | `<vehicle interest="buy"><odometer units="mi">...</odometer></vehicle>` | Optional; typical for used. |
 | `vehicle_of_interest.price` | `<vehicle interest="buy"><price type="quote" currency="USD">...</price></vehicle>` | Mapped from the AAP integer dollar amount (whole US dollars). |

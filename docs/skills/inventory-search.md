@@ -7,10 +7,10 @@ description: Search vehicle inventory with a flat filter block, pagination, sort
 # `inventory.search`
 
 :::info A2A invocation
-This skill is invoked through A2A's `SendMessage` operation — the single A2A operation AAP v1.1 uses — not a dedicated REST URL. It travels as the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md). (The HTTP+JSON binding was [removed in v1.1](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
+This skill is invoked through A2A's `SendMessage` operation — the single A2A operation AAP v1.2 uses — not a dedicated REST URL. It travels as the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md). (The HTTP+JSON binding was [removed in v1.1](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
 :::
 
-![Inventory search flow: filters block flowing into a paginated vehicles list with facets](/img/v1.1/inventory-search-flow.png)
+![Inventory search flow: filters block flowing into a paginated vehicles list with facets](/img/v1.2/inventory-search-flow.png)
 
 The `inventory.search` skill is the primary inventory discovery surface. A buyer agent submits a flat filter block, optional pagination, optional sort, and optional privacy hints; the dealer agent returns matching `Vehicle` listings together with a total count and OPTIONAL aggregated facets.
 
@@ -33,12 +33,19 @@ AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi
 | `model` | string[] | yes | — | Vehicle models. |
 | `trim` | string[] | yes | — | Trim levels. |
 | `condition` | enum[] | yes | — | Subset of `["new", "used", "cpo"]`. |
+| `inventory_class` | enum[] | yes | — | Subset of `["automobile", "motorcycle"]`. Omit to search all classes; a listing without `inventory_class` is treated as `automobile`. |
 | `transmission` | string[] | yes | — | Free-text transmission types. |
-| `fuel` | string[] | yes | — | Free-text fuel types. |
-| `driveline` | string[] | yes | — | Drivetrain layouts. |
-| `body` | string[] | yes | — | Body types (e.g. sedan, suv). |
+| `fuel` | string[] | yes | — | Free-text fuel types (e.g. `gas`, `hybrid`, `bev`). |
+| `range_min` / `range_max` | integer | — | yes | Inclusive electric-range range in miles, applied against `electric_range_mi`. Generic electric filter (EV cars and electric motorcycles). |
+| `dc_fast_charge` | boolean | — | — | When true, include only units supporting DC fast charging. Generic electric filter. |
+| `driveline` | string[] | yes | — | Drivetrain layouts (automobile context). |
+| `body` | string[] | yes | — | Body types (e.g. sedan, suv). Automobile context. |
+| `motorcycle_category` | enum[] | yes | — | Motorcycle segments: subset of `cruiser`, `sport`, `touring`, `adventure`, `dual_sport`, `dirt`, `standard`, `scooter`, `moped`, `trike`. Motorcycle context. |
+| `displacement_min` / `displacement_max` | integer | — | yes | Inclusive engine-displacement range in cc, applied against `engine_displacement_cc`. Motorcycle context. |
+| `wheel_count` | integer[] | yes | — | Wheel counts to include (`2` motorcycle/scooter, `3` trike). Motorcycle context. |
+| `final_drive` | string[] | yes | — | Motorcycle final-drive types (e.g. `chain`, `belt`, `shaft`). Motorcycle context. |
 | `exterior_color` | string[] | yes | — | Free-text colors. |
-| `interior_color` | string[] | yes | — | Free-text colors. |
+| `interior_color` | string[] | yes | — | Free-text colors (automobile context). |
 | `rooftops` | string[] | yes | — | Rooftop names to include, matching `Vehicle.rooftop` and the rooftop `name` from [`dealer.information`](./dealer-information.md). For multi-rooftop dealerships; omit to search across all rooftops. |
 | `year_min` / `year_max` | integer | — | yes | Inclusive year range. |
 | `price_min` / `price_max` | integer | — | yes | Inclusive price range, in whole US dollars. **Applied against the FTC-final `price` field.** See [Pricing and FTC compliance](../pricing-and-ftc.md). |
@@ -107,7 +114,7 @@ AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi
 | `data.vehicles[]` | `Vehicle[]` | yes | Listings in the requested order. |
 | `data.facets` | `Facets` | no | OPTIONAL embedded aggregation over the matching set. |
 
-Each `Vehicle` MAY include `dealer_id`, `vehicle_id`, `vin`, `stock`, `year`, `make`, `model`, `trim`, `condition` (`new` | `used` | `cpo` for inventory contexts), `rooftop`, `body`, `transmission`, `mileage`, `msrp`, `list_price`, `price`, and `status`. The unified Vehicle schema declares all of these as optional and `additionalProperties: true`, so inventory responses MAY also include rich fields like `photos`, `vdp_url`, `driveline`, `engine`, `fuel`, `city_mpg`, `highway_mpg`, `electric_range_mi`, `exterior_color`, `interior_color`, `features`, `description`, `notes`, `inventory_date`, and `updated_at`. `updated_at` MUST be present whenever the dealer is making availability claims — see [Behavior rules](../behavior-rules.md). Vehicle `status` is **REQUIRED** on inventory listings and is a controlled enum: exactly `available` | `intransit` | `pending`. Only these three statuses appear in inventory feeds; a vehicle in any other state is OUT OF STOCK and MUST be omitted by the dealer (and ignored by the buyer if encountered).
+Each `Vehicle` MAY include `dealer_id`, `vehicle_id`, `vin`, `stock`, `year`, `make`, `model`, `trim`, `condition` (`new` | `used` | `cpo` for inventory contexts), `inventory_class` (`automobile` | `motorcycle`, defaulting to `automobile` when absent), `rooftop`, `body`, `transmission`, `mileage`, `msrp`, `list_price`, `price`, and `status`. The unified Vehicle schema declares all of these as optional and `additionalProperties: true`, so inventory responses MAY also include rich fields like `photos`, `vdp_url`, `driveline`, `engine`, `fuel`, `city_mpg`, `highway_mpg`, `electric_range_mi`, `exterior_color`, `interior_color`, `features`, `description`, `notes`, `inventory_date`, and `updated_at`. Motorcycle listings (`inventory_class: "motorcycle"`) carry the powersports fields `motorcycle_category`, `engine_displacement_cc`, `engine_stroke`, `wheel_count`, `final_drive`, and `abs` instead of the automobile-only `body`, `driveline`, `interior_color`, and MPG fields. `updated_at` MUST be present whenever the dealer is making availability claims — see [Behavior rules](../behavior-rules.md). Vehicle `status` is **REQUIRED** on inventory listings and is a controlled enum: exactly `available` | `intransit` | `pending`. Only these three statuses appear in inventory feeds; a vehicle in any other state is OUT OF STOCK and MUST be omitted by the dealer (and ignored by the buyer if encountered).
 
 ## Full example
 
@@ -192,6 +199,53 @@ A buyer agent searches for certified or used Hondas from 2020 onward, under $30,
 ```
 
 Note that vehicle 2 has only `stock` and `vehicle_id` (no VIN yet, since it is in transit), and its `status` is the enum value `intransit`. Both listings include `updated_at`.
+
+## Motorcycle search
+
+Searching a powersports dealer uses the same skill with `inventory_class: ["motorcycle"]` plus the motorcycle filters (`motorcycle_category`, `displacement_min` / `displacement_max`, `wheel_count`, `final_drive`).
+
+```json
+{
+  "type": "inventory.search.request",
+  "filters": {
+    "inventory_class": ["motorcycle"],
+    "make": ["Acme Moto"],
+    "condition": ["new"],
+    "motorcycle_category": ["cruiser", "touring"],
+    "displacement_min": 1200,
+    "wheel_count": [2],
+    "final_drive": ["belt"],
+    "price_max": 30000
+  },
+  "pagination": { "skip": 0, "limit": 25 },
+  "sort": { "field": "price", "order": "asc" },
+  "privacy": { "anonymous": true }
+}
+```
+
+Each returned `Vehicle` carries `inventory_class: "motorcycle"` and the powersports fields (`motorcycle_category`, `engine_displacement_cc`, `wheel_count`, `final_drive`, `abs`) in place of the automobile-only `body`, `driveline`, `interior_color`, and MPG fields.
+
+### Electric motorcycles
+
+Electric motorcycles have no displacement, so shoppers compare them on range, battery, and charging instead. Combine `inventory_class` and `fuel` with the generic electric filters `range_min` / `range_max` and `dc_fast_charge`:
+
+```json
+{
+  "type": "inventory.search.request",
+  "filters": {
+    "inventory_class": ["motorcycle"],
+    "make": ["Acme Moto"],
+    "fuel": ["bev"],
+    "range_min": 100,
+    "price_max": 15000
+  },
+  "pagination": { "skip": 0, "limit": 25 },
+  "sort": { "field": "price", "order": "asc" },
+  "privacy": { "anonymous": true }
+}
+```
+
+Returned electric units carry the generic electric-powertrain group (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `accel_0_60_mph_s`, `charge_time_min`, `dc_fast_charge`) and omit combustion fields like `engine_displacement_cc`. These same electric fields apply to electric cars.
 
 ## Sort considerations
 

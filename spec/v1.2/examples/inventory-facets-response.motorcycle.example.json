@@ -1,0 +1,79 @@
+{
+  "type": "inventory.facets.response",
+  "data": {
+    "makes": [
+      { "value": "Acme Moto", "count": 62 },
+      { "value": "Meridian", "count": 38 },
+      { "value": "Summit Cycles", "count": 27 },
+      { "value": "Kestrel", "count": 21 },
+      { "value": "Northwind", "count": 14 },
+      { "value": "Volt Moto", "count": 6 }
+    ],
+    "models": [
+      { "value": "Grand Tourer", "count": 12 },
+      { "value": "Classic Cruiser", "count": 9 },
+      { "value": "Cruiser 1100", "count": 8 },
+      { "value": "Roadster 700", "count": 7 },
+      { "value": "Sport 650", "count": 6 }
+    ],
+    "years": [
+      { "value": 2025, "count": 41 },
+      { "value": 2024, "count": 58 },
+      { "value": 2023, "count": 39 },
+      { "value": 2022, "count": 18 }
+    ],
+    "conditions": [
+      { "value": "new", "count": 96 },
+      { "value": "used", "count": 62 },
+      { "value": "cpo", "count": 10 }
+    ],
+    "inventory_classes": [
+      { "value": "motorcycle", "count": 168 }
+    ],
+    "motorcycle_categories": [
+      { "value": "cruiser", "count": 58 },
+      { "value": "touring", "count": 34 },
+      { "value": "sport", "count": 29 },
+      { "value": "adventure", "count": 22 },
+      { "value": "standard", "count": 15 },
+      { "value": "dual_sport", "count": 6 },
+      { "value": "scooter", "count": 4 }
+    ],
+    "wheel_counts": [
+      { "value": 2, "count": 162 },
+      { "value": 3, "count": 6 }
+    ],
+    "final_drives": [
+      { "value": "belt", "count": 78 },
+      { "value": "chain", "count": 74 },
+      { "value": "shaft", "count": 16 }
+    ],
+    "transmissions": [
+      { "value": "manual", "count": 150 },
+      { "value": "automatic", "count": 12 },
+      { "value": "dct", "count": 6 }
+    ],
+    "fuels": [
+      { "value": "gas", "count": 162 },
+      { "value": "bev", "count": 6 }
+    ],
+    "exterior_colors": [
+      { "value": "Gloss Black", "count": 44 },
+      { "value": "Classic Red", "count": 18 },
+      { "value": "Racing Blue", "count": 12 }
+    ],
+    "rooftops": [
+      { "value": "Demo Powersports San Jose", "count": 168 }
+    ],
+    "statuses": [
+      { "value": "available", "count": 141 },
+      { "value": "intransit", "count": 19 },
+      { "value": "pending", "count": 8 }
+    ],
+    "price_range": { "min": 4499, "max": 32999 },
+    "mileage_range": { "min": 0, "max": 38400 },
+    "year_range": { "min": 2019, "max": 2025 },
+    "displacement_range": { "min": 300, "max": 1868 }
+  },
+  "message": "Facets aggregated over 168 active motorcycle listings, refreshed every 15 minutes."
+}
