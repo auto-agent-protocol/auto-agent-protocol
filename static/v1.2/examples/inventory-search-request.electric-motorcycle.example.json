@@ -1,0 +1,14 @@
+{
+  "type": "inventory.search.request",
+  "filters": {
+    "inventory_class": ["motorcycle"],
+    "make": ["Acme Moto"],
+    "fuel": ["bev"],
+    "condition": ["new"],
+    "range_min": 100,
+    "price_max": 15000
+  },
+  "pagination": { "skip": 0, "limit": 25 },
+  "sort": { "field": "price", "order": "asc" },
+  "privacy": { "anonymous": true }
+}
