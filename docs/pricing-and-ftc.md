@@ -6,7 +6,7 @@ description: The three pricing fields (msrp, list_price, price), what each one m
 
 # Pricing and FTC compliance
 
-![Vehicle pricing ladder from msrp to the FTC-final price](/img/v1.1/pricing-ladder.png)
+![Vehicle pricing ladder from msrp to the FTC-final price](/img/v1.2/pricing-ladder.png)
 
 AAP standardizes three explicit pricing fields on every vehicle. The single most important rule:
 

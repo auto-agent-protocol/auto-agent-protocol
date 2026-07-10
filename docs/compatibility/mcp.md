@@ -6,11 +6,11 @@ description: How AAP skills map to Model Context Protocol tools so an LLM client
 
 # MCP compatibility
 
-![MCP server wrapping all 5 AAP skills as MCP tools, sitting between an LLM client and the dealer agent](/img/v1.1/mcp-wrapper.png)
+![MCP server wrapping all 5 AAP skills as MCP tools, sitting between an LLM client and the dealer agent](/img/v1.2/mcp-wrapper.png)
 
 [Model Context Protocol](https://modelcontextprotocol.io) (MCP) is a tool layer between an LLM client and a host application. AAP exposes its five skills as MCP tools so any MCP-compatible LLM client (Claude Desktop, an MCP-aware IDE, or a custom orchestrator) can call a dealer agent without learning the A2A wire format directly.
 
-The MCP server acts as a thin adapter: it accepts an MCP `tools/call` request whose `arguments` is exactly an AAP request payload, wraps it as a typed `DataPart` inside an A2A `Message`, and forwards it to the dealer agent's A2A endpoint with a single `SendMessage` call — the only A2A operation AAP uses (request `Message` in, response `Message` out; streaming, tasks, and push notifications are out of scope for AAP v1.1). The MCP tool's `inputSchema` is the AAP request schema by URL — no extra wrapping, no field renaming.
+The MCP server acts as a thin adapter: it accepts an MCP `tools/call` request whose `arguments` is exactly an AAP request payload, wraps it as a typed `DataPart` inside an A2A `Message`, and forwards it to the dealer agent's A2A endpoint with a single `SendMessage` call — the only A2A operation AAP uses (request `Message` in, response `Message` out; streaming, tasks, and push notifications are out of scope for AAP v1.2). The MCP tool's `inputSchema` is the AAP request schema by URL — no extra wrapping, no field renaming.
 
 ## Tool naming
 
@@ -20,7 +20,7 @@ Each AAP skill maps to one MCP tool. The tool name pattern is:
 aap_<skill_id_with_underscores>
 ```
 
-Dots become underscores. The mapping is fixed for v1.1:
+Dots become underscores. The mapping is fixed for v1.2:
 
 | AAP skill id | MCP tool name |
 |---|---|
@@ -48,7 +48,7 @@ A complete MCP server descriptor that exposes all five AAP skills as tools:
 ```json
 {
   "name": "auto-agent-protocol",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "MCP server descriptor that exposes Auto Agent Protocol automotive skills as MCP tools. Each tool's input matches the corresponding AAP request schema; the wrapper invokes the dealer's A2A endpoint with the same payload as a typed DataPart.",
   "protocolVersion": "2025-06-18",
   "tools": [
@@ -56,72 +56,72 @@ A complete MCP server descriptor that exposes all five AAP skills as tools:
       "name": "aap_dealer_information",
       "description": "Return the dealership profile — group name, welcome message, and one or more rooftops (locations) with their address, geo, contacts, business hours, timezone, and service capabilities.",
       "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v1.1/schemas/dealer-information-request.schema.json"
+        "$ref": "https://autoagentprotocol.org/v1.2/schemas/dealer-information-request.schema.json"
       },
       "annotations": {
         "aap_skill_id": "dealer.information",
         "aap_request_type": "dealer.information.request",
         "aap_response_type": "dealer.information.response",
-        "aap_response_schema": "https://autoagentprotocol.org/v1.1/schemas/dealer-information-response.schema.json"
+        "aap_response_schema": "https://autoagentprotocol.org/v1.2/schemas/dealer-information-response.schema.json"
       }
     },
     {
       "name": "aap_inventory_facets",
       "description": "Return searchable inventory facets such as makes, models, years, conditions, body styles, price ranges, mileage ranges, drivetrain, fuel type, and statuses.",
       "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v1.1/schemas/inventory-facets-request.schema.json"
+        "$ref": "https://autoagentprotocol.org/v1.2/schemas/inventory-facets-request.schema.json"
       },
       "annotations": {
         "aap_skill_id": "inventory.facets",
         "aap_request_type": "inventory.facets.request",
         "aap_response_type": "inventory.facets.response",
-        "aap_response_schema": "https://autoagentprotocol.org/v1.1/schemas/inventory-facets-response.schema.json"
+        "aap_response_schema": "https://autoagentprotocol.org/v1.2/schemas/inventory-facets-response.schema.json"
       }
     },
     {
       "name": "aap_inventory_search",
       "description": "Search vehicle inventory by query, make, model, trim, year, condition, price, mileage, body style, VIN, stock, features, and availability.",
       "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v1.1/schemas/inventory-search-request.schema.json"
+        "$ref": "https://autoagentprotocol.org/v1.2/schemas/inventory-search-request.schema.json"
       },
       "annotations": {
         "aap_skill_id": "inventory.search",
         "aap_request_type": "inventory.search.request",
         "aap_response_type": "inventory.search.response",
-        "aap_response_schema": "https://autoagentprotocol.org/v1.1/schemas/inventory-search-response.schema.json"
+        "aap_response_schema": "https://autoagentprotocol.org/v1.2/schemas/inventory-search-response.schema.json"
       }
     },
     {
       "name": "aap_inventory_vehicle",
       "description": "Return details for a specific vehicle by VIN, stock number, or vehicle_id, including status, pricing disclosure, photos, mileage, trim, features, fuel economy, and dealer page URL.",
       "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v1.1/schemas/vehicle-detail-request.schema.json"
+        "$ref": "https://autoagentprotocol.org/v1.2/schemas/vehicle-detail-request.schema.json"
       },
       "annotations": {
         "aap_skill_id": "inventory.vehicle",
         "aap_request_type": "inventory.vehicle.request",
         "aap_response_type": "inventory.vehicle.response",
-        "aap_response_schema": "https://autoagentprotocol.org/v1.1/schemas/vehicle-detail-response.schema.json"
+        "aap_response_schema": "https://autoagentprotocol.org/v1.2/schemas/vehicle-detail-response.schema.json"
       }
     },
     {
       "name": "aap_lead_submit",
       "description": "Submit a consented lead carrying customer info plus any combination of vehicle of interest, trade-in, and appointment request — a single unified contract that matches how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).",
       "inputSchema": {
-        "$ref": "https://autoagentprotocol.org/v1.1/schemas/lead-submit-request.schema.json"
+        "$ref": "https://autoagentprotocol.org/v1.2/schemas/lead-submit-request.schema.json"
       },
       "annotations": {
         "aap_skill_id": "lead.submit",
         "aap_request_type": "lead.submit.request",
         "aap_response_type": "lead.submit.response",
-        "aap_response_schema": "https://autoagentprotocol.org/v1.1/schemas/lead-submit-response.schema.json"
+        "aap_response_schema": "https://autoagentprotocol.org/v1.2/schemas/lead-submit-response.schema.json"
       }
     }
   ]
 }
 ```
 
-A reference manifest is generated from `spec/v1.1/skills.yaml` at build time and published as `generated/v1.1/mcp.json`.
+A reference manifest is generated from `spec/v1.2/skills.yaml` at build time and published as `generated/v1.2/mcp.json`.
 
 ## Calling a tool
 
@@ -158,4 +158,4 @@ The MCP server forwards `arguments` as the AAP `DataPart.data` to the dealer's A
 - The MCP `inputSchema` `$ref` points at the AAP schema by URL, so an LLM with schema-following tool use can plan calls against the same source of truth as a hand-written A2A client.
 - The MCP server is stateless adapter glue; all business logic — auth, consent enforcement, inventory accuracy — stays in the dealer agent behind A2A.
 
-For more on MCP itself, see the [MCP specification](https://modelcontextprotocol.io). For the single A2A transport the MCP server forwards into, see the [JSON-RPC binding](../bindings/json-rpc.md) (the sole AAP v1.1 transport, exposed by every AAP agent). The [REST binding](../bindings/rest.md) was removed in v1.1.
+For more on MCP itself, see the [MCP specification](https://modelcontextprotocol.io). For the single A2A transport the MCP server forwards into, see the [JSON-RPC binding](../bindings/json-rpc.md) (the sole AAP v1.2 transport, exposed by every AAP agent). The [REST binding](../bindings/rest.md) was removed in v1.1.

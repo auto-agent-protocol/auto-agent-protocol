@@ -17,7 +17,7 @@ function Hero() {
             <div className={styles.buttons}>
               <Link
                 className="button button--secondary button--lg"
-                to="/docs/v1.1/intro"
+                to="/docs/v1.2/intro"
               >
                 Read the Spec
               </Link>
@@ -31,7 +31,7 @@ function Hero() {
           </div>
           <div className={styles.heroImage}>
             <img
-              src="/img/v1.1/hero.png"
+              src="/img/v1.2/hero.png"
               alt="A buyer agent and a dealership digital storefront connected by typed AAP messages"
               width="1376"
               height="768"
@@ -110,13 +110,13 @@ function Skills() {
               checkout, no payment scope. Just the read-and-lead lifecycle,
               typed and validated.
             </p>
-            <Link to="/docs/v1.1/intro" className="button button--primary">
+            <Link to="/docs/v1.2/intro" className="button button--primary">
               Browse the skills
             </Link>
           </div>
           <div className="col col--7">
             <img
-              src="/img/v1.1/skills-overview.png"
+              src="/img/v1.2/skills-overview.png"
               alt="Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit"
               className={styles.fullImage}
               width="1376"
@@ -138,7 +138,7 @@ function Pricing() {
         <div className="row">
           <div className="col col--7">
             <img
-              src="/img/v1.1/pricing-ladder.png"
+              src="/img/v1.2/pricing-ladder.png"
               alt="Vehicle pricing ladder: msrp, list_price, and the FTC-final price"
               className={styles.fullImage}
               width="1376"
@@ -157,7 +157,7 @@ function Pricing() {
               <code>list_price</code> sit beside it, so AI agents can give honest
               answers, in line with the FTC's push against hidden fees and bait pricing.
             </p>
-            <Link to="/docs/v1.1/pricing-and-ftc" className="button button--primary">
+            <Link to="/docs/v1.2/pricing-and-ftc" className="button button--primary">
               Read the pricing semantics
             </Link>
           </div>
@@ -216,24 +216,24 @@ const specStructuredData = {
   "@context": "https://schema.org",
   "@type": "APIReference",
   "@id": "https://autoagentprotocol.org/#spec",
-  name: "Auto Agent Protocol (AAP) v1.1 Specification",
+  name: "Auto Agent Protocol (AAP) v1.2 Specification",
   headline:
     "Auto Agent Protocol — an open A2A v1.0 profile for automotive retail",
-  url: "https://autoagentprotocol.org/docs/v1.1/intro",
+  url: "https://autoagentprotocol.org/docs/v1.2/intro",
   description:
     "AAP defines five A2A skills — dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit — carried over A2A SendMessage on JSON-RPC 2.0, with discovery via /.well-known/agent-card.json.",
   abstract:
     "Open standard letting AI buyer-agents discover a dealership, browse real inventory, and submit consented leads.",
   articleSection: "Specification",
   inLanguage: "en",
-  version: "1.1.0",
+  version: "1.2.0",
   keywords:
     "Auto Agent Protocol, AAP, A2A, Agent2Agent, JSON-RPC, agent card, automotive inventory, dealership AI, consented leads, agentic commerce",
   isBasedOn: "https://a2a-protocol.org/latest/specification/",
   isPartOf: { "@id": "https://autoagentprotocol.org/#website" },
   author: { "@id": "https://autoagentprotocol.org/#organization" },
   publisher: { "@id": "https://autoagentprotocol.org/#organization" },
-  image: "https://autoagentprotocol.org/img/v1.1/aap-hero-banner.png",
+  image: "https://autoagentprotocol.org/img/v1.2/aap-hero-banner.png",
   license: "https://www.apache.org/licenses/LICENSE-2.0",
   workExample: [
     {
@@ -241,13 +241,13 @@ const specStructuredData = {
       name: "AAP JSON-RPC OpenAPI",
       codeRepository:
         "https://github.com/auto-agent-protocol/auto-agent-protocol",
-      url: "https://autoagentprotocol.org/v1.1/openapi-jsonrpc.yaml",
+      url: "https://autoagentprotocol.org/v1.2/openapi-jsonrpc.yaml",
       programmingLanguage: "OpenAPI",
     },
     {
       "@type": "SoftwareSourceCode",
       name: "AAP MCP manifest",
-      url: "https://autoagentprotocol.org/v1.1/mcp.json",
+      url: "https://autoagentprotocol.org/v1.2/mcp.json",
       programmingLanguage: "JSON",
     },
   ],
