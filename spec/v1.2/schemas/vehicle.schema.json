@@ -163,7 +163,7 @@
     },
     "transmission": {
       "type": "string",
-      "description": "Transmission type as text. Automobiles use e.g. 'automatic', 'manual', '8-speed automatic', 'cvt'; motorcycles use e.g. 'manual', 'automatic', 'dct', 'semi-automatic'.",
+      "description": "Transmission type as text. Cars use e.g. 'automatic', 'manual', '8-speed automatic', 'cvt'; motorcycles use e.g. 'manual', 'automatic', 'dct', 'semi-automatic'.",
       "examples": ["automatic", "cvt", "manual"]
     },
     "driveline": {
