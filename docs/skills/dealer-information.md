@@ -98,7 +98,7 @@ The response wraps a `DealerInformation` object inside the standard AAP response
 | `rooftop.schedules[]` | object[] | no | Named weekly hours; each entry is `{ name, value }` where `value` maps each weekday to `{ open, close }` (24h `HH:MM`) or `null` when closed. |
 | `rooftop.timezone` | string | no | IANA timezone identifier (e.g. `America/Los_Angeles`). |
 | `rooftop.notes` | string | no | Free-text notes (e.g. "closed major holidays"). |
-| `rooftop.capabilities[]` | string[] | no | Service capabilities, e.g. `sales`, `service`, `parts`, `financing`, `trade_in`, `delivery`. |
+| `rooftop.capabilities[]` | string[] | no | Service capabilities, e.g. `sales`, `service`, `parts`, `financing`, `trade_in`, `delivery`. Rooftops MAY also advertise which inventory classes they sell with tags such as `motorcycle_sales` or `powersports`, so buyer agents know a rooftop's inventory classes before searching. |
 
 ## Full example
 

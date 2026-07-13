@@ -56,10 +56,7 @@ When `filters` is absent, facets are aggregated over the dealer's entire invento
     "fuels":                 [{ "value": "string", "count": 0 }],
     "drivelines":            [{ "value": "string", "count": 0 }],
     "bodies":                [{ "value": "string", "count": 0 }],
-    "inventory_classes":     [{ "value": "automobile | motorcycle", "count": 0 }],
-    "motorcycle_categories": [{ "value": "string", "count": 0 }],
-    "wheel_counts":          [{ "value": 0,        "count": 0 }],
-    "final_drives":          [{ "value": "string", "count": 0 }],
+    "vehicle_types":         [{ "value": "car | motorcycle | trailer | rv | other", "count": 0 }],
     "exterior_colors":       [{ "value": "string", "count": 0 }],
     "interior_colors":       [{ "value": "string", "count": 0 }],
     "rooftops":              [{ "value": "string", "count": 0 }],
@@ -74,7 +71,7 @@ When `filters` is absent, facets are aggregated over the dealer's entire invento
 
 Each facet array entry is `{ value, count }` where `value` is the facet term (string or integer) and `count` is the number of matching listings. The `statuses` facet's `value` is drawn from the controlled vehicle status enum — `available`, `intransit`, or `pending` — since those are the only statuses that appear in inventory feeds. The `*_range` fields are `{ min, max }` numeric ranges (`price_range` in whole US dollars, `displacement_range` in cc).
 
-Powersports dealers additionally return `inventory_classes` (`automobile` | `motorcycle`), `motorcycle_categories`, `wheel_counts`, `final_drives`, and `displacement_range`, matching the motorcycle filters on [`inventory.search`](./inventory-search.md). A dealer omits any facet key for which it has no inventory.
+Powersports dealers additionally return `vehicle_types` (`car` | `motorcycle` | `trailer` | `rv` | `other`), `bodies` (which for motorcycles carry segments like `cruiser`/`touring`), and `displacement_range`, matching the filters on [`inventory.search`](./inventory-search.md). A dealer omits any facet key for which it has no inventory.
 
 `price_range` aggregates the FTC-final `price` field (see [Pricing and FTC compliance](../pricing-and-ftc.md)).
 

@@ -8,7 +8,7 @@ description: What the Auto Agent Protocol is, what it standardizes, and how to c
 
 ![Buyer agent and dealership digital storefront connected by typed AAP messages](/img/v1.2/network-overview.png)
 
-**The Auto Agent Protocol (AAP) lets AI assistants shop at car and motorcycle dealerships.** People increasingly ask an AI assistant to find their next car or motorcycle. AAP is the free, open standard that lets any of those assistants find a dealership, browse its real inventory, and — with the customer's clear permission — send the dealership a sales lead. Inventory listings carry an optional `inventory_class` (`automobile` or `motorcycle`) so a single vocabulary covers both automotive and powersports retail, including electric models via a generic electric-powertrain field group. For a dealership, joining in means publishing **one small file on your own website** and answering a few well-defined questions; no app store, no middleman, no per-partner integration work.
+**The Auto Agent Protocol (AAP) lets AI assistants shop at car and motorcycle dealerships.** People increasingly ask an AI assistant to find their next car or motorcycle. AAP is the free, open standard that lets any of those assistants find a dealership, browse its real inventory, and — with the customer's clear permission — send the dealership a sales lead. Inventory listings carry an optional `vehicle_type` (`car`, `motorcycle`, `trailer`, `rv`, `other`; absent = `car`) so a single vocabulary covers both automotive and powersports retail, including electric models via a generic electric-powertrain field group. For a dealership, joining in means publishing **one small file on your own website** and answering a few well-defined questions; no app store, no middleman, no per-partner integration work.
 
 ![Dealers go live in three steps: publish the agent card, serve the skills, receive consented leads](/img/v1.2/dealer-onboarding.png)
 
@@ -32,7 +32,7 @@ AAP v1.2 defines a **vocabulary** of five standard skill IDs that cover the read
 |---|---|
 | `dealer.information` | Dealership profile, rooftops, hours, contact channels, capabilities |
 | `inventory.facets` | Aggregated counts and ranges over the dealer's inventory |
-| `inventory.search` | Filtered, paginated inventory queries (automobiles and motorcycles) |
+| `inventory.search` | Filtered, paginated inventory queries (cars and motorcycles) |
 | `inventory.vehicle` | Detail view of one specific vehicle or motorcycle (by VIN, stock, or vehicle_id) |
 | `lead.submit` | Unified consented lead carrying customer info plus optional vehicle of interest, trade-in, and appointment |
 

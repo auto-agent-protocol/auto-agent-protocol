@@ -6,7 +6,7 @@ description: SemVer policy. Released versions are immutable, "latest" aliases th
 
 # Versioning
 
-![Versioning timeline: v0.1 (frozen), v0.2 (frozen), v1.0.0 (current), with the latest arrow pointing at the highest released version](/img/v1.2/versioning-timeline.png)
+![Versioning timeline: v0.1 (frozen), v0.2 (frozen), v1.0 (frozen), v1.1 (frozen), v1.2 (current), with the latest arrow pointing at the highest released version](/img/v1.2/versioning-timeline.png)
 
 ![One URI pins everything: the agent-card extension URI determines schemas, skill contracts, error vocabulary, and pricing/consent rules](/img/v1.2/discovery-versioning-pair.png)
 
@@ -27,7 +27,7 @@ Each released version of AAP has a major.minor version number (v0.1, v0.2, v1.0,
 | Changing the agent-card extension URI (e.g. `extensions/aap/v1.2` -> `.../v2.0`) | minor or major |
 | Documentation-only correction with no schema change | patch |
 
-The table above is the policy in force now that AAP has reached 1.0.0. **During the pre-1.0 (`0.x`) series, a minor bump was allowed to carry breaking changes** — per SemVer's 0.x allowance. v0.2 was exactly such a bump: it removed and renamed fields, flattened prices to integers, narrowed `status` to an enum, and dropped the separate contract manifest, all relative to v0.1. AAP v1.0.0 was the first stable release: its payload shape is the one introduced in v0.2, unchanged, riding A2A v1.0. AAP v1.2 is the current release; it dropped the optional HTTP+JSON (REST) binding, leaving JSON-RPC 2.0 as the single transport. Pin to the exact version a dealer advertises.
+The table above is the policy in force now that AAP has reached 1.0.0. **During the pre-1.0 (`0.x`) series, a minor bump was allowed to carry breaking changes** — per SemVer's 0.x allowance. v0.2 was exactly such a bump: it removed and renamed fields, flattened prices to integers, narrowed `status` to an enum, and dropped the separate contract manifest, all relative to v0.1. AAP v1.0.0 was the first stable release: its payload shape is the one introduced in v0.2, unchanged, riding A2A v1.0. AAP v1.1 dropped the optional HTTP+JSON (REST) binding, leaving JSON-RPC 2.0 as the single transport. AAP v1.2 is the current release; it is fully additive over v1.1 — it adds multi-class inventory via the optional `vehicle_type` discriminator (`car`, `motorcycle`, `trailer`, `rv`, `other`) plus generic electric-powertrain fields, while keeping the v1.0 payload shape and the JSON-RPC-only transport inherited from v1.1. Pin to the exact version a dealer advertises.
 
 The AAP version lives in exactly one place on the wire: the agent-card extension URI (e.g. `https://autoagentprotocol.org/extensions/aap/v1.2`) and the schema `$id` URLs (`https://autoagentprotocol.org/v1.2/schemas/...`). Per-message `data.type` and `mediaType` are intentionally version-free; the dealer's agent-card pins the active version once per session.
 

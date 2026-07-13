@@ -60,9 +60,9 @@ The response wraps a `Vehicle` object — a `Vehicle` plus arbitrary additional 
 
 `data` SHOULD include `vin` or `stock` (recommended for any availability claim) and the identification fields `year`, `make`, `model` to be useful. `condition` (when present) MUST be one of `new` | `used` | `cpo`. `data` MUST include `updated_at` whenever the agent is making availability claims about this listing — see [Behavior rules](../behavior-rules.md).
 
-The optional `inventory_class` field (`automobile` | `motorcycle`) scopes the class-specific detail fields; a listing without `inventory_class` is treated as `automobile`. Motorcycle detail responses (`inventory_class: "motorcycle"`) carry `motorcycle_category`, `engine_displacement_cc`, `engine_stroke`, `wheel_count`, `final_drive`, and `abs` instead of the automobile-only `body`, `driveline`, `interior_color`, `city_mpg`, and `highway_mpg`.
+The optional `vehicle_type` field (`car` | `motorcycle` | `trailer` | `rv` | `other`) scopes the type-specific detail fields; a listing without `vehicle_type` is treated as `car`. Motorcycle detail responses (`vehicle_type: "motorcycle"`) carry the class-agnostic `body`/segment, `displacement_cc`, `abs`, and any niche specs (`final_drive`, `engine_stroke`, `wheel_count`) in `other_attributes`, instead of the car-oriented `driveline`, `interior_color`, `city_mpg`, and `highway_mpg`.
 
-Electric units (BEV/PHEV, any inventory class) carry a generic electric-powertrain group: `electric_range_mi`, `battery_kwh`, `motor_power_hp`, `accel_0_60_mph_s`, `charge_time_min`, and `dc_fast_charge`. These are the same fields whether the unit is an electric car or an electric motorcycle, so combustion-only fields like `engine_displacement_cc` and `engine_stroke` are simply omitted.
+Electric units (BEV/PHEV, any vehicle type) carry a generic electric-powertrain group: `electric_range_mi`, `battery_kwh`, `motor_power_hp`, `accel_0_60_mph_s`, `charge_time_min`, and `dc_fast_charge`. These are the same fields whether the unit is an electric car or an electric motorcycle, so combustion-only fields like `displacement_cc` are simply omitted.
 
 Pricing fields:
 

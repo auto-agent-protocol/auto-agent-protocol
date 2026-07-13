@@ -5,41 +5,49 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the
 versioning policy is described in the
 [versioning docs](https://autoagentprotocol.org/docs/latest/versioning).
 
-## [1.2.0] — Unreleased
+## [1.2.0] — 2026-07-13
 
-Current working version. Additive, backward-compatible release that extends the
-profile to motorcycle / powersports inventory and adds a generic
+Additive, backward-compatible release that extends the profile to multi-class
+inventory (motorcycle / powersports and beyond) and adds a generic
 electric-powertrain field group. The transport model is unchanged from v1.1:
 JSON-RPC 2.0 remains AAP's single transport, REQUIRED on every agent card
 (gRPC and HTTP+JSON remain out of scope). Existing car integrations are
-unaffected — every new field is optional and a missing `inventory_class` is
-treated as `automobile`.
+unaffected — every new field is optional and a missing `vehicle_type` is
+treated as `car`.
 
 ### Added
-- **Motorcycle / powersports inventory support** (backward-compatible, additive):
-  the unified `Vehicle` gains an optional `inventory_class` discriminator
-  (`automobile` | `motorcycle`) plus motorcycle-specific optional fields
-  `motorcycle_category`, `engine_displacement_cc`, `engine_stroke`,
-  `wheel_count`, `final_drive`, and `abs`. When `inventory_class` is absent it
-  MUST be treated as `automobile`, so existing car integrations are unaffected.
-- **`inventory.search` motorcycle filters**: `inventory_class`,
-  `motorcycle_category`, `displacement_min` / `displacement_max`, `wheel_count`,
-  and `final_drive`.
-- **`inventory.facets` motorcycle facets**: `inventory_classes`,
-  `motorcycle_categories`, `wheel_counts`, `final_drives`, and
-  `displacement_range`.
+- **Multi-class inventory support** (backward-compatible, additive): the unified
+  `Vehicle` gains an optional `vehicle_type` discriminator
+  (`car` | `motorcycle` | `trailer` | `rv` | `other`), plus the class-agnostic
+  `body` field (now carrying motorcycle segments such as `cruiser`/`touring`
+  alongside car body styles), the generic `displacement_cc` field (combustion
+  displacement for cars and motorcycles alike), `abs`, and a free-form
+  `other_attributes` map for niche or dealer-specific specs. When `vehicle_type`
+  is absent it MUST be treated as `car`, so existing car integrations are
+  unaffected.
+- **`inventory.search` filters**: `vehicle_type`, `body` (class-agnostic), and
+  `displacement_cc_min` / `displacement_cc_max`.
+- **`inventory.facets` facets**: `vehicle_types`, `bodies` (now covering
+  motorcycle segments), and `displacement_range`.
 - **Discovery**: rooftop `capabilities` MAY advertise `motorcycle_sales` /
   `powersports`; `test_drive` appointments cover motorcycle demo rides. ADF
-  mapping folds `motorcycle_category` into `<bodystyle>`.
-- **Generic electric-powertrain fields** on `Vehicle` (any `inventory_class`,
+  mapping folds the motorcycle `body`/segment into `<bodystyle>`.
+- **Generic electric-powertrain fields** on `Vehicle` (any `vehicle_type`,
   for `fuel` `bev`/`phev`): `battery_kwh`, `motor_power_hp`,
   `accel_0_60_mph_s`, `charge_time_min`, and `dc_fast_charge`, alongside the
   existing `electric_range_mi`. These cover electric cars and electric
   motorcycles with the same fields.
 - **`inventory.search` electric filters**: `range_min` / `range_max` and
   `dc_fast_charge`.
+- **`other_attributes` escape hatch**: niche, previously-typed specs such as a
+  motorcycle's `final_drive`, `engine_stroke`, and `wheel_count` are no longer
+  first-class fields; they travel in the free-form `other_attributes` map so the
+  public contract stays lean.
 - New motorcycle and electric-motorcycle example payloads under
   `spec/v1.2/examples/`.
+- **Extension URI**: `https://autoagentprotocol.org/extensions/aap/v1.2`
+  (the only on-the-wire version signal; dealers flip this URI on their agent
+  card to advertise v1.2).
 
 ## [1.1.0] — 2026-06-25
 

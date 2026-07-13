@@ -33,19 +33,16 @@ AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi
 | `model` | string[] | yes | — | Vehicle models. |
 | `trim` | string[] | yes | — | Trim levels. |
 | `condition` | enum[] | yes | — | Subset of `["new", "used", "cpo"]`. |
-| `inventory_class` | enum[] | yes | — | Subset of `["automobile", "motorcycle"]`. Omit to search all classes; a listing without `inventory_class` is treated as `automobile`. |
+| `vehicle_type` | enum[] | yes | — | Subset of `["car", "motorcycle", "trailer", "rv", "other"]`. Omit to search all types; a listing without `vehicle_type` is treated as `car`. |
 | `transmission` | string[] | yes | — | Free-text transmission types. |
 | `fuel` | string[] | yes | — | Free-text fuel types (e.g. `gas`, `hybrid`, `bev`). |
 | `range_min` / `range_max` | integer | — | yes | Inclusive electric-range range in miles, applied against `electric_range_mi`. Generic electric filter (EV cars and electric motorcycles). |
 | `dc_fast_charge` | boolean | — | — | When true, include only units supporting DC fast charging. Generic electric filter. |
-| `driveline` | string[] | yes | — | Drivetrain layouts (automobile context). |
-| `body` | string[] | yes | — | Body types (e.g. sedan, suv). Automobile context. |
-| `motorcycle_category` | enum[] | yes | — | Motorcycle segments: subset of `cruiser`, `sport`, `touring`, `adventure`, `dual_sport`, `dirt`, `standard`, `scooter`, `moped`, `trike`. Motorcycle context. |
-| `displacement_min` / `displacement_max` | integer | — | yes | Inclusive engine-displacement range in cc, applied against `engine_displacement_cc`. Motorcycle context. |
-| `wheel_count` | integer[] | yes | — | Wheel counts to include (`2` motorcycle/scooter, `3` trike). Motorcycle context. |
-| `final_drive` | string[] | yes | — | Motorcycle final-drive types (e.g. `chain`, `belt`, `shaft`). Motorcycle context. |
+| `driveline` | string[] | yes | — | Drivetrain layouts (car context). |
+| `body` | string[] | yes | — | Body styles / segments, applicable to any `vehicle_type` (e.g. `sedan`, `suv` for cars; `cruiser`, `touring` for motorcycles). |
+| `displacement_cc_min` / `displacement_cc_max` | integer | — | yes | Inclusive engine-displacement range in cc, applied against `displacement_cc`. |
 | `exterior_color` | string[] | yes | — | Free-text colors. |
-| `interior_color` | string[] | yes | — | Free-text colors (automobile context). |
+| `interior_color` | string[] | yes | — | Free-text colors (car context). |
 | `rooftops` | string[] | yes | — | Rooftop names to include, matching `Vehicle.rooftop` and the rooftop `name` from [`dealer.information`](./dealer-information.md). For multi-rooftop dealerships; omit to search across all rooftops. |
 | `year_min` / `year_max` | integer | — | yes | Inclusive year range. |
 | `price_min` / `price_max` | integer | — | yes | Inclusive price range, in whole US dollars. **Applied against the FTC-final `price` field.** See [Pricing and FTC compliance](../pricing-and-ftc.md). |
@@ -114,7 +111,7 @@ AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi
 | `data.vehicles[]` | `Vehicle[]` | yes | Listings in the requested order. |
 | `data.facets` | `Facets` | no | OPTIONAL embedded aggregation over the matching set. |
 
-Each `Vehicle` MAY include `dealer_id`, `vehicle_id`, `vin`, `stock`, `year`, `make`, `model`, `trim`, `condition` (`new` | `used` | `cpo` for inventory contexts), `inventory_class` (`automobile` | `motorcycle`, defaulting to `automobile` when absent), `rooftop`, `body`, `transmission`, `mileage`, `msrp`, `list_price`, `price`, and `status`. The unified Vehicle schema declares all of these as optional and `additionalProperties: true`, so inventory responses MAY also include rich fields like `photos`, `vdp_url`, `driveline`, `engine`, `fuel`, `city_mpg`, `highway_mpg`, `electric_range_mi`, `exterior_color`, `interior_color`, `features`, `description`, `notes`, `inventory_date`, and `updated_at`. Motorcycle listings (`inventory_class: "motorcycle"`) carry the powersports fields `motorcycle_category`, `engine_displacement_cc`, `engine_stroke`, `wheel_count`, `final_drive`, and `abs` instead of the automobile-only `body`, `driveline`, `interior_color`, and MPG fields. `updated_at` MUST be present whenever the dealer is making availability claims — see [Behavior rules](../behavior-rules.md). Vehicle `status` is **REQUIRED** on inventory listings and is a controlled enum: exactly `available` | `intransit` | `pending`. Only these three statuses appear in inventory feeds; a vehicle in any other state is OUT OF STOCK and MUST be omitted by the dealer (and ignored by the buyer if encountered).
+Each `Vehicle` MAY include `dealer_id`, `vehicle_id`, `vin`, `stock`, `year`, `make`, `model`, `trim`, `condition` (`new` | `used` | `cpo` for inventory contexts), `vehicle_type` (`car` | `motorcycle` | `trailer` | `rv` | `other`, defaulting to `car` when absent), `rooftop`, `body`, `transmission`, `mileage`, `msrp`, `list_price`, `price`, and `status`. The unified Vehicle schema declares all of these as optional and `additionalProperties: true`, so inventory responses MAY also include rich fields like `photos`, `vdp_url`, `driveline`, `engine`, `fuel`, `city_mpg`, `highway_mpg`, `electric_range_mi`, `exterior_color`, `interior_color`, `features`, `description`, `notes`, `inventory_date`, and `updated_at`. Motorcycle listings (`vehicle_type: "motorcycle"`) carry the class-agnostic `body`/segment, `displacement_cc`, and `abs`, with niche specs (`final_drive`, `engine_stroke`, `wheel_count`) in the free-form `other_attributes` map, in place of the car-oriented `driveline`, `interior_color`, and MPG fields. `updated_at` MUST be present whenever the dealer is making availability claims — see [Behavior rules](../behavior-rules.md). Vehicle `status` is **REQUIRED** on inventory listings and is a controlled enum: exactly `available` | `intransit` | `pending`. Only these three statuses appear in inventory feeds; a vehicle in any other state is OUT OF STOCK and MUST be omitted by the dealer (and ignored by the buyer if encountered).
 
 ## Full example
 
@@ -202,19 +199,17 @@ Note that vehicle 2 has only `stock` and `vehicle_id` (no VIN yet, since it is i
 
 ## Motorcycle search
 
-Searching a powersports dealer uses the same skill with `inventory_class: ["motorcycle"]` plus the motorcycle filters (`motorcycle_category`, `displacement_min` / `displacement_max`, `wheel_count`, `final_drive`).
+Searching a powersports dealer uses the same skill with `vehicle_type: ["motorcycle"]` plus the shared filters (`body` for the motorcycle segment, `displacement_cc_min` / `displacement_cc_max`).
 
 ```json
 {
   "type": "inventory.search.request",
   "filters": {
-    "inventory_class": ["motorcycle"],
+    "vehicle_type": ["motorcycle"],
     "make": ["Acme Moto"],
     "condition": ["new"],
-    "motorcycle_category": ["cruiser", "touring"],
-    "displacement_min": 1200,
-    "wheel_count": [2],
-    "final_drive": ["belt"],
+    "body": ["cruiser", "touring"],
+    "displacement_cc_min": 1200,
     "price_max": 30000
   },
   "pagination": { "skip": 0, "limit": 25 },
@@ -223,17 +218,17 @@ Searching a powersports dealer uses the same skill with `inventory_class: ["moto
 }
 ```
 
-Each returned `Vehicle` carries `inventory_class: "motorcycle"` and the powersports fields (`motorcycle_category`, `engine_displacement_cc`, `wheel_count`, `final_drive`, `abs`) in place of the automobile-only `body`, `driveline`, `interior_color`, and MPG fields.
+Each returned `Vehicle` carries `vehicle_type: "motorcycle"` and the class-agnostic `body`/segment, `displacement_cc`, and `abs` (with niche specs such as `final_drive` or `wheel_count` in `other_attributes`) in place of the car-oriented `driveline`, `interior_color`, and MPG fields.
 
 ### Electric motorcycles
 
-Electric motorcycles have no displacement, so shoppers compare them on range, battery, and charging instead. Combine `inventory_class` and `fuel` with the generic electric filters `range_min` / `range_max` and `dc_fast_charge`:
+Electric motorcycles have no displacement, so shoppers compare them on range, battery, and charging instead. Combine `vehicle_type` and `fuel` with the generic electric filters `range_min` / `range_max` and `dc_fast_charge`:
 
 ```json
 {
   "type": "inventory.search.request",
   "filters": {
-    "inventory_class": ["motorcycle"],
+    "vehicle_type": ["motorcycle"],
     "make": ["Acme Moto"],
     "fuel": ["bev"],
     "range_min": 100,
@@ -245,7 +240,7 @@ Electric motorcycles have no displacement, so shoppers compare them on range, ba
 }
 ```
 
-Returned electric units carry the generic electric-powertrain group (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `accel_0_60_mph_s`, `charge_time_min`, `dc_fast_charge`) and omit combustion fields like `engine_displacement_cc`. These same electric fields apply to electric cars.
+Returned electric units carry the generic electric-powertrain group (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `accel_0_60_mph_s`, `charge_time_min`, `dc_fast_charge`) and omit combustion fields like `displacement_cc`. These same electric fields apply to electric cars.
 
 ## Sort considerations
 

@@ -16,7 +16,7 @@
 
 More and more car and motorcycle buyers start their search by asking an AI assistant. AAP is the free, open standard that lets any AI assistant **find your dealership, browse your real inventory, and send you a sales lead with the customer's permission** — straight into the systems you already use. You publish one small file on your own website, answer a few well-defined kinds of questions, and any AAP-capable agent can do business with you. No app store. No middleman. No per-partner integration projects.
 
-Listings carry an optional `inventory_class` (`automobile` or `motorcycle`), so the same five skills serve both automotive and powersports retail — including electric models via a generic electric-powertrain field group.
+Listings carry an optional `vehicle_type` (`car`, `motorcycle`, `trailer`, `rv`, `other`; absent = `car`), so the same five skills serve both automotive and powersports retail — including electric models via a generic electric-powertrain field group.
 
 ![Dealers go live in three steps: publish the agent card, serve the skills you choose, receive consented leads in your CRM](static/img/v1.2/dealer-onboarding.png)
 
@@ -30,10 +30,10 @@ The transport surface is deliberately minimal: every AAP agent exposes the **JSO
 
 ## v1.2 Scope
 
-v1.2 is the **current release**. It keeps the v1.0 payload shape — a single `agent-card.json` is the only file a dealer publishes, prices are plain integers, the vehicle and dealer shapes are flat, and `status` is a controlled enum — riding the released A2A v1.0 wire (`SendMessage`, `ROLE_USER`/`ROLE_AGENT`, `supportedInterfaces[]`), and drops the optional HTTP+JSON binding so JSON-RPC 2.0 is the single transport. v0.1, v0.2, and v1.0 remain published and frozen for anyone pinned to them.
+v1.2 is the **current release**. It is fully additive over v1.1: it adds multi-class inventory via the optional `vehicle_type` discriminator (`car`, `motorcycle`, `trailer`, `rv`, `other`; absent = `car`, so existing car integrations keep validating) plus generic electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `accel_0_60_mph_s`, `charge_time_min`, `dc_fast_charge`) that describe any BEV/PHEV unit. It keeps the v1.0 payload shape — a single `agent-card.json` is the only file a dealer publishes, prices are plain integers, the vehicle and dealer shapes are flat, and `status` is a controlled enum — riding the released A2A v1.0 wire (`SendMessage`, `ROLE_USER`/`ROLE_AGENT`, `supportedInterfaces[]`), and inherits the JSON-RPC-only transport from v1.1 (the optional HTTP+JSON binding was dropped in v1.1). v0.1, v0.2, v1.0 and v1.1 remain published and frozen for anyone pinned to them.
 
 - **Discovery** via `/.well-known/agent-card.json` only (A2A-compatible) — no second well-known file
-- **Inventory**: facets, search, vehicle detail — across **automobiles and motorcycles** via an optional `inventory_class` discriminator, with motorcycle fields (category, displacement, wheel count, final drive) and a generic electric-powertrain group (range, battery kWh, motor hp, 0-60, charge time, DC fast charge) for BEV/PHEV cars and motorcycles alike
+- **Inventory**: facets, search, vehicle detail — across **cars and motorcycles** via an optional `vehicle_type` discriminator, with motorcycle body/segment carried in `body`, displacement in `displacement_cc`, niche specs in a free-form `other_attributes` map, and a generic electric-powertrain group (range, battery kWh, motor hp, 0-60, charge time, DC fast charge) for BEV/PHEV cars and motorcycles alike
 - **Dealership information**: group name, welcome message, and one or more rooftops (locations) with address, geo, contacts, hours, timezone, and capabilities (including powersports tags such as `motorcycle_sales`)
 - **Leads**: a single unified `lead.submit` accepting a consented customer plus any combination of vehicle of interest, trade-in, and appointment
 - **ADF/XML mapping** documented for legacy CRM compatibility
@@ -58,7 +58,7 @@ v1.2 does **not** cover: authentication (agents are public by default; auth is l
 |---|---|
 | `dealer.information` | Dealership profile, address, hours, capabilities |
 | `inventory.facets` | Aggregated counts and ranges over the dealer's inventory |
-| `inventory.search` | Filtered, paginated inventory queries (automobiles and motorcycles) |
+| `inventory.search` | Filtered, paginated inventory queries (cars and motorcycles) |
 | `inventory.vehicle` | Detail view of one specific vehicle or motorcycle (by VIN, stock, or vehicle_id) |
 | `lead.submit` | Unified consented lead — customer + optional(vehicle of interest, trade-in, appointment) |
 
@@ -109,7 +109,7 @@ tools/                     Generators, validators, and image sources (committed)
 src/components/            FieldCard React component (committed)
 
 generated/                 Auto-generated per version: TS types, OpenAPI bundles, MCP manifest (NOT committed)
-static/v0.1/, static/v0.2/, static/v1.0/, static/v1.2/, static/latest/  Spec assets mirrored for the docs site (NOT committed)
+static/v0.1/, static/v0.2/, static/v1.0/, static/v1.1/, static/v1.2/, static/latest/  Spec assets mirrored for the docs site (NOT committed)
 build/                     Docusaurus production output (NOT committed)
 ```
 
