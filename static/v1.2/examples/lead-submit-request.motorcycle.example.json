@@ -21,30 +21,28 @@
     "scope": ["lead_submission"]
   },
   "vehicle_of_interest": {
-    "inventory_class": "motorcycle",
+    "vehicle_type": "motorcycle",
     "vin": "1AM1KRM19NB654321",
     "year": 2024,
     "make": "Acme Moto",
     "model": "Grand Tourer",
     "condition": "new",
     "stock": "M-5012",
-    "motorcycle_category": "touring",
-    "engine_displacement_cc": 1868,
-    "wheel_count": 2,
-    "final_drive": "belt",
+    "body": "touring",
+    "displacement_cc": 1868,
+    "other_attributes": { "final_drive": "belt", "wheel_count": 2 },
     "transmission": "manual",
     "price": 27480
   },
   "trade_in": {
-    "inventory_class": "motorcycle",
+    "vehicle_type": "motorcycle",
     "year": 2019,
     "make": "Meridian",
     "model": "Cruiser 500",
     "condition": "good",
-    "motorcycle_category": "cruiser",
-    "engine_displacement_cc": 471,
-    "wheel_count": 2,
-    "final_drive": "chain",
+    "body": "cruiser",
+    "displacement_cc": 471,
+    "other_attributes": { "final_drive": "chain", "wheel_count": 2 },
     "mileage": 8600
   },
   "appointment": {

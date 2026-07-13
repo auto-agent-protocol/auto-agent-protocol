@@ -19,7 +19,7 @@
     },
     "vehicle_of_interest": {
       "$ref": "./vehicle.schema.json",
-      "description": "The vehicle the buyer is interested in purchasing. Optional. May be any inventory class — set `inventory_class` to `motorcycle` and pass motorcycle fields (`motorcycle_category`, `engine_displacement_cc`, etc.) for a bike lead. Pass through whatever the customer provided (VIN alone, year+make+model, just a model name, etc.) — no individual field is required. When `condition` is set it MUST be one of `new` | `used` | `cpo`."
+      "description": "The vehicle the buyer is interested in purchasing. Optional. May be any vehicle type — set `vehicle_type` to `motorcycle` and pass motorcycle fields (`body`, `displacement_cc`, etc.) for a bike lead. Pass through whatever the customer provided (VIN alone, year+make+model, just a model name, etc.) — no individual field is required. When `condition` is set it MUST be one of `new` | `used` | `cpo`."
     },
     "trade_in": {
       "$ref": "./vehicle.schema.json",

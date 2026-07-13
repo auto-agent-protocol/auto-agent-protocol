@@ -39,12 +39,9 @@
     "conditions": { "$ref": "#/$defs/term_facet" },
     "transmissions": { "$ref": "#/$defs/term_facet" },
     "fuels": { "$ref": "#/$defs/term_facet" },
-    "drivelines": { "$ref": "#/$defs/term_facet", "description": "Automobile drivetrain-layout facets, matching `Vehicle.driveline` and `filters.driveline`." },
-    "bodies": { "$ref": "#/$defs/term_facet", "description": "Body-style facets, matching the `body` field on Vehicle and `filters.body` on InventorySearchRequest (automobile context)." },
-    "inventory_classes": { "$ref": "#/$defs/term_facet", "description": "Inventory-class facets, matching `Vehicle.inventory_class` and `filters.inventory_class` (e.g. `automobile`, `motorcycle`)." },
-    "motorcycle_categories": { "$ref": "#/$defs/term_facet", "description": "Motorcycle-category facets, matching `Vehicle.motorcycle_category` and `filters.motorcycle_category`." },
-    "wheel_counts": { "$ref": "#/$defs/term_facet", "description": "Wheel-count facets (2 or 3), matching `Vehicle.wheel_count` and `filters.wheel_count`." },
-    "final_drives": { "$ref": "#/$defs/term_facet", "description": "Motorcycle final-drive facets, matching `Vehicle.final_drive` and `filters.final_drive`." },
+    "drivelines": { "$ref": "#/$defs/term_facet", "description": "Drivetrain-layout facets, matching `Vehicle.driveline` and `filters.driveline` (car context)." },
+    "bodies": { "$ref": "#/$defs/term_facet", "description": "Body-style / segment facets, matching the `body` field on Vehicle and `filters.body` on InventorySearchRequest. Covers car body styles (e.g. 'sedan', 'suv') and motorcycle segments (e.g. 'cruiser', 'touring') alike." },
+    "vehicle_types": { "$ref": "#/$defs/term_facet", "description": "Vehicle-type facets, matching `Vehicle.vehicle_type` and `filters.vehicle_type` (e.g. `car`, `motorcycle`)." },
     "exterior_colors": { "$ref": "#/$defs/term_facet" },
     "interior_colors": { "$ref": "#/$defs/term_facet" },
     "rooftops": { "$ref": "#/$defs/term_facet", "description": "Rooftop facets — vehicle counts per dealership location, matching `Vehicle.rooftop` and `filters.rooftops`." },
@@ -52,7 +49,7 @@
     "price_range": { "$ref": "#/$defs/range_facet" },
     "mileage_range": { "$ref": "#/$defs/range_facet" },
     "year_range": { "$ref": "#/$defs/range_facet" },
-    "displacement_range": { "$ref": "#/$defs/range_facet", "description": "Engine-displacement range in cc across the matching set, matching `Vehicle.engine_displacement_cc` and `filters.displacement_min` / `filters.displacement_max` (motorcycle context)." }
+    "displacement_range": { "$ref": "#/$defs/range_facet", "description": "Engine-displacement range in cc across the matching set, matching `Vehicle.displacement_cc` and `filters.displacement_cc_min` / `filters.displacement_cc_max`." }
   },
   "additionalProperties": false
 }

@@ -26,7 +26,7 @@ skills:
 
   - id: inventory.search
     name: Inventory Search
-    description: Search vehicle inventory by query, make, model, trim, year, condition, price, mileage, body style, VIN, stock, features, and availability — across automobiles and motorcycles, including motorcycle filters such as inventory class, motorcycle category, engine displacement, wheel count, and final drive, plus electric filters such as electric range and DC fast charging.
+    description: Search vehicle inventory by query, make, model, trim, year, condition, price, mileage, body style/segment, VIN, stock, features, and availability — across cars, motorcycles, and other vehicle types, including filters such as vehicle type, body/segment, and engine displacement, plus electric filters such as electric range and DC fast charging.
     tags: [inventory, vehicles, search, cars, motorcycles, powersports, automotive]
     request_schema: inventory-search-request.schema.json
     response_schema: inventory-search-response.schema.json
@@ -37,7 +37,7 @@ skills:
 
   - id: inventory.vehicle
     name: Vehicle Detail
-    description: Return details for a specific automobile or motorcycle by VIN, stock number, or vehicle_id, including status, pricing disclosure, photos, mileage, trim, features, fuel economy or engine displacement, electric range/battery/charging for BEV and PHEV units, and dealer page URL.
+    description: Return details for a specific car or motorcycle by VIN, stock number, or vehicle_id, including status, pricing disclosure, photos, mileage, trim, features, fuel economy or engine displacement, electric range/battery/charging for BEV and PHEV units, and dealer page URL.
     tags: [inventory, vehicle, vin, stock, detail, automotive, motorcycles, powersports]
     request_schema: vehicle-detail-request.schema.json
     response_schema: vehicle-detail-response.schema.json

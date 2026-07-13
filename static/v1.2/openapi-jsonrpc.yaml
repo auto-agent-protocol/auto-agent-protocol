@@ -147,20 +147,22 @@ components:
         schema changes.
 
 
-        The optional `inventory_class` discriminator (`automobile` | `motorcycle`) scopes which fields apply.
-        Automobile-only fields (`body`, `driveline`, `interior_color`, `city_mpg`, `highway_mpg`) and motorcycle-only
-        fields (`motorcycle_category`, `engine_displacement_cc`, `engine_stroke`, `wheel_count`, `final_drive`) are all
-        optional; a listing carries the set relevant to its class. When `inventory_class` is absent it MUST be treated
-        as `automobile`, so existing car integrations remain valid unchanged.
+        The optional `vehicle_type` discriminator (`car` | `motorcycle` | `trailer` | `rv` | `other`) scopes which
+        fields apply. Most detail fields (`body`, `driveline`, `interior_color`, `city_mpg`, `highway_mpg`,
+        `displacement_cc`, `abs`, the electric-powertrain fields) are optional; a listing carries only the set relevant
+        to its type. When `vehicle_type` is absent it MUST be treated as `car`, so existing car integrations remain
+        valid unchanged; buyer agents SHOULD treat a missing `vehicle_type` as `car`. Niche or dealer-specific
+        attributes that do not warrant a first-class field (e.g. a motorcycle's `final_drive`, `engine_stroke`, or
+        `wheel_count`) travel in the free-form `other_attributes` map.
 
 
         The electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `accel_0_60_mph_s`,
-        `charge_time_min`, `dc_fast_charge`) are GENERIC across inventory classes — they describe any BEV/PHEV unit
-        whether it is an electric car or an electric motorcycle. They are all optional and populated when `fuel` is
-        `bev` or `phev`.
+        `charge_time_min`, `dc_fast_charge`) are GENERIC across vehicle types — they describe any BEV/PHEV unit whether
+        it is an electric car or an electric motorcycle. They are all optional and populated when `fuel` is `bev` or
+        `phev`.
       type: object
       examples:
-        - inventory_class: automobile
+        - vehicle_type: car
           vin: 1HGCV1F30NA123456
           year: 2024
           make: Honda
@@ -174,7 +176,7 @@ components:
           body: suv
           exterior_color: Crystal Black Pearl
           stock: H12345
-        - inventory_class: motorcycle
+        - vehicle_type: motorcycle
           vin: 1AM1KRM19NB654321
           year: 2024
           make: Acme Moto
@@ -184,16 +186,17 @@ components:
           msrp: 25999
           price: 25999
           mileage: 3
-          motorcycle_category: touring
-          engine_displacement_cc: 1868
-          engine_stroke: 4
-          wheel_count: 2
-          final_drive: belt
+          body: touring
+          displacement_cc: 1868
           abs: true
           fuel: gas
           exterior_color: Gloss Black
           stock: M54321
-        - inventory_class: motorcycle
+          other_attributes:
+            final_drive: belt
+            engine_stroke: 4
+            wheel_count: 2
+        - vehicle_type: motorcycle
           vin: 1AMSA20N4RP001234
           year: 2024
           make: Acme Moto
@@ -203,8 +206,7 @@ components:
           msrp: 11999
           price: 11999
           mileage: 2
-          motorcycle_category: standard
-          final_drive: belt
+          body: standard
           abs: true
           fuel: bev
           electric_range_mi: 113
@@ -215,25 +217,30 @@ components:
           dc_fast_charge: false
           exterior_color: Matte Black
           stock: EM-1042
+          other_attributes:
+            final_drive: belt
       properties:
-        inventory_class:
+        vehicle_type:
           type: string
           enum:
-            - automobile
+            - car
             - motorcycle
-          description: The kind of unit this listing represents. `automobile` = a car/truck/SUV; `motorcycle` = a two- or
-            three-wheeled motorcycle, scooter, or moped. This is the discriminator that scopes which of the remaining
-            fields are meaningful (see the automobile-only and motorcycle-only fields below). OPTIONAL and defaults to
-            `automobile` when absent, so existing car integrations remain valid without change. Buyer agents SHOULD
-            treat a missing `inventory_class` as `automobile`.
+            - trailer
+            - rv
+            - other
+          description: The kind of unit this listing represents. `car` = a car/truck/SUV; `motorcycle` = a two- or three-wheeled
+            motorcycle, scooter, or moped; `trailer` = a towable trailer; `rv` = a recreational vehicle / motorhome;
+            `other` = anything else the rooftop sells. This is the discriminator that scopes which of the remaining
+            fields are meaningful. OPTIONAL and defaults to `car` when absent, so existing car integrations remain valid
+            without change. Buyer agents SHOULD treat a missing `vehicle_type` as `car`.
           examples:
-            - automobile
+            - car
             - motorcycle
         vin:
           type: string
           pattern: ^[A-HJ-NPR-Z0-9]{17}$
-          description: Vehicle Identification Number (17 chars, ISO 3779). Applies to both automobiles and on-road motorcycles.
-            Optional on trade-ins; recommended on inventory listings of used vehicles.
+          description: Vehicle Identification Number (17 chars, ISO 3779). Applies to both cars and on-road motorcycles. Optional
+            on trade-ins; recommended on inventory listings of used vehicles.
           examples:
             - 1HGCV1F30NA123456
         year:
@@ -348,12 +355,14 @@ components:
             - 38450
         body:
           type: string
-          description: Body style as text (e.g. 'sedan', 'suv', 'truck', 'coupe', 'hatchback', 'wagon', 'minivan', 'convertible').
-            Automobile context (`inventory_class = automobile`); use `motorcycle_category` for motorcycles.
+          description: Body style / segment as free text, applicable to any `vehicle_type`. Cars use e.g. 'sedan', 'suv', 'truck',
+            'coupe', 'hatchback', 'wagon', 'minivan', 'convertible'; motorcycles use e.g. 'cruiser', 'sport', 'touring',
+            'sport_touring', 'adventure', 'standard', 'scooter'.
           examples:
             - suv
             - sedan
-            - truck
+            - cruiser
+            - touring
         transmission:
           type: string
           description: Transmission type as text. Automobiles use e.g. 'automatic', 'manual', '8-speed automatic', 'cvt';
@@ -364,77 +373,30 @@ components:
             - manual
         driveline:
           type: string
-          description: Drivetrain layout (e.g. 'fwd', 'rwd', 'awd', '4wd'). Automobile context (`inventory_class = automobile`);
-            for motorcycles use `final_drive` instead.
+          description: Drivetrain layout (e.g. 'fwd', 'rwd', 'awd', '4wd'). Car context.
           examples:
             - awd
             - fwd
         engine:
           type: string
-          description: Free-text engine description. Automobiles use e.g. '2.0L Turbo I4', '3.5L V6 Hybrid'; motorcycles MAY use
-            e.g. '1868cc V-twin'. For motorcycles the numeric displacement SHOULD also be provided in
-            `engine_displacement_cc`.
+          description: Free-text engine description. Cars use e.g. '2.0L Turbo I4', '3.5L V6 Hybrid'; motorcycles MAY use e.g.
+            '1868cc V-twin'. The numeric displacement SHOULD also be provided in `displacement_cc`.
           examples:
             - 1.5L Turbo I4
             - 3.5L V6 Hybrid
-        motorcycle_category:
-          type: string
-          enum:
-            - cruiser
-            - sport
-            - touring
-            - adventure
-            - dual_sport
-            - dirt
-            - standard
-            - scooter
-            - moped
-            - trike
-          description: Motorcycle segment/category. Motorcycle context only (`inventory_class = motorcycle`) — the powersports
-            analog to automobile `body`.
-          examples:
-            - cruiser
-            - sport
-            - touring
-        engine_displacement_cc:
+        displacement_cc:
           type: integer
           minimum: 0
-          description: Engine displacement in cubic centimeters (cc). Motorcycle context — the primary powertrain spec buyers
-            filter on (e.g. 883, 1250, 1868). Omit for electric motorcycles (use `electric_range_mi`).
+          description: Engine displacement in cubic centimeters (cc). Applies to any combustion vehicle_type (cars and motorcycles
+            alike) — the primary combustion powertrain spec buyers filter on (e.g. 883, 1250, 1868, 1998). Omit for
+            fully electric units (use `electric_range_mi`).
           examples:
             - 883
             - 1868
-        engine_stroke:
-          type: integer
-          enum:
-            - 2
-            - 4
-          description: "Engine stroke cycle for combustion motorcycles: `2` (two-stroke) or `4` (four-stroke). Motorcycle context
-            only."
-          examples:
-            - 4
-        wheel_count:
-          type: integer
-          enum:
-            - 2
-            - 3
-          description: "Number of wheels: `2` for a standard motorcycle/scooter, `3` for a trike or three-wheeler. Motorcycle
-            context only; automobiles omit this field."
-          examples:
-            - 2
-            - 3
-        final_drive:
-          type: string
-          description: Final drive type transferring power to the rear wheel (e.g. 'chain', 'belt', 'shaft'). Motorcycle context
-            only — the powersports analog to automobile `driveline`.
-          examples:
-            - chain
-            - belt
-            - shaft
         abs:
           type: boolean
           description: Whether the unit is equipped with an anti-lock braking system. Common buyer filter for motorcycles; MAY
-            also be used for automobiles.
+            also be used for cars.
           examples:
             - true
         fuel:
@@ -447,17 +409,15 @@ components:
         city_mpg:
           type: integer
           minimum: 0
-          description: EPA city fuel-economy estimate in miles per gallon. Primarily an automobile field (`inventory_class =
-            automobile`); for motorcycles displacement in `engine_displacement_cc` is the primary spec. Omit for fully
-            electric units (use `electric_range_mi`).
+          description: EPA city fuel-economy estimate in miles per gallon. Primarily a car field; for motorcycles displacement in
+            `displacement_cc` is the primary spec. Omit for fully electric units (use `electric_range_mi`).
           examples:
             - 28
         highway_mpg:
           type: integer
           minimum: 0
-          description: EPA highway fuel-economy estimate in miles per gallon. Primarily an automobile field (`inventory_class =
-            automobile`); for motorcycles displacement in `engine_displacement_cc` is the primary spec. Omit for fully
-            electric units (use `electric_range_mi`).
+          description: EPA highway fuel-economy estimate in miles per gallon. Primarily a car field; for motorcycles displacement
+            in `displacement_cc` is the primary spec. Omit for fully electric units (use `electric_range_mi`).
           examples:
             - 34
         electric_range_mi:
@@ -516,8 +476,7 @@ components:
             - Platinum White Pearl
         interior_color:
           type: string
-          description: Free-text interior color or upholstery name. Automobile context (`inventory_class = automobile`); typically
-            omitted for motorcycles.
+          description: Free-text interior color or upholstery name. Car context; typically omitted for motorcycles.
           examples:
             - Black Leather
             - Gray Cloth
@@ -558,6 +517,15 @@ components:
           examples:
             - Recently arrived
             - Service history available
+        other_attributes:
+          type: object
+          additionalProperties: true
+          description: Optional free-form map of niche or dealer-specific attributes that do not warrant a first-class field in
+            the public contract (e.g. motorcycle `final_drive`, `engine_stroke`, `wheel_count`, or dealer-defined
+            specs). Keys and value types are dealer-defined; buyer agents SHOULD treat unknown keys leniently.
+          examples:
+            - final_drive: belt
+              wheel_count: 2
         inventory_date:
           type: string
           format: date
@@ -576,8 +544,8 @@ components:
     VehicleDetailResponse:
       title: VehicleDetailResponse
       description: Typed AAP response for the `inventory.vehicle` skill. The `data` field is a Vehicle (v1.0 unified the
-        former Vehicle + VehicleDetail into one type) and MAY be any inventory class (`automobile` or `motorcycle`),
-        carrying the class-relevant fields (absent `inventory_class` = automobile). Because it is always an inventory
+        former Vehicle + VehicleDetail into one type) and MAY be any vehicle type (`car`, `motorcycle`, `trailer`, `rv`,
+        `other`), carrying the type-relevant fields (absent `vehicle_type` = car). Because it is always an inventory
         listing, `condition` is constrained to `new` | `used` | `cpo` and `status` (one of `available` | `intransit` |
         `pending`) is required. Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage`
         operation.
@@ -769,11 +737,10 @@ components:
           description: Consent record covering this submission. Required. `scope` MUST be ["lead_submission"].
         vehicle_of_interest:
           $ref: "#/components/schemas/Vehicle"
-          description: The vehicle the buyer is interested in purchasing. Optional. May be any inventory class — set
-            `inventory_class` to `motorcycle` and pass motorcycle fields (`motorcycle_category`,
-            `engine_displacement_cc`, etc.) for a bike lead. Pass through whatever the customer provided (VIN alone,
-            year+make+model, just a model name, etc.) — no individual field is required. When `condition` is set it MUST
-            be one of `new` | `used` | `cpo`.
+          description: The vehicle the buyer is interested in purchasing. Optional. May be any vehicle type — set `vehicle_type`
+            to `motorcycle` and pass motorcycle fields (`body`, `displacement_cc`, etc.) for a bike lead. Pass through
+            whatever the customer provided (VIN alone, year+make+model, just a model name, etc.) — no individual field
+            is required. When `condition` is set it MUST be one of `new` | `used` | `cpo`.
         trade_in:
           $ref: "#/components/schemas/Vehicle"
           description: The vehicle the buyer wants to trade in. Optional. Pass through whatever the customer provided (just a
@@ -908,8 +875,8 @@ components:
               description: Echo of the request's effective pagination.limit.
             vehicles:
               type: array
-              description: Vehicles in this page, in the requested order. Items MAY span multiple inventory classes (`automobile`,
-                `motorcycle`); each carries its own `inventory_class` (absent = automobile). Each item is a Vehicle
+              description: Vehicles in this page, in the requested order. Items MAY span multiple vehicle types (`car`, `motorcycle`,
+                `trailer`, `rv`, `other`); each carries its own `vehicle_type` (absent = car). Each item is a Vehicle
                 constrained to the sale-condition vocabulary (`new`|`used`|`cpo`) — inventory listings never carry
                 trade-in wear values — and MUST carry a `status` of `available`, `intransit`, or `pending`. Out-of-stock
                 vehicles are never returned.
@@ -1078,18 +1045,21 @@ components:
                 - - new
                 - - used
                   - cpo
-            inventory_class:
+            vehicle_type:
               type: array
               items:
                 type: string
                 enum:
-                  - automobile
+                  - car
                   - motorcycle
-              description: Inventory classes to include (e.g. ['motorcycle']). Omit to search all classes; a value absent on a listing
-                is treated as 'automobile'.
+                  - trailer
+                  - rv
+                  - other
+              description: Vehicle types to include (e.g. ['motorcycle']). Omit to search all types; a value absent on a listing is
+                treated as 'car'.
               examples:
                 - - motorcycle
-                - - automobile
+                - - car
             transmission:
               type: array
               items:
@@ -1126,69 +1096,30 @@ components:
               type: array
               items:
                 type: string
-              description: Automobile drivetrain layouts to include (e.g. ['awd']). Automobile context; for motorcycles use
-                `final_drive`.
+              description: Drivetrain layouts to include (e.g. ['awd']). Car context.
               examples:
                 - - awd
             body:
               type: array
               items:
                 type: string
-              description: Body styles to include (e.g. ['sedan','suv','truck']). Automobile context; for motorcycles use
-                `motorcycle_category`.
+              description: Body styles / segments to include, applicable to any vehicle_type (e.g. ['sedan','suv','truck'] for cars,
+                ['cruiser','touring'] for motorcycles).
               examples:
                 - - suv
-            motorcycle_category:
-              type: array
-              items:
-                type: string
-                enum:
-                  - cruiser
-                  - sport
-                  - touring
-                  - adventure
-                  - dual_sport
-                  - dirt
-                  - standard
-                  - scooter
-                  - moped
-                  - trike
-              description: Motorcycle categories to include (e.g. ['cruiser','touring']). Motorcycle context.
-              examples:
                 - - cruiser
-                - - sport
-                  - touring
-            displacement_min:
+            displacement_cc_min:
               type: integer
               minimum: 0
-              description: Minimum engine displacement in cc, applied against `engine_displacement_cc`. Motorcycle context.
+              description: Minimum engine displacement in cc, applied against `displacement_cc`.
               examples:
                 - 600
-            displacement_max:
+            displacement_cc_max:
               type: integer
               minimum: 0
-              description: Maximum engine displacement in cc, applied against `engine_displacement_cc`. Motorcycle context.
+              description: Maximum engine displacement in cc, applied against `displacement_cc`.
               examples:
                 - 1200
-            wheel_count:
-              type: array
-              items:
-                type: integer
-                enum:
-                  - 2
-                  - 3
-              description: Wheel counts to include (2 = motorcycle/scooter, 3 = trike). Motorcycle context.
-              examples:
-                - - 2
-                - - 2
-                  - 3
-            final_drive:
-              type: array
-              items:
-                type: string
-              description: Motorcycle final-drive types to include (e.g. ['chain','belt','shaft']). Motorcycle context.
-              examples:
-                - - belt
             exterior_color:
               type: array
               items:
@@ -1366,24 +1297,15 @@ components:
           $ref: "#/components/schemas/Facets/$defs/term_facet"
         drivelines:
           $ref: "#/components/schemas/Facets/$defs/term_facet"
-          description: Automobile drivetrain-layout facets, matching `Vehicle.driveline` and `filters.driveline`.
+          description: Drivetrain-layout facets, matching `Vehicle.driveline` and `filters.driveline` (car context).
         bodies:
           $ref: "#/components/schemas/Facets/$defs/term_facet"
-          description: Body-style facets, matching the `body` field on Vehicle and `filters.body` on InventorySearchRequest
-            (automobile context).
-        inventory_classes:
+          description: Body-style / segment facets, matching the `body` field on Vehicle and `filters.body` on
+            InventorySearchRequest. Covers car body styles (e.g. 'sedan', 'suv') and motorcycle segments (e.g.
+            'cruiser', 'touring') alike.
+        vehicle_types:
           $ref: "#/components/schemas/Facets/$defs/term_facet"
-          description: Inventory-class facets, matching `Vehicle.inventory_class` and `filters.inventory_class` (e.g.
-            `automobile`, `motorcycle`).
-        motorcycle_categories:
-          $ref: "#/components/schemas/Facets/$defs/term_facet"
-          description: Motorcycle-category facets, matching `Vehicle.motorcycle_category` and `filters.motorcycle_category`.
-        wheel_counts:
-          $ref: "#/components/schemas/Facets/$defs/term_facet"
-          description: Wheel-count facets (2 or 3), matching `Vehicle.wheel_count` and `filters.wheel_count`.
-        final_drives:
-          $ref: "#/components/schemas/Facets/$defs/term_facet"
-          description: Motorcycle final-drive facets, matching `Vehicle.final_drive` and `filters.final_drive`.
+          description: Vehicle-type facets, matching `Vehicle.vehicle_type` and `filters.vehicle_type` (e.g. `car`, `motorcycle`).
         exterior_colors:
           $ref: "#/components/schemas/Facets/$defs/term_facet"
         interior_colors:
@@ -1401,8 +1323,8 @@ components:
           $ref: "#/components/schemas/Facets/$defs/range_facet"
         displacement_range:
           $ref: "#/components/schemas/Facets/$defs/range_facet"
-          description: Engine-displacement range in cc across the matching set, matching `Vehicle.engine_displacement_cc` and
-            `filters.displacement_min` / `filters.displacement_max` (motorcycle context).
+          description: Engine-displacement range in cc across the matching set, matching `Vehicle.displacement_cc` and
+            `filters.displacement_cc_min` / `filters.displacement_cc_max`.
       additionalProperties: false
     Event:
       title: Event
@@ -1929,7 +1851,7 @@ components:
             - trade_in
           description: Kind of appointment the buyer is requesting. `sales` = general sales consultation, `service` =
             service/maintenance visit, `test_drive` = test drive of the `vehicle_of_interest` (also covers a motorcycle
-            demo ride when `inventory_class = motorcycle`), `trade_in` = in-person trade-in appraisal of the `trade_in`
+            demo ride when `vehicle_type = motorcycle`), `trade_in` = in-person trade-in appraisal of the `trade_in`
             vehicle.
           examples:
             - test_drive

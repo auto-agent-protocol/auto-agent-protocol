@@ -1,7 +1,7 @@
 {
   "type": "inventory.search.request",
   "filters": {
-    "inventory_class": ["motorcycle"],
+    "vehicle_type": ["motorcycle"],
     "make": ["Acme Moto"],
     "fuel": ["bev"],
     "condition": ["new"],

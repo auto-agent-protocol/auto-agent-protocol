@@ -16,7 +16,7 @@
     "appointment_type": {
       "type": "string",
       "enum": ["sales", "service", "test_drive", "trade_in"],
-      "description": "Kind of appointment the buyer is requesting. `sales` = general sales consultation, `service` = service/maintenance visit, `test_drive` = test drive of the `vehicle_of_interest` (also covers a motorcycle demo ride when `inventory_class = motorcycle`), `trade_in` = in-person trade-in appraisal of the `trade_in` vehicle.",
+      "description": "Kind of appointment the buyer is requesting. `sales` = general sales consultation, `service` = service/maintenance visit, `test_drive` = test drive of the `vehicle_of_interest` (also covers a motorcycle demo ride when `vehicle_type = motorcycle`), `trade_in` = in-person trade-in appraisal of the `trade_in` vehicle.",
       "examples": ["test_drive", "sales"]
     },
     "appointment_at": {

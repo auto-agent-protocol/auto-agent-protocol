@@ -62,17 +62,17 @@ export interface AapMessage {
  *
  * All prices are plain integers in whole US dollars (v1.0 dropped the nested {amount, currency} Money object). Context-dependent constraints are enforced at the using request/response schema. No fields are required at this base schema; `additionalProperties: true` lets inventory responses carry richer dealer-specific fields without schema changes.
  *
- * The optional `inventory_class` discriminator (`automobile` | `motorcycle`) scopes which fields apply. Automobile-only fields (`body`, `driveline`, `interior_color`, `city_mpg`, `highway_mpg`) and motorcycle-only fields (`motorcycle_category`, `engine_displacement_cc`, `engine_stroke`, `wheel_count`, `final_drive`) are all optional; a listing carries the set relevant to its class. When `inventory_class` is absent it MUST be treated as `automobile`, so existing car integrations remain valid unchanged.
+ * The optional `vehicle_type` discriminator (`car` | `motorcycle` | `trailer` | `rv` | `other`) scopes which fields apply. Most detail fields (`body`, `driveline`, `interior_color`, `city_mpg`, `highway_mpg`, `displacement_cc`, `abs`, the electric-powertrain fields) are optional; a listing carries only the set relevant to its type. When `vehicle_type` is absent it MUST be treated as `car`, so existing car integrations remain valid unchanged; buyer agents SHOULD treat a missing `vehicle_type` as `car`. Niche or dealer-specific attributes that do not warrant a first-class field (e.g. a motorcycle's `final_drive`, `engine_stroke`, or `wheel_count`) travel in the free-form `other_attributes` map.
  *
- * The electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `accel_0_60_mph_s`, `charge_time_min`, `dc_fast_charge`) are GENERIC across inventory classes — they describe any BEV/PHEV unit whether it is an electric car or an electric motorcycle. They are all optional and populated when `fuel` is `bev` or `phev`.
+ * The electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `accel_0_60_mph_s`, `charge_time_min`, `dc_fast_charge`) are GENERIC across vehicle types — they describe any BEV/PHEV unit whether it is an electric car or an electric motorcycle. They are all optional and populated when `fuel` is `bev` or `phev`.
  */
 export interface Vehicle {
   /**
-   * The kind of unit this listing represents. `automobile` = a car/truck/SUV; `motorcycle` = a two- or three-wheeled motorcycle, scooter, or moped. This is the discriminator that scopes which of the remaining fields are meaningful (see the automobile-only and motorcycle-only fields below). OPTIONAL and defaults to `automobile` when absent, so existing car integrations remain valid without change. Buyer agents SHOULD treat a missing `inventory_class` as `automobile`.
+   * The kind of unit this listing represents. `car` = a car/truck/SUV; `motorcycle` = a two- or three-wheeled motorcycle, scooter, or moped; `trailer` = a towable trailer; `rv` = a recreational vehicle / motorhome; `other` = anything else the rooftop sells. This is the discriminator that scopes which of the remaining fields are meaningful. OPTIONAL and defaults to `car` when absent, so existing car integrations remain valid without change. Buyer agents SHOULD treat a missing `vehicle_type` as `car`.
    */
-  inventory_class?: "automobile" | "motorcycle";
+  vehicle_type?: "car" | "motorcycle" | "trailer" | "rv" | "other";
   /**
-   * Vehicle Identification Number (17 chars, ISO 3779). Applies to both automobiles and on-road motorcycles. Optional on trade-ins; recommended on inventory listings of used vehicles.
+   * Vehicle Identification Number (17 chars, ISO 3779). Applies to both cars and on-road motorcycles. Optional on trade-ins; recommended on inventory listings of used vehicles.
    */
   vin?: string;
   /**
@@ -132,7 +132,7 @@ export interface Vehicle {
    */
   mileage?: number;
   /**
-   * Body style as text (e.g. 'sedan', 'suv', 'truck', 'coupe', 'hatchback', 'wagon', 'minivan', 'convertible'). Automobile context (`inventory_class = automobile`); use `motorcycle_category` for motorcycles.
+   * Body style / segment as free text, applicable to any `vehicle_type`. Cars use e.g. 'sedan', 'suv', 'truck', 'coupe', 'hatchback', 'wagon', 'minivan', 'convertible'; motorcycles use e.g. 'cruiser', 'sport', 'touring', 'sport_touring', 'adventure', 'standard', 'scooter'.
    */
   body?: string;
   /**
@@ -140,45 +140,19 @@ export interface Vehicle {
    */
   transmission?: string;
   /**
-   * Drivetrain layout (e.g. 'fwd', 'rwd', 'awd', '4wd'). Automobile context (`inventory_class = automobile`); for motorcycles use `final_drive` instead.
+   * Drivetrain layout (e.g. 'fwd', 'rwd', 'awd', '4wd'). Car context.
    */
   driveline?: string;
   /**
-   * Free-text engine description. Automobiles use e.g. '2.0L Turbo I4', '3.5L V6 Hybrid'; motorcycles MAY use e.g. '1868cc V-twin'. For motorcycles the numeric displacement SHOULD also be provided in `engine_displacement_cc`.
+   * Free-text engine description. Cars use e.g. '2.0L Turbo I4', '3.5L V6 Hybrid'; motorcycles MAY use e.g. '1868cc V-twin'. The numeric displacement SHOULD also be provided in `displacement_cc`.
    */
   engine?: string;
   /**
-   * Motorcycle segment/category. Motorcycle context only (`inventory_class = motorcycle`) — the powersports analog to automobile `body`.
+   * Engine displacement in cubic centimeters (cc). Applies to any combustion vehicle_type (cars and motorcycles alike) — the primary combustion powertrain spec buyers filter on (e.g. 883, 1250, 1868, 1998). Omit for fully electric units (use `electric_range_mi`).
    */
-  motorcycle_category?:
-    | "cruiser"
-    | "sport"
-    | "touring"
-    | "adventure"
-    | "dual_sport"
-    | "dirt"
-    | "standard"
-    | "scooter"
-    | "moped"
-    | "trike";
+  displacement_cc?: number;
   /**
-   * Engine displacement in cubic centimeters (cc). Motorcycle context — the primary powertrain spec buyers filter on (e.g. 883, 1250, 1868). Omit for electric motorcycles (use `electric_range_mi`).
-   */
-  engine_displacement_cc?: number;
-  /**
-   * Engine stroke cycle for combustion motorcycles: `2` (two-stroke) or `4` (four-stroke). Motorcycle context only.
-   */
-  engine_stroke?: 2 | 4;
-  /**
-   * Number of wheels: `2` for a standard motorcycle/scooter, `3` for a trike or three-wheeler. Motorcycle context only; automobiles omit this field.
-   */
-  wheel_count?: 2 | 3;
-  /**
-   * Final drive type transferring power to the rear wheel (e.g. 'chain', 'belt', 'shaft'). Motorcycle context only — the powersports analog to automobile `driveline`.
-   */
-  final_drive?: string;
-  /**
-   * Whether the unit is equipped with an anti-lock braking system. Common buyer filter for motorcycles; MAY also be used for automobiles.
+   * Whether the unit is equipped with an anti-lock braking system. Common buyer filter for motorcycles; MAY also be used for cars.
    */
   abs?: boolean;
   /**
@@ -186,11 +160,11 @@ export interface Vehicle {
    */
   fuel?: string;
   /**
-   * EPA city fuel-economy estimate in miles per gallon. Primarily an automobile field (`inventory_class = automobile`); for motorcycles displacement in `engine_displacement_cc` is the primary spec. Omit for fully electric units (use `electric_range_mi`).
+   * EPA city fuel-economy estimate in miles per gallon. Primarily a car field; for motorcycles displacement in `displacement_cc` is the primary spec. Omit for fully electric units (use `electric_range_mi`).
    */
   city_mpg?: number;
   /**
-   * EPA highway fuel-economy estimate in miles per gallon. Primarily an automobile field (`inventory_class = automobile`); for motorcycles displacement in `engine_displacement_cc` is the primary spec. Omit for fully electric units (use `electric_range_mi`).
+   * EPA highway fuel-economy estimate in miles per gallon. Primarily a car field; for motorcycles displacement in `displacement_cc` is the primary spec. Omit for fully electric units (use `electric_range_mi`).
    */
   highway_mpg?: number;
   /**
@@ -222,7 +196,7 @@ export interface Vehicle {
    */
   exterior_color?: string;
   /**
-   * Free-text interior color or upholstery name. Automobile context (`inventory_class = automobile`); typically omitted for motorcycles.
+   * Free-text interior color or upholstery name. Car context; typically omitted for motorcycles.
    */
   interior_color?: string;
   /**
@@ -246,6 +220,12 @@ export interface Vehicle {
    */
   notes?: string;
   /**
+   * Optional free-form map of niche or dealer-specific attributes that do not warrant a first-class field in the public contract (e.g. motorcycle `final_drive`, `engine_stroke`, `wheel_count`, or dealer-defined specs). Keys and value types are dealer-defined; buyer agents SHOULD treat unknown keys leniently.
+   */
+  other_attributes?: {
+    [k: string]: any;
+  };
+  /**
    * Date (RFC 3339 full-date, e.g. '2026-04-21') the vehicle first appeared in the dealership's inventory.
    */
   inventory_date?: string;
@@ -257,7 +237,7 @@ export interface Vehicle {
 }
 
 /**
- * Typed AAP response for the `inventory.vehicle` skill. The `data` field is a Vehicle (v1.0 unified the former Vehicle + VehicleDetail into one type) and MAY be any inventory class (`automobile` or `motorcycle`), carrying the class-relevant fields (absent `inventory_class` = automobile). Because it is always an inventory listing, `condition` is constrained to `new` | `used` | `cpo` and `status` (one of `available` | `intransit` | `pending`) is required. Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
+ * Typed AAP response for the `inventory.vehicle` skill. The `data` field is a Vehicle (v1.0 unified the former Vehicle + VehicleDetail into one type) and MAY be any vehicle type (`car`, `motorcycle`, `trailer`, `rv`, `other`), carrying the type-relevant fields (absent `vehicle_type` = car). Because it is always an inventory listing, `condition` is constrained to `new` | `used` | `cpo` and `status` (one of `available` | `intransit` | `pending`) is required. Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
  */
 export interface VehicleDetailResponse {
   type: "inventory.vehicle.response";
@@ -424,7 +404,7 @@ export interface InventorySearchResponse {
      */
     limit?: number;
     /**
-     * Vehicles in this page, in the requested order. Items MAY span multiple inventory classes (`automobile`, `motorcycle`); each carries its own `inventory_class` (absent = automobile). Each item is a Vehicle constrained to the sale-condition vocabulary (`new`|`used`|`cpo`) — inventory listings never carry trade-in wear values — and MUST carry a `status` of `available`, `intransit`, or `pending`. Out-of-stock vehicles are never returned.
+     * Vehicles in this page, in the requested order. Items MAY span multiple vehicle types (`car`, `motorcycle`, `trailer`, `rv`, `other`); each carries its own `vehicle_type` (absent = car). Each item is a Vehicle constrained to the sale-condition vocabulary (`new`|`used`|`cpo`) — inventory listings never carry trade-in wear values — and MUST carry a `status` of `available`, `intransit`, or `pending`. Out-of-stock vehicles are never returned.
      */
     vehicles: (Vehicle & {
       condition?: "new" | "used" | "cpo";
@@ -511,13 +491,10 @@ export interface Facets {
   fuels?: TermFacet;
   drivelines?: TermFacet1;
   bodies?: TermFacet2;
-  inventory_classes?: TermFacet3;
-  motorcycle_categories?: TermFacet4;
-  wheel_counts?: TermFacet5;
-  final_drives?: TermFacet6;
+  vehicle_types?: TermFacet3;
   exterior_colors?: TermFacet;
   interior_colors?: TermFacet;
-  rooftops?: TermFacet7;
+  rooftops?: TermFacet4;
   statuses?: TermFacet;
   price_range?: RangeFacet;
   mileage_range?: RangeFacet;
@@ -710,7 +687,7 @@ export interface ConsentGrant {
  */
 export interface Appointment {
   /**
-   * Kind of appointment the buyer is requesting. `sales` = general sales consultation, `service` = service/maintenance visit, `test_drive` = test drive of the `vehicle_of_interest` (also covers a motorcycle demo ride when `inventory_class = motorcycle`), `trade_in` = in-person trade-in appraisal of the `trade_in` vehicle.
+   * Kind of appointment the buyer is requesting. `sales` = general sales consultation, `service` = service/maintenance visit, `test_drive` = test drive of the `vehicle_of_interest` (also covers a motorcycle demo ride when `vehicle_type = motorcycle`), `trade_in` = in-person trade-in appraisal of the `trade_in` vehicle.
    */
   appointment_type: "sales" | "service" | "test_drive" | "trade_in";
   /**

@@ -6,7 +6,7 @@
     "limit": 25,
     "vehicles": [
       {
-        "inventory_class": "motorcycle",
+        "vehicle_type": "motorcycle",
         "dealer_id": "dealer_demo_powersports",
         "vehicle_id": "veh_dp_5012",
         "vin": "1AM1KRM19NB654321",
@@ -15,12 +15,10 @@
         "year": 2024,
         "make": "Acme Moto",
         "model": "Grand Tourer",
-        "motorcycle_category": "touring",
+        "body": "touring",
         "engine": "1868cc V-twin",
-        "engine_displacement_cc": 1868,
-        "engine_stroke": 4,
-        "wheel_count": 2,
-        "final_drive": "belt",
+        "displacement_cc": 1868,
+        "other_attributes": { "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2 },
         "transmission": "manual",
         "abs": true,
         "fuel": "gas",
@@ -41,7 +39,7 @@
         "updated_at": "2026-04-30T07:20:00Z"
       },
       {
-        "inventory_class": "motorcycle",
+        "vehicle_type": "motorcycle",
         "dealer_id": "dealer_demo_powersports",
         "vehicle_id": "veh_dp_5044",
         "vin": "1AM1FBM17NB112233",
@@ -50,12 +48,10 @@
         "year": 2023,
         "make": "Acme Moto",
         "model": "Classic Cruiser",
-        "motorcycle_category": "cruiser",
+        "body": "cruiser",
         "engine": "1746cc V-twin",
-        "engine_displacement_cc": 1746,
-        "engine_stroke": 4,
-        "wheel_count": 2,
-        "final_drive": "belt",
+        "displacement_cc": 1746,
+        "other_attributes": { "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2 },
         "transmission": "manual",
         "abs": true,
         "fuel": "gas",
@@ -91,18 +87,12 @@
         { "value": "new", "count": 1 },
         { "value": "used", "count": 1 }
       ],
-      "inventory_classes": [
+      "vehicle_types": [
         { "value": "motorcycle", "count": 2 }
       ],
-      "motorcycle_categories": [
+      "bodies": [
         { "value": "touring", "count": 1 },
         { "value": "cruiser", "count": 1 }
-      ],
-      "wheel_counts": [
-        { "value": 2, "count": 2 }
-      ],
-      "final_drives": [
-        { "value": "belt", "count": 2 }
       ],
       "fuels": [
         { "value": "gas", "count": 2 }

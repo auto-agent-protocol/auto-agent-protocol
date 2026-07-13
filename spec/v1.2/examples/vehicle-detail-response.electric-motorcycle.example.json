@@ -1,7 +1,7 @@
 {
   "type": "inventory.vehicle.response",
   "data": {
-    "inventory_class": "motorcycle",
+    "vehicle_type": "motorcycle",
     "dealer_id": "dealer_demo_powersports",
     "vehicle_id": "veh_em_1042",
     "vin": "1AMSA20N4RP001234",
@@ -10,8 +10,8 @@
     "year": 2024,
     "make": "Acme Moto",
     "model": "Electric Standard",
-    "motorcycle_category": "standard",
-    "final_drive": "belt",
+    "body": "standard",
+    "other_attributes": { "final_drive": "belt" },
     "transmission": "automatic",
     "abs": true,
     "fuel": "bev",

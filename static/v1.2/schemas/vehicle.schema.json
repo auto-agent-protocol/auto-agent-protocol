@@ -2,11 +2,11 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://autoagentprotocol.org/v1.2/schemas/vehicle.schema.json",
   "title": "Vehicle",
-  "description": "The single vehicle interface used everywhere a vehicle is referenced — inventory.search results, inventory.vehicle detail, vehicle_of_interest, and trade_in. v1.0 merges the former Vehicle + VehicleDetail split into one shape: there is now exactly one vehicle type.\n\nField semantics differ by context:\n- For inventory listings (inventory.search / inventory.vehicle) `condition` MUST be one of `new`, `used`, `cpo` and `status` MUST be one of `available`, `intransit`, `pending`. Pricing fields describe the dealer's listing.\n- For vehicle_of_interest, `condition` MUST be one of `new`, `used`, `cpo`.\n- For trade_in, `condition` MUST be one of `excellent`, `good`, `fair`, `poor`. Pricing fields are typically absent on the request side and may be populated by the dealer's appraisal response.\n\nAll prices are plain integers in whole US dollars (v1.0 dropped the nested {amount, currency} Money object). Context-dependent constraints are enforced at the using request/response schema. No fields are required at this base schema; `additionalProperties: true` lets inventory responses carry richer dealer-specific fields without schema changes.\n\nThe optional `inventory_class` discriminator (`automobile` | `motorcycle`) scopes which fields apply. Automobile-only fields (`body`, `driveline`, `interior_color`, `city_mpg`, `highway_mpg`) and motorcycle-only fields (`motorcycle_category`, `engine_displacement_cc`, `engine_stroke`, `wheel_count`, `final_drive`) are all optional; a listing carries the set relevant to its class. When `inventory_class` is absent it MUST be treated as `automobile`, so existing car integrations remain valid unchanged.\n\nThe electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `accel_0_60_mph_s`, `charge_time_min`, `dc_fast_charge`) are GENERIC across inventory classes — they describe any BEV/PHEV unit whether it is an electric car or an electric motorcycle. They are all optional and populated when `fuel` is `bev` or `phev`.",
+  "description": "The single vehicle interface used everywhere a vehicle is referenced — inventory.search results, inventory.vehicle detail, vehicle_of_interest, and trade_in. v1.0 merges the former Vehicle + VehicleDetail split into one shape: there is now exactly one vehicle type.\n\nField semantics differ by context:\n- For inventory listings (inventory.search / inventory.vehicle) `condition` MUST be one of `new`, `used`, `cpo` and `status` MUST be one of `available`, `intransit`, `pending`. Pricing fields describe the dealer's listing.\n- For vehicle_of_interest, `condition` MUST be one of `new`, `used`, `cpo`.\n- For trade_in, `condition` MUST be one of `excellent`, `good`, `fair`, `poor`. Pricing fields are typically absent on the request side and may be populated by the dealer's appraisal response.\n\nAll prices are plain integers in whole US dollars (v1.0 dropped the nested {amount, currency} Money object). Context-dependent constraints are enforced at the using request/response schema. No fields are required at this base schema; `additionalProperties: true` lets inventory responses carry richer dealer-specific fields without schema changes.\n\nThe optional `vehicle_type` discriminator (`car` | `motorcycle` | `trailer` | `rv` | `other`) scopes which fields apply. Most detail fields (`body`, `driveline`, `interior_color`, `city_mpg`, `highway_mpg`, `displacement_cc`, `abs`, the electric-powertrain fields) are optional; a listing carries only the set relevant to its type. When `vehicle_type` is absent it MUST be treated as `car`, so existing car integrations remain valid unchanged; buyer agents SHOULD treat a missing `vehicle_type` as `car`. Niche or dealer-specific attributes that do not warrant a first-class field (e.g. a motorcycle's `final_drive`, `engine_stroke`, or `wheel_count`) travel in the free-form `other_attributes` map.\n\nThe electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `accel_0_60_mph_s`, `charge_time_min`, `dc_fast_charge`) are GENERIC across vehicle types — they describe any BEV/PHEV unit whether it is an electric car or an electric motorcycle. They are all optional and populated when `fuel` is `bev` or `phev`.",
   "type": "object",
   "examples": [
     {
-      "inventory_class": "automobile",
+      "vehicle_type": "car",
       "vin": "1HGCV1F30NA123456",
       "year": 2024,
       "make": "Honda",
@@ -22,7 +22,7 @@
       "stock": "H12345"
     },
     {
-      "inventory_class": "motorcycle",
+      "vehicle_type": "motorcycle",
       "vin": "1AM1KRM19NB654321",
       "year": 2024,
       "make": "Acme Moto",
@@ -32,18 +32,16 @@
       "msrp": 25999,
       "price": 25999,
       "mileage": 3,
-      "motorcycle_category": "touring",
-      "engine_displacement_cc": 1868,
-      "engine_stroke": 4,
-      "wheel_count": 2,
-      "final_drive": "belt",
+      "body": "touring",
+      "displacement_cc": 1868,
       "abs": true,
       "fuel": "gas",
       "exterior_color": "Gloss Black",
-      "stock": "M54321"
+      "stock": "M54321",
+      "other_attributes": { "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2 }
     },
     {
-      "inventory_class": "motorcycle",
+      "vehicle_type": "motorcycle",
       "vin": "1AMSA20N4RP001234",
       "year": 2024,
       "make": "Acme Moto",
@@ -53,8 +51,7 @@
       "msrp": 11999,
       "price": 11999,
       "mileage": 2,
-      "motorcycle_category": "standard",
-      "final_drive": "belt",
+      "body": "standard",
       "abs": true,
       "fuel": "bev",
       "electric_range_mi": 113,
@@ -64,20 +61,21 @@
       "charge_time_min": 78,
       "dc_fast_charge": false,
       "exterior_color": "Matte Black",
-      "stock": "EM-1042"
+      "stock": "EM-1042",
+      "other_attributes": { "final_drive": "belt" }
     }
   ],
   "properties": {
-    "inventory_class": {
+    "vehicle_type": {
       "type": "string",
-      "enum": ["automobile", "motorcycle"],
-      "description": "The kind of unit this listing represents. `automobile` = a car/truck/SUV; `motorcycle` = a two- or three-wheeled motorcycle, scooter, or moped. This is the discriminator that scopes which of the remaining fields are meaningful (see the automobile-only and motorcycle-only fields below). OPTIONAL and defaults to `automobile` when absent, so existing car integrations remain valid without change. Buyer agents SHOULD treat a missing `inventory_class` as `automobile`.",
-      "examples": ["automobile", "motorcycle"]
+      "enum": ["car", "motorcycle", "trailer", "rv", "other"],
+      "description": "The kind of unit this listing represents. `car` = a car/truck/SUV; `motorcycle` = a two- or three-wheeled motorcycle, scooter, or moped; `trailer` = a towable trailer; `rv` = a recreational vehicle / motorhome; `other` = anything else the rooftop sells. This is the discriminator that scopes which of the remaining fields are meaningful. OPTIONAL and defaults to `car` when absent, so existing car integrations remain valid without change. Buyer agents SHOULD treat a missing `vehicle_type` as `car`.",
+      "examples": ["car", "motorcycle"]
     },
     "vin": {
       "type": "string",
       "pattern": "^[A-HJ-NPR-Z0-9]{17}$",
-      "description": "Vehicle Identification Number (17 chars, ISO 3779). Applies to both automobiles and on-road motorcycles. Optional on trade-ins; recommended on inventory listings of used vehicles.",
+      "description": "Vehicle Identification Number (17 chars, ISO 3779). Applies to both cars and on-road motorcycles. Optional on trade-ins; recommended on inventory listings of used vehicles.",
       "examples": ["1HGCV1F30NA123456"]
     },
     "year": {
@@ -160,8 +158,8 @@
     },
     "body": {
       "type": "string",
-      "description": "Body style as text (e.g. 'sedan', 'suv', 'truck', 'coupe', 'hatchback', 'wagon', 'minivan', 'convertible'). Automobile context (`inventory_class = automobile`); use `motorcycle_category` for motorcycles.",
-      "examples": ["suv", "sedan", "truck"]
+      "description": "Body style / segment as free text, applicable to any `vehicle_type`. Cars use e.g. 'sedan', 'suv', 'truck', 'coupe', 'hatchback', 'wagon', 'minivan', 'convertible'; motorcycles use e.g. 'cruiser', 'sport', 'touring', 'sport_touring', 'adventure', 'standard', 'scooter'.",
+      "examples": ["suv", "sedan", "cruiser", "touring"]
     },
     "transmission": {
       "type": "string",
@@ -170,46 +168,23 @@
     },
     "driveline": {
       "type": "string",
-      "description": "Drivetrain layout (e.g. 'fwd', 'rwd', 'awd', '4wd'). Automobile context (`inventory_class = automobile`); for motorcycles use `final_drive` instead.",
+      "description": "Drivetrain layout (e.g. 'fwd', 'rwd', 'awd', '4wd'). Car context.",
       "examples": ["awd", "fwd"]
     },
     "engine": {
       "type": "string",
-      "description": "Free-text engine description. Automobiles use e.g. '2.0L Turbo I4', '3.5L V6 Hybrid'; motorcycles MAY use e.g. '1868cc V-twin'. For motorcycles the numeric displacement SHOULD also be provided in `engine_displacement_cc`.",
+      "description": "Free-text engine description. Cars use e.g. '2.0L Turbo I4', '3.5L V6 Hybrid'; motorcycles MAY use e.g. '1868cc V-twin'. The numeric displacement SHOULD also be provided in `displacement_cc`.",
       "examples": ["1.5L Turbo I4", "3.5L V6 Hybrid"]
     },
-    "motorcycle_category": {
-      "type": "string",
-      "enum": ["cruiser", "sport", "touring", "adventure", "dual_sport", "dirt", "standard", "scooter", "moped", "trike"],
-      "description": "Motorcycle segment/category. Motorcycle context only (`inventory_class = motorcycle`) — the powersports analog to automobile `body`.",
-      "examples": ["cruiser", "sport", "touring"]
-    },
-    "engine_displacement_cc": {
+    "displacement_cc": {
       "type": "integer",
       "minimum": 0,
-      "description": "Engine displacement in cubic centimeters (cc). Motorcycle context — the primary powertrain spec buyers filter on (e.g. 883, 1250, 1868). Omit for electric motorcycles (use `electric_range_mi`).",
+      "description": "Engine displacement in cubic centimeters (cc). Applies to any combustion vehicle_type (cars and motorcycles alike) — the primary combustion powertrain spec buyers filter on (e.g. 883, 1250, 1868, 1998). Omit for fully electric units (use `electric_range_mi`).",
       "examples": [883, 1868]
-    },
-    "engine_stroke": {
-      "type": "integer",
-      "enum": [2, 4],
-      "description": "Engine stroke cycle for combustion motorcycles: `2` (two-stroke) or `4` (four-stroke). Motorcycle context only.",
-      "examples": [4]
-    },
-    "wheel_count": {
-      "type": "integer",
-      "enum": [2, 3],
-      "description": "Number of wheels: `2` for a standard motorcycle/scooter, `3` for a trike or three-wheeler. Motorcycle context only; automobiles omit this field.",
-      "examples": [2, 3]
-    },
-    "final_drive": {
-      "type": "string",
-      "description": "Final drive type transferring power to the rear wheel (e.g. 'chain', 'belt', 'shaft'). Motorcycle context only — the powersports analog to automobile `driveline`.",
-      "examples": ["chain", "belt", "shaft"]
     },
     "abs": {
       "type": "boolean",
-      "description": "Whether the unit is equipped with an anti-lock braking system. Common buyer filter for motorcycles; MAY also be used for automobiles.",
+      "description": "Whether the unit is equipped with an anti-lock braking system. Common buyer filter for motorcycles; MAY also be used for cars.",
       "examples": [true]
     },
     "fuel": {
@@ -220,13 +195,13 @@
     "city_mpg": {
       "type": "integer",
       "minimum": 0,
-      "description": "EPA city fuel-economy estimate in miles per gallon. Primarily an automobile field (`inventory_class = automobile`); for motorcycles displacement in `engine_displacement_cc` is the primary spec. Omit for fully electric units (use `electric_range_mi`).",
+      "description": "EPA city fuel-economy estimate in miles per gallon. Primarily a car field; for motorcycles displacement in `displacement_cc` is the primary spec. Omit for fully electric units (use `electric_range_mi`).",
       "examples": [28]
     },
     "highway_mpg": {
       "type": "integer",
       "minimum": 0,
-      "description": "EPA highway fuel-economy estimate in miles per gallon. Primarily an automobile field (`inventory_class = automobile`); for motorcycles displacement in `engine_displacement_cc` is the primary spec. Omit for fully electric units (use `electric_range_mi`).",
+      "description": "EPA highway fuel-economy estimate in miles per gallon. Primarily a car field; for motorcycles displacement in `displacement_cc` is the primary spec. Omit for fully electric units (use `electric_range_mi`).",
       "examples": [34]
     },
     "electric_range_mi": {
@@ -271,7 +246,7 @@
     },
     "interior_color": {
       "type": "string",
-      "description": "Free-text interior color or upholstery name. Automobile context (`inventory_class = automobile`); typically omitted for motorcycles.",
+      "description": "Free-text interior color or upholstery name. Car context; typically omitted for motorcycles.",
       "examples": ["Black Leather", "Gray Cloth"]
     },
     "features": {
@@ -301,6 +276,12 @@
       "type": "string",
       "description": "Dealer notes (e.g. 'recently arrived', 'service history available').",
       "examples": ["Recently arrived", "Service history available"]
+    },
+    "other_attributes": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Optional free-form map of niche or dealer-specific attributes that do not warrant a first-class field in the public contract (e.g. motorcycle `final_drive`, `engine_stroke`, `wheel_count`, or dealer-defined specs). Keys and value types are dealer-defined; buyer agents SHOULD treat unknown keys leniently.",
+      "examples": [{ "final_drive": "belt", "wheel_count": 2 }]
     },
     "inventory_date": {
       "type": "string",

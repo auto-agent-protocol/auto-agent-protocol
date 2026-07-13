@@ -27,10 +27,10 @@
       { "value": "used", "count": 62 },
       { "value": "cpo", "count": 10 }
     ],
-    "inventory_classes": [
+    "vehicle_types": [
       { "value": "motorcycle", "count": 168 }
     ],
-    "motorcycle_categories": [
+    "bodies": [
       { "value": "cruiser", "count": 58 },
       { "value": "touring", "count": 34 },
       { "value": "sport", "count": 29 },
@@ -38,15 +38,6 @@
       { "value": "standard", "count": 15 },
       { "value": "dual_sport", "count": 6 },
       { "value": "scooter", "count": 4 }
-    ],
-    "wheel_counts": [
-      { "value": 2, "count": 162 },
-      { "value": 3, "count": 6 }
-    ],
-    "final_drives": [
-      { "value": "belt", "count": 78 },
-      { "value": "chain", "count": 74 },
-      { "value": "shaft", "count": 16 }
     ],
     "transmissions": [
       { "value": "manual", "count": 150 },

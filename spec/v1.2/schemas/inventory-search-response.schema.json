@@ -18,7 +18,7 @@
         "limit": { "type": "integer", "minimum": 0, "description": "Echo of the request's effective pagination.limit." },
         "vehicles": {
           "type": "array",
-          "description": "Vehicles in this page, in the requested order. Items MAY span multiple inventory classes (`automobile`, `motorcycle`); each carries its own `inventory_class` (absent = automobile). Each item is a Vehicle constrained to the sale-condition vocabulary (`new`|`used`|`cpo`) — inventory listings never carry trade-in wear values — and MUST carry a `status` of `available`, `intransit`, or `pending`. Out-of-stock vehicles are never returned.",
+          "description": "Vehicles in this page, in the requested order. Items MAY span multiple vehicle types (`car`, `motorcycle`, `trailer`, `rv`, `other`); each carries its own `vehicle_type` (absent = car). Each item is a Vehicle constrained to the sale-condition vocabulary (`new`|`used`|`cpo`) — inventory listings never carry trade-in wear values — and MUST carry a `status` of `available`, `intransit`, or `pending`. Out-of-stock vehicles are never returned.",
           "items": {
             "allOf": [
               { "$ref": "./vehicle.schema.json" },
