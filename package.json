@@ -19,6 +19,7 @@
     "generate:openapi": "tsx tools/generate-openapi.ts",
     "generate:mcp": "tsx tools/generate-mcp-manifest.ts",
     "generate:llms": "tsx tools/generate-llms.ts",
+    "generate:images": "tsx tools/generate-images.ts",
     "validate": "pnpm run validate:schemas && pnpm run validate:examples",
     "validate:schemas": "tsx tools/validate-schemas.ts",
     "validate:examples": "tsx tools/validate-examples.ts",
