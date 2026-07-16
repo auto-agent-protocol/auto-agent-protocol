@@ -69,7 +69,7 @@ function render(chrome: string, job: ImageJob): Promise<void> {
   const userDataDir = mkdtempSync(join(tmpdir(), "aap-img-"));
   const beforeMtime = existsSync(targetAbs) ? statSync(targetAbs).mtimeMs : 0;
 
-  return new Promise((resolvePromise, reject) => {
+  return new Promise<void>((resolvePromise, reject) => {
     const child = spawn(
       chrome,
       [
