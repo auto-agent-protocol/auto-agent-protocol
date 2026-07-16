@@ -2,8 +2,6 @@
   "extends": "@docusaurus/tsconfig",
   "compilerOptions": {
     "baseUrl": ".",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "strict": true,

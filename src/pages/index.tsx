@@ -35,6 +35,7 @@ function Hero() {
               alt="A buyer agent and a dealership digital storefront connected by typed AAP messages"
               width="1376"
               height="768"
+              // @ts-expect-error -- valid HTML attribute, missing from React 18 img types
               fetchpriority="high"
             />
           </div>
