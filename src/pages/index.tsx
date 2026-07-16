@@ -95,6 +95,43 @@ function Features() {
   );
 }
 
+function MultiClass() {
+  return (
+    <section className={styles.multiClassSection}>
+      <div className="container">
+        <div className="row">
+          <div className="col col--5">
+            <h2>Cars, EVs, and motorcycles — one contract</h2>
+            <p>
+              v1.2 extends inventory beyond cars. An optional{" "}
+              <code>vehicle_type</code> discriminator covers{" "}
+              <code>car</code>, <code>motorcycle</code>, and room for trailer /
+              RV later (absent means car, so existing integrations keep
+              working). Electric cars and electric motorcycles share the same
+              powertrain fields — including filterable <code>charge_port</code> —
+              while motorcycle segments reuse free-text <code>body</code>.
+            </p>
+            <Link to="/docs/v1.2/skills/inventory-vehicle" className="button button--primary">
+              See the vehicle shape
+            </Link>
+          </div>
+          <div className="col col--7">
+            <img
+              src="/img/v1.2/multi-class-inventory.png"
+              alt="AAP v1.2 covers cars, electric vehicles, and motorcycles in one typed inventory contract"
+              className={styles.fullImage}
+              width="1600"
+              height="600"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Skills() {
   return (
     <section className={styles.skillsSection}>
@@ -267,6 +304,7 @@ export default function Home(): JSX.Element {
       <Hero />
       <main>
         <Features />
+        <MultiClass />
         <Skills />
         <Pricing />
         <Protocols />
