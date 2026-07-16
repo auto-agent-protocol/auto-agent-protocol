@@ -1,11 +1,11 @@
-<!-- Source for static/img/v1.1/hero.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
+<!-- Source for static/img/v1.2/hero.png. Regenerate: "Google Chrome" --headless=new --screenshot=out.png --window-size=1600,900 --hide-scrollbars this-file.html -->
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 1600px; height: 900px; }
+  html, body { width: 1600px; height: 900px; overflow: hidden; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: #f4efe6;
@@ -15,65 +15,120 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow: hidden;
   }
   .tag {
-    margin-top: 84px;
+    margin-top: 64px;
     background: #dcebe7;
     color: #0a463f;
-    font-weight: 600;
-    font-size: 21px;
-    padding: 11px 28px;
+    font-weight: 700;
+    font-size: 22px;
+    padding: 12px 30px;
     border-radius: 999px;
     letter-spacing: .04em;
+    box-shadow: 0 6px 16px rgba(38,35,28,.06);
   }
   h1 {
-    margin-top: 32px;
-    font-size: 64px;
+    margin-top: 28px;
+    font-size: 68px;
     font-weight: 800;
-    letter-spacing: -1px;
+    letter-spacing: -1.4px;
+    line-height: 1.08;
     color: #26231c;
+    text-align: center;
   }
+  h1 .accent { color: #0e5a52; }
   .sub {
     margin-top: 18px;
-    font-size: 28px;
-    color: #6f665a;
+    font-size: 30px;
+    color: #4a4338;
+    font-weight: 600;
   }
+  .pills {
+    margin-top: 28px;
+    display: flex;
+    gap: 14px;
+  }
+  .pill {
+    border-radius: 999px;
+    padding: 12px 26px;
+    font-size: 22px;
+    font-weight: 700;
+    background: #fbf9f4;
+    color: #0a463f;
+    border: 1px solid #ece4d3;
+    box-shadow: 0 10px 24px rgba(38,35,28,.08);
+    white-space: nowrap;
+  }
+  .pill.teal {
+    background: #0e5a52;
+    color: #fff;
+    border-color: #0a463f;
+    box-shadow: 0 10px 24px rgba(14,90,82,.22);
+  }
+  .pill.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: #efe9dd;
+    color: #4a4338;
+  }
+  .pill.bronze {
+    background: #f1e4d0;
+    color: #8a5418;
+  }
+
   .diagram {
     flex: 1;
     width: 100%;
     display: flex;
     align-items: center;
-    padding: 0 110px 64px;
+    padding: 36px 90px 56px;
+    gap: 0;
   }
   .card {
     position: relative;
     z-index: 2;
-    width: 330px;
-    border-radius: 22px;
-    padding: 44px 20px;
+    width: 340px;
+    flex: none;
+    border-radius: 24px;
+    padding: 40px 22px;
     text-align: center;
   }
-  .card.white { background: #fbf9f4; box-shadow: 0 16px 36px rgba(38,35,28,.09); border: 1px solid #ece4d3; }
+  .card.white {
+    background: #fbf9f4;
+    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    border: 1px solid #ece4d3;
+  }
   .card.teal {
     background: linear-gradient(160deg, #0e5a52, #0a463f);
     color: #fff;
     box-shadow: 0 16px 36px rgba(14,90,82,.28);
   }
-  .emoji { font-size: 78px; line-height: 1; }
-  .card .name { margin-top: 22px; font-size: 31px; font-weight: 700; }
+  .emoji { font-size: 72px; line-height: 1; }
+  .card .name {
+    margin-top: 20px;
+    font-size: 34px;
+    font-weight: 800;
+  }
   .card .role {
     margin-top: 10px;
-    font-size: 22px;
-    color: #6f665a;
+    font-size: 24px;
+    font-weight: 600;
+    color: #4a4338;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   }
   .card.teal .role { color: #cfe4df; }
-  .link { flex: 1; position: relative; height: 270px; z-index: 1; }
+
+  /* Clear middle band — chips stay inside and never overlap cards */
+  .link {
+    flex: 1;
+    position: relative;
+    height: 320px;
+    z-index: 1;
+    margin: 0 8px;
+  }
   .line {
     position: absolute;
-    left: -28px;
-    right: -28px;
+    left: 8px;
+    right: 8px;
     top: 50%;
     height: 10px;
     transform: translateY(-50%);
@@ -85,29 +140,41 @@
     transform: translate(-50%, -50%);
     display: flex;
     align-items: center;
-    gap: 13px;
+    gap: 14px;
     background: #fbf9f4;
     border: 1px solid #ece4d3;
     border-radius: 999px;
-    padding: 13px 26px;
+    padding: 16px 28px;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 23px;
-    font-weight: 600;
-    color: #4a4338;
-    box-shadow: 0 16px 36px rgba(38,35,28,.09);
+    font-size: 26px;
+    font-weight: 700;
+    color: #0a463f;
+    box-shadow: 0 12px 28px rgba(38,35,28,.1);
     white-space: nowrap;
     z-index: 3;
   }
-  .msg .dot { width: 12px; height: 12px; border-radius: 50%; background: #0e5a52; flex: none; }
-  .m1 { left: 25%; top: 22%; }
+  .msg .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #0e5a52;
+    flex: none;
+  }
+  /* Spaced within the link band only — clear of both cards */
+  .m1 { left: 22%; top: 18%; }
   .m2 { left: 50%; top: 50%; }
-  .m3 { left: 73%; top: 78%; }
+  .m3 { left: 78%; top: 82%; }
 </style>
 </head>
 <body>
-  <div class="tag">A2A AUTOMOTIVE-RETAIL PROFILE &middot; v1.1</div>
-  <h1>AI agents, meet the dealership</h1>
+  <div class="tag">A2A AUTOMOTIVE-RETAIL PROFILE &middot; v1.2</div>
+  <h1>AI agents, meet the <span class="accent">dealership</span></h1>
   <div class="sub">Typed automotive commerce over A2A &middot; JSON-RPC only</div>
+  <div class="pills">
+    <div class="pill teal">v1.2</div>
+    <div class="pill mono">SendMessage</div>
+    <div class="pill bronze">five typed skills</div>
+  </div>
 
   <div class="diagram">
     <div class="card white">

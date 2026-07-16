@@ -12,4 +12,4 @@ labels: enhancement
 
 **Target version**
 
-Released versions are frozen; new schema work lands in the current version (e.g. `spec/v1.1/`) or a future one.
+Released versions are frozen; new schema work lands in the current version (e.g. `spec/v1.2/`) or a future one.

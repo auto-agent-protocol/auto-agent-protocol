@@ -52,16 +52,16 @@ const config: Config = {
           editUrl:
             "https://github.com/auto-agent-protocol/auto-agent-protocol/tree/main/",
           // The `current` docs (the `docs/` folder) are the actively-edited
-          // v1.1.0. `lastVersion: "current"` makes v1.1 the default served at
+          // v1.2.0. `lastVersion: "current"` makes v1.2 the default served at
           // the docs root and the version the dropdown opens on. The frozen
-          // v0.1, v0.2 and v1.0 live in `versioned_docs/version-*` (listed in
-          // versions.json) and are reachable via the version dropdown at
-          // /docs/v0.1/*, /docs/v0.2/* and /docs/v1.0/*.
+          // v0.1, v0.2, v1.0 and v1.1 live in `versioned_docs/version-*` (listed
+          // in versions.json) and are reachable via the version dropdown at
+          // /docs/v0.1/*, /docs/v0.2/*, /docs/v1.0/* and /docs/v1.1/*.
           lastVersion: "current",
           versions: {
             current: {
-              label: "v1.1.0",
-              path: "v1.1",
+              label: "v1.2.0",
+              path: "v1.2",
             },
           },
         },
@@ -78,10 +78,10 @@ const config: Config = {
       "@docusaurus/plugin-client-redirects",
       {
         createRedirects(existingPath: string) {
-          // Alias the latest version (v1.1) under /docs/latest/* so consumers
+          // Alias the latest version (v1.2) under /docs/latest/* so consumers
           // can deep-link to the most recent docs without pinning a version.
-          if (existingPath.startsWith("/docs/v1.1/")) {
-            return [existingPath.replace("/docs/v1.1/", "/docs/latest/")];
+          if (existingPath.startsWith("/docs/v1.2/")) {
+            return [existingPath.replace("/docs/v1.2/", "/docs/latest/")];
           }
           return undefined;
         },
@@ -143,7 +143,7 @@ const config: Config = {
   themeConfig: {
     // Default social-share image (og:image + twitter:image). Relative to
     // static/; Docusaurus expands it to an absolute URL per page.
-    image: "img/v1.1/aap-hero-banner.png",
+    image: "img/v1.2/aap-hero-banner.png",
     // Global-additive social/SEO tags. Per-page og:title/og:description/og:url
     // and description are emitted by Docusaurus from each page's frontmatter, so
     // they are intentionally NOT set here (setting them globally would override).
@@ -204,25 +204,25 @@ const config: Config = {
         {
           title: "Specification",
           items: [
-            { label: "Introduction", to: "/docs/v1.1/intro" },
-            { label: "A2A profile", to: "/docs/v1.1/a2a-profile" },
-            { label: "Discovery", to: "/docs/v1.1/discovery" },
-            { label: "Pricing and FTC", to: "/docs/v1.1/pricing-and-ftc" },
+            { label: "Introduction", to: "/docs/v1.2/intro" },
+            { label: "A2A profile", to: "/docs/v1.2/a2a-profile" },
+            { label: "Discovery", to: "/docs/v1.2/discovery" },
+            { label: "Pricing and FTC", to: "/docs/v1.2/pricing-and-ftc" },
           ],
         },
         {
           title: "Bindings & Skills",
           items: [
-            { label: "JSON-RPC binding", to: "/docs/v1.1/bindings/json-rpc" },
-            { label: "Inventory search", to: "/docs/v1.1/skills/inventory-search" },
-            { label: "Submit lead", to: "/docs/v1.1/skills/lead-submit" },
+            { label: "JSON-RPC binding", to: "/docs/v1.2/bindings/json-rpc" },
+            { label: "Inventory search", to: "/docs/v1.2/skills/inventory-search" },
+            { label: "Submit lead", to: "/docs/v1.2/skills/lead-submit" },
           ],
         },
         {
           title: "Compatibility",
           items: [
-            { label: "ADF mapping", to: "/docs/v1.1/compatibility/adf-mapping" },
-            { label: "MCP", to: "/docs/v1.1/compatibility/mcp" },
+            { label: "ADF mapping", to: "/docs/v1.2/compatibility/adf-mapping" },
+            { label: "MCP", to: "/docs/v1.2/compatibility/mcp" },
           ],
         },
         {
@@ -238,7 +238,7 @@ const config: Config = {
             },
             {
               label: "How AAP profiles A2A",
-              to: "/docs/v1.1/a2a-profile",
+              to: "/docs/v1.2/a2a-profile",
             },
           ],
         },
@@ -251,7 +251,7 @@ const config: Config = {
             },
             {
               label: "Contributing",
-              to: "/docs/v1.1/contributing",
+              to: "/docs/v1.2/contributing",
             },
           ],
         },

@@ -22,7 +22,7 @@ function handleSearch(req: InventorySearchRequest): InventorySearchResponse {
 }
 ```
 
-The types are generated from the JSON Schema 2020-12 sources for the current AAP version — see the [schemas](https://autoagentprotocol.org/v1.1/schemas/) and the [versioning policy](https://autoagentprotocol.org/docs/latest/versioning).
+The types are generated from the JSON Schema 2020-12 sources for the current AAP version — see the [schemas](https://autoagentprotocol.org/v1.2/schemas/) and the [versioning policy](https://autoagentprotocol.org/docs/latest/versioning).
 
 - Runtime validation: [`@autoagentprotocol/validator`](https://www.npmjs.com/package/@autoagentprotocol/validator)
 - Raw JSON Schema modules: [`@autoagentprotocol/schemas`](https://www.npmjs.com/package/@autoagentprotocol/schemas)

@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v1.2/schemas/vehicle.schema.json",
+  "title": "Vehicle",
+  "description": "The single vehicle interface used everywhere a vehicle is referenced — inventory.search results, inventory.vehicle detail, vehicle_of_interest, and trade_in. v1.0 merges the former Vehicle + VehicleDetail split into one shape: there is now exactly one vehicle type.\n\nField semantics differ by context:\n- For inventory listings (inventory.search / inventory.vehicle) `condition` MUST be one of `new`, `used`, `cpo` and `status` MUST be one of `available`, `intransit`, `pending`. Pricing fields describe the dealer's listing.\n- For vehicle_of_interest, `condition` MUST be one of `new`, `used`, `cpo`.\n- For trade_in, `condition` MUST be one of `excellent`, `good`, `fair`, `poor`. Pricing fields are typically absent on the request side and may be populated by the dealer's appraisal response.\n\nAll prices are plain integers in whole US dollars (v1.0 dropped the nested {amount, currency} Money object). Context-dependent constraints are enforced at the using request/response schema. No fields are required at this base schema; `additionalProperties: true` lets inventory responses carry richer dealer-specific fields without schema changes.\n\nThe optional `vehicle_type` discriminator (`car` | `motorcycle` | `trailer` | `rv` | `other`) scopes which fields apply. Most detail fields (`body`, `driveline`, `interior_color`, `city_mpg`, `highway_mpg`, `displacement_cc`, the electric-powertrain fields) are optional; a listing carries only the set relevant to its type. When `vehicle_type` is absent it MUST be treated as `car`, so existing car integrations remain valid unchanged; buyer agents SHOULD treat a missing `vehicle_type` as `car`. Niche or dealer-specific attributes that do not warrant a first-class field (e.g. a motorcycle's `final_drive`, `engine_stroke`, `wheel_count`, or `abs`) travel in the free-form `other_attributes` map.\n\nThe electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `dc_fast_charge`, `charge_port`) are GENERIC across vehicle types — they describe any BEV/PHEV unit whether it is an electric car or an electric motorcycle. They are all optional and populated when `fuel` is `bev` or `phev`.",
+  "type": "object",
+  "examples": [
+    {
+      "vehicle_type": "car",
+      "vin": "1HGCV1F30NA123456",
+      "year": 2024,
+      "make": "Honda",
+      "model": "CR-V",
+      "trim": "EX-L",
+      "condition": "new",
+      "status": "available",
+      "msrp": 36000,
+      "price": 35500,
+      "mileage": 12,
+      "body": "suv",
+      "exterior_color": "Crystal Black Pearl",
+      "stock": "H12345"
+    },
+    {
+      "vehicle_type": "motorcycle",
+      "vin": "1AM1KRM19NB654321",
+      "year": 2024,
+      "make": "Acme Moto",
+      "model": "Grand Tourer",
+      "condition": "new",
+      "status": "available",
+      "msrp": 25999,
+      "price": 25999,
+      "mileage": 3,
+      "body": "touring",
+      "displacement_cc": 1868,
+      "fuel": "gas",
+      "exterior_color": "Gloss Black",
+      "stock": "M54321",
+      "other_attributes": { "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2, "abs": true }
+    },
+    {
+      "vehicle_type": "motorcycle",
+      "vin": "1AMSA20N4RP001234",
+      "year": 2024,
+      "make": "Acme Moto",
+      "model": "Electric Standard",
+      "condition": "new",
+      "status": "available",
+      "msrp": 11999,
+      "price": 11999,
+      "mileage": 2,
+      "body": "standard",
+      "fuel": "bev",
+      "electric_range_mi": 113,
+      "battery_kwh": 10.5,
+      "motor_power_hp": 84,
+      "dc_fast_charge": false,
+      "charge_port": "nacs",
+      "exterior_color": "Matte Black",
+      "stock": "EM-1042",
+      "other_attributes": { "final_drive": "belt", "abs": true }
+    }
+  ],
+  "properties": {
+    "vehicle_type": {
+      "type": "string",
+      "enum": ["car", "motorcycle", "trailer", "rv", "other"],
+      "description": "The kind of unit this listing represents. `car` = a car/truck/SUV; `motorcycle` = a two- or three-wheeled motorcycle, scooter, or moped; `trailer` = a towable trailer; `rv` = a recreational vehicle / motorhome; `other` = anything else the rooftop sells. This is the discriminator that scopes which of the remaining fields are meaningful. OPTIONAL and defaults to `car` when absent, so existing car integrations remain valid without change. Buyer agents SHOULD treat a missing `vehicle_type` as `car`.",
+      "examples": ["car", "motorcycle"]
+    },
+    "vin": {
+      "type": "string",
+      "pattern": "^[A-HJ-NPR-Z0-9]{17}$",
+      "description": "Vehicle Identification Number (17 chars, ISO 3779). Applies to both cars and on-road motorcycles. Optional on trade-ins; recommended on inventory listings of used vehicles.",
+      "examples": ["1HGCV1F30NA123456"]
+    },
+    "year": {
+      "type": "integer",
+      "minimum": 1900,
+      "maximum": 2100,
+      "description": "Model year (e.g. 2024).",
+      "examples": [2024]
+    },
+    "make": {
+      "type": "string",
+      "description": "Vehicle make / manufacturer brand (e.g. 'Honda', 'BMW', 'Ford').",
+      "examples": ["Honda", "BMW", "Ford"]
+    },
+    "model": {
+      "type": "string",
+      "description": "Vehicle model name (e.g. 'CR-V', '3 Series', 'F-150').",
+      "examples": ["CR-V", "3 Series", "F-150"]
+    },
+    "trim": {
+      "type": "string",
+      "description": "Trim level (e.g. 'EX-L', 'M Sport', 'Lariat').",
+      "examples": ["EX-L", "M Sport", "Lariat"]
+    },
+    "condition": {
+      "type": "string",
+      "enum": ["new", "used", "cpo", "excellent", "good", "fair", "poor"],
+      "description": "Combined condition enum spanning both sale-condition and trade-in-condition vocabularies. For inventory listings and vehicle_of_interest use one of `new` | `used` | `cpo` (Certified Pre-Owned). For trade_in use one of `excellent` | `good` | `fair` | `poor`. The using schema enforces the correct subset by context.",
+      "examples": ["new", "used", "cpo"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["available", "intransit", "pending"],
+      "description": "Inventory availability. v1.0 supports exactly three values: `available` (in stock now), `intransit` (allocated / en route to the dealership), `pending` (deal in progress). A vehicle in any other state is OUT OF STOCK and MUST NOT appear in inventory feeds — dealers omit it and buyer agents ignore any item missing or carrying an unknown status. Required on inventory listings; omitted on vehicle_of_interest and trade_in.",
+      "examples": ["available", "intransit"]
+    },
+    "rooftop": {
+      "type": ["string", "null"],
+      "description": "Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer.information. Nullable; single-rooftop dealers MAY leave it null.",
+      "examples": ["Demo Toyota San Francisco"]
+    },
+    "msrp": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Manufacturer's Suggested Retail Price (sticker price), whole US dollars. Inventory context.",
+      "examples": [36000]
+    },
+    "price": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "FTC-emphasized FINAL out-the-door price after all incentives, mandatory fees, and required add-ons, in whole US dollars. Per FTC enforcement (CARS Rule), this field MUST reflect the total amount the buyer would pay; advertising a 'price' that excludes required fees or omits required add-ons is a violation. Inventory context.",
+      "examples": [35500]
+    },
+    "list_price": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Dealer's advertised list price; the base price BEFORE incentives, taxes, or fees, in whole US dollars. Inventory context.",
+      "examples": [34000]
+    },
+    "stock": {
+      "type": "string",
+      "description": "Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts.",
+      "examples": ["H12345"]
+    },
+    "dealer_id": {
+      "type": "string",
+      "description": "Stable identifier of the dealer that owns this listing. Inventory context.",
+      "examples": ["demo-toyota-sf"]
+    },
+    "vehicle_id": {
+      "type": "string",
+      "description": "Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).",
+      "examples": ["veh_8f3c1a"]
+    },
+    "mileage": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Odometer reading in miles. Required for trade-ins; typical on used inventory.",
+      "examples": [12, 38450]
+    },
+    "body": {
+      "type": "string",
+      "description": "Body style / segment as free text, applicable to any `vehicle_type`. Cars use e.g. 'sedan', 'suv', 'truck', 'coupe', 'hatchback', 'wagon', 'minivan', 'convertible'; motorcycles use e.g. 'cruiser', 'sport', 'touring', 'sport_touring', 'adventure', 'standard', 'scooter'.",
+      "examples": ["suv", "sedan", "cruiser", "touring"]
+    },
+    "transmission": {
+      "type": "string",
+      "description": "Transmission type as text. Cars use e.g. 'automatic', 'manual', '8-speed automatic', 'cvt'; motorcycles use e.g. 'manual', 'automatic', 'dct', 'semi-automatic'.",
+      "examples": ["automatic", "cvt", "manual"]
+    },
+    "driveline": {
+      "type": "string",
+      "description": "Drivetrain layout (e.g. 'fwd', 'rwd', 'awd', '4wd'). Car context.",
+      "examples": ["awd", "fwd"]
+    },
+    "engine": {
+      "type": "string",
+      "description": "Free-text engine description. Cars use e.g. '2.0L Turbo I4', '3.5L V6 Hybrid'; motorcycles MAY use e.g. '1868cc V-twin'. The numeric displacement SHOULD also be provided in `displacement_cc`.",
+      "examples": ["1.5L Turbo I4", "3.5L V6 Hybrid"]
+    },
+    "displacement_cc": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Engine displacement in cubic centimeters (cc). Applies to any combustion vehicle_type (cars and motorcycles alike) — the primary combustion powertrain spec buyers filter on (e.g. 883, 1250, 1868, 1998). Omit for fully electric units (use `electric_range_mi`).",
+      "examples": [883, 1868]
+    },
+    "fuel": {
+      "type": "string",
+      "description": "Fuel type (e.g. 'gas', 'diesel', 'hybrid', 'phev', 'bev').",
+      "examples": ["gas", "hybrid", "bev"]
+    },
+    "city_mpg": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "EPA city fuel-economy estimate in miles per gallon. Primarily a car field; for motorcycles displacement in `displacement_cc` is the primary spec. Omit for fully electric units (use `electric_range_mi`).",
+      "examples": [28]
+    },
+    "highway_mpg": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "EPA highway fuel-economy estimate in miles per gallon. Primarily a car field; for motorcycles displacement in `displacement_cc` is the primary spec. Omit for fully electric units (use `electric_range_mi`).",
+      "examples": [34]
+    },
+    "electric_range_mi": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Estimated electric range in miles. The primary range spec for BEV/PHEV units across any vehicle_type — electric cars and electric motorcycles alike (e.g. 113 for an electric standard motorcycle, 300 for an EV car).",
+      "examples": [113, 300]
+    },
+    "battery_kwh": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Usable battery energy capacity in kilowatt-hours (kWh). Generic electric field (any vehicle_type) for BEV/PHEV units. E.g. 10.5 (compact electric motorcycle), 15.4 (larger electric motorcycle).",
+      "examples": [10.5, 15.4]
+    },
+    "motor_power_hp": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Peak electric motor output in horsepower (hp). Generic electric field for BEV/PHEV units (1 hp ≈ 0.746 kW). Reported in hp to stay consistent with AAP's US-market units.",
+      "examples": [84, 480]
+    },
+    "dc_fast_charge": {
+      "type": "boolean",
+      "description": "Whether the unit supports DC fast charging. Generic electric field for BEV/PHEV units.",
+      "examples": [true, false]
+    },
+    "charge_port": {
+      "type": ["string", "null"],
+      "description": "EV charge/plug connector standard the unit uses (e.g. 'nacs', 'ccs', 'j1772', 'chademo', 'tesla'). Generic electric field for BEV/PHEV units across any vehicle_type; the concrete thing EV shoppers filter on. Nullable/omitted for non-electric units.",
+      "examples": ["nacs", "ccs", "j1772"]
+    },
+    "exterior_color": {
+      "type": "string",
+      "description": "Free-text exterior color name.",
+      "examples": ["Crystal Black Pearl", "Platinum White Pearl"]
+    },
+    "interior_color": {
+      "type": "string",
+      "description": "Free-text interior color or upholstery name. Car context; typically omitted for motorcycles.",
+      "examples": ["Black Leather", "Gray Cloth"]
+    },
+    "features": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Notable equipment and options as free-text strings (e.g. 'Adaptive Cruise Control', 'Apple CarPlay', 'Heated Front Seats'). v1.0 uses one flat list and does not separate option packages, factory equipment, or installed accessories.",
+      "examples": [["Adaptive Cruise Control", "Apple CarPlay", "Heated Front Seats"]]
+    },
+    "photos": {
+      "type": "array",
+      "items": { "type": "string", "format": "uri" },
+      "description": "Public URLs of vehicle photos, ordered by relevance.",
+      "examples": [["https://cdn.example.com/vehicles/h12345/1.jpg", "https://cdn.example.com/vehicles/h12345/2.jpg"]]
+    },
+    "vdp_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Public Vehicle Detail Page (VDP) URL on the dealer's website.",
+      "examples": ["https://www.example.com/inventory/h12345"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description / dealer marketing copy.",
+      "examples": ["Well-equipped EX-L with leather seating and a clean history report."]
+    },
+    "notes": {
+      "type": "string",
+      "description": "Dealer notes (e.g. 'recently arrived', 'service history available').",
+      "examples": ["Recently arrived", "Service history available"]
+    },
+    "other_attributes": {
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          { "type": "string" },
+          { "type": "number" },
+          { "type": "boolean" },
+          { "type": "array", "items": { "type": "string" } },
+          { "type": "array", "items": { "type": "number" } }
+        ]
+      },
+      "description": "Optional free-form map of niche or dealer-specific attributes that do not warrant a first-class field in the public contract (e.g. motorcycle `final_drive`, `engine_stroke`, `wheel_count`, `abs`, or dealer-defined specs). Keys are dealer-defined and values are scalars or scalar arrays; buyer agents SHOULD treat unknown keys leniently.",
+      "examples": [{ "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2, "abs": true }]
+    },
+    "inventory_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date (RFC 3339 full-date, e.g. '2026-04-21') the vehicle first appeared in the dealership's inventory.",
+      "examples": ["2026-04-21"]
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339 timestamp (with timezone offset) of the last update to this vehicle's availability, price, or status (e.g. '2026-04-30T08:42:00Z'). Buyer agents treat this as the freshness signal for availability claims.",
+      "examples": ["2026-04-30T08:42:00Z"]
+    }
+  },
+  "additionalProperties": true
+}

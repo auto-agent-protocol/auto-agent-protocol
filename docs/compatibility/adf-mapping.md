@@ -6,7 +6,7 @@ description: Field-by-field mapping from a lead.submit request to ADF/XML so dea
 
 # ADF/XML mapping
 
-![ADF bridge: AAP lead.submit JSON on the left, ADF/XML on the right, dealer CRM ingesting at the end](/img/v1.1/adf-bridge.png)
+![ADF bridge: AAP lead.submit JSON on the left, ADF/XML on the right, dealer CRM ingesting at the end](/img/v1.2/adf-bridge.png)
 
 The Auto-lead Data Format (ADF/XML) has been the de-facto standard for delivering leads to dealer CRMs for over two decades. AAP's [`lead.submit`](../skills/lead-submit.md) request is designed to translate losslessly to ADF/XML so a dealer's existing pipeline accepts the lead unchanged.
 
@@ -28,7 +28,8 @@ This page documents the field-by-field translation. The dealer agent (or the dea
 | `vehicle_of_interest.vin` | `<vehicle interest="buy"><vin>...</vin></vehicle>` | Optional but recommended. |
 | `vehicle_of_interest.stock` | `<vehicle interest="buy"><stock>...</stock></vehicle>` | Optional. |
 | `vehicle_of_interest.condition` | `<vehicle interest="buy" status="...">` (one of `new`, `used`) | ADF accepts only `new` or `used`. AAP `cpo` MAPS TO `status="used"` AND a free-text `<comments>certified pre-owned</comments>` on the vehicle. |
-| `vehicle_of_interest.body` | `<vehicle interest="buy"><bodystyle>...</bodystyle></vehicle>` | Optional. |
+| `vehicle_of_interest.body` | `<vehicle interest="buy"><bodystyle>...</bodystyle></vehicle>` | Optional. Applies to any `vehicle_type`: a car body style (e.g. `sedan`, `suv`) or a motorcycle segment (e.g. `cruiser`, `touring`) — both go into ADF's `<bodystyle>` since ADF has no motorcycle-specific element. |
+| `vehicle_of_interest.displacement_cc` | `<vehicle interest="buy"><comments>Displacement: {cc}cc</comments></vehicle>` | Optional. ADF has no displacement element, so the mapper folds it into vehicle `<comments>`. Any niche specs carried in `other_attributes` (e.g. `wheel_count`, `final_drive`, `engine_stroke`) are handled the same way — folded into `<comments>`. |
 | `vehicle_of_interest.transmission` | `<vehicle interest="buy"><transmission>...</transmission></vehicle>` | Optional. ADF expects `A` or `M`; the mapper folds `automatic`/`manual` (and variants like `8-speed automatic`) accordingly. |
 | `vehicle_of_interest.mileage` | `<vehicle interest="buy"><odometer units="mi">...</odometer></vehicle>` | Optional; typical for used. |
 | `vehicle_of_interest.price` | `<vehicle interest="buy"><price type="quote" currency="USD">...</price></vehicle>` | Mapped from the AAP integer dollar amount (whole US dollars). |
@@ -44,6 +45,8 @@ This page documents the field-by-field translation. The dealer agent (or the dea
 | `trade_in.vin` | `<vehicle interest="trade-in"><vin>...</vin></vehicle>` | Optional; recommended for accurate appraisal. |
 
 Nothing in `consent` is part of ADF (the format predates structured agent consent). AAP's `ConsentGrant` is preserved alongside the lead in the dealer CRM as an audit record. AAP-specific fields without an ADF equivalent (`customer.preferred_contact`, `vehicle_of_interest.vehicle_id`, `vehicle_of_interest.msrp`/`list_price`) MAY be persisted as CRM extension fields or in `<comments>`.
+
+> **One `<comments>` per `<vehicle>`.** ADF allows only a single `<comments>` element inside each `<vehicle>` block. Several rows above independently fold into vehicle `<comments>` — the `cpo` certified note, `displacement_cc`, and any `other_attributes` (e.g. `wheel_count`, `final_drive`, `engine_stroke`). The mapper MUST **merge** all of these into ONE `<comments>` element per vehicle (e.g. `certified pre-owned; Displacement: 1868cc; final_drive: belt`). A literal row-by-row reading that emits multiple `<comments>` per vehicle produces invalid ADF — e.g. for a CPO motorcycle that has both a certified note and displacement/`other_attributes`.
 
 ## Concrete worked example
 

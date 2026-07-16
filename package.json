@@ -1,6 +1,6 @@
 {
   "name": "autoagentprotocol",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "description": "Auto Agent Protocol — the open contract for AI agents to talk to car dealerships",
   "license": "Apache-2.0",
@@ -19,6 +19,7 @@
     "generate:openapi": "tsx tools/generate-openapi.ts",
     "generate:mcp": "tsx tools/generate-mcp-manifest.ts",
     "generate:llms": "tsx tools/generate-llms.ts",
+    "generate:images": "tsx tools/generate-images.ts",
     "validate": "pnpm run validate:schemas && pnpm run validate:examples",
     "validate:schemas": "tsx tools/validate-schemas.ts",
     "validate:examples": "tsx tools/validate-examples.ts",

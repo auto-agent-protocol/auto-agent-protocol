@@ -1,0 +1,13 @@
+{
+  "type": "aap.event",
+  "event_kind": "lead.status_changed",
+  "entity_id": "lead_2026_04_29_00842",
+  "status": "working",
+  "occurred_at": "2026-04-30T14:08:00Z",
+  "payload": {
+    "worked_by": "Sales BDC",
+    "assigned_to": "rachel.gomez@demo-toyota.example.com",
+    "previous_status": "received",
+    "note": "BDC reached out by phone at +1 (415) 555-5678; left voicemail and sent follow-up email."
+  }
+}

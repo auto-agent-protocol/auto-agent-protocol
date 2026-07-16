@@ -65,6 +65,15 @@
   margin-bottom: 0.5rem;
 }
 
+.multiClassSection {
+  padding: 3.5rem 0;
+  background: var(--ifm-color-emphasis-100);
+}
+
+.multiClassSection .row {
+  align-items: center;
+}
+
 .skillsSection {
   padding: 3.5rem 0;
 }

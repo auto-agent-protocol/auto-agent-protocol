@@ -1,0 +1,56 @@
+{
+  "type": "inventory.vehicle.response",
+  "data": {
+    "vehicle_type": "motorcycle",
+    "dealer_id": "dealer_demo_powersports",
+    "vehicle_id": "veh_dp_5012",
+    "vin": "1AM1KRM19NB654321",
+    "stock": "M-5012",
+    "rooftop": "Demo Powersports San Jose",
+    "year": 2024,
+    "make": "Acme Moto",
+    "model": "Grand Tourer",
+    "body": "touring",
+    "engine": "1868cc V-twin",
+    "displacement_cc": 1868,
+    "other_attributes": { "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2, "abs": true },
+    "transmission": "manual",
+    "fuel": "gas",
+    "exterior_color": "Gloss Black",
+    "condition": "new",
+    "status": "available",
+    "description": "New 2024 Acme Moto Grand Tourer with a 1868cc V-twin engine, an advanced rider-assist safety suite, and a color TFT infotainment display.",
+    "msrp": 25999,
+    "list_price": 25999,
+    "price": 27480,
+    "mileage": 3,
+    "photos": [
+      "https://cdn.demo-powersports.example.com/inventory/m-5012/01.jpg",
+      "https://cdn.demo-powersports.example.com/inventory/m-5012/02.jpg",
+      "https://cdn.demo-powersports.example.com/inventory/m-5012/03.jpg"
+    ],
+    "vdp_url": "https://demo-powersports.example.com/inventory/new/2024-acme-moto-grand-tourer-M-5012",
+    "notes": "Freshly assembled and safety-inspected. Available for a demo ride at our San Jose showroom.",
+    "inventory_date": "2026-04-18",
+    "updated_at": "2026-04-30T07:20:00Z",
+    "features": [
+      "Advanced rider-assist safety suite",
+      "Anti-lock braking system (ABS)",
+      "Cornering-enhanced electronic linked braking",
+      "12.3-inch TFT infotainment display",
+      "Bluetooth connectivity",
+      "Cruise control",
+      "LED headlamp and signature lighting",
+      "Heated grips",
+      "Locking saddlebags"
+    ],
+    "title_status": "clean",
+    "owners": 0,
+    "warranty": {
+      "type": "Manufacturer Factory Warranty",
+      "expires": "2026-04-18"
+    },
+    "delivery_options": ["dealer_pickup", "local_home_delivery"]
+  },
+  "message": "The 'price' field is the FTC-final out-the-door cost — the total amount due after current incentives and required fees."
+}

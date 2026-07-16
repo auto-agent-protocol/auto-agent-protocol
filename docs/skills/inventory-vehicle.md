@@ -6,10 +6,10 @@ description: Detail view of a single vehicle by VIN, stock, or vehicle_id, retur
 
 # `inventory.vehicle`
 
-![inventory.vehicle: look up one vehicle by VIN, stock number, or vehicle_id and get the full typed detail card](/img/v1.1/vehicle-detail-lookup.png)
+![inventory.vehicle: look up one vehicle by VIN, stock number, or vehicle_id and get the full typed detail card](/img/v1.2/vehicle-detail-lookup.png)
 
 :::info A2A invocation
-This skill is invoked through A2A's `SendMessage` operation — the single A2A operation AAP v1.1 uses — not a dedicated REST URL. It travels as the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md). (The HTTP+JSON binding was [removed in v1.1](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
+This skill is invoked through A2A's `SendMessage` operation — the single A2A operation AAP v1.2 uses — not a dedicated REST URL. It travels as the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md). (The HTTP+JSON binding was [removed in v1.1](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
 :::
 
 The `inventory.vehicle` skill returns the full detail of a single vehicle. The buyer agent identifies the vehicle by VIN, stock number, or dealer-internal `vehicle_id`.
@@ -59,6 +59,10 @@ The response wraps a `Vehicle` object — a `Vehicle` plus arbitrary additional 
 ```
 
 `data` SHOULD include `vin` or `stock` (recommended for any availability claim) and the identification fields `year`, `make`, `model` to be useful. `condition` (when present) MUST be one of `new` | `used` | `cpo`. `data` MUST include `updated_at` whenever the agent is making availability claims about this listing — see [Behavior rules](../behavior-rules.md).
+
+The optional `vehicle_type` field (`car` | `motorcycle` | `trailer` | `rv` | `other`) scopes the type-specific detail fields; a listing without `vehicle_type` is treated as `car`. Motorcycle detail responses (`vehicle_type: "motorcycle"`) carry the class-agnostic `body`/segment and `displacement_cc`, with niche specs (`final_drive`, `engine_stroke`, `wheel_count`, `abs`) in `other_attributes`, instead of the car-oriented `driveline`, `interior_color`, `city_mpg`, and `highway_mpg`.
+
+Electric units (BEV/PHEV, any vehicle type) carry a generic electric-powertrain group: `electric_range_mi`, `battery_kwh`, `motor_power_hp`, `dc_fast_charge`, and `charge_port`. These are the same fields whether the unit is an electric car or an electric motorcycle, so combustion-only fields like `displacement_cc` are simply omitted.
 
 Pricing fields:
 

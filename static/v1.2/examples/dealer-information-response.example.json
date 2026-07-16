@@ -1,0 +1,97 @@
+{
+  "type": "dealer.information.response",
+  "data": {
+    "name": "Demo Auto Group",
+    "welcome_message": "Welcome to Demo Auto Group. We're happy to help by phone, video, or in person at either of our Bay Area locations.",
+    "rooftops": [
+      {
+        "name": "Demo Toyota San Francisco",
+        "legal_name": "Demo Toyota of San Francisco, LLC",
+        "website": "https://demo-toyota.example.com",
+        "geo": { "latitude": 37.7726, "longitude": -122.4099 },
+        "emails": [
+          { "name": "Sales", "value": "sales@demo-toyota.example.com" },
+          { "name": "Service", "value": "service@demo-toyota.example.com" }
+        ],
+        "phones": [
+          { "name": "Sales", "value": "+14155550100" },
+          { "name": "Service", "value": "+14155550101" },
+          { "name": "Parts", "value": "+14155550102" }
+        ],
+        "address": {
+          "country": "US",
+          "state": "CA",
+          "city": "San Francisco",
+          "address_line_1": "1450 Howard Street",
+          "zip": "94103"
+        },
+        "schedules": [
+          {
+            "name": "sales",
+            "value": {
+              "monday": { "open": "09:00", "close": "20:00" },
+              "tuesday": { "open": "09:00", "close": "20:00" },
+              "wednesday": { "open": "09:00", "close": "20:00" },
+              "thursday": { "open": "09:00", "close": "20:00" },
+              "friday": { "open": "09:00", "close": "20:00" },
+              "saturday": { "open": "09:00", "close": "18:00" },
+              "sunday": null
+            }
+          },
+          {
+            "name": "service",
+            "value": {
+              "monday": { "open": "07:30", "close": "18:00" },
+              "tuesday": { "open": "07:30", "close": "18:00" },
+              "wednesday": { "open": "07:30", "close": "18:00" },
+              "thursday": { "open": "07:30", "close": "18:00" },
+              "friday": { "open": "07:30", "close": "18:00" },
+              "saturday": { "open": "08:00", "close": "16:00" },
+              "sunday": null
+            }
+          }
+        ],
+        "timezone": "America/Los_Angeles",
+        "notes": "Closed on major U.S. federal holidays. Service department closes 30 minutes before sales.",
+        "capabilities": ["sales", "service", "parts", "financing", "trade_in", "delivery"]
+      },
+      {
+        "name": "Demo Honda Oakland",
+        "legal_name": "Demo Honda of Oakland, LLC",
+        "website": "https://demo-honda.example.com",
+        "geo": { "latitude": 37.8044, "longitude": -122.2712 },
+        "emails": [
+          { "name": "Sales", "value": "sales@demo-honda.example.com" }
+        ],
+        "phones": [
+          { "name": "Sales", "value": "+15105550100" }
+        ],
+        "address": {
+          "country": "US",
+          "state": "CA",
+          "city": "Oakland",
+          "address_line_1": "2300 Broadway",
+          "zip": "94612"
+        },
+        "schedules": [
+          {
+            "name": "sales",
+            "value": {
+              "monday": { "open": "09:00", "close": "19:00" },
+              "tuesday": { "open": "09:00", "close": "19:00" },
+              "wednesday": { "open": "09:00", "close": "19:00" },
+              "thursday": { "open": "09:00", "close": "19:00" },
+              "friday": { "open": "09:00", "close": "19:00" },
+              "saturday": { "open": "10:00", "close": "18:00" },
+              "sunday": null
+            }
+          }
+        ],
+        "timezone": "America/Los_Angeles",
+        "notes": "Sales only; service handled at the San Francisco rooftop.",
+        "capabilities": ["sales", "financing", "trade_in"]
+      }
+    ]
+  },
+  "message": "Demo Auto Group operates two Bay Area rooftops. Demo Toyota San Francisco — Sales: +1 (415) 555-0100."
+}
