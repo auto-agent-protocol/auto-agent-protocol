@@ -48,6 +48,14 @@
       { "value": "gas", "count": 162 },
       { "value": "bev", "count": 6 }
     ],
+    "dc_fast_charge": [
+      { "value": "true", "count": 2 },
+      { "value": "false", "count": 4 }
+    ],
+    "charge_ports": [
+      { "value": "nacs", "count": 4 },
+      { "value": "ccs", "count": 2 }
+    ],
     "exterior_colors": [
       { "value": "Gloss Black", "count": 44 },
       { "value": "Classic Red", "count": 18 },
@@ -64,7 +72,8 @@
     "price_range": { "min": 4499, "max": 32999 },
     "mileage_range": { "min": 0, "max": 38400 },
     "year_range": { "min": 2019, "max": 2025 },
-    "displacement_range": { "min": 300, "max": 1868 }
+    "displacement_cc_range": { "min": 300, "max": 1868 },
+    "electric_range_mi_range": { "min": 75, "max": 150 }
   },
   "message": "Facets aggregated over 168 active motorcycle listings, refreshed every 15 minutes."
 }

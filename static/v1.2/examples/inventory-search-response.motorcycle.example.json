@@ -18,9 +18,8 @@
         "body": "touring",
         "engine": "1868cc V-twin",
         "displacement_cc": 1868,
-        "other_attributes": { "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2 },
+        "other_attributes": { "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2, "abs": true },
         "transmission": "manual",
-        "abs": true,
         "fuel": "gas",
         "exterior_color": "Gloss Black",
         "condition": "new",
@@ -51,9 +50,8 @@
         "body": "cruiser",
         "engine": "1746cc V-twin",
         "displacement_cc": 1746,
-        "other_attributes": { "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2 },
+        "other_attributes": { "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2, "abs": true },
         "transmission": "manual",
-        "abs": true,
         "fuel": "gas",
         "exterior_color": "Classic Red",
         "condition": "used",
@@ -106,7 +104,7 @@
       "price_range": { "min": 19995, "max": 27480 },
       "mileage_range": { "min": 3, "max": 4210 },
       "year_range": { "min": 2023, "max": 2024 },
-      "displacement_range": { "min": 1746, "max": 1868 }
+      "displacement_cc_range": { "min": 1746, "max": 1868 }
     }
   },
   "message": "2 Acme Moto motorcycles match your filters. The 'price' field reflects the FTC-final out-the-door amount including required fees."

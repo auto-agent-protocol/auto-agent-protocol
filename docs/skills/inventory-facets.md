@@ -54,6 +54,8 @@ When `filters` is absent, facets are aggregated over the dealer's entire invento
     "conditions":            [{ "value": "string", "count": 0 }],
     "transmissions":         [{ "value": "string", "count": 0 }],
     "fuels":                 [{ "value": "string", "count": 0 }],
+    "dc_fast_charge":        [{ "value": "true | false", "count": 0 }],
+    "charge_ports":          [{ "value": "string", "count": 0 }],
     "drivelines":            [{ "value": "string", "count": 0 }],
     "bodies":                [{ "value": "string", "count": 0 }],
     "vehicle_types":         [{ "value": "car | motorcycle | trailer | rv | other", "count": 0 }],
@@ -61,17 +63,18 @@ When `filters` is absent, facets are aggregated over the dealer's entire invento
     "interior_colors":       [{ "value": "string", "count": 0 }],
     "rooftops":              [{ "value": "string", "count": 0 }],
     "statuses":              [{ "value": "available | intransit | pending", "count": 0 }],
-    "price_range":        { "min": 0, "max": 0 },
-    "mileage_range":      { "min": 0, "max": 0 },
-    "year_range":         { "min": 0, "max": 0 },
-    "displacement_range": { "min": 0, "max": 0 }
+    "price_range":            { "min": 0, "max": 0 },
+    "mileage_range":          { "min": 0, "max": 0 },
+    "year_range":             { "min": 0, "max": 0 },
+    "displacement_cc_range":  { "min": 0, "max": 0 },
+    "electric_range_mi_range":{ "min": 0, "max": 0 }
   }
 }
 ```
 
-Each facet array entry is `{ value, count }` where `value` is the facet term (string or integer) and `count` is the number of matching listings. The `statuses` facet's `value` is drawn from the controlled vehicle status enum — `available`, `intransit`, or `pending` — since those are the only statuses that appear in inventory feeds. The `*_range` fields are `{ min, max }` numeric ranges (`price_range` in whole US dollars, `displacement_range` in cc).
+Each facet array entry is `{ value, count }` where `value` is the facet term (string or integer) and `count` is the number of matching listings. The `statuses` facet's `value` is drawn from the controlled vehicle status enum — `available`, `intransit`, or `pending` — since those are the only statuses that appear in inventory feeds. The `*_range` fields are `{ min, max }` numeric ranges (`price_range` in whole US dollars, `displacement_cc_range` in cc, `electric_range_mi_range` in miles).
 
-Powersports dealers additionally return `vehicle_types` (`car` | `motorcycle` | `trailer` | `rv` | `other`), `bodies` (which for motorcycles carry segments like `cruiser`/`touring`), and `displacement_range`, matching the filters on [`inventory.search`](./inventory-search.md). A dealer omits any facet key for which it has no inventory.
+Powersports dealers additionally return `vehicle_types` (`car` | `motorcycle` | `trailer` | `rv` | `other`), `bodies` (which for motorcycles carry segments like `cruiser`/`touring`), and `displacement_cc_range`, matching the filters on [`inventory.search`](./inventory-search.md). Electric inventory adds `electric_range_mi_range`, `dc_fast_charge`, and `charge_ports`. A dealer omits any facet key for which it has no inventory.
 
 `price_range` aggregates the FTC-final `price` field (see [Pricing and FTC compliance](../pricing-and-ftc.md)).
 

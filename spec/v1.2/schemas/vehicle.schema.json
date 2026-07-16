@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://autoagentprotocol.org/v1.2/schemas/vehicle.schema.json",
   "title": "Vehicle",
-  "description": "The single vehicle interface used everywhere a vehicle is referenced — inventory.search results, inventory.vehicle detail, vehicle_of_interest, and trade_in. v1.0 merges the former Vehicle + VehicleDetail split into one shape: there is now exactly one vehicle type.\n\nField semantics differ by context:\n- For inventory listings (inventory.search / inventory.vehicle) `condition` MUST be one of `new`, `used`, `cpo` and `status` MUST be one of `available`, `intransit`, `pending`. Pricing fields describe the dealer's listing.\n- For vehicle_of_interest, `condition` MUST be one of `new`, `used`, `cpo`.\n- For trade_in, `condition` MUST be one of `excellent`, `good`, `fair`, `poor`. Pricing fields are typically absent on the request side and may be populated by the dealer's appraisal response.\n\nAll prices are plain integers in whole US dollars (v1.0 dropped the nested {amount, currency} Money object). Context-dependent constraints are enforced at the using request/response schema. No fields are required at this base schema; `additionalProperties: true` lets inventory responses carry richer dealer-specific fields without schema changes.\n\nThe optional `vehicle_type` discriminator (`car` | `motorcycle` | `trailer` | `rv` | `other`) scopes which fields apply. Most detail fields (`body`, `driveline`, `interior_color`, `city_mpg`, `highway_mpg`, `displacement_cc`, `abs`, the electric-powertrain fields) are optional; a listing carries only the set relevant to its type. When `vehicle_type` is absent it MUST be treated as `car`, so existing car integrations remain valid unchanged; buyer agents SHOULD treat a missing `vehicle_type` as `car`. Niche or dealer-specific attributes that do not warrant a first-class field (e.g. a motorcycle's `final_drive`, `engine_stroke`, or `wheel_count`) travel in the free-form `other_attributes` map.\n\nThe electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `accel_0_60_mph_s`, `charge_time_min`, `dc_fast_charge`) are GENERIC across vehicle types — they describe any BEV/PHEV unit whether it is an electric car or an electric motorcycle. They are all optional and populated when `fuel` is `bev` or `phev`.",
+  "description": "The single vehicle interface used everywhere a vehicle is referenced — inventory.search results, inventory.vehicle detail, vehicle_of_interest, and trade_in. v1.0 merges the former Vehicle + VehicleDetail split into one shape: there is now exactly one vehicle type.\n\nField semantics differ by context:\n- For inventory listings (inventory.search / inventory.vehicle) `condition` MUST be one of `new`, `used`, `cpo` and `status` MUST be one of `available`, `intransit`, `pending`. Pricing fields describe the dealer's listing.\n- For vehicle_of_interest, `condition` MUST be one of `new`, `used`, `cpo`.\n- For trade_in, `condition` MUST be one of `excellent`, `good`, `fair`, `poor`. Pricing fields are typically absent on the request side and may be populated by the dealer's appraisal response.\n\nAll prices are plain integers in whole US dollars (v1.0 dropped the nested {amount, currency} Money object). Context-dependent constraints are enforced at the using request/response schema. No fields are required at this base schema; `additionalProperties: true` lets inventory responses carry richer dealer-specific fields without schema changes.\n\nThe optional `vehicle_type` discriminator (`car` | `motorcycle` | `trailer` | `rv` | `other`) scopes which fields apply. Most detail fields (`body`, `driveline`, `interior_color`, `city_mpg`, `highway_mpg`, `displacement_cc`, the electric-powertrain fields) are optional; a listing carries only the set relevant to its type. When `vehicle_type` is absent it MUST be treated as `car`, so existing car integrations remain valid unchanged; buyer agents SHOULD treat a missing `vehicle_type` as `car`. Niche or dealer-specific attributes that do not warrant a first-class field (e.g. a motorcycle's `final_drive`, `engine_stroke`, `wheel_count`, or `abs`) travel in the free-form `other_attributes` map.\n\nThe electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `dc_fast_charge`, `charge_port`) are GENERIC across vehicle types — they describe any BEV/PHEV unit whether it is an electric car or an electric motorcycle. They are all optional and populated when `fuel` is `bev` or `phev`.",
   "type": "object",
   "examples": [
     {
@@ -34,11 +34,10 @@
       "mileage": 3,
       "body": "touring",
       "displacement_cc": 1868,
-      "abs": true,
       "fuel": "gas",
       "exterior_color": "Gloss Black",
       "stock": "M54321",
-      "other_attributes": { "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2 }
+      "other_attributes": { "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2, "abs": true }
     },
     {
       "vehicle_type": "motorcycle",
@@ -52,17 +51,15 @@
       "price": 11999,
       "mileage": 2,
       "body": "standard",
-      "abs": true,
       "fuel": "bev",
       "electric_range_mi": 113,
       "battery_kwh": 10.5,
       "motor_power_hp": 84,
-      "accel_0_60_mph_s": 3.0,
-      "charge_time_min": 78,
       "dc_fast_charge": false,
+      "charge_port": "nacs",
       "exterior_color": "Matte Black",
       "stock": "EM-1042",
-      "other_attributes": { "final_drive": "belt" }
+      "other_attributes": { "final_drive": "belt", "abs": true }
     }
   ],
   "properties": {
@@ -182,11 +179,6 @@
       "description": "Engine displacement in cubic centimeters (cc). Applies to any combustion vehicle_type (cars and motorcycles alike) — the primary combustion powertrain spec buyers filter on (e.g. 883, 1250, 1868, 1998). Omit for fully electric units (use `electric_range_mi`).",
       "examples": [883, 1868]
     },
-    "abs": {
-      "type": "boolean",
-      "description": "Whether the unit is equipped with an anti-lock braking system. Common buyer filter for motorcycles; MAY also be used for cars.",
-      "examples": [true]
-    },
     "fuel": {
       "type": "string",
       "description": "Fuel type (e.g. 'gas', 'diesel', 'hybrid', 'phev', 'bev').",
@@ -222,22 +214,15 @@
       "description": "Peak electric motor output in horsepower (hp). Generic electric field for BEV/PHEV units (1 hp ≈ 0.746 kW). Reported in hp to stay consistent with AAP's US-market units.",
       "examples": [84, 480]
     },
-    "accel_0_60_mph_s": {
-      "type": "number",
-      "minimum": 0,
-      "description": "Manufacturer 0–60 mph acceleration time in seconds. Generic performance spec; most useful for electric units where it is a headline number (e.g. 3.0 for an electric standard motorcycle).",
-      "examples": [3.0, 5.6]
-    },
-    "charge_time_min": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Approximate charge time in minutes for BEV/PHEV units. Charging conditions (Level 2 vs DC fast, and the start/target state of charge) SHOULD be stated in `description` or `features`, since a single number is otherwise ambiguous. E.g. 78 (electric standard motorcycle, Level 2).",
-      "examples": [60, 78]
-    },
     "dc_fast_charge": {
       "type": "boolean",
       "description": "Whether the unit supports DC fast charging. Generic electric field for BEV/PHEV units.",
       "examples": [true, false]
+    },
+    "charge_port": {
+      "type": ["string", "null"],
+      "description": "EV charge/plug connector standard the unit uses (e.g. 'nacs', 'ccs', 'j1772', 'chademo', 'tesla'). Generic electric field for BEV/PHEV units across any vehicle_type; the concrete thing EV shoppers filter on. Nullable/omitted for non-electric units.",
+      "examples": ["nacs", "ccs", "j1772"]
     },
     "exterior_color": {
       "type": "string",
@@ -279,9 +264,17 @@
     },
     "other_attributes": {
       "type": "object",
-      "additionalProperties": true,
-      "description": "Optional free-form map of niche or dealer-specific attributes that do not warrant a first-class field in the public contract (e.g. motorcycle `final_drive`, `engine_stroke`, `wheel_count`, or dealer-defined specs). Keys and value types are dealer-defined; buyer agents SHOULD treat unknown keys leniently.",
-      "examples": [{ "final_drive": "belt", "wheel_count": 2 }]
+      "additionalProperties": {
+        "anyOf": [
+          { "type": "string" },
+          { "type": "number" },
+          { "type": "boolean" },
+          { "type": "array", "items": { "type": "string" } },
+          { "type": "array", "items": { "type": "number" } }
+        ]
+      },
+      "description": "Optional free-form map of niche or dealer-specific attributes that do not warrant a first-class field in the public contract (e.g. motorcycle `final_drive`, `engine_stroke`, `wheel_count`, `abs`, or dealer-defined specs). Keys are dealer-defined and values are scalars or scalar arrays; buyer agents SHOULD treat unknown keys leniently.",
+      "examples": [{ "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2, "abs": true }]
     },
     "inventory_date": {
       "type": "string",

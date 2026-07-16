@@ -58,7 +58,7 @@
     {
       "id": "dealer.information",
       "name": "Dealer Information",
-      "description": "Return the dealership profile: group name, welcome message, and rooftops with address, hours, contacts, and capabilities.",
+      "description": "Return the dealership profile — group name, welcome message, and one or more rooftops (locations) with their address, geo, contacts, business hours, timezone, and service capabilities (including inventory-class tags such as motorcycle_sales / powersports).",
       "tags": [
         "dealer",
         "dealership",
@@ -66,57 +66,67 @@
         "hours",
         "contact",
         "locations",
-        "automotive"
+        "automotive",
+        "motorcycles",
+        "powersports"
       ]
     },
     {
       "id": "inventory.facets",
       "name": "Inventory Facets",
-      "description": "Return aggregated facets (makes, models, years, conditions, price/mileage ranges, statuses) over the dealer's inventory.",
+      "description": "Return searchable inventory facets such as makes, models, years, conditions, body styles/segments, price ranges, mileage ranges, drivetrain, fuel type, statuses, vehicle type, engine-displacement range, and electric facets (electric-range span, DC fast charge, charge port).",
       "tags": [
         "inventory",
         "facets",
         "aggregation",
         "filters",
-        "automotive"
+        "automotive",
+        "motorcycles",
+        "powersports"
       ]
     },
     {
       "id": "inventory.search",
       "name": "Inventory Search",
-      "description": "Search the dealer's vehicle inventory by make, model, year, condition, price, mileage, body, fuel, drivetrain, VIN, or stock.",
+      "description": "Search vehicle inventory by query, make, model, trim, year, condition, price, mileage, body style/segment, VIN, stock, features, and availability — across cars, motorcycles, and other vehicle types, including filters such as vehicle type, body/segment, and engine displacement, plus electric filters such as electric range and DC fast charging.",
       "tags": [
         "inventory",
         "vehicles",
         "search",
         "cars",
+        "motorcycles",
+        "powersports",
         "automotive"
       ]
     },
     {
       "id": "inventory.vehicle",
       "name": "Vehicle Detail",
-      "description": "Return full detail for a specific vehicle by VIN, stock number, or vehicle_id.",
+      "description": "Return details for a specific car or motorcycle by VIN, stock number, or vehicle_id, including status, pricing disclosure, photos, mileage, trim, features, fuel economy or engine displacement, electric range/battery/charging for BEV and PHEV units, and dealer page URL.",
       "tags": [
         "inventory",
         "vehicle",
         "vin",
         "stock",
         "detail",
-        "automotive"
+        "automotive",
+        "motorcycles",
+        "powersports"
       ]
     },
     {
       "id": "lead.submit",
       "name": "Submit Lead",
-      "description": "Submit a consented lead with optional vehicle of interest, trade-in, and appointment.",
+      "description": "Submit a consented lead carrying customer info plus any combination of vehicle of interest, trade-in, and appointment request — a single unified contract that matches how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).",
       "tags": [
         "lead",
         "contact",
         "consent",
         "sales",
         "appointment",
-        "automotive"
+        "automotive",
+        "motorcycles",
+        "powersports"
       ]
     }
   ]

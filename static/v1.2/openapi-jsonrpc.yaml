@@ -149,17 +149,16 @@ components:
 
         The optional `vehicle_type` discriminator (`car` | `motorcycle` | `trailer` | `rv` | `other`) scopes which
         fields apply. Most detail fields (`body`, `driveline`, `interior_color`, `city_mpg`, `highway_mpg`,
-        `displacement_cc`, `abs`, the electric-powertrain fields) are optional; a listing carries only the set relevant
-        to its type. When `vehicle_type` is absent it MUST be treated as `car`, so existing car integrations remain
-        valid unchanged; buyer agents SHOULD treat a missing `vehicle_type` as `car`. Niche or dealer-specific
-        attributes that do not warrant a first-class field (e.g. a motorcycle's `final_drive`, `engine_stroke`, or
-        `wheel_count`) travel in the free-form `other_attributes` map.
+        `displacement_cc`, the electric-powertrain fields) are optional; a listing carries only the set relevant to its
+        type. When `vehicle_type` is absent it MUST be treated as `car`, so existing car integrations remain valid
+        unchanged; buyer agents SHOULD treat a missing `vehicle_type` as `car`. Niche or dealer-specific attributes that
+        do not warrant a first-class field (e.g. a motorcycle's `final_drive`, `engine_stroke`, `wheel_count`, or `abs`)
+        travel in the free-form `other_attributes` map.
 
 
-        The electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `accel_0_60_mph_s`,
-        `charge_time_min`, `dc_fast_charge`) are GENERIC across vehicle types — they describe any BEV/PHEV unit whether
-        it is an electric car or an electric motorcycle. They are all optional and populated when `fuel` is `bev` or
-        `phev`.
+        The electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `dc_fast_charge`,
+        `charge_port`) are GENERIC across vehicle types — they describe any BEV/PHEV unit whether it is an electric car
+        or an electric motorcycle. They are all optional and populated when `fuel` is `bev` or `phev`.
       type: object
       examples:
         - vehicle_type: car
@@ -188,7 +187,6 @@ components:
           mileage: 3
           body: touring
           displacement_cc: 1868
-          abs: true
           fuel: gas
           exterior_color: Gloss Black
           stock: M54321
@@ -196,6 +194,7 @@ components:
             final_drive: belt
             engine_stroke: 4
             wheel_count: 2
+            abs: true
         - vehicle_type: motorcycle
           vin: 1AMSA20N4RP001234
           year: 2024
@@ -207,18 +206,17 @@ components:
           price: 11999
           mileage: 2
           body: standard
-          abs: true
           fuel: bev
           electric_range_mi: 113
           battery_kwh: 10.5
           motor_power_hp: 84
-          accel_0_60_mph_s: 3
-          charge_time_min: 78
           dc_fast_charge: false
+          charge_port: nacs
           exterior_color: Matte Black
           stock: EM-1042
           other_attributes:
             final_drive: belt
+            abs: true
       properties:
         vehicle_type:
           type: string
@@ -393,12 +391,6 @@ components:
           examples:
             - 883
             - 1868
-        abs:
-          type: boolean
-          description: Whether the unit is equipped with an anti-lock braking system. Common buyer filter for motorcycles; MAY
-            also be used for cars.
-          examples:
-            - true
         fuel:
           type: string
           description: Fuel type (e.g. 'gas', 'diesel', 'hybrid', 'phev', 'bev').
@@ -445,29 +437,23 @@ components:
           examples:
             - 84
             - 480
-        accel_0_60_mph_s:
-          type: number
-          minimum: 0
-          description: Manufacturer 0–60 mph acceleration time in seconds. Generic performance spec; most useful for electric
-            units where it is a headline number (e.g. 3.0 for an electric standard motorcycle).
-          examples:
-            - 3
-            - 5.6
-        charge_time_min:
-          type: integer
-          minimum: 0
-          description: Approximate charge time in minutes for BEV/PHEV units. Charging conditions (Level 2 vs DC fast, and the
-            start/target state of charge) SHOULD be stated in `description` or `features`, since a single number is
-            otherwise ambiguous. E.g. 78 (electric standard motorcycle, Level 2).
-          examples:
-            - 60
-            - 78
         dc_fast_charge:
           type: boolean
           description: Whether the unit supports DC fast charging. Generic electric field for BEV/PHEV units.
           examples:
             - true
             - false
+        charge_port:
+          type:
+            - string
+            - "null"
+          description: EV charge/plug connector standard the unit uses (e.g. 'nacs', 'ccs', 'j1772', 'chademo', 'tesla'). Generic
+            electric field for BEV/PHEV units across any vehicle_type; the concrete thing EV shoppers filter on.
+            Nullable/omitted for non-electric units.
+          examples:
+            - nacs
+            - ccs
+            - j1772
         exterior_color:
           type: string
           description: Free-text exterior color name.
@@ -519,13 +505,26 @@ components:
             - Service history available
         other_attributes:
           type: object
-          additionalProperties: true
+          additionalProperties:
+            anyOf:
+              - type: string
+              - type: number
+              - type: boolean
+              - type: array
+                items:
+                  type: string
+              - type: array
+                items:
+                  type: number
           description: Optional free-form map of niche or dealer-specific attributes that do not warrant a first-class field in
-            the public contract (e.g. motorcycle `final_drive`, `engine_stroke`, `wheel_count`, or dealer-defined
-            specs). Keys and value types are dealer-defined; buyer agents SHOULD treat unknown keys leniently.
+            the public contract (e.g. motorcycle `final_drive`, `engine_stroke`, `wheel_count`, `abs`, or dealer-defined
+            specs). Keys are dealer-defined and values are scalars or scalar arrays; buyer agents SHOULD treat unknown
+            keys leniently.
           examples:
             - final_drive: belt
+              engine_stroke: 4
               wheel_count: 2
+              abs: true
         inventory_date:
           type: string
           format: date
@@ -1073,14 +1072,14 @@ components:
               examples:
                 - - hybrid
                   - bev
-            range_min:
+            electric_range_mi_min:
               type: integer
               minimum: 0
               description: Minimum electric range in miles, applied against `electric_range_mi`. Generic electric filter (EV cars and
                 electric motorcycles).
               examples:
                 - 100
-            range_max:
+            electric_range_mi_max:
               type: integer
               minimum: 0
               description: Maximum electric range in miles, applied against `electric_range_mi`. Generic electric filter.
@@ -1092,6 +1091,13 @@ components:
                 electric filter.
               examples:
                 - true
+            charge_port:
+              type: array
+              items:
+                type: string
+              description: EV charge/plug connectors to include (e.g. ['nacs','ccs']), matching `Vehicle.charge_port`.
+              examples:
+                - - nacs
             driveline:
               type: array
               items:
@@ -1295,6 +1301,14 @@ components:
           $ref: "#/components/schemas/Facets/$defs/term_facet"
         fuels:
           $ref: "#/components/schemas/Facets/$defs/term_facet"
+        dc_fast_charge:
+          $ref: "#/components/schemas/Facets/$defs/term_facet"
+          description: DC-fast-charge support facets (true/false counts), matching `Vehicle.dc_fast_charge` and
+            `filters.dc_fast_charge`.
+        charge_ports:
+          $ref: "#/components/schemas/Facets/$defs/term_facet"
+          description: EV charge/plug connector facets (e.g. `nacs`, `ccs`, `j1772`), matching `Vehicle.charge_port` and
+            `filters.charge_port`.
         drivelines:
           $ref: "#/components/schemas/Facets/$defs/term_facet"
           description: Drivetrain-layout facets, matching `Vehicle.driveline` and `filters.driveline` (car context).
@@ -1321,10 +1335,14 @@ components:
           $ref: "#/components/schemas/Facets/$defs/range_facet"
         year_range:
           $ref: "#/components/schemas/Facets/$defs/range_facet"
-        displacement_range:
+        displacement_cc_range:
           $ref: "#/components/schemas/Facets/$defs/range_facet"
           description: Engine-displacement range in cc across the matching set, matching `Vehicle.displacement_cc` and
             `filters.displacement_cc_min` / `filters.displacement_cc_max`.
+        electric_range_mi_range:
+          $ref: "#/components/schemas/Facets/$defs/range_facet"
+          description: Electric-range span in miles across the matching set, matching `Vehicle.electric_range_mi` and
+            `filters.electric_range_mi_min` / `filters.electric_range_mi_max`.
       additionalProperties: false
     Event:
       title: Event
@@ -1884,7 +1902,7 @@ components:
       title: AgentCard
       description: "A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json
         on a dealer-controlled domain. A2A v1.0 declares every transport in 'supportedInterfaces[]' (it replaced the
-        earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). AAP v1.1
+        earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). AAP v1.2
         uses a single transport: JSON-RPC 2.0. A compliant AAP dealer agent advertises a JSONRPC interface in
         'supportedInterfaces[]' and does not advertise any other transport for AAP. To be a compliant AAP dealer agent,
         'capabilities.extensions' MUST include an entry whose 'uri' equals
@@ -1900,10 +1918,10 @@ components:
         supportedInterfaces:
           type: array
           minItems: 1
-          description: "The A2A v1.0 service interfaces (transport + endpoint). AAP v1.1 uses a single transport: a JSONRPC
+          description: "The A2A v1.0 service interfaces (transport + endpoint). AAP v1.2 uses a single transport: a JSONRPC
             interface is REQUIRED and is the only transport an AAP agent advertises (every AAP client can rely on it).
             The HTTP+JSON (REST) binding was removed in v1.1; gRPC is out of scope. The protocolBinding enum still lists
-            'HTTP+JSON' for raw A2A compatibility, but AAP v1.1 advertises only 'JSONRPC'."
+            'HTTP+JSON' for raw A2A compatibility, but AAP v1.2 advertises only 'JSONRPC'."
           items:
             type: object
             properties:
@@ -1962,7 +1980,7 @@ components:
               type: boolean
             extensions:
               type: array
-              description: Declared A2A extensions. MUST include the AAP automotive-retail v1.1 entry.
+              description: Declared A2A extensions. MUST include the AAP automotive-retail v1.2 entry.
               items:
                 $ref: "#/components/schemas/AgentCard/$defs/extension"
               contains:
@@ -2061,7 +2079,7 @@ components:
             - description
             - tags
           additionalProperties: true
-          description: An A2A AgentSkill. AAP v1.1 cards do NOT carry per-skill natural-language `examples` — AAP is JSON-only,
+          description: An A2A AgentSkill. AAP v1.2 cards do NOT carry per-skill natural-language `examples` — AAP is JSON-only,
             with no NL prompt examples. AAP publishes each skill's request/response JSON Schema URLs in the AAP
             extension's `params.skills` map as `params.skills["<id>"].request_schema` / `response_schema` (see
             capabilities.extensions[].params) — NOT as fields on the skill — because strict A2A AgentCard parsers reject

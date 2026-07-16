@@ -21,26 +21,27 @@ treated as `car`.
   (`car` | `motorcycle` | `trailer` | `rv` | `other`), plus the class-agnostic
   `body` field (now carrying motorcycle segments such as `cruiser`/`touring`
   alongside car body styles), the generic `displacement_cc` field (combustion
-  displacement for cars and motorcycles alike), `abs`, and a free-form
+  displacement for cars and motorcycles alike), and a free-form
   `other_attributes` map for niche or dealer-specific specs. When `vehicle_type`
   is absent it MUST be treated as `car`, so existing car integrations are
   unaffected.
 - **`inventory.search` filters**: `vehicle_type`, `body` (class-agnostic), and
   `displacement_cc_min` / `displacement_cc_max`.
 - **`inventory.facets` facets**: `vehicle_types`, `bodies` (now covering
-  motorcycle segments), and `displacement_range`.
+  motorcycle segments), and `displacement_cc_range`.
 - **Discovery**: rooftop `capabilities` MAY advertise `motorcycle_sales` /
   `powersports`; `test_drive` appointments cover motorcycle demo rides. ADF
   mapping folds the motorcycle `body`/segment into `<bodystyle>`.
 - **Generic electric-powertrain fields** on `Vehicle` (any `vehicle_type`,
-  for `fuel` `bev`/`phev`): `battery_kwh`, `motor_power_hp`,
-  `accel_0_60_mph_s`, `charge_time_min`, and `dc_fast_charge`, alongside the
-  existing `electric_range_mi`. These cover electric cars and electric
-  motorcycles with the same fields.
-- **`inventory.search` electric filters**: `range_min` / `range_max` and
-  `dc_fast_charge`.
+  for `fuel` `bev`/`phev`): `battery_kwh`, `motor_power_hp`, `dc_fast_charge`,
+  and `charge_port`, alongside the existing `electric_range_mi`. These cover
+  electric cars and electric motorcycles with the same fields.
+- **`inventory.search` electric filters**: `electric_range_mi_min` /
+  `electric_range_mi_max`, `dc_fast_charge`, and `charge_port`.
+- **`inventory.facets` electric facets**: `electric_range_mi_range`,
+  `dc_fast_charge`, and `charge_ports`.
 - **`other_attributes` escape hatch**: niche, previously-typed specs such as a
-  motorcycle's `final_drive`, `engine_stroke`, and `wheel_count` are no longer
+  motorcycle's `final_drive`, `engine_stroke`, `wheel_count`, and `abs` are not
   first-class fields; they travel in the free-form `other_attributes` map so the
   public contract stays lean.
 - New motorcycle and electric-motorcycle example payloads under

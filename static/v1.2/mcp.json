@@ -19,7 +19,7 @@
     },
     {
       "name": "aap_inventory_facets",
-      "description": "Return searchable inventory facets such as makes, models, years, conditions, body styles, price ranges, mileage ranges, drivetrain, fuel type, statuses, and powersports facets (inventory class, motorcycle category, displacement range, wheel count, final drive).",
+      "description": "Return searchable inventory facets such as makes, models, years, conditions, body styles/segments, price ranges, mileage ranges, drivetrain, fuel type, statuses, vehicle type, engine-displacement range, and electric facets (electric-range span, DC fast charge, charge port).",
       "inputSchema": {
         "$ref": "https://autoagentprotocol.org/v1.2/schemas/inventory-facets-request.schema.json"
       },

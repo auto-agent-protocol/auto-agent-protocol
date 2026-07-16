@@ -62,9 +62,9 @@ export interface AapMessage {
  *
  * All prices are plain integers in whole US dollars (v1.0 dropped the nested {amount, currency} Money object). Context-dependent constraints are enforced at the using request/response schema. No fields are required at this base schema; `additionalProperties: true` lets inventory responses carry richer dealer-specific fields without schema changes.
  *
- * The optional `vehicle_type` discriminator (`car` | `motorcycle` | `trailer` | `rv` | `other`) scopes which fields apply. Most detail fields (`body`, `driveline`, `interior_color`, `city_mpg`, `highway_mpg`, `displacement_cc`, `abs`, the electric-powertrain fields) are optional; a listing carries only the set relevant to its type. When `vehicle_type` is absent it MUST be treated as `car`, so existing car integrations remain valid unchanged; buyer agents SHOULD treat a missing `vehicle_type` as `car`. Niche or dealer-specific attributes that do not warrant a first-class field (e.g. a motorcycle's `final_drive`, `engine_stroke`, or `wheel_count`) travel in the free-form `other_attributes` map.
+ * The optional `vehicle_type` discriminator (`car` | `motorcycle` | `trailer` | `rv` | `other`) scopes which fields apply. Most detail fields (`body`, `driveline`, `interior_color`, `city_mpg`, `highway_mpg`, `displacement_cc`, the electric-powertrain fields) are optional; a listing carries only the set relevant to its type. When `vehicle_type` is absent it MUST be treated as `car`, so existing car integrations remain valid unchanged; buyer agents SHOULD treat a missing `vehicle_type` as `car`. Niche or dealer-specific attributes that do not warrant a first-class field (e.g. a motorcycle's `final_drive`, `engine_stroke`, `wheel_count`, or `abs`) travel in the free-form `other_attributes` map.
  *
- * The electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `accel_0_60_mph_s`, `charge_time_min`, `dc_fast_charge`) are GENERIC across vehicle types — they describe any BEV/PHEV unit whether it is an electric car or an electric motorcycle. They are all optional and populated when `fuel` is `bev` or `phev`.
+ * The electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `dc_fast_charge`, `charge_port`) are GENERIC across vehicle types — they describe any BEV/PHEV unit whether it is an electric car or an electric motorcycle. They are all optional and populated when `fuel` is `bev` or `phev`.
  */
 export interface Vehicle {
   /**
@@ -152,10 +152,6 @@ export interface Vehicle {
    */
   displacement_cc?: number;
   /**
-   * Whether the unit is equipped with an anti-lock braking system. Common buyer filter for motorcycles; MAY also be used for cars.
-   */
-  abs?: boolean;
-  /**
    * Fuel type (e.g. 'gas', 'diesel', 'hybrid', 'phev', 'bev').
    */
   fuel?: string;
@@ -180,17 +176,13 @@ export interface Vehicle {
    */
   motor_power_hp?: number;
   /**
-   * Manufacturer 0–60 mph acceleration time in seconds. Generic performance spec; most useful for electric units where it is a headline number (e.g. 3.0 for an electric standard motorcycle).
-   */
-  accel_0_60_mph_s?: number;
-  /**
-   * Approximate charge time in minutes for BEV/PHEV units. Charging conditions (Level 2 vs DC fast, and the start/target state of charge) SHOULD be stated in `description` or `features`, since a single number is otherwise ambiguous. E.g. 78 (electric standard motorcycle, Level 2).
-   */
-  charge_time_min?: number;
-  /**
    * Whether the unit supports DC fast charging. Generic electric field for BEV/PHEV units.
    */
   dc_fast_charge?: boolean;
+  /**
+   * EV charge/plug connector standard the unit uses (e.g. 'nacs', 'ccs', 'j1772', 'chademo', 'tesla'). Generic electric field for BEV/PHEV units across any vehicle_type; the concrete thing EV shoppers filter on. Nullable/omitted for non-electric units.
+   */
+  charge_port?: string | null;
   /**
    * Free-text exterior color name.
    */
@@ -220,10 +212,10 @@ export interface Vehicle {
    */
   notes?: string;
   /**
-   * Optional free-form map of niche or dealer-specific attributes that do not warrant a first-class field in the public contract (e.g. motorcycle `final_drive`, `engine_stroke`, `wheel_count`, or dealer-defined specs). Keys and value types are dealer-defined; buyer agents SHOULD treat unknown keys leniently.
+   * Optional free-form map of niche or dealer-specific attributes that do not warrant a first-class field in the public contract (e.g. motorcycle `final_drive`, `engine_stroke`, `wheel_count`, `abs`, or dealer-defined specs). Keys are dealer-defined and values are scalars or scalar arrays; buyer agents SHOULD treat unknown keys leniently.
    */
   other_attributes?: {
-    [k: string]: any;
+    [k: string]: string | number | boolean | string[] | number[];
   };
   /**
    * Date (RFC 3339 full-date, e.g. '2026-04-21') the vehicle first appeared in the dealership's inventory.
@@ -250,7 +242,6 @@ export interface VehicleDetailResponse {
    */
   message?: string;
 }
-
 /**
  * Typed AAP request for the `inventory.vehicle` skill. The request MUST identify a specific listing via at least one of `vin`, `stock`, or `vehicle_id`. Carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
  */
@@ -384,6 +375,342 @@ export type LeadSubmitRequest = {
    */
   idempotency_key?: string;
 };
+/**
+ * Buyer contact info. Required.
+ */
+export type Customer = {
+  [k: string]: any;
+} & {
+  /**
+   * Customer's given (first) name.
+   */
+  first_name: string;
+  /**
+   * Customer's family (last) name.
+   */
+  last_name: string;
+  /**
+   * Customer email address (RFC 5322). At least one of `email` or `phone` MUST be present.
+   */
+  email?: string;
+  /**
+   * Customer phone number in E.164 format (leading '+' and country code, digits only). At least one of `email` or `phone` MUST be present.
+   */
+  phone?: string;
+  /**
+   * Channel preferred for follow-up. 'sms' is treated as text-message via 'phone'.
+   */
+  preferred_contact?: "email" | "phone" | "sms" | "any";
+  address?: Address;
+};
+
+/**
+ * Consent record covering this submission. Required. `scope` MUST be ["lead_submission"].
+ */
+export interface ConsentGrant {
+  /**
+   * ISO 8601 / RFC 3339 timestamp at which the user authorized this share (e.g. '2026-04-30T11:05:00Z'). MUST include a timezone offset (Z or ±HH:MM).
+   */
+  granted_at: string;
+  /**
+   * Channels the user has authorized the dealer to use for follow-up.
+   *
+   * @minItems 1
+   */
+  allowed_channels: ["email" | "phone" | "sms", ...("email" | "phone" | "sms")[]];
+  /**
+   * Verbatim text the user agreed to (e.g. the disclosure shown by the buyer agent). MUST be non-empty — this is the audit trail of what the user actually saw.
+   */
+  consent_text: string;
+  /**
+   * Scope of the consent. AAP defines a single value `lead_submission` covering the unified `lead.submit` skill (which spans general inquiries, vehicle interest, trade-in, and appointments). The request body itself shows what was actually submitted; the meaningful audit granularity is `allowed_channels`.
+   *
+   * @minItems 1
+   * @maxItems 1
+   */
+  scope: ["lead_submission"];
+  /**
+   * Optional ISO 8601 / RFC 3339 timestamp after which this consent grant is no longer valid (e.g. '2027-04-30T11:05:00Z'). Useful for jurisdictions with mandatory re-consent windows (some US state TCPA-style rules cap consent at ~12 months for SMS). The dealer MUST reject `lead.submit` with `INVALID_CONSENT` if `expires_at` is in the past at the time the dealer would use the contact data.
+   */
+  expires_at?: string;
+}
+/**
+ * The vehicle the buyer wants to trade in. Optional. Pass through whatever the customer provided (just a make+model and a mileage is a perfectly valid trade-in lead). When `condition` is set it MUST be one of `excellent` | `good` | `fair` | `poor`. Pricing fields are typically absent on the request side and are populated by the dealer's appraisal response.
+ */
+export interface Vehicle1 {
+  /**
+   * The kind of unit this listing represents. `car` = a car/truck/SUV; `motorcycle` = a two- or three-wheeled motorcycle, scooter, or moped; `trailer` = a towable trailer; `rv` = a recreational vehicle / motorhome; `other` = anything else the rooftop sells. This is the discriminator that scopes which of the remaining fields are meaningful. OPTIONAL and defaults to `car` when absent, so existing car integrations remain valid without change. Buyer agents SHOULD treat a missing `vehicle_type` as `car`.
+   */
+  vehicle_type?: "car" | "motorcycle" | "trailer" | "rv" | "other";
+  /**
+   * Vehicle Identification Number (17 chars, ISO 3779). Applies to both cars and on-road motorcycles. Optional on trade-ins; recommended on inventory listings of used vehicles.
+   */
+  vin?: string;
+  /**
+   * Model year (e.g. 2024).
+   */
+  year?: number;
+  /**
+   * Vehicle make / manufacturer brand (e.g. 'Honda', 'BMW', 'Ford').
+   */
+  make?: string;
+  /**
+   * Vehicle model name (e.g. 'CR-V', '3 Series', 'F-150').
+   */
+  model?: string;
+  /**
+   * Trim level (e.g. 'EX-L', 'M Sport', 'Lariat').
+   */
+  trim?: string;
+  /**
+   * Combined condition enum spanning both sale-condition and trade-in-condition vocabularies. For inventory listings and vehicle_of_interest use one of `new` | `used` | `cpo` (Certified Pre-Owned). For trade_in use one of `excellent` | `good` | `fair` | `poor`. The using schema enforces the correct subset by context.
+   */
+  condition?: "new" | "used" | "cpo" | "excellent" | "good" | "fair" | "poor";
+  /**
+   * Inventory availability. v1.0 supports exactly three values: `available` (in stock now), `intransit` (allocated / en route to the dealership), `pending` (deal in progress). A vehicle in any other state is OUT OF STOCK and MUST NOT appear in inventory feeds — dealers omit it and buyer agents ignore any item missing or carrying an unknown status. Required on inventory listings; omitted on vehicle_of_interest and trade_in.
+   */
+  status?: "available" | "intransit" | "pending";
+  /**
+   * Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer.information. Nullable; single-rooftop dealers MAY leave it null.
+   */
+  rooftop?: string | null;
+  /**
+   * Manufacturer's Suggested Retail Price (sticker price), whole US dollars. Inventory context.
+   */
+  msrp?: number;
+  /**
+   * FTC-emphasized FINAL out-the-door price after all incentives, mandatory fees, and required add-ons, in whole US dollars. Per FTC enforcement (CARS Rule), this field MUST reflect the total amount the buyer would pay; advertising a 'price' that excludes required fees or omits required add-ons is a violation. Inventory context.
+   */
+  price?: number;
+  /**
+   * Dealer's advertised list price; the base price BEFORE incentives, taxes, or fees, in whole US dollars. Inventory context.
+   */
+  list_price?: number;
+  /**
+   * Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts.
+   */
+  stock?: string;
+  /**
+   * Stable identifier of the dealer that owns this listing. Inventory context.
+   */
+  dealer_id?: string;
+  /**
+   * Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).
+   */
+  vehicle_id?: string;
+  /**
+   * Odometer reading in miles. Required for trade-ins; typical on used inventory.
+   */
+  mileage?: number;
+  /**
+   * Body style / segment as free text, applicable to any `vehicle_type`. Cars use e.g. 'sedan', 'suv', 'truck', 'coupe', 'hatchback', 'wagon', 'minivan', 'convertible'; motorcycles use e.g. 'cruiser', 'sport', 'touring', 'sport_touring', 'adventure', 'standard', 'scooter'.
+   */
+  body?: string;
+  /**
+   * Transmission type as text. Cars use e.g. 'automatic', 'manual', '8-speed automatic', 'cvt'; motorcycles use e.g. 'manual', 'automatic', 'dct', 'semi-automatic'.
+   */
+  transmission?: string;
+  /**
+   * Drivetrain layout (e.g. 'fwd', 'rwd', 'awd', '4wd'). Car context.
+   */
+  driveline?: string;
+  /**
+   * Free-text engine description. Cars use e.g. '2.0L Turbo I4', '3.5L V6 Hybrid'; motorcycles MAY use e.g. '1868cc V-twin'. The numeric displacement SHOULD also be provided in `displacement_cc`.
+   */
+  engine?: string;
+  /**
+   * Engine displacement in cubic centimeters (cc). Applies to any combustion vehicle_type (cars and motorcycles alike) — the primary combustion powertrain spec buyers filter on (e.g. 883, 1250, 1868, 1998). Omit for fully electric units (use `electric_range_mi`).
+   */
+  displacement_cc?: number;
+  /**
+   * Fuel type (e.g. 'gas', 'diesel', 'hybrid', 'phev', 'bev').
+   */
+  fuel?: string;
+  /**
+   * EPA city fuel-economy estimate in miles per gallon. Primarily a car field; for motorcycles displacement in `displacement_cc` is the primary spec. Omit for fully electric units (use `electric_range_mi`).
+   */
+  city_mpg?: number;
+  /**
+   * EPA highway fuel-economy estimate in miles per gallon. Primarily a car field; for motorcycles displacement in `displacement_cc` is the primary spec. Omit for fully electric units (use `electric_range_mi`).
+   */
+  highway_mpg?: number;
+  /**
+   * Estimated electric range in miles. The primary range spec for BEV/PHEV units across ALL inventory classes — electric cars and electric motorcycles alike (e.g. 113 for an electric standard motorcycle, 300 for an EV car).
+   */
+  electric_range_mi?: number;
+  /**
+   * Usable battery energy capacity in kilowatt-hours (kWh). Generic electric field (any inventory class) for BEV/PHEV units. E.g. 10.5 (compact electric motorcycle), 15.4 (larger electric motorcycle).
+   */
+  battery_kwh?: number;
+  /**
+   * Peak electric motor output in horsepower (hp). Generic electric field for BEV/PHEV units (1 hp ≈ 0.746 kW). Reported in hp to stay consistent with AAP's US-market units.
+   */
+  motor_power_hp?: number;
+  /**
+   * Whether the unit supports DC fast charging. Generic electric field for BEV/PHEV units.
+   */
+  dc_fast_charge?: boolean;
+  /**
+   * EV charge/plug connector standard the unit uses (e.g. 'nacs', 'ccs', 'j1772', 'chademo', 'tesla'). Generic electric field for BEV/PHEV units across any vehicle_type; the concrete thing EV shoppers filter on. Nullable/omitted for non-electric units.
+   */
+  charge_port?: string | null;
+  /**
+   * Free-text exterior color name.
+   */
+  exterior_color?: string;
+  /**
+   * Free-text interior color or upholstery name. Car context; typically omitted for motorcycles.
+   */
+  interior_color?: string;
+  /**
+   * Notable equipment and options as free-text strings (e.g. 'Adaptive Cruise Control', 'Apple CarPlay', 'Heated Front Seats'). v1.0 uses one flat list and does not separate option packages, factory equipment, or installed accessories.
+   */
+  features?: string[];
+  /**
+   * Public URLs of vehicle photos, ordered by relevance.
+   */
+  photos?: string[];
+  /**
+   * Public Vehicle Detail Page (VDP) URL on the dealer's website.
+   */
+  vdp_url?: string;
+  /**
+   * Human-readable description / dealer marketing copy.
+   */
+  description?: string;
+  /**
+   * Dealer notes (e.g. 'recently arrived', 'service history available').
+   */
+  notes?: string;
+  /**
+   * Optional free-form map of niche or dealer-specific attributes that do not warrant a first-class field in the public contract (e.g. motorcycle `final_drive`, `engine_stroke`, `wheel_count`, `abs`, or dealer-defined specs). Keys are dealer-defined and values are scalars or scalar arrays; buyer agents SHOULD treat unknown keys leniently.
+   */
+  other_attributes?: {
+    [k: string]: string | number | boolean | string[] | number[];
+  };
+  /**
+   * Date (RFC 3339 full-date, e.g. '2026-04-21') the vehicle first appeared in the dealership's inventory.
+   */
+  inventory_date?: string;
+  /**
+   * ISO 8601 / RFC 3339 timestamp (with timezone offset) of the last update to this vehicle's availability, price, or status (e.g. '2026-04-30T08:42:00Z'). Buyer agents treat this as the freshness signal for availability claims.
+   */
+  updated_at?: string;
+  [k: string]: any;
+}
+/**
+ * An appointment request the buyer wants scheduled alongside this lead. Optional. `appointment_type` is one of `sales` | `service` | `test_drive` | `trade_in`, and `appointment_at` is the requested start time. The vehicle for the appointment is implicit: `vehicle_of_interest` for a test drive, `trade_in` for a trade-in appraisal.
+ */
+export interface Appointment {
+  /**
+   * Kind of appointment the buyer is requesting. `sales` = general sales consultation, `service` = service/maintenance visit, `test_drive` = test drive of the `vehicle_of_interest` (also covers a motorcycle demo ride when `vehicle_type = motorcycle`), `trade_in` = in-person trade-in appraisal of the `trade_in` vehicle.
+   */
+  appointment_type: "sales" | "service" | "test_drive" | "trade_in";
+  /**
+   * Requested start time of the appointment as an ISO 8601 / RFC 3339 timestamp that MUST include a timezone offset (Z or ±HH:MM), e.g. '2026-05-03T11:00:00-07:00'. Optional — when omitted, the dealer follows up to schedule a time.
+   */
+  appointment_at?: string;
+  /**
+   * Expected appointment duration in minutes. If omitted, the dealer applies its default for `appointment_type`.
+   */
+  duration_minutes?: number;
+  /**
+   * Free-text note from the buyer (e.g. 'I'd like to bring my partner', 'parking instructions please').
+   */
+  notes?: string;
+}
+
+/**
+ * A term facet: each entry pairs a distinct field value with the count of matching vehicles.
+ */
+export type TermFacet = {
+  /**
+   * A distinct value observed for this field across the matching set (e.g. a make, model, or year).
+   */
+  value: string | number;
+  /**
+   * Number of matching vehicles carrying this value.
+   */
+  count: number;
+}[];
+/**
+ * A term facet: each entry pairs a distinct field value with the count of matching vehicles.
+ */
+export type TermFacet1 = {
+  /**
+   * A distinct value observed for this field across the matching set (e.g. a make, model, or year).
+   */
+  value: string | number;
+  /**
+   * Number of matching vehicles carrying this value.
+   */
+  count: number;
+}[];
+/**
+ * A term facet: each entry pairs a distinct field value with the count of matching vehicles.
+ */
+export type TermFacet2 = {
+  /**
+   * A distinct value observed for this field across the matching set (e.g. a make, model, or year).
+   */
+  value: string | number;
+  /**
+   * Number of matching vehicles carrying this value.
+   */
+  count: number;
+}[];
+/**
+ * A term facet: each entry pairs a distinct field value with the count of matching vehicles.
+ */
+export type TermFacet3 = {
+  /**
+   * A distinct value observed for this field across the matching set (e.g. a make, model, or year).
+   */
+  value: string | number;
+  /**
+   * Number of matching vehicles carrying this value.
+   */
+  count: number;
+}[];
+/**
+ * A term facet: each entry pairs a distinct field value with the count of matching vehicles.
+ */
+export type TermFacet4 = {
+  /**
+   * A distinct value observed for this field across the matching set (e.g. a make, model, or year).
+   */
+  value: string | number;
+  /**
+   * Number of matching vehicles carrying this value.
+   */
+  count: number;
+}[];
+/**
+ * A term facet: each entry pairs a distinct field value with the count of matching vehicles.
+ */
+export type TermFacet5 = {
+  /**
+   * A distinct value observed for this field across the matching set (e.g. a make, model, or year).
+   */
+  value: string | number;
+  /**
+   * Number of matching vehicles carrying this value.
+   */
+  count: number;
+}[];
+/**
+ * A term facet: each entry pairs a distinct field value with the count of matching vehicles.
+ */
+export type TermFacet6 = {
+  /**
+   * A distinct value observed for this field across the matching set (e.g. a make, model, or year).
+   */
+  value: string | number;
+  /**
+   * Number of matching vehicles carrying this value.
+   */
+  count: number;
+}[];
 
 /**
  * Typed AAP response for the `inventory.search` skill. The `data` block contains pagination metadata, the matched vehicles, and OPTIONALLY an embedded Facets aggregation. Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
@@ -416,6 +743,71 @@ export interface InventorySearchResponse {
    * Optional contextual note. MAY be omitted.
    */
   message?: string;
+}
+/**
+ * Optional aggregated facets over the matching set.
+ */
+export interface Facets {
+  makes?: TermFacet;
+  models?: TermFacet;
+  trims?: TermFacet;
+  years?: TermFacet;
+  conditions?: TermFacet;
+  transmissions?: TermFacet;
+  fuels?: TermFacet;
+  dc_fast_charge?: TermFacet1;
+  charge_ports?: TermFacet2;
+  drivelines?: TermFacet3;
+  bodies?: TermFacet4;
+  vehicle_types?: TermFacet5;
+  exterior_colors?: TermFacet;
+  interior_colors?: TermFacet;
+  rooftops?: TermFacet6;
+  statuses?: TermFacet;
+  price_range?: RangeFacet;
+  mileage_range?: RangeFacet;
+  year_range?: RangeFacet;
+  displacement_cc_range?: RangeFacet1;
+  electric_range_mi_range?: RangeFacet2;
+}
+/**
+ * A numeric range facet: the observed min and max for a field across the matching set.
+ */
+export interface RangeFacet {
+  /**
+   * Lowest observed value for this field across the matching set.
+   */
+  min: number;
+  /**
+   * Highest observed value for this field across the matching set.
+   */
+  max: number;
+}
+/**
+ * A numeric range facet: the observed min and max for a field across the matching set.
+ */
+export interface RangeFacet1 {
+  /**
+   * Lowest observed value for this field across the matching set.
+   */
+  min: number;
+  /**
+   * Highest observed value for this field across the matching set.
+   */
+  max: number;
+}
+/**
+ * A numeric range facet: the observed min and max for a field across the matching set.
+ */
+export interface RangeFacet2 {
+  /**
+   * Lowest observed value for this field across the matching set.
+   */
+  min: number;
+  /**
+   * Highest observed value for this field across the matching set.
+   */
+  max: number;
 }
 
 /**
@@ -457,6 +849,88 @@ export interface InventorySearchRequest {
     anonymous?: boolean;
   };
 }
+/**
+ * Optional filter block. All fields optional; absent fields mean 'no constraint'.
+ */
+export interface Filters {
+  /**
+   * Vehicle makes to include (e.g. ['Honda','BMW']).
+   */
+  make?: string[];
+  /**
+   * Vehicle models to include.
+   */
+  model?: string[];
+  /**
+   * Trim levels to include.
+   */
+  trim?: string[];
+  /**
+   * Sale conditions to include. Inventory uses the sale-condition vocabulary (`new` | `used` | `cpo`).
+   */
+  condition?: ("new" | "used" | "cpo")[];
+  /**
+   * Vehicle types to include (e.g. ['motorcycle']). Omit to search all types; a value absent on a listing is treated as 'car'.
+   */
+  vehicle_type?: ("car" | "motorcycle" | "trailer" | "rv" | "other")[];
+  transmission?: string[];
+  fuel?: string[];
+  /**
+   * Minimum electric range in miles, applied against `electric_range_mi`. Generic electric filter (EV cars and electric motorcycles).
+   */
+  electric_range_mi_min?: number;
+  /**
+   * Maximum electric range in miles, applied against `electric_range_mi`. Generic electric filter.
+   */
+  electric_range_mi_max?: number;
+  /**
+   * When true, include only units that support DC fast charging (matches `Vehicle.dc_fast_charge`). Generic electric filter.
+   */
+  dc_fast_charge?: boolean;
+  /**
+   * EV charge/plug connectors to include (e.g. ['nacs','ccs']), matching `Vehicle.charge_port`.
+   */
+  charge_port?: string[];
+  /**
+   * Drivetrain layouts to include (e.g. ['awd']). Car context.
+   */
+  driveline?: string[];
+  /**
+   * Body styles / segments to include, applicable to any vehicle_type (e.g. ['sedan','suv','truck'] for cars, ['cruiser','touring'] for motorcycles).
+   */
+  body?: string[];
+  /**
+   * Minimum engine displacement in cc, applied against `displacement_cc`.
+   */
+  displacement_cc_min?: number;
+  /**
+   * Maximum engine displacement in cc, applied against `displacement_cc`.
+   */
+  displacement_cc_max?: number;
+  exterior_color?: string[];
+  interior_color?: string[];
+  /**
+   * Rooftop names to include, matching `Vehicle.rooftop` and the rooftop `name` from `dealer.information`. For multi-rooftop dealerships; omit to search across all rooftops.
+   */
+  rooftops?: string[];
+  year_min?: number;
+  year_max?: number;
+  /**
+   * Minimum price in whole US dollars, applied against the FTC-final 'price' field.
+   */
+  price_min?: number;
+  /**
+   * Maximum price in whole US dollars, applied against the FTC-final 'price' field.
+   */
+  price_max?: number;
+  mileage_max?: number;
+  vin?: string;
+  stock?: string;
+  /**
+   * Optional free-text query.
+   */
+  query?: string;
+}
 
 /**
  * Typed AAP response for the `inventory.facets` skill. The `data` object is a Facets aggregation. Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
@@ -469,7 +943,6 @@ export interface InventoryFacetsResponse {
    */
   message?: string;
 }
-
 /**
  * Typed AAP request for the `inventory.facets` skill. An optional `filters` block scopes the facets to a subset of inventory (e.g. `condition: ['used']`). Carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
  */
@@ -477,31 +950,6 @@ export interface InventoryFacetsRequest {
   type: "inventory.facets.request";
   filters?: Filters;
 }
-
-/**
- * Aggregated facet counts and ranges over a dealer's inventory. Returned by the `inventory.facets` AAP skill (wrapped in `inventory.facets.response`) and OPTIONALLY embedded in `inventory.search` responses. Both responses travel inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
- */
-export interface Facets {
-  makes?: TermFacet;
-  models?: TermFacet;
-  trims?: TermFacet;
-  years?: TermFacet;
-  conditions?: TermFacet;
-  transmissions?: TermFacet;
-  fuels?: TermFacet;
-  drivelines?: TermFacet1;
-  bodies?: TermFacet2;
-  vehicle_types?: TermFacet3;
-  exterior_colors?: TermFacet;
-  interior_colors?: TermFacet;
-  rooftops?: TermFacet4;
-  statuses?: TermFacet;
-  price_range?: RangeFacet;
-  mileage_range?: RangeFacet;
-  year_range?: RangeFacet;
-  displacement_range?: RangeFacet1;
-}
-
 /**
  * Minimal AAP event envelope. Used for asynchronous status updates (e.g. lead status changes, appointment confirmations) delivered via A2A push notifications or task status update events.
  */
@@ -579,6 +1027,14 @@ export interface Error {
 }
 
 /**
+ * A single day's hours — {open, close} in 24h HH:MM (rooftop local time) or null when closed.
+ */
+export type DayHours = {
+  open: string;
+  close: string;
+} | null;
+
+/**
  * Public dealership profile. v1.0 reduces this to the minimum: a dealer group `name`, an optional `welcome_message`, and one or more `rooftops` (physical locations). Per-location identity, address, geo, contacts, hours, and service capabilities live on each rooftop. Vehicles reference the rooftop that holds them via `Vehicle.rooftop` = the rooftop's `name`. Returned by the `dealer.information` AAP skill, wrapped in `dealer.information.response` and carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
  */
 export interface DealerInformation {
@@ -597,6 +1053,90 @@ export interface DealerInformation {
    */
   rooftops: [Rooftop, ...Rooftop[]];
 }
+/**
+ * A single dealership location.
+ */
+export interface Rooftop {
+  /**
+   * Rooftop name shown to buyers and referenced by `Vehicle.rooftop` (e.g. 'Demo Toyota San Francisco').
+   */
+  name: string;
+  /**
+   * Legal / registered business name for this location.
+   */
+  legal_name?: string;
+  /**
+   * Public website for this rooftop.
+   */
+  website?: string;
+  /**
+   * Geographic coordinates of this rooftop.
+   */
+  geo?: {
+    latitude: number;
+    longitude: number;
+  };
+  /**
+   * Email contact channels for this rooftop.
+   */
+  emails?: NamedValue[];
+  /**
+   * Phone contact channels for this rooftop.
+   */
+  phones?: NamedValue[];
+  address?: Address;
+  /**
+   * Named weekly schedules for this rooftop (e.g. a 'sales' schedule and a 'service' schedule).
+   */
+  schedules?: Schedule[];
+  /**
+   * IANA timezone identifier for this rooftop's schedules (e.g. 'America/Los_Angeles').
+   */
+  timezone?: string;
+  /**
+   * Free-text notes (e.g. 'closed major holidays').
+   */
+  notes?: string;
+  /**
+   * Services this rooftop offers, as free-text tags (e.g. 'sales', 'service', 'parts', 'financing', 'trade_in', 'delivery'). Rooftops MAY also advertise which inventory classes they sell with tags such as 'motorcycle_sales' or 'powersports', so buyer agents know the inventory class before searching.
+   */
+  capabilities?: string[];
+}
+/**
+ * A labeled contact value (e.g. name 'Sales', value '+14155550100' or 'sales@dealer.example').
+ */
+export interface NamedValue {
+  /**
+   * Channel label (e.g. 'Sales', 'Service', 'Parts').
+   */
+  name?: string;
+  /**
+   * The contact value itself — the email address or phone number.
+   */
+  value: string;
+}
+/**
+ * A named weekly schedule (e.g. name 'sales' or 'service' with its own weekly hours).
+ */
+export interface Schedule {
+  /**
+   * Schedule label (e.g. 'sales', 'service').
+   */
+  name?: string;
+  value: WeeklyHours;
+}
+/**
+ * Hours keyed by day. Each day is {open, close} or null when closed.
+ */
+export interface WeeklyHours {
+  monday?: DayHours;
+  tuesday?: DayHours;
+  wednesday?: DayHours;
+  thursday?: DayHours;
+  friday?: DayHours;
+  saturday?: DayHours;
+  sunday?: DayHours;
+}
 
 /**
  * Typed AAP response for the `dealer.information` skill. Wraps a DealerInformation object inside the standard AAP response envelope (`{ type, data, message? }`). Carried inside an A2A `Message.parts[].data` DataPart returned from the `SendMessage` operation.
@@ -608,6 +1148,60 @@ export interface DealerInformationResponse {
    * Optional contextual note from the dealer or LLM. MAY be omitted.
    */
   message?: string;
+}
+/**
+ * Hours keyed by day. Each day is {open, close} or null when closed.
+ */
+export interface WeeklyHours {
+  /**
+   * A single day's hours — {open, close} in 24h HH:MM (rooftop local time) or null when closed.
+   */
+  monday?: {
+    open: string;
+    close: string;
+  } | null;
+  /**
+   * A single day's hours — {open, close} in 24h HH:MM (rooftop local time) or null when closed.
+   */
+  tuesday?: {
+    open: string;
+    close: string;
+  } | null;
+  /**
+   * A single day's hours — {open, close} in 24h HH:MM (rooftop local time) or null when closed.
+   */
+  wednesday?: {
+    open: string;
+    close: string;
+  } | null;
+  /**
+   * A single day's hours — {open, close} in 24h HH:MM (rooftop local time) or null when closed.
+   */
+  thursday?: {
+    open: string;
+    close: string;
+  } | null;
+  /**
+   * A single day's hours — {open, close} in 24h HH:MM (rooftop local time) or null when closed.
+   */
+  friday?: {
+    open: string;
+    close: string;
+  } | null;
+  /**
+   * A single day's hours — {open, close} in 24h HH:MM (rooftop local time) or null when closed.
+   */
+  saturday?: {
+    open: string;
+    close: string;
+  } | null;
+  /**
+   * A single day's hours — {open, close} in 24h HH:MM (rooftop local time) or null when closed.
+   */
+  sunday?: {
+    open: string;
+    close: string;
+  } | null;
 }
 
 /**
@@ -621,91 +1215,7 @@ export interface DealerInformationRequest {
 }
 
 /**
- * Buyer/customer contact info attached to a `lead.submit.request` (which travels inside an A2A `Message.parts[].data` DataPart). At least one of email or phone MUST be present. When customer is present a ConsentGrant MUST also be present.
- */
-export type Customer = {
-  [k: string]: any;
-} & {
-  /**
-   * Customer's given (first) name.
-   */
-  first_name: string;
-  /**
-   * Customer's family (last) name.
-   */
-  last_name: string;
-  /**
-   * Customer email address (RFC 5322). At least one of `email` or `phone` MUST be present.
-   */
-  email?: string;
-  /**
-   * Customer phone number in E.164 format (leading '+' and country code, digits only). At least one of `email` or `phone` MUST be present.
-   */
-  phone?: string;
-  /**
-   * Channel preferred for follow-up. 'sms' is treated as text-message via 'phone'.
-   */
-  preferred_contact?: "email" | "phone" | "sms" | "any";
-  address?: Address;
-};
-
-/**
- * Explicit consent record for a single `lead.submit` submission. Required whenever a `lead.submit.request` includes customer contact info (which is always — `customer` is required on the unified lead). Provides an auditable record of what the user authorized, when, through which channels, and via which buyer agent.
- *
- * Error-code mapping: a dealer agent MUST reject lead submissions with `CONTACT_CONSENT_REQUIRED` if `consent` is missing entirely; with `INVALID_CONSENT` if the grant is malformed, `expires_at` has passed at the time the dealer would use the contact data, or the dealer intends to use a contact channel not present in `allowed_channels`.
- */
-export interface ConsentGrant {
-  /**
-   * ISO 8601 / RFC 3339 timestamp at which the user authorized this share (e.g. '2026-04-30T11:05:00Z'). MUST include a timezone offset (Z or ±HH:MM).
-   */
-  granted_at: string;
-  /**
-   * Channels the user has authorized the dealer to use for follow-up.
-   *
-   * @minItems 1
-   */
-  allowed_channels: ["email" | "phone" | "sms", ...("email" | "phone" | "sms")[]];
-  /**
-   * Verbatim text the user agreed to (e.g. the disclosure shown by the buyer agent). MUST be non-empty — this is the audit trail of what the user actually saw.
-   */
-  consent_text: string;
-  /**
-   * Scope of the consent. AAP defines a single value `lead_submission` covering the unified `lead.submit` skill (which spans general inquiries, vehicle interest, trade-in, and appointments). The request body itself shows what was actually submitted; the meaningful audit granularity is `allowed_channels`.
-   *
-   * @minItems 1
-   * @maxItems 1
-   */
-  scope: ["lead_submission"];
-  /**
-   * Optional ISO 8601 / RFC 3339 timestamp after which this consent grant is no longer valid (e.g. '2027-04-30T11:05:00Z'). Useful for jurisdictions with mandatory re-consent windows (some US state TCPA-style rules cap consent at ~12 months for SMS). The dealer MUST reject `lead.submit` with `INVALID_CONSENT` if `expires_at` is in the past at the time the dealer would use the contact data.
-   */
-  expires_at?: string;
-}
-
-/**
- * An appointment request piggybacked on a `lead.submit.request`. The vehicle reference for the appointment is IMPLICIT — it is whatever is in the parent `vehicle_of_interest` (or `trade_in` for a trade-in appraisal). A standalone sales or service visit can omit any vehicle.
- */
-export interface Appointment {
-  /**
-   * Kind of appointment the buyer is requesting. `sales` = general sales consultation, `service` = service/maintenance visit, `test_drive` = test drive of the `vehicle_of_interest` (also covers a motorcycle demo ride when `vehicle_type = motorcycle`), `trade_in` = in-person trade-in appraisal of the `trade_in` vehicle.
-   */
-  appointment_type: "sales" | "service" | "test_drive" | "trade_in";
-  /**
-   * Requested start time of the appointment as an ISO 8601 / RFC 3339 timestamp that MUST include a timezone offset (Z or ±HH:MM), e.g. '2026-05-03T11:00:00-07:00'. Optional — when omitted, the dealer follows up to schedule a time.
-   */
-  appointment_at?: string;
-  /**
-   * Expected appointment duration in minutes. If omitted, the dealer applies its default for `appointment_type`.
-   */
-  duration_minutes?: number;
-  /**
-   * Free-text note from the buyer (e.g. 'I'd like to bring my partner', 'parking instructions please').
-   */
-  notes?: string;
-}
-
-/**
- * A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. A2A v1.0 declares every transport in 'supportedInterfaces[]' (it replaced the earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). AAP v1.1 uses a single transport: JSON-RPC 2.0. A compliant AAP dealer agent advertises a JSONRPC interface in 'supportedInterfaces[]' and does not advertise any other transport for AAP. To be a compliant AAP dealer agent, 'capabilities.extensions' MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/aap/v1.2'.
+ * A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. A2A v1.0 declares every transport in 'supportedInterfaces[]' (it replaced the earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). AAP v1.2 uses a single transport: JSON-RPC 2.0. A compliant AAP dealer agent advertises a JSONRPC interface in 'supportedInterfaces[]' and does not advertise any other transport for AAP. To be a compliant AAP dealer agent, 'capabilities.extensions' MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/aap/v1.2'.
  */
 export interface AgentCard {
   /**
@@ -717,7 +1227,7 @@ export interface AgentCard {
    */
   description: string;
   /**
-   * The A2A v1.0 service interfaces (transport + endpoint). AAP v1.1 uses a single transport: a JSONRPC interface is REQUIRED and is the only transport an AAP agent advertises (every AAP client can rely on it). The HTTP+JSON (REST) binding was removed in v1.1; gRPC is out of scope. The protocolBinding enum still lists 'HTTP+JSON' for raw A2A compatibility, but AAP v1.1 advertises only 'JSONRPC'.
+   * The A2A v1.0 service interfaces (transport + endpoint). AAP v1.2 uses a single transport: a JSONRPC interface is REQUIRED and is the only transport an AAP agent advertises (every AAP client can rely on it). The HTTP+JSON (REST) binding was removed in v1.1; gRPC is out of scope. The protocolBinding enum still lists 'HTTP+JSON' for raw A2A compatibility, but AAP v1.2 advertises only 'JSONRPC'.
    *
    * @minItems 1
    */
@@ -776,7 +1286,7 @@ export interface AgentCard {
     streaming?: boolean;
     pushNotifications?: boolean;
     /**
-     * Declared A2A extensions. MUST include the AAP automotive-retail v1.1 entry.
+     * Declared A2A extensions. MUST include the AAP automotive-retail v1.2 entry.
      */
     extensions: Extension[];
     [k: string]: any;
@@ -806,6 +1316,35 @@ export interface AgentCard {
     [k: string]: any;
   }[];
   iconUrl?: string;
+  [k: string]: any;
+}
+export interface Extension {
+  uri: string;
+  description?: string;
+  required?: boolean;
+  params?: {
+    [k: string]: any;
+  };
+  [k: string]: any;
+}
+/**
+ * An A2A AgentSkill. AAP v1.2 cards do NOT carry per-skill natural-language `examples` — AAP is JSON-only, with no NL prompt examples. AAP publishes each skill's request/response JSON Schema URLs in the AAP extension's `params.skills` map as `params.skills["<id>"].request_schema` / `response_schema` (see capabilities.extensions[].params) — NOT as fields on the skill — because strict A2A AgentCard parsers reject unknown skill fields.
+ */
+export interface Skill {
+  /**
+   * Skill identifier. AAP standard skill IDs: `dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`. Agents MAY declare any subset, plus additional non-AAP skill IDs.
+   */
+  id: string;
+  name: string;
+  description: string;
+  /**
+   * Keywords describing the skill. REQUIRED by A2A so clients/LLMs can categorize and rank skills.
+   *
+   * @minItems 1
+   */
+  tags: [string, ...string[]];
+  inputModes?: string[];
+  outputModes?: string[];
   [k: string]: any;
 }
 

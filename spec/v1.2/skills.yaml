@@ -15,7 +15,7 @@ skills:
 
   - id: inventory.facets
     name: Inventory Facets
-    description: Return searchable inventory facets such as makes, models, years, conditions, body styles, price ranges, mileage ranges, drivetrain, fuel type, statuses, and powersports facets (inventory class, motorcycle category, displacement range, wheel count, final drive).
+    description: Return searchable inventory facets such as makes, models, years, conditions, body styles/segments, price ranges, mileage ranges, drivetrain, fuel type, statuses, vehicle type, engine-displacement range, and electric facets (electric-range span, DC fast charge, charge port).
     tags: [inventory, facets, aggregation, filters, automotive, motorcycles, powersports]
     request_schema: inventory-facets-request.schema.json
     response_schema: inventory-facets-response.schema.json
