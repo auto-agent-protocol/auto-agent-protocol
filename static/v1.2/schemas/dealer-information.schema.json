@@ -135,7 +135,7 @@
         },
         "capabilities": {
           "type": "array",
-          "description": "Services this rooftop offers, as free-text tags (e.g. 'sales', 'service', 'parts', 'financing', 'trade_in', 'delivery'). Rooftops MAY also advertise which inventory classes they sell with tags such as 'motorcycle_sales' or 'powersports', so buyer agents know the inventory class before searching.",
+          "description": "Services this rooftop offers, as free-text tags (e.g. 'sales', 'service', 'parts', 'financing', 'trade_in', 'delivery'). Rooftops MAY also advertise which vehicle types they sell with tags such as 'motorcycle_sales' or 'powersports', so buyer agents know the vehicle_type mix before searching.",
           "items": { "type": "string" },
           "examples": [["sales", "service", "parts", "financing", "trade_in", "delivery"], ["sales", "service", "parts", "motorcycle_sales", "powersports"]]
         }

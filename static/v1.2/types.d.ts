@@ -164,11 +164,11 @@ export interface Vehicle {
    */
   highway_mpg?: number;
   /**
-   * Estimated electric range in miles. The primary range spec for BEV/PHEV units across ALL inventory classes — electric cars and electric motorcycles alike (e.g. 113 for an electric standard motorcycle, 300 for an EV car).
+   * Estimated electric range in miles. The primary range spec for BEV/PHEV units across any vehicle_type — electric cars and electric motorcycles alike (e.g. 113 for an electric standard motorcycle, 300 for an EV car).
    */
   electric_range_mi?: number;
   /**
-   * Usable battery energy capacity in kilowatt-hours (kWh). Generic electric field (any inventory class) for BEV/PHEV units. E.g. 10.5 (compact electric motorcycle), 15.4 (larger electric motorcycle).
+   * Usable battery energy capacity in kilowatt-hours (kWh). Generic electric field (any vehicle_type) for BEV/PHEV units. E.g. 10.5 (compact electric motorcycle), 15.4 (larger electric motorcycle).
    */
   battery_kwh?: number;
   /**
@@ -535,11 +535,11 @@ export interface Vehicle1 {
    */
   highway_mpg?: number;
   /**
-   * Estimated electric range in miles. The primary range spec for BEV/PHEV units across ALL inventory classes — electric cars and electric motorcycles alike (e.g. 113 for an electric standard motorcycle, 300 for an EV car).
+   * Estimated electric range in miles. The primary range spec for BEV/PHEV units across any vehicle_type — electric cars and electric motorcycles alike (e.g. 113 for an electric standard motorcycle, 300 for an EV car).
    */
   electric_range_mi?: number;
   /**
-   * Usable battery energy capacity in kilowatt-hours (kWh). Generic electric field (any inventory class) for BEV/PHEV units. E.g. 10.5 (compact electric motorcycle), 15.4 (larger electric motorcycle).
+   * Usable battery energy capacity in kilowatt-hours (kWh). Generic electric field (any vehicle_type) for BEV/PHEV units. E.g. 10.5 (compact electric motorcycle), 15.4 (larger electric motorcycle).
    */
   battery_kwh?: number;
   /**
@@ -1098,7 +1098,7 @@ export interface Rooftop {
    */
   notes?: string;
   /**
-   * Services this rooftop offers, as free-text tags (e.g. 'sales', 'service', 'parts', 'financing', 'trade_in', 'delivery'). Rooftops MAY also advertise which inventory classes they sell with tags such as 'motorcycle_sales' or 'powersports', so buyer agents know the inventory class before searching.
+   * Services this rooftop offers, as free-text tags (e.g. 'sales', 'service', 'parts', 'financing', 'trade_in', 'delivery'). Rooftops MAY also advertise which vehicle types they sell with tags such as 'motorcycle_sales' or 'powersports', so buyer agents know the vehicle_type mix before searching.
    */
   capabilities?: string[];
 }

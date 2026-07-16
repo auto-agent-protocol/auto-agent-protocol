@@ -199,13 +199,13 @@
     "electric_range_mi": {
       "type": "number",
       "minimum": 0,
-      "description": "Estimated electric range in miles. The primary range spec for BEV/PHEV units across ALL inventory classes — electric cars and electric motorcycles alike (e.g. 113 for an electric standard motorcycle, 300 for an EV car).",
+      "description": "Estimated electric range in miles. The primary range spec for BEV/PHEV units across any vehicle_type — electric cars and electric motorcycles alike (e.g. 113 for an electric standard motorcycle, 300 for an EV car).",
       "examples": [113, 300]
     },
     "battery_kwh": {
       "type": "number",
       "minimum": 0,
-      "description": "Usable battery energy capacity in kilowatt-hours (kWh). Generic electric field (any inventory class) for BEV/PHEV units. E.g. 10.5 (compact electric motorcycle), 15.4 (larger electric motorcycle).",
+      "description": "Usable battery energy capacity in kilowatt-hours (kWh). Generic electric field (any vehicle_type) for BEV/PHEV units. E.g. 10.5 (compact electric motorcycle), 15.4 (larger electric motorcycle).",
       "examples": [10.5, 15.4]
     },
     "motor_power_hp": {

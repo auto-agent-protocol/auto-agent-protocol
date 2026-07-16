@@ -58,7 +58,7 @@
     {
       "id": "dealer.information",
       "name": "Dealer Information",
-      "description": "Return the dealership profile — group name, welcome message, and one or more rooftops (locations) with their address, geo, contacts, business hours, timezone, and service capabilities (including inventory-class tags such as motorcycle_sales / powersports).",
+      "description": "Return the dealership profile — group name, welcome message, and one or more rooftops (locations) with their address, geo, contacts, business hours, timezone, and service capabilities (including tags such as motorcycle_sales / powersports).",
       "tags": [
         "dealer",
         "dealership",
