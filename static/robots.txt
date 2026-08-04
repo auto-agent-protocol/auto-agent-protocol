@@ -3,79 +3,109 @@
 # and cited by search engines and AI agents. Everything here is public by design.
 # Machine-readable guide for LLMs: https://autoagentprotocol.org/llms.txt
 # Full spec for one-fetch ingestion:  https://autoagentprotocol.org/llms-full.txt
+#
+# Content Signals (contentsignals.org) — AAP is an open standard and WANTS to be
+# used by AI: allow model training, search indexing, and AI input/grounding.
+# The Content-Signal line is repeated in EVERY group deliberately. Per RFC 9309
+# section 2.2.1 a crawler obeys the group matching its own product token and
+# falls back to the "*" group only "if no matching group exists", so a signal
+# declared once under "*" is never read by any crawler named below — i.e. by
+# none of the AI crawlers it is written for. Do not deduplicate these lines.
+#
+# Nothing here is Disallow-ed on purpose: superseded doc versions are kept out
+# of search with a per-page noindex tag (see docusaurus.config.ts), and a page
+# blocked in robots.txt can never be crawled to discover that tag.
 
 # --- Default: welcome everyone ---
 User-agent: *
 Allow: /
-# Content Signals (contentsignals.org) — AAP is an open standard and WANTS to be
-# used by AI: allow model training, search indexing, and AI input/grounding.
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 # --- OpenAI ---
 User-agent: GPTBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: OAI-SearchBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: ChatGPT-User
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 # --- Anthropic ---
 User-agent: ClaudeBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: Claude-SearchBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: Claude-User
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: anthropic-ai
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 # --- Google (Extended = opt IN to Gemini/Vertex grounding & training) ---
 User-agent: Google-Extended
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: Google-CloudVertexBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 # --- Apple (Extended = opt IN to Apple Intelligence) ---
 User-agent: Applebot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: Applebot-Extended
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 # --- Perplexity ---
 User-agent: PerplexityBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: Perplexity-User
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 # --- Microsoft / Meta / Amazon / Mistral / DuckDuckGo / Cohere ---
 User-agent: Bingbot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: Meta-ExternalAgent
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: Amazonbot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: MistralAI-User
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: DuckAssistBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: cohere-ai
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 # --- Common Crawl (upstream corpus for many open LLM training sets) ---
 User-agent: CCBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 Sitemap: https://autoagentprotocol.org/sitemap.xml

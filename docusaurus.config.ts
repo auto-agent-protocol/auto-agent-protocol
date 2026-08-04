@@ -63,9 +63,30 @@ const config: Config = {
               label: "v1.2.0",
               path: "v1.2",
             },
+            // Frozen versions keep their URLs, dropdown labels and edit links —
+            // only the search index changes. They render the same titles and the
+            // same meta descriptions as v1.2, so search engines were indexing up
+            // to five interchangeable copies of every page and picking between
+            // them themselves; worse, v0.1/v0.2/v1.0 still document the HTTP+JSON
+            // (REST) binding that v1.1 removed, so AI crawlers were ingesting
+            // superseded normative rules as current. noIndex governs search-index
+            // inclusion only: an agent fetching an archived URL directly still
+            // gets it, deliberately, since nothing is Disallow-ed — the built-in
+            // "unmaintained" banner is what warns that reader.
+            "v1.1": { noIndex: true },
+            "v1.0": { noIndex: true },
+            "v0.2": { noIndex: true },
+            "v0.1": { noIndex: true },
           },
         },
         blog: false,
+        sitemap: {
+          // Only /search needs listing here: the sitemap plugin already drops
+          // noIndex routes on its own, so the frozen versions above need no
+          // entry, but /search is the local search UI (no noIndex of its own)
+          // and is not content.
+          ignorePatterns: ["/search"],
+        },
         theme: {
           customCss: "./src/css/custom.css",
         },
