@@ -1,11 +1,11 @@
 :root {
-  --ifm-color-primary: #1a73e8;
-  --ifm-color-primary-dark: #1567d3;
-  --ifm-color-primary-darker: #1461c7;
-  --ifm-color-primary-darkest: #1050a4;
-  --ifm-color-primary-light: #2f80ed;
-  --ifm-color-primary-lighter: #3b87ee;
-  --ifm-color-primary-lightest: #5e9df1;
+  --ifm-color-primary: #2874d7;
+  --ifm-color-primary-dark: #2468c2;
+  --ifm-color-primary-darker: #2263b7;
+  --ifm-color-primary-darkest: #1c5197;
+  --ifm-color-primary-light: #3e82db;
+  --ifm-color-primary-lighter: #4989de;
+  --ifm-color-primary-lightest: #699fe4;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 }
@@ -21,22 +21,38 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
-.hero__title {
-  font-size: 3rem;
+.navbar__logo {
+  height: 40px;
+  margin-right: 0;
 }
 
-.hero__subtitle {
-  font-size: 1.3rem;
-  max-width: 600px;
-  margin: 0 auto;
+.navbar__logo img {
+  width: 238px;
+  height: 40px;
 }
 
-.hero--primary,
-.hero--primary .hero__title,
-.hero--primary .hero__subtitle {
-  color: white;
+.footer--dark {
+  --ifm-footer-background-color: #101e32;
 }
 
-[data-theme="dark"] .navbar__logo img {
-  filter: brightness(0) invert(1);
+.footer__logo {
+  width: min(298px, 100%);
+  height: auto;
+  opacity: 1;
+}
+
+.footer__bottom a {
+  opacity: 1;
+}
+
+.navbar__brand:focus-visible,
+.footer__bottom a:focus-visible,
+.button:focus-visible {
+  outline: 3px solid var(--ifm-color-primary);
+  outline-offset: 5px;
+}
+
+@media (max-width: 420px) {
+  .navbar__logo { height: 34px; }
+  .navbar__logo img { width: 202px; height: 34px; }
 }

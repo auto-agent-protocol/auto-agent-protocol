@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1190" height="200" viewBox="0 0 1190 200" role="img" aria-labelledby="title"><title id="title">Auto Agent Protocol</title><defs>
+    <mask id="aap-symbol" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="200">
+      <g fill="white">
+        <circle cx="100" cy="100" r="83" fill="none" stroke="white" stroke-width="8"/>
+        <circle cx="39" cy="39" r="39"/>
+        <circle cx="100" cy="100" r="39"/>
+        <circle cx="161" cy="161" r="39"/>
+      </g>
+      <g fill="none" stroke="black" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 64 39 14 60 64 M25 47H53"/><path d="M18 64 39 14 60 64 M25 47H53" transform="translate(61 61)"/><path d="M145 186V136H164Q182 136 182 152T164 168H145"/>
+      </g>
+    </mask>
+  </defs>
+  <path fill="#2874d7" mask="url(#aap-symbol)" d="M0 0H200V200H0Z"/><g transform="translate(256 65) scale(1.04)" fill="none" stroke="#2874d7" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path transform="translate(0 0)" d="M0 60 24 0 48 60 M9 40H39"/><path transform="translate(62 0)" d="M0 18V44Q0 60 16 60H22Q38 60 38 46 M38 18V60"/><path transform="translate(114 0)" d="M13 5V46Q13 60 28 60 M0 20H30"/><path transform="translate(156 0)" d="M17 18H23Q40 18 40 35V43Q40 60 23 60H17Q0 60 0 43V35Q0 18 17 18Z"/><path transform="translate(237 0)" d="M0 60 24 0 48 60 M9 40H39"/><path transform="translate(299 0)" d="M38 20V66Q38 79 24 79H14Q4 79 2 73 M38 31Q38 18 23 18H17Q0 18 0 35V43Q0 60 17 60H23Q38 60 38 46"/><path transform="translate(351 0)" d="M38 51Q36 60 23 60H17Q0 60 0 43V35Q0 18 17 18H23Q40 18 40 35V39H0"/><path transform="translate(403 0)" d="M0 60V20 M0 30Q0 18 17 18H23Q40 18 40 35V60"/><path transform="translate(455 0)" d="M13 5V46Q13 60 28 60 M0 20H30"/><path transform="translate(526 0)" d="M0 60V0H23Q43 0 43 17T23 34H0"/><path transform="translate(581 0)" d="M0 60V20 M0 34Q0 18 22 18H28"/><path transform="translate(621 0)" d="M17 18H23Q40 18 40 35V43Q40 60 23 60H17Q0 60 0 43V35Q0 18 17 18Z"/><path transform="translate(673 0)" d="M13 5V46Q13 60 28 60 M0 20H30"/><path transform="translate(715 0)" d="M17 18H23Q40 18 40 35V43Q40 60 23 60H17Q0 60 0 43V35Q0 18 17 18Z"/><path transform="translate(767 0)" d="M38 22Q33 18 23 18H17Q0 18 0 35V43Q0 60 17 60H23Q33 60 38 56"/><path transform="translate(817 0)" d="M17 18H23Q40 18 40 35V43Q40 60 23 60H17Q0 60 0 43V35Q0 18 17 18Z"/><path transform="translate(869 0)" d="M0 0V49Q0 60 12 60"/></g></svg>

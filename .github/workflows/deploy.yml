@@ -43,6 +43,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Verify branding sources and exports
+        run: pnpm run check:branding
+
       - name: Validate JSON schemas
         run: pnpm run validate:schemas
 
@@ -57,6 +60,9 @@ jobs:
 
       - name: Build site (generate + copy-static + docusaurus build)
         run: pnpm run build
+
+      - name: Verify branding across every built page
+        run: pnpm run check:branding --build
 
       - name: Assert build/CNAME points to autoagentprotocol.org
         run: |

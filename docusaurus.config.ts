@@ -6,7 +6,7 @@ const config: Config = {
   title: "Auto Agent Protocol",
   tagline:
     "The open standard that lets AI assistants find dealerships, browse real inventory, and send consented leads — built on A2A v1.0",
-  favicon: "img/favicon.ico",
+  favicon: "img/brand/favicon.ico",
   url: "https://autoagentprotocol.org",
   baseUrl: "/",
   organizationName: "auto-agent-protocol",
@@ -115,6 +115,14 @@ const config: Config = {
   // APIReference) is injected on the homepage via <Head> in src/pages/index.tsx.
   headTags: [
     {
+      tagName: "link",
+      attributes: { rel: "icon", type: "image/svg+xml", href: "/img/brand/favicon.svg" },
+    },
+    {
+      tagName: "link",
+      attributes: { rel: "apple-touch-icon", sizes: "180x180", href: "/img/brand/apple-touch-icon.png" },
+    },
+    {
       tagName: "script",
       attributes: { type: "application/ld+json" },
       innerHTML: JSON.stringify({
@@ -148,7 +156,9 @@ const config: Config = {
             url: "https://autoagentprotocol.org/",
             logo: {
               "@type": "ImageObject",
-              url: "https://autoagentprotocol.org/img/logo.png",
+              url: "https://autoagentprotocol.org/img/brand/aap-symbol.png",
+              width: 1024,
+              height: 1024,
             },
             description:
               "An open A2A v1.0 profile for automotive: buyer-agent discovery, real inventory browsing, and consented lead submission.",
@@ -164,7 +174,7 @@ const config: Config = {
   themeConfig: {
     // Default social-share image (og:image + twitter:image). Relative to
     // static/; Docusaurus expands it to an absolute URL per page.
-    image: "img/v1.2/aap-hero-banner.png",
+    image: "img/brand/aap-social-card.png",
     // Global-additive social/SEO tags. Per-page og:title/og:description/og:url
     // and description are emitted by Docusaurus from each page's frontmatter, so
     // they are intentionally NOT set here (setting them globally would override).
@@ -177,24 +187,25 @@ const config: Config = {
       {
         name: "twitter:image:alt",
         content:
-          "Auto Agent Protocol — typed automotive commerce over A2A v1.0, JSON-RPC only",
+          "Auto Agent Protocol — the open automotive retail profile of A2A",
       },
       { property: "og:site_name", content: "Auto Agent Protocol" },
       { property: "og:type", content: "website" },
       {
         property: "og:image:alt",
         content:
-          "Auto Agent Protocol — typed automotive commerce over A2A v1.0, JSON-RPC only",
+          "Auto Agent Protocol — the open automotive retail profile of A2A",
       },
-      { property: "og:image:width", content: "1600" },
-      { property: "og:image:height", content: "600" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
     ],
     navbar: {
-      title: "Auto Agent Protocol",
       logo: {
-        alt: "Auto Agent Protocol logo",
-        src: "img/logo.png",
-        srcDark: "img/logo-white.png",
+        alt: "Auto Agent Protocol",
+        src: "img/brand/aap-wordmark.svg",
+        srcDark: "img/brand/aap-wordmark-white.svg",
+        width: 238,
+        height: 40,
       },
       items: [
         {
@@ -221,6 +232,13 @@ const config: Config = {
     },
     footer: {
       style: "dark",
+      logo: {
+        alt: "Auto Agent Protocol",
+        src: "img/brand/aap-wordmark-white.svg",
+        href: "/",
+        width: 298,
+        height: 50,
+      },
       links: [
         {
           title: "Specification",

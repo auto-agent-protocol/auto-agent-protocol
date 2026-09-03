@@ -20,6 +20,8 @@
     "generate:mcp": "tsx tools/generate-mcp-manifest.ts",
     "generate:llms": "tsx tools/generate-llms.ts",
     "generate:images": "tsx tools/generate-images.ts",
+    "generate:branding": "node tools/generate-branding.mjs",
+    "check:branding": "node tools/check-branding.mjs",
     "validate": "pnpm run validate:schemas && pnpm run validate:examples",
     "validate:schemas": "tsx tools/validate-schemas.ts",
     "validate:examples": "tsx tools/validate-examples.ts",
@@ -49,6 +51,7 @@
     "ajv-formats": "^3.0.0",
     "glob": "^11.0.0",
     "json-schema-to-typescript": "^15.0.0",
+    "sharp": "0.34.5",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0",
     "yaml": "^2.6.0"

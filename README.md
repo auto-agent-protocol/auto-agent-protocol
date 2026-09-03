@@ -1,16 +1,16 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="static/img/logo-white.png">
-  <img src="static/img/logo.png" alt="Auto Agent Protocol logo" width="120">
+  <source media="(prefers-color-scheme: dark)" srcset="static/img/brand/aap-wordmark-white.svg">
+  <img src="static/img/brand/aap-wordmark.svg" alt="Auto Agent Protocol" width="595">
 </picture>
 
 # Auto Agent Protocol (AAP)
 
-[![Spec version](https://img.shields.io/badge/spec-v1.2.0-0e5a52)](https://autoagentprotocol.org/docs/latest/intro)
-[![A2A](https://img.shields.io/badge/A2A-v1.0-0a463f)](https://a2a-protocol.org)
-[![License](https://img.shields.io/badge/license-Apache--2.0-bd7b34)](LICENSE)
+[![Spec version](https://img.shields.io/badge/spec-v1.2.0-2874d7)](https://autoagentprotocol.org/docs/latest/intro)
+[![A2A](https://img.shields.io/badge/A2A-v1.0-2874d7)](https://a2a-protocol.org)
+[![License](https://img.shields.io/badge/license-Apache--2.0-52657c)](LICENSE)
 [![Validate](https://github.com/auto-agent-protocol/auto-agent-protocol/actions/workflows/validate.yml/badge.svg)](https://github.com/auto-agent-protocol/auto-agent-protocol/actions/workflows/validate.yml)
 
-![Auto Agent Protocol — typed automotive commerce over A2A v1.0, JSON-RPC only](static/img/v1.2/aap-hero-banner.png)
+Brand assets: [symbol, wordmark, and usage guidance](tools/branding/README.md).
 
 **AAP lets AI assistants shop at your car or motorcycle dealership.**
 
