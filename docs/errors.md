@@ -6,7 +6,7 @@ description: The 12 AAP error codes — meaning, suggested JSON-RPC mapping, and
 
 # Errors
 
-![Anatomy of a typed AAP error inside the JSON-RPC error envelope: error.code, data.code, retryable](/img/v1.2/error-anatomy.png)
+![A JSON-RPC protocol error paired with a typed AAP domain error and validation details](./img/error-anatomy.svg)
 
 AAP defines a single typed error payload (`aap.error`) that every dealer agent MUST use when a skill cannot be fulfilled. The error rides inside the standard A2A error envelope: `error.data` of the JSON-RPC error response ([Section 9.5](./bindings/json-rpc.md#error-mapping-a2a-section-95)). AAP v1.2.0 uses a single transport — JSON-RPC 2.0; the HTTP+JSON (REST) binding was [removed in v1.1.0](./bindings/rest.md).
 

@@ -6,6 +6,8 @@ description: Normative MUST/SHOULD rules every AAP-compliant dealer agent and bu
 
 # Behavior rules
 
+![Four buyer-agent behavior rules: identify honestly, browse anonymously, respect inventory systems, and quote prices safely](./img/agent-etiquette.svg)
+
 This page collects the normative MUST and SHOULD requirements that an AAP-compliant agent must follow. These rules are the bare minimum for interoperability and regulatory compliance; they are referenced from the per-skill pages and applied by the dealer-side test suite.
 
 The keywords MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, RECOMMENDED, and OPTIONAL are interpreted as in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
@@ -27,7 +29,7 @@ The keywords MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, RECOMMENDED, and OPTIONAL 
 
 ## Lead rules
 
-![Consent gate: anonymous inventory access vs consent-gated lead access](/img/v1.2/consent-gate.png)
+![Consent gate separating anonymous inventory access from lead submission with a valid ConsentGrant](./img/consent-gate.svg)
 
 ### Lead MUSTs
 

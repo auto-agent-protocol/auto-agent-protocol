@@ -6,7 +6,7 @@ description: How editable latest work becomes an immutable, version-pinned AAP r
 
 # Versioning
 
-![Versioning timeline: frozen releases lead to the stable latest alias](/img/v1.2/versioning-timeline.png)
+![Versioning workflow: edit latest, verify, snapshot a frozen release, then update the public latest alias](./img/versioning-timeline.svg)
 
 Auto Agent Protocol uses [Semantic Versioning](https://semver.org/) for approved releases. The repository deliberately separates editable work from public releases:
 

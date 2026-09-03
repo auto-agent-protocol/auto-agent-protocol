@@ -18,15 +18,15 @@ More and more car and motorcycle buyers start their search by asking an AI assis
 
 Listings carry an optional `vehicle_type` (`car`, `motorcycle`, `trailer`, `rv`, `other`; absent = `car`), so the same five skills serve both automotive and powersports retail — including electric models via a generic electric-powertrain field group.
 
-![Dealers go live in three steps: publish the agent card, serve the skills you choose, receive consented leads in your CRM](static/img/v1.2/dealer-onboarding.png)
+![Dealers go live in three steps: publish the Agent Card, serve the skills they choose, and receive consented leads in their CRM](docs/img/dealer-onboarding.svg)
 
-![Why AAP: from a tangle of custom integrations to one open profile](static/img/v1.2/why-before-after.png)
+![Why AAP: from a mesh of custom integrations to one open profile](docs/img/why-before-after.svg)
 
 **For engineers:** AAP is an open [A2A v1.0](https://a2a-protocol.org) profile. A compliant dealer agent is an A2A agent that publishes an `agent-card.json` with the AAP automotive extension URI (`https://autoagentprotocol.org/extensions/aap/v1.2`) and implements **one or more** of the five standard AAP automotive skills (a small used-car lot might only do `inventory.search` + `lead.submit`; a franchise dealership might do all five).
 
 The transport surface is deliberately minimal: every AAP agent exposes the **JSON-RPC 2.0 binding** — the sole transport (the optional HTTP+JSON binding was removed in v1.1.0); the only A2A operation AAP uses is **`SendMessage`** — request `Message` in, response `Message` out. The optional A2A surface (streaming, tasks, push notifications, extended cards) is out of scope: dealer agents do not need to implement it and buyer agents must not require it.
 
-![agent-card.json — the contract every AAP dealership exposes, advertising A2A v1.0 compliance, the AAP automotive extension, the subset of AAP skills the agent implements, and per-skill schema URLs in the extension params](static/img/v1.2/agent-card-passport.png)
+![The Agent Card advertises the A2A binding, AAP extension, supported skill subset, and per-skill schema URLs](docs/img/agent-card-passport.svg)
 
 ## v1.2.0 Scope
 
@@ -41,7 +41,7 @@ v1.2.0 is the **current release**. It is fully additive over v1.1.0: it adds mul
 
 v1.2.0 does **not** cover: authentication (agents are public by default; auth is left to A2A's native `securitySchemes`), payments, financing approval, RFQ/quote flows, trade-in valuations, or reservations.
 
-![How an AI agent buys a car — discover via /.well-known/agent-card.json, browse with inventory.search, inspect with inventory.vehicle, and submit a unified lead.submit carrying customer + vehicle of interest + trade-in + appointment](static/img/v1.2/buyer-journey.png)
+![How an AI agent shops: discover the dealer, search inventory, inspect one complete vehicle, and submit a consented lead](docs/img/buyer-journey.svg)
 
 ## Quick links
 
@@ -64,7 +64,7 @@ v1.2.0 does **not** cover: authentication (agents are public by default; auth is
 
 ## Packages
 
-![AAP SDK — three open-source TypeScript packages: @autoagentprotocol/types, @autoagentprotocol/schemas, and @autoagentprotocol/validator](static/img/v1.2/aap-sdk-toolbox.png)
+![AAP SDK: types, schemas, and validator packages generated from the reviewed contract](docs/img/aap-sdk-toolbox.svg)
 
 | Package | Description |
 |---------|-------------|
@@ -90,6 +90,8 @@ pnpm install
 ```bash
 pnpm run validate          # Validate schemas and examples
 pnpm run generate          # Generate draft artifacts in generated/latest
+pnpm run generate:images   # Regenerate tracked latest SVG diagrams in docs/img
+pnpm run check:images      # Verify diagram sources, palette, references, and output
 pnpm run check:releases    # Verify frozen snapshots and stable packages
 pnpm run test:release      # Rehearse release and freeze invariants
 pnpm run build             # Build the stable production site
@@ -102,12 +104,14 @@ pnpm start                 # Serve editable docs with an unreleased banner
 spec/latest/               Editable JSON Schema 2020-12, examples, and skills manifest
 spec/v*/                   Frozen released specs (committed, immutable)
 docs/                      Editable documentation; served locally as an unreleased draft
+docs/img/                  Editable, generated SVG diagrams used by the latest docs and README
 versioned_docs/, versioned_sidebars/  Frozen release documentation snapshots
 releases.json              Explicit release registry and stable-release pointer
 releases/v*/               Frozen generated artifacts, provenance, reports, and integrity manifests
 docs/skills/, bindings/    A2A binding + skill reference (committed)
 packages/                  npm packages: types, schemas, validator (committed)
-tools/                     Generators, validators, and image sources (committed)
+tools/image-specs.ts       Reviewed content source for every latest documentation diagram
+tools/                     Generators and validators (committed)
 src/components/            FieldCard React component (committed)
 
 generated/latest/          Auto-generated draft types, OpenAPI, and MCP manifest (NOT committed)

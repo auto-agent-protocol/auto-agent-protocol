@@ -6,6 +6,8 @@ description: Detail view of a single vehicle by VIN, stock, or vehicle_id, retur
 
 # `inventory.vehicle`
 
+![A vehicle lookup accepts VIN, stock, or vehicle_id and returns one complete vehicle with current status, price, fees, and updated_at](../img/vehicle-detail-lookup.svg)
+
 :::info A2A invocation
 This skill is invoked through A2A's `SendMessage` operation — the single A2A operation AAP v1.2.0 uses — not a dedicated REST URL. It travels as the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md). (The HTTP+JSON binding was [removed in v1.1.0](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
 :::

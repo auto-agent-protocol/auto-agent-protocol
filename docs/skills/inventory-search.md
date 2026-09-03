@@ -6,6 +6,8 @@ description: Search vehicle inventory with a flat filter block, pagination, sort
 
 # `inventory.search`
 
+![An inventory.search request carried by A2A SendMessage and returned as a paginated set of vehicles with complete fee snapshots whenever price is present](../img/inventory-search-flow.svg)
+
 :::info A2A invocation
 This skill is invoked through A2A's `SendMessage` operation — the single A2A operation AAP v1.2.0 uses — not a dedicated REST URL. It travels as the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md). (The HTTP+JSON binding was [removed in v1.1.0](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
 :::

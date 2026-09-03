@@ -6,11 +6,11 @@ description: What the Auto Agent Protocol is, what it standardizes, and how to c
 
 # Introduction
 
-![Buyer agent and dealership digital storefront connected by typed AAP messages](/img/v1.2/network-overview.png)
+![Buyer agents and dealer storefronts connected through typed AAP messages over A2A](./img/network-overview.svg)
 
 **The Auto Agent Protocol (AAP) lets AI assistants shop at car and motorcycle dealerships.** People increasingly ask an AI assistant to find their next car or motorcycle. AAP is the free, open standard that lets any of those assistants find a dealership, browse its real inventory, and — with the customer's clear permission — send the dealership a sales lead. Inventory listings carry an optional `vehicle_type` (`car`, `motorcycle`, `trailer`, `rv`, `other`; absent = `car`) so a single vocabulary covers both automotive and powersports retail, including electric models via a generic electric-powertrain field group. For a dealership, joining in means publishing **one small file on your own website** and answering a few well-defined questions; no app store, no middleman, no per-partner integration work.
 
-![Dealers go live in three steps: publish the agent card, serve the skills, receive consented leads](/img/v1.2/dealer-onboarding.png)
+![Dealers go live in three steps: publish the Agent Card, serve selected skills, and receive consented leads](./img/dealer-onboarding.svg)
 
 In technical terms: AAP is a strict [A2A v1.0](https://a2a-protocol.org) (Agent2Agent) profile that defines the typed automotive data shapes AI agents and dealer agents exchange when they discover, browse, and submit leads. AAP does not invent a new wire protocol — every AAP message travels inside an A2A `Message.parts[].data` value as a typed `DataPart`. JSON-RPC 2.0 is the sole binding: a JSON-RPC 2.0 interface is REQUIRED on every AAP agent card. The HTTP+JSON (REST) binding was removed in v1.1.0, and gRPC is out of scope.
 
@@ -24,7 +24,7 @@ A dealer agent declares itself AAP-compliant by listing this URI in `capabilitie
 
 ## What AAP standardizes
 
-![Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit](/img/v1.2/skills-overview.png)
+![Five AAP skills cover dealership information, inventory discovery, search, vehicle detail, and consented leads](./img/skills-overview.svg)
 
 AAP v1.2.0 defines a **vocabulary** of five standard skill IDs that cover the read-and-lead lifecycle of automotive retail. A dealer agent picks whichever subset matches its capabilities — none of the five is individually mandatory.
 
@@ -40,7 +40,7 @@ It does NOT define authentication (v1.2.0 agents are public by default; auth is 
 
 ## Layered architecture
 
-![Three-layer stack: HTTP at the bottom, A2A v1.0 in the middle, AAP automotive profile on top](/img/v1.2/architecture-stack.png)
+![AAP typed automotive payloads profile A2A v1.0, which is carried over HTTPS](./img/architecture-stack.svg)
 
 AAP sits as a profile on top of A2A, which itself sits on top of HTTP. AAP never touches the wire format directly — it defines the shape of typed `DataParts` that A2A bindings carry.
 
@@ -173,7 +173,7 @@ The dealer agent replies with a `SendMessageResponse` in the JSON-RPC `result` �
 
 ## Verified interoperability
 
-![Works with every A2A v1.0 client: the official JS and Python SDKs and any A2A-capable assistant, all invoking one AAP dealer agent](/img/v1.2/interop-clients.png)
+![Verified JavaScript and Python A2A clients invoking the AAP dealer skill surface](./img/interop-clients.svg)
 
 All five skills have been exercised live through the official A2A v1.0 SDKs (`@a2a-js/sdk` and `a2a-sdk` for Python): inventory search, facets, vehicle detail, dealer information, and a consented `lead.submit` — with no AAP-specific client code.
 

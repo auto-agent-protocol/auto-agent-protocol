@@ -86,6 +86,9 @@ test("release preparation snapshots latest once and refuses overwrite", async ()
     assert.equal(snapshot(join(context.root, "spec/latest")), latestBefore);
     assert.equal(readJson<{version: string}>(join(context.root, "package.json")).version, "2.0.0");
     assert.deepEqual(filesIn(join(context.root, "releases/v2.0/artifacts")).map(file => relative(join(context.root, "releases/v2.0/artifacts"), file)).sort(), ["mcp.json", "openapi-jsonrpc.yaml", "types.d.ts"]);
+    const latestDiagram = join(context.root, "docs/img/pricing-ladder.svg");
+    const releasedDiagram = join(context.root, "versioned_docs/version-v2.0/img/pricing-ladder.svg");
+    assert.equal(hash(readFileSync(releasedDiagram)), hash(readFileSync(latestDiagram)), "release must freeze the reviewed latest diagrams with its docs");
     assert.ok(!filesIn(join(context.root, "releases/v2.0")).some(file => readFileSync(file).includes("autoagentprotocol.invalid")));
     await checkAllReleases(context.root);
     await assert.rejects(() => prepareRelease(context.root, "2.0.0", false), /already exists|immutable/);

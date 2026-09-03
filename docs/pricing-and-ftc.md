@@ -6,6 +6,8 @@ description: The AAP price fields, complete vehicle fee snapshots, rebate handli
 
 # Pricing and fee disclosure
 
+![Pricing disclosure: MSRP is a reference, while list price plus the complete mandatory dealer fee snapshot equals the authoritative advertised price](./img/pricing-ladder.svg)
+
 AAP separates a vehicle's base pricing context from the price a dealer actually advertises, and makes mandatory dealer charges explicit.
 
 > **`price` is the authoritative advertised vehicle price.** It includes every mandatory, non-government dealer charge and dealer-required add-on. The accompanying `fees` array itemizes charges already included in `price`; never add them to `price` again.

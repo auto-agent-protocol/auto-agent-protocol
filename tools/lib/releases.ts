@@ -71,8 +71,12 @@ export function snapshotFiles(root: string, contract: string): string[] {
   // Older docs share unversioned illustrations. Pin referenced images too.
   for (const file of [...files].filter(file => /\.(md|mdx)$/.test(file))) {
     const source = readFileSync(join(root, file), "utf8");
-    for (const match of source.matchAll(/\/img\/[^\s)"'<>]+\.(?:png|svg|jpe?g|webp)/g)) {
-      const asset = `static${match[0]}`;
+    // Relative documentation images are already contained in the versioned
+    // docs snapshot. Only root-absolute /img/* references need a companion
+    // static asset added to the integrity manifest; do not mistake the
+    // "/img/" substring inside "./img/" or "../img/" for an absolute URL.
+    for (const match of source.matchAll(/(?:^|[\s("'])(\/img\/[^\s)"'<>]+\.(?:png|svg|jpe?g|webp))/gm)) {
+      const asset = `static${match[1]}`;
       if (asset.includes("..") || !existsSync(join(root, asset))) throw new Error(`Missing or unsafe released image: ${asset}`);
       files.add(asset);
     }
