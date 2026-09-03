@@ -12,7 +12,7 @@ remain separate follow-up work; this PR does not introduce a new protocol releas
 - Release preparation copies **latest → versioned snapshot**. It never copies
   back over working files, commits, pushes, tags, or publishes automatically.
 - Preserve existing schemas, examples, released documentation, and served
-  artifacts. Freeze v1.2 before working on the fees addition.
+  artifacts. Freeze v1.2.0 before working on the fees addition.
 - Use one explicit registry rather than treating the highest folder as released.
 - Guard complete PRs and deployments; fail closed if the comparison baseline or
   release integrity information is missing.
@@ -21,7 +21,7 @@ remain separate follow-up work; this PR does not introduce a new protocol releas
 
 1. Capture the merged-main baseline and compare all existing generated release
    artifacts with their public URLs. Record hashes and provenance.
-2. Add the permanent working source, v1.2 documentation snapshot, registry, and
+2. Add the permanent working source, v1.2.0 documentation snapshot, registry, and
    immutable artifact/integrity snapshots for every existing release.
 3. Separate draft validation/generation/preview from stable site/package builds.
    Use correct JSON Schema 2020-12 validation and surface generation failures.

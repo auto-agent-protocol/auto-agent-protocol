@@ -12,7 +12,7 @@ description: What the Auto Agent Protocol is, what it standardizes, and how to c
 
 ![Dealers go live in three steps: publish the agent card, serve the skills, receive consented leads](/img/v1.2/dealer-onboarding.png)
 
-In technical terms: AAP is a strict [A2A v1.0](https://a2a-protocol.org) (Agent2Agent) profile that defines the typed automotive data shapes AI agents and dealer agents exchange when they discover, browse, and submit leads. AAP does not invent a new wire protocol — every AAP message travels inside an A2A `Message.parts[].data` value as a typed `DataPart`. JSON-RPC 2.0 is the sole binding: a JSON-RPC 2.0 interface is REQUIRED on every AAP agent card. The HTTP+JSON (REST) binding was removed in v1.1, and gRPC is out of scope.
+In technical terms: AAP is a strict [A2A v1.0](https://a2a-protocol.org) (Agent2Agent) profile that defines the typed automotive data shapes AI agents and dealer agents exchange when they discover, browse, and submit leads. AAP does not invent a new wire protocol — every AAP message travels inside an A2A `Message.parts[].data` value as a typed `DataPart`. JSON-RPC 2.0 is the sole binding: a JSON-RPC 2.0 interface is REQUIRED on every AAP agent card. The HTTP+JSON (REST) binding was removed in v1.1.0, and gRPC is out of scope.
 
 The extension is identified by a single URI:
 
@@ -26,7 +26,7 @@ A dealer agent declares itself AAP-compliant by listing this URI in `capabilitie
 
 ![Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit](/img/v1.2/skills-overview.png)
 
-AAP v1.2 defines a **vocabulary** of five standard skill IDs that cover the read-and-lead lifecycle of automotive retail. A dealer agent picks whichever subset matches its capabilities — none of the five is individually mandatory.
+AAP v1.2.0 defines a **vocabulary** of five standard skill IDs that cover the read-and-lead lifecycle of automotive retail. A dealer agent picks whichever subset matches its capabilities — none of the five is individually mandatory.
 
 | Skill | Purpose |
 |---|---|
@@ -36,7 +36,7 @@ AAP v1.2 defines a **vocabulary** of five standard skill IDs that cover the read
 | `inventory.vehicle` | Detail view of one specific vehicle or motorcycle (by VIN, stock, or vehicle_id) |
 | `lead.submit` | Unified consented lead carrying customer info plus optional vehicle of interest, trade-in, and appointment |
 
-It does NOT define authentication (v1.2 agents are public by default; auth is left to A2A), payments, financing approval, RFQ/quote workflows, trade-in valuations, or reservations. Future versions MAY extend this surface; v1.2 is intentionally minimal.
+It does NOT define authentication (v1.2.0 agents are public by default; auth is left to A2A), payments, financing approval, RFQ/quote workflows, trade-in valuations, or reservations. Future versions MAY extend this surface; v1.2.0 is intentionally minimal.
 
 ## Layered architecture
 
@@ -83,7 +83,7 @@ Confirm the card lists the AAP extension URI under `capabilities.extensions[].ur
 
 ### 2. The binding
 
-Every AAP agent exposes the JSON-RPC 2.0 binding — AAP's sole transport. gRPC is out of scope, and the HTTP+JSON (REST) binding was removed in v1.1.
+Every AAP agent exposes the JSON-RPC 2.0 binding — AAP's sole transport. gRPC is out of scope, and the HTTP+JSON (REST) binding was removed in v1.1.0.
 
 | Binding | Status | A2A spec | AAP page |
 |---|---|---|---|

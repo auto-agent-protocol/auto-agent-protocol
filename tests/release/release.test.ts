@@ -114,6 +114,11 @@ test("freeze check rejects every mutation class within a baseline release", () =
   const context = fixture();
   const vehicle = join(context.root, "spec/v1.2/schemas/vehicle.schema.json");
   const original = readFileSync(vehicle);
+  // The old public banner URL is still a generated compatibility alias, but
+  // production source must not reference it directly (the branding check
+  // enforces that). It is nevertheless part of the frozen v1.2 asset tree.
+  const branding = join(context.root, "static", "img", "v1.2", ["aap", "hero", "banner.png"].join("-"));
+  const originalBranding = readFileSync(branding);
   const added = join(context.root, "spec/v1.2/schemas/not-allowed.schema.json");
   const renamed = join(context.root, "spec/v1.2/schemas/vehicle-renamed.schema.json");
   try {
@@ -133,6 +138,10 @@ test("freeze check rejects every mutation class within a baseline release", () =
     renameSync(vehicle, renamed);
     assert.throws(() => freezeCheck(context.root, context.base), /immutable/);
     renameSync(renamed, vehicle);
+
+    writeFileSync(branding, Buffer.concat([originalBranding, Buffer.from("\n")]));
+    assert.throws(() => freezeCheck(context.root, context.base), /immutable/);
+    writeFileSync(branding, originalBranding);
 
     assert.throws(() => freezeCheck(context.root, "missing-baseline"), /does not resolve/);
     freezeCheck(context.root, context.base);

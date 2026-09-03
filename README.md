@@ -24,13 +24,13 @@ Listings carry an optional `vehicle_type` (`car`, `motorcycle`, `trailer`, `rv`,
 
 **For engineers:** AAP is an open [A2A v1.0](https://a2a-protocol.org) profile. A compliant dealer agent is an A2A agent that publishes an `agent-card.json` with the AAP automotive extension URI (`https://autoagentprotocol.org/extensions/aap/v1.2`) and implements **one or more** of the five standard AAP automotive skills (a small used-car lot might only do `inventory.search` + `lead.submit`; a franchise dealership might do all five).
 
-The transport surface is deliberately minimal: every AAP agent exposes the **JSON-RPC 2.0 binding** — the sole transport (the optional HTTP+JSON binding was removed in v1.1); the only A2A operation AAP uses is **`SendMessage`** — request `Message` in, response `Message` out. The optional A2A surface (streaming, tasks, push notifications, extended cards) is out of scope: dealer agents do not need to implement it and buyer agents must not require it.
+The transport surface is deliberately minimal: every AAP agent exposes the **JSON-RPC 2.0 binding** — the sole transport (the optional HTTP+JSON binding was removed in v1.1.0); the only A2A operation AAP uses is **`SendMessage`** — request `Message` in, response `Message` out. The optional A2A surface (streaming, tasks, push notifications, extended cards) is out of scope: dealer agents do not need to implement it and buyer agents must not require it.
 
 ![agent-card.json — the contract every AAP dealership exposes, advertising A2A v1.0 compliance, the AAP automotive extension, the subset of AAP skills the agent implements, and per-skill schema URLs in the extension params](static/img/v1.2/agent-card-passport.png)
 
-## v1.2 Scope
+## v1.2.0 Scope
 
-v1.2 is the **current release**. It is fully additive over v1.1: it adds multi-class inventory via the optional `vehicle_type` discriminator (`car`, `motorcycle`, `trailer`, `rv`, `other`; absent = `car`, so existing car integrations keep validating) plus generic electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `dc_fast_charge`, `charge_port`) that describe any BEV/PHEV unit. It keeps the v1.0 payload shape — a single `agent-card.json` is the only file a dealer publishes, prices are plain integers, the vehicle and dealer shapes are flat, and `status` is a controlled enum — riding the released A2A v1.0 wire (`SendMessage`, `ROLE_USER`/`ROLE_AGENT`, `supportedInterfaces[]`), and inherits the JSON-RPC-only transport from v1.1 (the optional HTTP+JSON binding was dropped in v1.1). v0.1, v0.2, v1.0 and v1.1 remain published and frozen for anyone pinned to them.
+v1.2.0 is the **current release**. It is fully additive over v1.1.0: it adds multi-class inventory via the optional `vehicle_type` discriminator (`car`, `motorcycle`, `trailer`, `rv`, `other`; absent = `car`, so existing car integrations keep validating) plus generic electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `dc_fast_charge`, `charge_port`) that describe any BEV/PHEV unit. It keeps the v1.0.0 AAP payload shape — a single `agent-card.json` is the only file a dealer publishes, prices are plain integers, the vehicle and dealer shapes are flat, and `status` is a controlled enum — riding the released A2A v1.0 wire (`SendMessage`, `ROLE_USER`/`ROLE_AGENT`, `supportedInterfaces[]`), and inherits the JSON-RPC-only transport from v1.1.0 (the optional HTTP+JSON binding was dropped in v1.1.0). v0.1.0, v0.2.0, v1.0.0, and v1.1.0 remain published and frozen for anyone pinned to them.
 
 - **Discovery** via `/.well-known/agent-card.json` only (A2A-compatible) — no second well-known file
 - **Inventory**: facets, search, vehicle detail — across **cars and motorcycles** via an optional `vehicle_type` discriminator, with motorcycle body/segment carried in `body`, displacement in `displacement_cc`, niche specs in a free-form `other_attributes` map, and a generic electric-powertrain group (range, battery kWh, motor hp, DC fast charge, charge port) for BEV/PHEV cars and motorcycles alike
@@ -39,14 +39,14 @@ v1.2 is the **current release**. It is fully additive over v1.1: it adds multi-c
 - **ADF/XML mapping** documented for legacy CRM compatibility
 - **Interoperability proven** against the official A2A v1.0 client SDKs (`@a2a-js/sdk` and `a2a-sdk` for Python) — a standard A2A client can discover an AAP dealer and invoke every skill with no AAP-specific code
 
-v1.2 does **not** cover: authentication (agents are public by default; auth is left to A2A's native `securitySchemes`), payments, financing approval, RFQ/quote flows, trade-in valuations, or reservations.
+v1.2.0 does **not** cover: authentication (agents are public by default; auth is left to A2A's native `securitySchemes`), payments, financing approval, RFQ/quote flows, trade-in valuations, or reservations.
 
 ![How an AI agent buys a car — discover via /.well-known/agent-card.json, browse with inventory.search, inspect with inventory.vehicle, and submit a unified lead.submit carrying customer + vehicle of interest + trade-in + appointment](static/img/v1.2/buyer-journey.png)
 
 ## Quick links
 
 - **Specification**: [autoagentprotocol.org](https://autoagentprotocol.org)
-- **Stable v1.2 agent card**: [`spec/v1.2/examples/agent-card.example.json`](spec/v1.2/examples/agent-card.example.json)
+- **Stable v1.2.0 agent card**: [`spec/v1.2/examples/agent-card.example.json`](spec/v1.2/examples/agent-card.example.json)
 - **Editable JSON Schemas**: [`spec/latest/schemas/`](spec/latest/schemas/)
 - **Editable examples**: [`spec/latest/examples/`](spec/latest/examples/)
 - **OpenAPI 3.1** (built at deploy time): `https://autoagentprotocol.org/v1.2/openapi-jsonrpc.yaml`

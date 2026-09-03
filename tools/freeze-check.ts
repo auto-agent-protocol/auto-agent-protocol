@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { checkReleases, isBrandAlias, isMain, releasePrefixes, ROOT, type Registry } from "./lib/releases.js";
+import { checkReleases, isMain, releasePrefixes, ROOT, type Registry } from "./lib/releases.js";
 
 function git(root: string, args: string[], allowFailure = false): string {
   try {
@@ -79,7 +79,6 @@ export function freezeCheck(root: string, requestedBase?: string): void {
   const violations: string[] = [];
   for (const change of allChanges(root, base)) {
     for (const path of change.paths) {
-      if (isBrandAlias(path)) continue;
       const prefix = frozen.find(item => inPrefix(path, item));
       if (prefix) violations.push(`${change.status}\t${path} (frozen by ${prefix})`);
     }

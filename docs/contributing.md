@@ -45,7 +45,7 @@ There is no `next` channel. Local `pnpm start` serves the editable documentation
 
 Do not edit, delete, rename, or add files within any existing release directory. This applies to old docs and examples as well as schemas. The whole-PR freeze check and SHA-256 manifests enforce that rule. If a released contract needs a correction, propose the correction in `spec/latest/` and release a new minor or major contract as required.
 
-The single compatibility branding alias documented in the brand guide is managed separately; it must not contain protocol content.
+Version-specific documentation images, including compatibility branding files under `static/img/v*/`, are part of their release and are frozen too. Shared unversioned brand assets may evolve without rewriting a released snapshot.
 
 ## Generated files
 

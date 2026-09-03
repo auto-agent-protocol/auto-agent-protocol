@@ -57,6 +57,7 @@
     "spec/v1.2/schemas/vehicle-detail-response.schema.json": "2a648390b69d9ac2c62398d2ead7e39ddb3a747580bba927ec1367de8525c5c4",
     "spec/v1.2/schemas/vehicle.schema.json": "7ce563b1d42395c3e0e8634dc7dc4d348fc3df1d2fde22888e2410074e3471f7",
     "spec/v1.2/skills.yaml": "d80362f9df4720e0f1aee59d5a936ddccf374bed4a67f4991d7b68747eda867c",
+    "static/img/v1.2/aap-hero-banner.png": "28b93dafa630daaa8423e3806ec12b22967aa12caf724fc267bec349686b0c91",
     "static/img/v1.2/aap-sdk-toolbox.png": "a868f87bbce8cb71e8e21e740263fae962b22b01a29b5e3bb80810614949124f",
     "static/img/v1.2/adf-bridge.png": "7c456292e92dfc6522aad32c5c5fe87a02eeebaeecc97ad3f0fd53f066dbb59d",
     "static/img/v1.2/agent-card-passport.png": "5b0259c4f63698ecec18b8cd32666dbe11d25304a69faebe3c9171c3017afa92",

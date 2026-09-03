@@ -11,7 +11,7 @@ A2A defines a JSON-RPC 2.0 binding in [Section 9](https://a2a-protocol.org/speci
 ![JSON-RPC request and response envelopes: method SendMessage, params.message in, result.message out](/img/v1.2/jsonrpc-envelope.png)
 
 :::note JSON-RPC is the SOLE binding
-A JSON-RPC interface is **REQUIRED** on every AAP agent card: `supportedInterfaces[]` MUST include at least one entry with `protocolBinding: "JSONRPC"`. JSON-RPC 2.0 is the **only** transport AAP defines — the HTTP+JSON (REST) binding was [removed in v1.1](rest.md), and gRPC is out of scope.
+A JSON-RPC interface is **REQUIRED** on every AAP agent card: `supportedInterfaces[]` MUST include at least one entry with `protocolBinding: "JSONRPC"`. JSON-RPC 2.0 is the **only** transport AAP defines — the HTTP+JSON (REST) binding was [removed in v1.1.0](rest.md), and gRPC is out of scope.
 :::
 
 :::info A2A v1.0 wire format — the ProtoJSON form

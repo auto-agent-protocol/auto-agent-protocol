@@ -4,7 +4,9 @@ import type * as Preset from "@docusaurus/preset-classic";
 import releases from "./releases.json";
 
 const draftDocs = process.env.AAP_DOCS_DRAFT === "1";
-const stableContract = releases.stable;
+const stableRelease = releases.releases.find((release) => release.contract === releases.stable);
+if (!stableRelease) throw new Error(`Stable release ${releases.stable} is missing from releases.json`);
+const stableContract = stableRelease.contract;
 const releasedDocs = Object.fromEntries(
   releases.releases.map((release) => [
     release.contract,
@@ -80,7 +82,7 @@ const config: Config = {
           versions: draftDocs
             ? {
                 current: {
-                  label: `Unreleased draft (from ${stableContract})`,
+                  label: `Unreleased draft (from ${stableRelease.version})`,
                   path: "latest",
                   banner: "unreleased",
                   badge: false,

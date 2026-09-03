@@ -10,7 +10,7 @@ description: How AAP skills map to Model Context Protocol tools so an LLM client
 
 [Model Context Protocol](https://modelcontextprotocol.io) (MCP) is a tool layer between an LLM client and a host application. AAP exposes its five skills as MCP tools so any MCP-compatible LLM client (Claude Desktop, an MCP-aware IDE, or a custom orchestrator) can call a dealer agent without learning the A2A wire format directly.
 
-The MCP server acts as a thin adapter: it accepts an MCP `tools/call` request whose `arguments` is exactly an AAP request payload, wraps it as a typed `DataPart` inside an A2A `Message`, and forwards it to the dealer agent's A2A endpoint with a single `SendMessage` call — the only A2A operation AAP uses (request `Message` in, response `Message` out; streaming, tasks, and push notifications are out of scope for AAP v1.2). The MCP tool's `inputSchema` is the AAP request schema by URL — no extra wrapping, no field renaming.
+The MCP server acts as a thin adapter: it accepts an MCP `tools/call` request whose `arguments` is exactly an AAP request payload, wraps it as a typed `DataPart` inside an A2A `Message`, and forwards it to the dealer agent's A2A endpoint with a single `SendMessage` call — the only A2A operation AAP uses (request `Message` in, response `Message` out; streaming, tasks, and push notifications are out of scope for AAP v1.2.0). The MCP tool's `inputSchema` is the AAP request schema by URL — no extra wrapping, no field renaming.
 
 ## Tool naming
 
@@ -20,7 +20,7 @@ Each AAP skill maps to one MCP tool. The tool name pattern is:
 aap_<skill_id_with_underscores>
 ```
 
-Dots become underscores. The mapping is fixed for v1.2:
+Dots become underscores. The mapping is fixed for v1.2.0:
 
 | AAP skill id | MCP tool name |
 |---|---|
@@ -36,7 +36,7 @@ The MCP tool's `inputSchema` is the AAP request schema (referenced by URL). The 
 
 1. Validating `arguments` against the request schema (best practice but optional).
 2. Wrapping `arguments` as `Message.parts[].data` (a Part carrying the `data` member).
-3. Sending it to the dealer's A2A endpoint as a `SendMessage` call over AAP's single transport, [JSON-RPC 2.0](../bindings/json-rpc.md), which every AAP agent exposes. (The [HTTP+JSON (REST) binding](../bindings/rest.md) was removed in v1.1.)
+3. Sending it to the dealer's A2A endpoint as a `SendMessage` call over AAP's single transport, [JSON-RPC 2.0](../bindings/json-rpc.md), which every AAP agent exposes. (The [HTTP+JSON (REST) binding](../bindings/rest.md) was removed in v1.1.0.)
 4. Unwrapping the dealer's A2A `Message` response and returning the AAP `data` payload as the MCP tool result.
 
 The MCP tool result is the AAP response payload (the same thing the dealer returned in `parts[0].data`).
@@ -158,4 +158,4 @@ The MCP server forwards `arguments` as the AAP `DataPart.data` to the dealer's A
 - The MCP `inputSchema` `$ref` points at the AAP schema by URL, so an LLM with schema-following tool use can plan calls against the same source of truth as a hand-written A2A client.
 - The MCP server is stateless adapter glue; all business logic — auth, consent enforcement, inventory accuracy — stays in the dealer agent behind A2A.
 
-For more on MCP itself, see the [MCP specification](https://modelcontextprotocol.io). For the single A2A transport the MCP server forwards into, see the [JSON-RPC binding](../bindings/json-rpc.md) (the sole AAP v1.2 transport, exposed by every AAP agent). The [REST binding](../bindings/rest.md) was removed in v1.1.
+For more on MCP itself, see the [MCP specification](https://modelcontextprotocol.io). For the single A2A transport the MCP server forwards into, see the [JSON-RPC binding](../bindings/json-rpc.md) (the sole AAP v1.2.0 transport, exposed by every AAP agent). The [REST binding](../bindings/rest.md) was removed in v1.1.0.

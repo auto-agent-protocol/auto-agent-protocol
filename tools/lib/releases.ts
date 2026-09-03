@@ -58,7 +58,6 @@ export function releasePrefixes(contract: string): string[] {
   if (!/^v(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(contract)) throw new Error(`Unsafe contract label: ${contract}`);
   return [`spec/${contract}/`, `versioned_docs/version-${contract}/`, `versioned_sidebars/version-${contract}-sidebars.json`, `releases/${contract}/`, `static/img/${contract}/`];
 }
-export function isBrandAlias(file: string): boolean { return /^static\/img\/v\d+\.\d+\/aap-hero-banner\.png$/.test(file); }
 export function snapshotFiles(root: string, contract: string): string[] {
   const files = new Set<string>();
   for (const prefix of releasePrefixes(contract)) {
@@ -66,7 +65,7 @@ export function snapshotFiles(root: string, contract: string): string[] {
     const entries = prefix.endsWith("/") ? filesIn(target) : existsSync(target) ? [target] : [];
     for (const full of entries) {
       const name = relative(root, full).split("\\").join("/");
-      if (name !== `releases/${contract}/integrity.json` && !isBrandAlias(name)) files.add(name);
+      if (name !== `releases/${contract}/integrity.json`) files.add(name);
     }
   }
   // Older docs share unversioned illustrations. Pin referenced images too.
@@ -75,7 +74,7 @@ export function snapshotFiles(root: string, contract: string): string[] {
     for (const match of source.matchAll(/\/img\/[^\s)"'<>]+\.(?:png|svg|jpe?g|webp)/g)) {
       const asset = `static${match[0]}`;
       if (asset.includes("..") || !existsSync(join(root, asset))) throw new Error(`Missing or unsafe released image: ${asset}`);
-      if (!isBrandAlias(asset)) files.add(asset);
+      files.add(asset);
     }
   }
   return [...files].sort();

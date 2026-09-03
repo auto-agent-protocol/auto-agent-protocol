@@ -53,12 +53,12 @@ For the field-by-field ADF/XML mapping, see [ADF mapping](../compatibility/adf-m
 |---|---|---|---|
 | `type` | const | yes | `lead.submit.request`. |
 | `customer` | `Customer` | **yes** | Buyer contact info. Always required. |
-| `consent` | `ConsentGrant` | **yes** | Always required. `scope` MUST be `["lead_submission"]`. As of v1.1, `consent` no longer carries `source_agent`; the buyer agent is identified once by the top-level `source_agent` object below. |
+| `consent` | `ConsentGrant` | **yes** | Always required. `scope` MUST be `["lead_submission"]`. As of v1.1.0, `consent` no longer carries `source_agent`; the buyer agent is identified once by the top-level `source_agent` object below. |
 | `vehicle_of_interest` | `Vehicle` | no | Optional. When present, `condition` (if set) MUST be `new` \| `used` \| `cpo`; vehicle MUST be identifiable via `vin`, `stock`, or `year`+`make`+`model`. |
 | `trade_in` | `Vehicle` | no | Optional. When present, `condition` (if set) MUST be `excellent` \| `good` \| `fair` \| `poor`; MUST carry at least `year`+`make`+`model`. `mileage` is strongly recommended. |
 | `appointment` | `Appointment` | no | Optional. `appointment_type` is one of `sales` \| `service` \| `test_drive` \| `trade_in`; `appointment_at` is the requested start time (ISO 8601). The vehicle is implicit: `vehicle_of_interest` for a test drive, `trade_in` for a trade-in appraisal. |
 | `message` | string | no | Free-text user note (max 4000 chars). |
-| `source_agent` | object | yes | The single buyer-agent identity for this lead. `name` is REQUIRED (e.g. `chatgpt-shopping`, `gemini-assistant`); `url` and `agent_card_url` are OPTIONAL. This is the one and only `source_agent` in v1.1 — it was removed from `consent`. |
+| `source_agent` | object | yes | The single buyer-agent identity for this lead. `name` is REQUIRED (e.g. `chatgpt-shopping`, `gemini-assistant`); `url` and `agent_card_url` are OPTIONAL. This is the one and only `source_agent` in v1.1.0 — it was removed from `consent`. |
 | `source_agent.name` | string | **yes** | Buyer agent identifier. |
 | `source_agent.url` | string (uri) | no | Buyer agent's site or product URL. |
 | `source_agent.agent_card_url` | string (uri) | no | URL of the buyer agent's A2A agent card. |
@@ -67,7 +67,7 @@ For the field-by-field ADF/XML mapping, see [ADF mapping](../compatibility/adf-m
 The unified `Vehicle` interface is the same shape used by `inventory.search` results — see the [Vehicle schema source](https://autoagentprotocol.org/v1.2/schemas/vehicle.schema.json). Both `vehicle_of_interest` and `trade_in` use this shape; only the valid `condition` enum subset differs. Either may be a motorcycle: set `vehicle_type: "motorcycle"` and include the powersports fields (`body`/segment, `displacement_cc`, plus niche specs such as `final_drive` or `wheel_count` in `other_attributes`). For a motorcycle, an `appointment_type` of `test_drive` denotes a demo ride.
 
 :::note Self-discovery
-A buyer agent does not have to hard-code or guess this shape. The dealer's [agent card](../discovery.md) publishes each skill's request/response JSON Schema URLs in the **AAP extension params** — `capabilities.extensions[].params.skills["lead.submit"].request_schema` points at the canonical schema (e.g. `https://autoagentprotocol.org/v1.2/schemas/lead-submit-request.schema.json`). The URLs live in the extension params, not as fields on the A2A `skill` object, so strict A2A AgentCard parsers still accept the card. Buyer agents SHOULD fetch that schema and validate against it, rather than relying on the prose here. The top-level `source_agent` object — and the removal of `consent.source_agent` in v1.1 — are both reflected in that published schema.
+A buyer agent does not have to hard-code or guess this shape. The dealer's [agent card](../discovery.md) publishes each skill's request/response JSON Schema URLs in the **AAP extension params** — `capabilities.extensions[].params.skills["lead.submit"].request_schema` points at the canonical schema (e.g. `https://autoagentprotocol.org/v1.2/schemas/lead-submit-request.schema.json`). The URLs live in the extension params, not as fields on the A2A `skill` object, so strict A2A AgentCard parsers still accept the card. Buyer agents SHOULD fetch that schema and validate against it, rather than relying on the prose here. The top-level `source_agent` object — and the removal of `consent.source_agent` in v1.1.0 — are both reflected in that published schema.
 :::
 
 ## Response shape
@@ -245,7 +245,7 @@ Real shopping flows naturally bundle the inquiry, the trade-in, and the appointm
 - **Consent friction** — users sign off 3 disclosures for one decision.
 - **Race conditions** — the appointment may be booked before the lead arrives, or vice-versa.
 
-A single `lead.submit` lets the dealer transactionally accept the lead, queue the trade-in for appraisal, and confirm or propose the appointment in one round trip. v1.2 keeps the contract tight by NOT supporting multi-vehicle leads (one `vehicle_of_interest` per submission); send N requests for N vehicles.
+A single `lead.submit` lets the dealer transactionally accept the lead, queue the trade-in for appraisal, and confirm or propose the appointment in one round trip. v1.2.0 keeps the contract tight by NOT supporting multi-vehicle leads (one `vehicle_of_interest` per submission); send N requests for N vehicles.
 
 ## Consent and channel rules
 

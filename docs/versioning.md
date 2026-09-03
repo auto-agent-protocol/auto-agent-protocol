@@ -19,7 +19,7 @@ The word “latest” therefore has two scoped meanings: `spec/latest/` means th
 
 ## SemVer policy
 
-Every release is represented by a full SemVer such as `1.3.0` and a public major/minor contract path such as `v1.3`. Because the URL cannot distinguish patch snapshots, the release tool only creates `MAJOR.MINOR.0` contracts. Editorial corrections can be made in the editable docs and included in a later release; published snapshots are not rewritten.
+Every release is represented by a full SemVer such as `1.3.0` and a public major/minor contract path such as `v1.3`. Human-facing release labels always use all three SemVer components (`1.2.0`); wire identifiers, folders, and URLs use the corresponding major/minor contract label (`v1.2`). Because the URL cannot distinguish patch snapshots, the release tool only creates `MAJOR.MINOR.0` contracts. Editorial corrections can be made in the editable docs and included in a later release; published snapshots are not rewritten.
 
 | Change | Required release |
 |---|---|

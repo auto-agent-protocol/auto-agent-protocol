@@ -12,7 +12,7 @@ import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { parse as parseYaml } from "yaml";
 import { LATEST } from "./versions.js";
-import { readJson } from "./lib/releases.js";
+import { readJson, stableRelease } from "./lib/releases.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DOCS_DIR = resolve(ROOT, "versioned_docs", `version-${LATEST}`);
@@ -22,6 +22,7 @@ const OUT_DIR = resolve(ROOT, "static");
 // is derived from LATEST / skills.yaml.
 const SITE = "https://autoagentprotocol.org";
 const TITLE = "Auto Agent Protocol";
+const STABLE_RELEASE = stableRelease();
 const DOCS_BASE = `${SITE}/docs/${LATEST}`;
 const VER_BASE = `${SITE}/${LATEST}`;
 
@@ -103,7 +104,7 @@ function buildLlmsTxt(): string {
   const out: string[] = [
     `# ${TITLE}`,
     "",
-    `> ${TITLE} (AAP) is an open A2A v1.0 profile: AI buyer-agents discover a car dealership, browse its real inventory, and submit consented sales leads. ${skillsManifest.skills.length} skills: ${skillIds}. Current version ${LATEST}; sole transport A2A SendMessage over JSON-RPC 2.0; discovery via /.well-known/agent-card.json; extension URI ${skillsManifest.extension_uri}.`,
+    `> ${TITLE} (AAP) is an open A2A v1.0 profile: AI buyer-agents discover a car dealership, browse its real inventory, and submit consented sales leads. ${skillsManifest.skills.length} skills: ${skillIds}. Current release ${STABLE_RELEASE.version} (contract ${LATEST}); sole transport A2A SendMessage over JSON-RPC 2.0; discovery via /.well-known/agent-card.json; extension URI ${skillsManifest.extension_uri}.`,
     "",
     `The entire specification is also available as a single self-contained file at ${SITE}/llms-full.txt.`,
     "",

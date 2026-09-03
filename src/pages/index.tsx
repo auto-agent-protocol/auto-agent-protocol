@@ -4,6 +4,12 @@ import ThemedImage from "@theme/ThemedImage";
 import Layout from "@theme/Layout";
 import Head from "@docusaurus/Head";
 import styles from "./index.module.css";
+import releases from "../../releases.json";
+
+const stableRelease = releases.releases.find((release) => release.contract === releases.stable);
+if (!stableRelease) throw new Error(`Stable release ${releases.stable} is missing from releases.json`);
+const stableContract = stableRelease.contract;
+const stableVersion = stableRelease.version;
 
 function Hero() {
   return (
@@ -104,7 +110,7 @@ function MultiClass() {
           <div className="col col--5">
             <h2>Cars, EVs, and motorcycles — one contract</h2>
             <p>
-              v1.2 extends inventory beyond cars. An optional{" "}
+              v{stableVersion} extends inventory beyond cars. An optional{" "}
               <code>vehicle_type</code> discriminator covers{" "}
               <code>car</code>, <code>motorcycle</code>, and room for trailer /
               RV later (absent means car, so existing integrations keep
@@ -118,8 +124,8 @@ function MultiClass() {
           </div>
           <div className="col col--7">
             <img
-              src="/img/v1.2/multi-class-inventory.png"
-              alt="AAP v1.2 covers cars, electric vehicles, and motorcycles in one typed inventory contract"
+              src={`/img/${stableContract}/multi-class-inventory.png`}
+              alt={`AAP v${stableVersion} covers cars, electric vehicles, and motorcycles in one typed inventory contract`}
               className={styles.fullImage}
               width="1600"
               height="600"
@@ -154,7 +160,7 @@ function Skills() {
           </div>
           <div className="col col--7">
             <img
-              src="/img/v1.2/skills-overview.png"
+              src={`/img/${stableContract}/skills-overview.png`}
               alt="Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit"
               className={styles.fullImage}
               width="1376"
@@ -176,7 +182,7 @@ function Pricing() {
         <div className="row">
           <div className="col col--7">
             <img
-              src="/img/v1.2/pricing-ladder.png"
+              src={`/img/${stableContract}/pricing-ladder.png`}
               alt="Vehicle pricing ladder: msrp, list_price, and the FTC-final price"
               className={styles.fullImage}
               width="1376"
@@ -254,7 +260,7 @@ const specStructuredData = {
   "@context": "https://schema.org",
   "@type": "APIReference",
   "@id": "https://autoagentprotocol.org/#spec",
-  name: "Auto Agent Protocol (AAP) v1.2 Specification",
+  name: `Auto Agent Protocol (AAP) v${stableVersion} Specification`,
   headline:
     "Auto Agent Protocol — an open A2A v1.0 profile for automotive retail",
   url: "https://autoagentprotocol.org/docs/latest/intro",
@@ -264,7 +270,7 @@ const specStructuredData = {
     "Open standard letting AI buyer-agents discover a dealership, browse real inventory, and submit consented leads.",
   articleSection: "Specification",
   inLanguage: "en",
-  version: "1.2.0",
+  version: stableVersion,
   keywords:
     "Auto Agent Protocol, AAP, A2A, Agent2Agent, JSON-RPC, agent card, automotive inventory, dealership AI, consented leads, agentic commerce",
   isBasedOn: "https://a2a-protocol.org/latest/specification/",
@@ -279,13 +285,13 @@ const specStructuredData = {
       name: "AAP JSON-RPC OpenAPI",
       codeRepository:
         "https://github.com/auto-agent-protocol/auto-agent-protocol",
-      url: "https://autoagentprotocol.org/v1.2/openapi-jsonrpc.yaml",
+      url: `https://autoagentprotocol.org/${stableContract}/openapi-jsonrpc.yaml`,
       programmingLanguage: "OpenAPI",
     },
     {
       "@type": "SoftwareSourceCode",
       name: "AAP MCP manifest",
-      url: "https://autoagentprotocol.org/v1.2/mcp.json",
+      url: `https://autoagentprotocol.org/${stableContract}/mcp.json`,
       programmingLanguage: "JSON",
     },
   ],
