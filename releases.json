@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "stable": "v1.2",
+  "releases": [
+    {
+      "contract": "v0.1",
+      "version": "0.1.0",
+      "sourceCommit": "bcc14b7f95b26596d2eeb5632abff311dde4dd3e"
+    },
+    {
+      "contract": "v0.2",
+      "version": "0.2.0",
+      "sourceCommit": "bcc14b7f95b26596d2eeb5632abff311dde4dd3e"
+    },
+    {
+      "contract": "v1.0",
+      "version": "1.0.0",
+      "sourceCommit": "bcc14b7f95b26596d2eeb5632abff311dde4dd3e"
+    },
+    {
+      "contract": "v1.1",
+      "version": "1.1.0",
+      "sourceCommit": "bcc14b7f95b26596d2eeb5632abff311dde4dd3e"
+    },
+    {
+      "contract": "v1.2",
+      "version": "1.2.0",
+      "sourceCommit": "bcc14b7f95b26596d2eeb5632abff311dde4dd3e"
+    }
+  ]
+}

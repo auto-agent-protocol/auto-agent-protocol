@@ -1,0 +1,255 @@
+---
+sidebar_position: 3
+title: inventory.search
+description: Search vehicle inventory with a flat filter block, pagination, sort, and privacy hints. The primary skill for discovery and comparison.
+---
+
+# `inventory.search`
+
+:::info A2A invocation
+This skill is invoked through A2A's `SendMessage` operation — the single A2A operation AAP v1.2 uses — not a dedicated REST URL. It travels as the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md). (The HTTP+JSON binding was [removed in v1.1](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
+:::
+
+![Inventory search flow: filters block flowing into a paginated vehicles list with facets](/img/v1.2/inventory-search-flow.png)
+
+The `inventory.search` skill is the primary inventory discovery surface. A buyer agent submits a flat filter block, optional pagination, optional sort, and optional privacy hints; the dealer agent returns matching `Vehicle` listings together with a total count and OPTIONAL aggregated facets.
+
+| Property | Value |
+|---|---|
+| Skill id | `inventory.search` |
+| Request type | `inventory.search.request` |
+| Response type | `inventory.search.response` |
+| Anonymous allowed | yes |
+| Consent required | no |
+| ADF compatible | no |
+
+## Filter design
+
+AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi-value filters are arrays. Range filters use `*_min` / `*_max` pairs. All fields are optional; absence means "no constraint."
+
+| Filter | Type | Multi-value? | Range? | Description |
+|---|---|---|---|---|
+| `make` | string[] | yes | — | Vehicle makes (e.g. `["Honda", "BMW"]`). |
+| `model` | string[] | yes | — | Vehicle models. |
+| `trim` | string[] | yes | — | Trim levels. |
+| `condition` | enum[] | yes | — | Subset of `["new", "used", "cpo"]`. |
+| `vehicle_type` | enum[] | yes | — | Subset of `["car", "motorcycle", "trailer", "rv", "other"]`. Omit to search all types; a listing without `vehicle_type` is treated as `car`. |
+| `transmission` | string[] | yes | — | Free-text transmission types. |
+| `fuel` | string[] | yes | — | Free-text fuel types (e.g. `gas`, `hybrid`, `bev`). |
+| `electric_range_mi_min` / `electric_range_mi_max` | integer | — | yes | Inclusive electric-range range in miles, applied against `electric_range_mi`. Generic electric filter (EV cars and electric motorcycles). |
+| `dc_fast_charge` | boolean | — | — | When true, include only units supporting DC fast charging. Generic electric filter. |
+| `charge_port` | string[] | yes | — | EV charge/plug connectors to include (e.g. `['nacs','ccs']`), matching `Vehicle.charge_port`. Generic electric filter. |
+| `driveline` | string[] | yes | — | Drivetrain layouts (car context). |
+| `body` | string[] | yes | — | Body styles / segments, applicable to any `vehicle_type` (e.g. `sedan`, `suv` for cars; `cruiser`, `touring` for motorcycles). |
+| `displacement_cc_min` / `displacement_cc_max` | integer | — | yes | Inclusive engine-displacement range in cc, applied against `displacement_cc`. |
+| `exterior_color` | string[] | yes | — | Free-text colors. |
+| `interior_color` | string[] | yes | — | Free-text colors (car context). |
+| `rooftops` | string[] | yes | — | Rooftop names to include, matching `Vehicle.rooftop` and the rooftop `name` from [`dealer.information`](./dealer-information.md). For multi-rooftop dealerships; omit to search across all rooftops. |
+| `year_min` / `year_max` | integer | — | yes | Inclusive year range. |
+| `price_min` / `price_max` | integer | — | yes | Inclusive price range, in whole US dollars. **Applied against the FTC-final `price` field.** See [Pricing and FTC compliance](../pricing-and-ftc.md). |
+| `mileage_max` | integer | — | — | Maximum odometer reading. |
+| `vin` | string | — | — | Exact VIN match (17 chars, ISO 3779). |
+| `stock` | string | — | — | Exact dealer stock number. |
+| `query` | string | — | — | Optional free-text query (max 200 chars). |
+
+`additionalProperties: false` on `filters`. A request with an unknown filter key is invalid.
+
+## Pagination, sort, privacy
+
+```json
+{
+  "pagination": { "skip": 0, "limit": 20 },
+  "sort":       { "field": "price", "order": "asc" },
+  "privacy":    { "anonymous": true }
+}
+```
+
+- `pagination.skip` and `pagination.limit` are integers. AAP recommends defaults of `skip=0`, `limit=20`, and a hard cap of `100`.
+- `sort.field` accepts: `price`, `list_price`, `msrp`, `mileage`, `year`, `make`, `model`, `stock`, `updated_at`. `sort.order` is `asc` or `desc`. **Sorting by `price` uses the FTC-final `price` field** that dealers MUST keep accurate.
+- `privacy.anonymous: true` indicates the buyer agent is not attaching user identity to this search. AAP RECOMMENDS anonymous searches by default; user identity is attached only when a lead is submitted.
+
+## Request shape
+
+```json
+{
+  "type": "inventory.search.request",
+  "filters":    { "...": "see filter table" },
+  "pagination": { "skip": 0, "limit": 20 },
+  "sort":       { "field": "price", "order": "asc" },
+  "privacy":    { "anonymous": true }
+}
+```
+
+| Field | Type | Required |
+|---|---|---|
+| `type` | const | yes |
+| `filters` | object | no |
+| `pagination` | object | no |
+| `sort` | object | no |
+| `privacy` | object | no |
+
+## Response shape
+
+```json
+{
+  "type": "inventory.search.response",
+  "data": {
+    "total":    0,
+    "skip":     0,
+    "limit":    0,
+    "vehicles": [{ "...Vehicle..." }],
+    "facets":   { "...Facets... (optional)" }
+  },
+  "message": "Optional contextual note."
+}
+```
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `data.total` | integer | yes | Total number of matching vehicles across all pages. |
+| `data.skip` | integer | no | Echo of request `pagination.skip`. |
+| `data.limit` | integer | no | Echo of effective `pagination.limit`. |
+| `data.vehicles[]` | `Vehicle[]` | yes | Listings in the requested order. |
+| `data.facets` | `Facets` | no | OPTIONAL embedded aggregation over the matching set. |
+
+Each `Vehicle` MAY include `dealer_id`, `vehicle_id`, `vin`, `stock`, `year`, `make`, `model`, `trim`, `condition` (`new` | `used` | `cpo` for inventory contexts), `vehicle_type` (`car` | `motorcycle` | `trailer` | `rv` | `other`, defaulting to `car` when absent), `rooftop`, `body`, `transmission`, `mileage`, `msrp`, `list_price`, `price`, and `status`. The unified Vehicle schema declares all of these as optional and `additionalProperties: true`, so inventory responses MAY also include rich fields like `photos`, `vdp_url`, `driveline`, `engine`, `fuel`, `city_mpg`, `highway_mpg`, `electric_range_mi`, `exterior_color`, `interior_color`, `features`, `description`, `notes`, `inventory_date`, and `updated_at`. Motorcycle listings (`vehicle_type: "motorcycle"`) carry the class-agnostic `body`/segment and `displacement_cc`, with niche specs (`final_drive`, `engine_stroke`, `wheel_count`, `abs`) in the free-form `other_attributes` map, in place of the car-oriented `driveline`, `interior_color`, and MPG fields. `updated_at` MUST be present whenever the dealer is making availability claims — see [Behavior rules](../behavior-rules.md). Vehicle `status` is **REQUIRED** on inventory listings and is a controlled enum: exactly `available` | `intransit` | `pending`. Only these three statuses appear in inventory feeds; a vehicle in any other state is OUT OF STOCK and MUST be omitted by the dealer (and ignored by the buyer if encountered).
+
+## Full example
+
+A buyer agent searches for certified or used Hondas from 2020 onward, under $30,000 final price, sorted ascending by price.
+
+### Request
+
+```json
+{
+  "type": "inventory.search.request",
+  "filters": {
+    "make": ["Honda"],
+    "condition": ["used", "cpo"],
+    "year_min": 2020,
+    "price_max": 30000
+  },
+  "pagination": { "skip": 0, "limit": 20 },
+  "sort": { "field": "price", "order": "asc" },
+  "privacy": { "anonymous": true }
+}
+```
+
+### Response
+
+```json
+{
+  "type": "inventory.search.response",
+  "data": {
+    "total": 2,
+    "skip": 0,
+    "limit": 20,
+    "vehicles": [
+      {
+        "dealer_id": "dealer_demo_toyota",
+        "vin": "1HGCV1F30KA000001",
+        "stock": "T12345",
+        "year": 2022,
+        "make": "Honda",
+        "model": "Civic",
+        "trim": "EX",
+        "condition": "cpo",
+        "rooftop": "Demo Toyota San Francisco",
+        "transmission": "automatic",
+        "fuel": "gas",
+        "driveline": "fwd",
+        "body": "sedan",
+        "exterior_color": "Crystal Black Pearl",
+        "mileage": 22150,
+        "list_price": 24990,
+        "price": 26780,
+        "photos": [
+          "https://demo-toyota.example.com/photos/T12345-1.jpg"
+        ],
+        "vdp_url": "https://demo-toyota.example.com/inventory/T12345",
+        "status": "available",
+        "inventory_date": "2026-04-12",
+        "updated_at": "2026-04-30T10:15:00Z"
+      },
+      {
+        "dealer_id": "dealer_demo_toyota",
+        "stock": "T12399",
+        "vehicle_id": "veh_inbound_civic_2024_001",
+        "year": 2024,
+        "make": "Honda",
+        "model": "Civic",
+        "trim": "Touring",
+        "condition": "new",
+        "rooftop": "Demo Toyota San Francisco",
+        "transmission": "automatic",
+        "fuel": "hybrid",
+        "driveline": "fwd",
+        "body": "sedan",
+        "list_price": 27990,
+        "price": 29990,
+        "status": "intransit",
+        "inventory_date": "2026-04-28",
+        "updated_at": "2026-04-30T08:00:00Z"
+      }
+    ]
+  }
+}
+```
+
+Note that vehicle 2 has only `stock` and `vehicle_id` (no VIN yet, since it is in transit), and its `status` is the enum value `intransit`. Both listings include `updated_at`.
+
+## Motorcycle search
+
+Searching a powersports dealer uses the same skill with `vehicle_type: ["motorcycle"]` plus the shared filters (`body` for the motorcycle segment, `displacement_cc_min` / `displacement_cc_max`).
+
+```json
+{
+  "type": "inventory.search.request",
+  "filters": {
+    "vehicle_type": ["motorcycle"],
+    "make": ["Acme Moto"],
+    "condition": ["new"],
+    "body": ["cruiser", "touring"],
+    "displacement_cc_min": 1200,
+    "price_max": 30000
+  },
+  "pagination": { "skip": 0, "limit": 25 },
+  "sort": { "field": "price", "order": "asc" },
+  "privacy": { "anonymous": true }
+}
+```
+
+Each returned `Vehicle` carries `vehicle_type: "motorcycle"` and the class-agnostic `body`/segment and `displacement_cc` (with niche specs such as `final_drive`, `wheel_count`, or `abs` in `other_attributes`) in place of the car-oriented `driveline`, `interior_color`, and MPG fields.
+
+### Electric motorcycles
+
+Electric motorcycles have no displacement, so shoppers compare them on range, battery, and charging instead. Combine `vehicle_type` and `fuel` with the generic electric filters `electric_range_mi_min` / `electric_range_mi_max`, `dc_fast_charge`, and `charge_port`:
+
+```json
+{
+  "type": "inventory.search.request",
+  "filters": {
+    "vehicle_type": ["motorcycle"],
+    "make": ["Acme Moto"],
+    "fuel": ["bev"],
+    "electric_range_mi_min": 100,
+    "charge_port": ["nacs"],
+    "price_max": 15000
+  },
+  "pagination": { "skip": 0, "limit": 25 },
+  "sort": { "field": "price", "order": "asc" },
+  "privacy": { "anonymous": true }
+}
+```
+
+Returned electric units carry the generic electric-powertrain group (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `dc_fast_charge`, `charge_port`) and omit combustion fields like `displacement_cc`. These same electric fields apply to electric cars.
+
+## Sort considerations
+
+- Sorting by `price` (default for price-comparison flows) sorts on the FTC-final out-the-door amount. This is what buyer agents SHOULD use to honestly compare offers.
+- Sorting by `list_price` or `msrp` is allowed for users who want a different perspective; the dealer SHOULD still publish accurate `price` for FTC compliance.
+- Sorting by `updated_at desc` is the recommended freshness ordering when buyers care about which listings the dealer has most recently re-confirmed.
+
+## Anonymous search by default
+
+AAP RECOMMENDS that buyer agents send `privacy.anonymous: true` on every `inventory.search` call. User identity is reserved for the moment a lead is actually submitted (see [`lead.submit`](./lead-submit.md)). Dealers MUST support anonymous `inventory.search` unless their agent card explicitly states otherwise.

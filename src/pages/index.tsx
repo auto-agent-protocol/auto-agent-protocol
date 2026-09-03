@@ -29,7 +29,7 @@ function Hero() {
         <div className={styles.buttons}>
           <Link
             className="button button--primary button--lg"
-            to="/docs/v1.2/intro"
+                to="/docs/latest/intro"
           >
             Read the Spec
           </Link>
@@ -40,7 +40,7 @@ function Hero() {
             GitHub
           </Link>
         </div>
-        <Link className={styles.profileLink} to="/docs/v1.2/a2a-profile">Built on A2A v1.0 <span aria-hidden="true">↗</span></Link>
+        <Link className={styles.profileLink} to="/docs/latest/a2a-profile">Built on A2A v1.0 <span aria-hidden="true">↗</span></Link>
       </div>
     </header>
   );
@@ -112,7 +112,7 @@ function MultiClass() {
               powertrain fields — including filterable <code>charge_port</code> —
               while motorcycle segments reuse free-text <code>body</code>.
             </p>
-            <Link to="/docs/v1.2/skills/inventory-vehicle" className="button button--primary">
+            <Link to="/docs/latest/skills/inventory-vehicle" className="button button--primary">
               See the vehicle shape
             </Link>
           </div>
@@ -148,7 +148,7 @@ function Skills() {
               checkout, no payment scope. Just the read-and-lead lifecycle,
               typed and validated.
             </p>
-            <Link to="/docs/v1.2/intro" className="button button--primary">
+            <Link to="/docs/latest/intro" className="button button--primary">
               Browse the skills
             </Link>
           </div>
@@ -195,7 +195,7 @@ function Pricing() {
               <code>list_price</code> sit beside it, so AI agents can give honest
               answers, in line with the FTC's push against hidden fees and bait pricing.
             </p>
-            <Link to="/docs/v1.2/pricing-and-ftc" className="button button--primary">
+            <Link to="/docs/latest/pricing-and-ftc" className="button button--primary">
               Read the pricing semantics
             </Link>
           </div>
@@ -257,7 +257,7 @@ const specStructuredData = {
   name: "Auto Agent Protocol (AAP) v1.2 Specification",
   headline:
     "Auto Agent Protocol — an open A2A v1.0 profile for automotive retail",
-  url: "https://autoagentprotocol.org/docs/v1.2/intro",
+  url: "https://autoagentprotocol.org/docs/latest/intro",
   description:
     "AAP defines five A2A skills — dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit — carried over A2A SendMessage on JSON-RPC 2.0, with discovery via /.well-known/agent-card.json.",
   abstract:

@@ -1,6 +1,6 @@
 // Generates static/llms.txt and static/llms-full.txt from the single sources of
-// truth — sidebars.ts (doc structure/order), spec/<latest>/skills.yaml (skills +
-// version + schema URLs), and the docs' own frontmatter/prose — so neither file
+// truth — the stable release registry, frozen sidebars/docs, and the stable
+// skills manifest — so neither file
 // is ever hand-maintained or drifts on a version change. Run as part of
 // `pnpm run generate`; the outputs are gitignored build artifacts.
 //
@@ -12,10 +12,10 @@ import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { parse as parseYaml } from "yaml";
 import { LATEST } from "./versions.js";
-import sidebars from "../sidebars.js";
+import { readJson } from "./lib/releases.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const DOCS_DIR = resolve(ROOT, "docs");
+const DOCS_DIR = resolve(ROOT, "versioned_docs", `version-${LATEST}`);
 const OUT_DIR = resolve(ROOT, "static");
 
 // Stable site identity (not version-dependent). Everything version-specific below
@@ -42,7 +42,7 @@ const skillsManifest = parseYaml(
 
 // --- sidebar traversal (doc structure is the single source of order) ---
 type SidebarItem = string | { type: string; label: string; items?: SidebarItem[] };
-const rootItems = (sidebars as { specSidebar: SidebarItem[] }).specSidebar;
+const rootItems = (readJson(resolve(ROOT, "versioned_sidebars", `version-${LATEST}-sidebars.json`)) as { specSidebar: SidebarItem[] }).specSidebar;
 
 const strings = (items: SidebarItem[]): string[] =>
   items.filter((i): i is string => typeof i === "string");

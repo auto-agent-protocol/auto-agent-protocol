@@ -1,107 +1,37 @@
-import Ajv from "ajv";
+import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { glob } from "glob";
-import { readFileSync, existsSync } from "fs";
-import { resolve, dirname, basename } from "path";
-import { fileURLToPath } from "url";
+import { readFileSync } from "node:fs";
+import { basename, resolve } from "node:path";
+import { ROOT, isMain } from "./lib/releases.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, "..");
-
-// Examples that intentionally don't validate against an AAP schema
-// (binding wrapper envelopes, MCP manifest, etc).
-const NON_VALIDATED_PATTERNS = [
-  /\.jsonrpc\.example\.json$/,
-  /\.rest\.example\.json$/,
-  /^mcp-manifest\./,
-];
-
-async function main() {
-  const versions = await glob("spec/*/", { cwd: ROOT });
-
-  let totalExamples = 0;
-  let errors = 0;
-
-  for (const versionDir of versions) {
-    const schemasDir = resolve(ROOT, versionDir, "schemas");
-    const examplesDir = resolve(ROOT, versionDir, "examples");
-
-    if (!existsSync(examplesDir)) continue;
-
-    const ajv = new Ajv({
-      strict: false,
-      allErrors: true,
-      validateSchema: false,
-    });
-    addFormats(ajv);
-
-    const schemaFiles = await glob("**/*.schema.json", { cwd: schemasDir });
-    const schemasByName = new Map<string, any>();
-
-    for (const sf of schemaFiles) {
-      const schemaPath = resolve(schemasDir, sf);
-      const schema = JSON.parse(readFileSync(schemaPath, "utf-8"));
-      const name = basename(sf, ".schema.json");
-      schemasByName.set(name, schema);
-
-      try {
-        ajv.addSchema(schema);
-      } catch {
-        // duplicate $id — fine
-      }
-    }
-
-    const exampleFiles = await glob("*.example.json", { cwd: examplesDir });
-
-    for (const ef of exampleFiles) {
-      totalExamples++;
-
-      // Skip binding-wrapper envelopes and MCP manifest examples.
-      if (NON_VALIDATED_PATTERNS.some((rx) => rx.test(ef))) {
-        console.log(`SKIP: ${ef} (binding wrapper or MCP manifest)`);
-        continue;
-      }
-
-      const examplePath = resolve(examplesDir, ef);
-      const example = JSON.parse(readFileSync(examplePath, "utf-8"));
-      const exampleName = basename(ef, ".example.json");
-
-      // Variant examples (e.g. `lead-submit-request.minimal`) use a suffixed
-      // basename and validate against the base schema.
-      let candidate = exampleName;
-      const variantMatch = exampleName.match(/^([a-z][a-z0-9-]+(?:request|response))\./);
-      if (variantMatch) {
-        candidate = variantMatch[1];
-      }
-
-      const schema = schemasByName.get(candidate);
-
-      if (!schema) {
-        console.log(`SKIP: ${ef} — no matching schema "${candidate}"`);
-        continue;
-      }
-
-      try {
-        const validate = ajv.compile(schema);
-        const valid = validate(example);
-        if (!valid) {
-          console.error(
-            `FAIL: ${ef} —`,
-            JSON.stringify(validate.errors, null, 2)
-          );
-          errors++;
-        } else {
-          console.log(`OK: ${ef}`);
-        }
-      } catch (e: any) {
-        console.error(`FAIL: ${ef} — compile error: ${e.message}`);
-        errors++;
-      }
-    }
+const SKIP = [/\.jsonrpc\.example\.json$/, /\.rest\.example\.json$/, /^mcp-manifest\./];
+export async function validateExamples(specDir: string, label: string): Promise<{total: number; validated: number}> {
+  const schemasDir = resolve(specDir, "schemas"), examplesDir = resolve(specDir, "examples");
+  const ajv = new Ajv2020({strict: false, allErrors: true}); addFormats(ajv);
+  const schemas = new Map<string, unknown>();
+  for (const file of (await glob("**/*.schema.json", {cwd: schemasDir})).sort()) {
+    const schema = JSON.parse(readFileSync(resolve(schemasDir, file), "utf8"));
+    schemas.set(basename(file, ".schema.json"), schema);
+    try { ajv.addSchema(schema); } catch (error) { throw new Error(`${label}/${file}: registration failed: ${(error as Error).message}`); }
   }
-
-  console.log(`\nValidated ${totalExamples} examples, ${errors} errors`);
-  if (errors > 0) process.exit(1);
+  const files = (await glob("*.example.json", {cwd: examplesDir})).sort();
+  let validated = 0;
+  for (const file of files) {
+    if (SKIP.some(pattern => pattern.test(file))) continue;
+    const name = basename(file, ".example.json"), variant = name.match(/^([a-z][a-z0-9-]+(?:request|response))\./);
+    const candidate = variant?.[1] ?? name, schema = schemas.get(candidate);
+    if (!schema) {
+      if (candidate === "agent-card" && label === "v0.2") continue;
+      throw new Error(`${label}/${file}: no matching schema ${candidate}`);
+    }
+    const validate = ajv.compile(schema), value = JSON.parse(readFileSync(resolve(examplesDir, file), "utf8"));
+    if (!validate(value)) throw new Error(`${label}/${file}: ${ajv.errorsText(validate.errors, {separator: "\n"})}`);
+    validated++;
+  }
+  console.log(`Validated ${validated}/${files.length} examples for ${label}`);
+  return {total: files.length, validated};
 }
-
-main();
+if (isMain(import.meta.url)) {
+  validateExamples(resolve(ROOT, "spec/latest"), "latest draft").catch(error => {console.error(error); process.exitCode = 1;});
+}

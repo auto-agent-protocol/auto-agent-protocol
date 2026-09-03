@@ -46,9 +46,9 @@ v1.2 does **not** cover: authentication (agents are public by default; auth is l
 ## Quick links
 
 - **Specification**: [autoagentprotocol.org](https://autoagentprotocol.org)
-- **Example agent card** (the single file a dealer deploys): [`spec/v1.2/examples/agent-card.example.json`](spec/v1.2/examples/agent-card.example.json)
-- **JSON Schemas**: [`spec/v1.2/schemas/`](spec/v1.2/schemas/)
-- **Examples**: [`spec/v1.2/examples/`](spec/v1.2/examples/)
+- **Stable v1.2 agent card**: [`spec/v1.2/examples/agent-card.example.json`](spec/v1.2/examples/agent-card.example.json)
+- **Editable JSON Schemas**: [`spec/latest/schemas/`](spec/latest/schemas/)
+- **Editable examples**: [`spec/latest/examples/`](spec/latest/examples/)
 - **OpenAPI 3.1** (built at deploy time): `https://autoagentprotocol.org/v1.2/openapi-jsonrpc.yaml`
 - **Changelog**: [CHANGELOG.md](CHANGELOG.md)
 
@@ -89,35 +89,37 @@ pnpm install
 
 ```bash
 pnpm run validate          # Validate schemas and examples
-pnpm run generate          # Generate types, OpenAPI, doc tables
-pnpm run build             # Build the documentation site
-pnpm start                 # Start local dev server
+pnpm run generate          # Generate draft artifacts in generated/latest
+pnpm run check:releases    # Verify frozen snapshots and stable packages
+pnpm run test:release      # Rehearse release and freeze invariants
+pnpm run build             # Build the stable production site
+pnpm start                 # Serve editable docs with an unreleased banner
 ```
 
 ### Repository structure
 
 ```
-spec/v1.2/schemas/         JSON Schema 2020-12 source of truth — current version (committed)
-spec/v1.2/examples/        Example payloads (committed)
-spec/v1.2/skills.yaml      Skills manifest (committed)
-spec/v0.1/, spec/v0.2/, spec/v1.0/, spec/v1.1/   Frozen released specs, kept for consumers pinned to them (committed, immutable)
-docs/                      Hand-written documentation pages for the current version, v1.2 (committed)
-versioned_docs/, versioned_sidebars/, versions.json  Frozen v0.1 + v0.2 + v1.0 + v1.1 docs snapshots (committed)
+spec/latest/               Editable JSON Schema 2020-12, examples, and skills manifest
+spec/v*/                   Frozen released specs (committed, immutable)
+docs/                      Editable documentation; served locally as an unreleased draft
+versioned_docs/, versioned_sidebars/  Frozen release documentation snapshots
+releases.json              Explicit release registry and stable-release pointer
+releases/v*/               Frozen generated artifacts, provenance, reports, and integrity manifests
 docs/skills/, bindings/    A2A binding + skill reference (committed)
 packages/                  npm packages: types, schemas, validator (committed)
 tools/                     Generators, validators, and image sources (committed)
 src/components/            FieldCard React component (committed)
 
-generated/                 Auto-generated per version: TS types, OpenAPI bundles, MCP manifest (NOT committed)
-static/v0.1/, static/v0.2/, static/v1.0/, static/v1.1/, static/v1.2/, static/latest/  Spec assets mirrored for the docs site (NOT committed)
+generated/latest/          Auto-generated draft types, OpenAPI, and MCP manifest (NOT committed)
+static/v*/, static/latest/ Site assembly output copied from frozen snapshots (NOT committed where applicable)
 build/                     Docusaurus production output (NOT committed)
 ```
 
-The auto-generated paths above are produced by `pnpm run generate && pnpm run copy-static` (which runs as part of `pnpm run build`). They live in [.gitignore](.gitignore) and are recreated fresh on every CI build, matching A2A's own convention of generating artifacts at build time rather than committing them.
+Draft artifacts are produced by `pnpm run generate`; production assets are assembled by `pnpm run copy-static`. Published artifact snapshots are committed under `releases/v*/` so a historical release is never regenerated with newer tooling.
 
 ## Versioning
 
-Released versions are immutable. The `latest` URL always points to the highest released version. Each version has its own schema URLs at `https://autoagentprotocol.org/v{version}/schemas/`. See the [versioning policy](https://autoagentprotocol.org/docs/latest/versioning) for the full SemVer rules now in force at 1.2.0.
+Released versions are immutable. Repository changes use `spec/latest/`; the public `latest` URL always points to the release selected by `releases.json`. There is no `next` channel. Each release has pinned schema URLs at `https://autoagentprotocol.org/v{version}/schemas/`. See the [versioning policy](https://autoagentprotocol.org/docs/latest/versioning) and [maintainer release guide](RELEASING.md).
 
 ## How AAP relates to other protocols
 

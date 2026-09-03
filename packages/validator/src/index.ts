@@ -25,7 +25,7 @@ export class AAPValidator {
   }
 
   /**
-   * Load the schemas bundled with @autoagentprotocol/schemas (the latest spec
+   * Load the schemas bundled with @autoagentprotocol/schemas (the stable
    * version). Pure data — imported directly, with no filesystem access.
    */
   loadDefaults(): void {

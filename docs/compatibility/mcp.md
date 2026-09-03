@@ -121,7 +121,7 @@ A complete MCP server descriptor that exposes all five AAP skills as tools:
 }
 ```
 
-A reference manifest is generated from `spec/v1.2/skills.yaml` at build time and published as `generated/v1.2/mcp.json`.
+During development, a reference manifest is generated from `spec/latest/skills.yaml` into `generated/latest/mcp.json`. A release stores the reviewed manifest under `releases/v{major}.{minor}/artifacts/mcp.json`; production publishes that immutable snapshot rather than regenerating it.
 
 ## Calling a tool
 

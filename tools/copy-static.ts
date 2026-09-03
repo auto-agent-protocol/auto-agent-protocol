@@ -14,7 +14,7 @@ const LATEST_VERSION = LATEST;
 
 async function copyVersion(version: string, destLabel: string): Promise<void> {
   const specDir = resolve(ROOT, "spec", version);
-  const generatedDir = resolve(ROOT, "generated", version);
+  const generatedDir = resolve(ROOT, "releases", version, "artifacts");
   const staticDir = resolve(ROOT, "static", destLabel);
 
   if (existsSync(staticDir)) rmSync(staticDir, { recursive: true });
@@ -37,7 +37,8 @@ async function copyVersion(version: string, destLabel: string): Promise<void> {
     console.log(`Copied examples to ${examplesDest}`);
   }
 
-  // Copy generated artifacts
+  // Copy the exact reviewed artifact snapshot. Never regenerate a release with
+  // newer tools: byte stability is part of the public contract.
   if (existsSync(generatedDir)) {
     const generatedFiles = await glob("*", { cwd: generatedDir });
     for (const file of generatedFiles) {
@@ -56,8 +57,8 @@ async function main(): Promise<void> {
     await copyVersion(version, version);
   }
 
-  // Mirror the highest released version under /latest so people can deep-link
-  // to the canonical "latest" URL (parallels Docusaurus's /docs/latest/* alias).
+  // Mirror the registry's approved stable release under /latest (parallel to
+  // the Docusaurus /docs/latest/* alias).
   await copyVersion(LATEST_VERSION, "latest");
 }
 

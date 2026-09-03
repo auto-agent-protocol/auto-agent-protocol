@@ -4,12 +4,11 @@ import { resolve, dirname, basename, join } from "path";
 import { tmpdir } from "os";
 import { fileURLToPath } from "url";
 import { glob } from "glob";
-import { LATEST } from "./versions.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 const SRC_DIR = resolve(ROOT, "tools/img-src");
-const CURRENT_IMG_PREFIX = `static/img/${LATEST}/`;
+const DRAFT_IMG_DIR = "generated/latest/images";
 
 // Existing PNGs are 1× the declared window-size (e.g. 1600×900), not Retina.
 const DEVICE_SCALE_FACTOR = "1";
@@ -57,7 +56,9 @@ function parseJob(htmlPath: string): ImageJob | null {
   }
   return {
     htmlPath,
-    targetRel: sourceMatch[1],
+    // Source comments preserve the historical published filename, but image
+    // generation must never write into an immutable static/img/v* directory.
+    targetRel: `${DRAFT_IMG_DIR}/${basename(sourceMatch[1])}`,
     width: Number(sizeMatch[1]),
     height: Number(sizeMatch[2]),
   };
@@ -153,9 +154,7 @@ async function main() {
   );
   const chrome = resolveChrome();
   console.log(`Chrome: ${chrome}`);
-  console.log(
-    `Latest version: ${LATEST} (only writing under ${CURRENT_IMG_PREFIX})`
-  );
+  console.log(`Draft images: ${DRAFT_IMG_DIR}`);
 
   const files = (await glob("*.html", { cwd: SRC_DIR })).sort();
   let rendered = 0;
@@ -168,13 +167,6 @@ async function main() {
     const htmlPath = resolve(SRC_DIR, file);
     const job = parseJob(htmlPath);
     if (!job) {
-      skipped++;
-      continue;
-    }
-    if (!job.targetRel.startsWith(CURRENT_IMG_PREFIX)) {
-      console.log(
-        `skip ${file}: target ${job.targetRel} is not under ${CURRENT_IMG_PREFIX} (frozen)`
-      );
       skipped++;
       continue;
     }

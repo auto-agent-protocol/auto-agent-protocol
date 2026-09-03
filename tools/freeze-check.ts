@@ -1,84 +1,101 @@
-import { readFileSync, existsSync } from "fs";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
-import { execSync } from "child_process";
+import { execFileSync } from "node:child_process";
+import { checkReleases, isBrandAlias, isMain, releasePrefixes, ROOT, type Registry } from "./lib/releases.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, "..");
-
-function main() {
-  const versionsFile = resolve(ROOT, "versions.json");
-
-  if (!existsSync(versionsFile)) {
-    console.log("No versions.json found — no frozen versions to check");
-    process.exit(0);
-  }
-
-  const versions: string[] = JSON.parse(readFileSync(versionsFile, "utf-8"));
-
-  if (versions.length === 0) {
-    console.log("No released versions — nothing to freeze-check");
-    process.exit(0);
-  }
-
-  let errors = 0;
-
-  // Get changed files (with status) from git diff. Compare against HEAD~1; fall
-  // back to the staged diff when there is no prior commit.
-  let diffLines: string[] = [];
+function git(root: string, args: string[], allowFailure = false): string {
   try {
-    const diff = execSync(
-      "git diff --name-status HEAD~1 2>/dev/null || git diff --name-status --cached",
-      { cwd: ROOT, encoding: "utf-8" }
-    );
-    diffLines = diff.trim().split("\n").filter(Boolean);
-  } catch {
-    console.log("Could not determine changed files — skipping freeze check");
-    process.exit(0);
+    return execFileSync("git", args, {cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", allowFailure ? "ignore" : "inherit"]}).trim();
+  } catch (error) {
+    if (allowFailure) return "";
+    throw error;
   }
-
-  // A released version is immutable once it EXISTS — but the commit that first
-  // cuts the version legitimately ADDS its files (e.g. `docusaurus docs:version`
-  // writing versioned_docs/version-X, or archiving a current doc into the
-  // snapshot). So additions (A), copies (C), and rename DESTINATIONS into a
-  // frozen path are allowed; only in-place edits (M/T), deletions (D), and rename
-  // SOURCES of already-frozen files violate immutability. For a rename line
-  // (`R<sim>\told\tnew`) the guarded path is the original `old` path.
-  const guardedPaths: string[] = [];
-  for (const line of diffLines) {
-    const parts = line.split("\t");
-    const code = parts[0][0]; // A | M | D | R | C | T
-    if (code === "A" || code === "C") continue;
-    if (parts[1]) guardedPaths.push(parts[1]);
-  }
-
-  for (const version of versions) {
-    const frozenPaths = [
-      `spec/${version}/`,
-      `versioned_docs/version-${version}/`,
-      `versioned_sidebars/version-${version}-sidebars.json`,
-    ];
-
-    for (const file of guardedPaths) {
-      for (const frozenPath of frozenPaths) {
-        if (file.startsWith(frozenPath)) {
-          console.error(
-            `FROZEN: ${file} — version ${version} is released and immutable`
-          );
-          errors++;
-        }
-      }
-    }
-  }
-
-  if (errors > 0) {
-    console.error(
-      `\n${errors} file(s) in frozen version paths were modified. Released versions are immutable.`
-    );
-    process.exit(1);
-  }
-
-  console.log("Freeze check passed — no released version files modified");
 }
 
-main();
+function resolveBase(root: string, requested?: string): string {
+  const base = requested || process.env.AAP_BASE_REF || git(root, ["merge-base", "HEAD", "origin/main"], true);
+  if (!base || /^0+$/.test(base)) throw new Error("No comparison baseline is available. Pass --base <commit> or set AAP_BASE_REF.");
+  const commit = git(root, ["rev-parse", "--verify", `${base}^{commit}`], true);
+  if (!commit) throw new Error(`Freeze-check baseline does not resolve to a commit: ${base}`);
+  return commit;
+}
+
+function existsAt(root: string, base: string, path: string): boolean {
+  try {
+    execFileSync("git", ["cat-file", "-e", `${base}:${path}`], {cwd: root, stdio: "ignore"});
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function baselineFrozenPaths(root: string, base: string): {contracts: string[]; prefixes: string[]} {
+  const registryText = git(root, ["show", `${base}:releases.json`], true);
+  if (registryText) {
+    const registry = JSON.parse(registryText) as Registry;
+    if (registry.schemaVersion !== 1 || !Array.isArray(registry.releases)) throw new Error("Baseline release registry is invalid");
+    const contracts = registry.releases.map(release => release.contract);
+    return {contracts, prefixes: contracts.flatMap(releasePrefixes)};
+  }
+  // One-time migration path for repositories that predate releases.json.
+  const contracts = git(root, ["ls-tree", "-d", "--name-only", `${base}:spec`])
+    .split("\n")
+    .filter(name => /^v\d+\.\d+$/.test(name));
+  const candidates = contracts.flatMap(releasePrefixes);
+  return {contracts, prefixes: candidates.filter(prefix => existsAt(root, base, prefix.replace(/\/$/, "")))};
+}
+
+interface Change { status: string; paths: string[] }
+function parseChanges(text: string): Change[] {
+  return text.split("\n").filter(Boolean).map(line => {
+    const [status, ...paths] = line.split("\t");
+    if (!status || !paths.length) throw new Error(`Unrecognized git diff entry: ${line}`);
+    return {status, paths};
+  });
+}
+
+function allChanges(root: string, base: string): Change[] {
+  const entries = [
+    ...parseChanges(git(root, ["diff", "--name-status", "--find-renames", "--find-copies", `${base}...HEAD`])),
+    ...parseChanges(git(root, ["diff", "--name-status", "--find-renames", "--find-copies"])),
+    ...parseChanges(git(root, ["diff", "--cached", "--name-status", "--find-renames", "--find-copies"])),
+    ...git(root, ["ls-files", "--others", "--exclude-standard"]).split("\n").filter(Boolean).map(path => ({status: "A", paths: [path]})),
+  ];
+  const seen = new Set<string>();
+  return entries.filter(entry => {
+    const key = `${entry.status}\0${entry.paths.join("\0")}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function inPrefix(path: string, prefix: string): boolean {
+  return prefix.endsWith("/") ? path.startsWith(prefix) : path === prefix;
+}
+
+export function freezeCheck(root: string, requestedBase?: string): void {
+  const base = resolveBase(root, requestedBase);
+  const {contracts, prefixes: frozen} = baselineFrozenPaths(root, base);
+  if (!contracts.length) throw new Error(`No released contracts found at baseline ${base}`);
+  const violations: string[] = [];
+  for (const change of allChanges(root, base)) {
+    for (const path of change.paths) {
+      if (isBrandAlias(path)) continue;
+      const prefix = frozen.find(item => inPrefix(path, item));
+      if (prefix) violations.push(`${change.status}\t${path} (frozen by ${prefix})`);
+    }
+  }
+  if (violations.length) throw new Error(`Released files are immutable across the entire change set:\n${violations.join("\n")}`);
+  checkReleases(root);
+  console.log(`Freeze check passed against ${base.slice(0, 12)}; ${contracts.length} baseline releases remain immutable.`);
+}
+
+if (isMain(import.meta.url)) {
+  const index = process.argv.indexOf("--base");
+  if (index >= 0 && !process.argv[index + 1]) throw new Error("--base requires a git ref");
+  try {
+    freezeCheck(ROOT, index >= 0 ? process.argv[index + 1] : undefined);
+  } catch (error) {
+    console.error(error);
+    process.exitCode = 1;
+  }
+}
