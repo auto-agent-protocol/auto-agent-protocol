@@ -53,6 +53,10 @@
         ],
         "timezone": "America/Los_Angeles",
         "notes": "Closed on major U.S. federal holidays. Service department closes 30 minutes before sales.",
+        "fees": [
+          { "name": "Documentation fee", "amount": 500 },
+          { "name": "Pre-installed theft protection", "amount": 1000 }
+        ],
         "capabilities": ["sales", "service", "parts", "financing", "trade_in", "delivery"]
       },
       {
@@ -89,6 +93,9 @@
         ],
         "timezone": "America/Los_Angeles",
         "notes": "Sales only; service handled at the San Francisco rooftop.",
+        "fees": [
+          { "name": "Documentation fee", "amount": 500 }
+        ],
         "capabilities": ["sales", "financing", "trade_in"]
       }
     ]

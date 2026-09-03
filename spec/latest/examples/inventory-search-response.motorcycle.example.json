@@ -28,6 +28,10 @@
         "msrp": 25999,
         "list_price": 25999,
         "price": 27480,
+        "fees": [
+          { "name": "Documentation fee", "amount": 481 },
+          { "name": "Dealer preparation fee", "amount": 1000 }
+        ],
         "mileage": 3,
         "photos": [
           "https://cdn.demo-powersports.example.com/inventory/m-5012/01.jpg",
@@ -60,6 +64,9 @@
         "msrp": 21499,
         "list_price": 18995,
         "price": 19995,
+        "fees": [
+          { "name": "Dealer preparation fee", "amount": 1000 }
+        ],
         "mileage": 4210,
         "photos": [
           "https://cdn.demo-powersports.example.com/inventory/m-5044/01.jpg"
@@ -107,5 +114,5 @@
       "displacement_cc_range": { "min": 1746, "max": 1868 }
     }
   },
-  "message": "2 Acme Moto motorcycles match your filters. The 'price' field reflects the FTC-final out-the-door amount including required fees."
+  "message": "2 Acme Moto motorcycles match your filters. Each 'price' includes the itemized mandatory dealer fees; government charges are excluded."
 }

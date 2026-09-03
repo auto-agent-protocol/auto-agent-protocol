@@ -29,6 +29,10 @@
         "msrp": 32450,
         "list_price": 27995,
         "price": 29495,
+        "fees": [
+          { "name": "Documentation fee", "amount": 500 },
+          { "name": "Pre-installed theft protection", "amount": 1000 }
+        ],
         "mileage": 28450,
         "photos": [
           "https://cdn.demo-toyota.example.com/inventory/dt-2451/01.jpg",
@@ -63,6 +67,10 @@
         "msrp": 35450,
         "list_price": 31495,
         "price": 32995,
+        "fees": [
+          { "name": "Documentation fee", "amount": 500 },
+          { "name": "Pre-installed theft protection", "amount": 1000 }
+        ],
         "mileage": 14820,
         "photos": [
           "https://cdn.demo-toyota.example.com/inventory/dt-2611/01.jpg",
@@ -116,5 +124,5 @@
       "year_range": { "min": 2023, "max": 2024 }
     }
   },
-  "message": "2 used Honda CR-Vs match your filters. The 'price' field reflects the FTC-final out-the-door amount in California; taxes and fees are already included."
+  "message": "2 used Honda CR-Vs match your filters. Each 'price' includes the itemized mandatory dealer fees; government charges such as tax, title, and registration are excluded."
 }

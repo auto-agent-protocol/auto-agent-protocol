@@ -19,6 +19,18 @@ const releasedDocs = Object.fromEntries(
     },
   ])
 );
+const draftReleasedDocs = Object.fromEntries(
+  releases.releases.map((release) => [
+    release.contract,
+    {
+      label: release.version,
+      path: release.contract,
+      ...(release.contract === stableContract
+        ? { banner: "none" as const, noIndex: true }
+        : { banner: "unmaintained" as const, noIndex: true }),
+    },
+  ])
+);
 
 const config: Config = {
   title: "Auto Agent Protocol",
@@ -71,14 +83,18 @@ const config: Config = {
           sidebarPath: "./sidebars.ts",
           editUrl:
             "https://github.com/auto-agent-protocol/auto-agent-protocol/tree/main/",
-          // Local development shows only the editable docs as an unreleased
-          // /docs/latest draft. Production builds exclude that draft and use
-          // immutable snapshots from the explicit release registry.
+          // Local development puts the editable docs at /docs/latest and also
+          // keeps every frozen release available in the version selector.
+          // Production excludes the draft and aliases /docs/latest to the
+          // approved stable release from the registry.
           includeCurrentVersion: draftDocs,
           onlyIncludeVersions: draftDocs
-            ? ["current"]
+            ? ["current", ...releases.releases.map((release) => release.contract)]
             : releases.releases.map((release) => release.contract),
-          lastVersion: draftDocs ? "current" : stableContract,
+          // Even in draft mode, Docusaurus's "latest version" suggestion must
+          // resolve to the newest published snapshot. The editable current
+          // docs still own /docs/latest through their explicit path below.
+          lastVersion: stableContract,
           versions: draftDocs
             ? {
                 current: {
@@ -87,6 +103,7 @@ const config: Config = {
                   banner: "unreleased",
                   badge: false,
                 },
+                ...draftReleasedDocs,
               }
             : releasedDocs,
         },
@@ -262,7 +279,7 @@ const config: Config = {
             { label: "Introduction", to: "/docs/latest/intro" },
             { label: "A2A profile", to: "/docs/latest/a2a-profile" },
             { label: "Discovery", to: "/docs/latest/discovery" },
-            { label: "Pricing and FTC", to: "/docs/latest/pricing-and-ftc" },
+            { label: "Pricing and fees", to: "/docs/latest/pricing-and-ftc" },
           ],
         },
         {

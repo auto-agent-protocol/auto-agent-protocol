@@ -1,10 +1,12 @@
-import clsx from "clsx";
 import Link from "@docusaurus/Link";
 import ThemedImage from "@theme/ThemedImage";
 import Layout from "@theme/Layout";
 import Head from "@docusaurus/Head";
 import styles from "./index.module.css";
 import releases from "../../releases.json";
+import MultiClassDiagram from "../../docs/img/multi-class-inventory.svg";
+import SkillsDiagram from "../../docs/img/skills-overview.svg";
+import PricingDiagram from "../../docs/img/pricing-ladder.svg";
 
 const stableRelease = releases.releases.find((release) => release.contract === releases.stable);
 if (!stableRelease) throw new Error(`Stable release ${releases.stable} is missing from releases.json`);
@@ -29,8 +31,8 @@ function Hero() {
           />
         </h1>
         <p className={styles.heroDescription}>
-          Connect AI assistants to dealerships.<br />
-          Real inventory. Typed messages. Consented leads.
+          One open contract for dealer discovery, real inventory,
+          transparent pricing, and consented leads.
         </p>
         <div className={styles.buttons}>
           <Link
@@ -46,7 +48,12 @@ function Hero() {
             GitHub
           </Link>
         </div>
-        <Link className={styles.profileLink} to="/docs/latest/a2a-profile">Built on A2A v1.0 <span aria-hidden="true">↗</span></Link>
+        <div className={styles.protocolProof} aria-label="Core protocol choices">
+          <span>A2A v1.0 profile</span>
+          <span>JSON-RPC 2.0</span>
+          <span>Five typed skills</span>
+        </div>
+        <Link className={styles.profileLink} to="/docs/latest/a2a-profile">See how AAP profiles A2A <span aria-hidden="true">↗</span></Link>
       </div>
     </header>
   );
@@ -66,7 +73,7 @@ const features = [
   {
     title: "FTC-Aware Pricing",
     description:
-      "Three explicit pricing fields (msrp, list_price, price). The price field carries the final out-the-door amount a buyer can actually pay — AAP's rule against bait pricing, aligned with FTC guidance.",
+      "The authoritative price includes mandatory dealer charges and travels with the vehicle's complete effective fee snapshot. Government charges remain outside price; conditional rebates never reduce it.",
   },
   {
     title: "Anonymous First",
@@ -89,12 +96,18 @@ function Features() {
   return (
     <section className={styles.features}>
       <div className="container">
-        <div className="row">
-          {features.map((f, idx) => (
-            <div key={idx} className={clsx("col col--4", styles.feature)}>
-              <h2>{f.title}</h2>
-              <p>{f.description}</p>
-            </div>
+        <div className={styles.sectionLead}>
+          <p className={styles.sectionEyebrow}>Small surface, strong guarantees</p>
+          <h2>Everything needed for the read-and-lead journey</h2>
+          <p>AAP stays deliberately narrow so dealerships and buyer agents can implement it with confidence.</p>
+        </div>
+        <div className={styles.featureMatrix}>
+          {features.map((feature, index) => (
+            <article key={feature.title} className={styles.feature}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <h3>{feature.title}</h3>
+              <p>{feature.description}</p>
+            </article>
           ))}
         </div>
       </div>
@@ -106,8 +119,8 @@ function MultiClass() {
   return (
     <section className={styles.multiClassSection}>
       <div className="container">
-        <div className="row">
-          <div className="col col--5">
+        <div className={styles.mediaRow}>
+          <div className={styles.mediaCopy}>
             <h2>Cars, EVs, and motorcycles — one contract</h2>
             <p>
               v{stableVersion} extends inventory beyond cars. An optional{" "}
@@ -122,15 +135,11 @@ function MultiClass() {
               See the vehicle shape
             </Link>
           </div>
-          <div className="col col--7">
-            <img
-              src={`/img/${stableContract}/multi-class-inventory.png`}
-              alt={`AAP v${stableVersion} covers cars, electric vehicles, and motorcycles in one typed inventory contract`}
+          <div className={styles.mediaVisual}>
+            <MultiClassDiagram
+              role="img"
+              aria-label="Cars, motorcycles, and electric powertrains sharing one typed inventory contract"
               className={styles.fullImage}
-              width="1600"
-              height="600"
-              loading="lazy"
-              decoding="async"
             />
           </div>
         </div>
@@ -143,8 +152,8 @@ function Skills() {
   return (
     <section className={styles.skillsSection}>
       <div className="container">
-        <div className="row">
-          <div className="col col--5">
+        <div className={styles.mediaRow}>
+          <div className={styles.mediaCopy}>
             <h2>Five skills, one contract</h2>
             <p>
               AAP standardizes the five skills that cover a dealership BDC's core
@@ -158,15 +167,11 @@ function Skills() {
               Browse the skills
             </Link>
           </div>
-          <div className="col col--7">
-            <img
-              src={`/img/${stableContract}/skills-overview.png`}
-              alt="Honeycomb of five AAP skills: dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit"
+          <div className={styles.mediaVisual}>
+            <SkillsDiagram
+              role="img"
+              aria-label="Five AAP skills spanning dealership information, inventory, and consented leads"
               className={styles.fullImage}
-              width="1376"
-              height="768"
-              loading="lazy"
-              decoding="async"
             />
           </div>
         </div>
@@ -179,27 +184,23 @@ function Pricing() {
   return (
     <section className={styles.pricingSection}>
       <div className="container">
-        <div className="row">
-          <div className="col col--7">
-            <img
-              src={`/img/${stableContract}/pricing-ladder.png`}
-              alt="Vehicle pricing ladder: msrp, list_price, and the FTC-final price"
+        <div className={`${styles.mediaRow} ${styles.mediaRowVisualFirst}`}>
+          <div className={styles.mediaVisual}>
+            <PricingDiagram
+              role="img"
+              aria-label="MSRP as a reference and list price plus complete dealer fees equaling the authoritative advertised price"
               className={styles.fullImage}
-              width="1376"
-              height="768"
-              loading="lazy"
-              decoding="async"
             />
           </div>
-          <div className="col col--5">
+          <div className={styles.mediaCopy}>
             <h2>FTC-aware pricing, baked in</h2>
             <p>
-              Vehicles carry three explicit pricing fields. The{" "}
-              <code>price</code> field is the final out-the-door
-              amount — what the buyer would actually pay; AAP requires it so
-              agents never quote bait prices. <code>msrp</code> and{" "}
-              <code>list_price</code> sit beside it, so AI agents can give honest
-              answers, in line with the FTC's push against hidden fees and bait pricing.
+              A vehicle's <code>price</code> is the authoritative advertised
+              price: it includes every mandatory dealer charge and excludes
+              government charges. When <code>price</code> is present, the same
+              vehicle carries the complete effective <code>fees</code> snapshot.
+              Buyer agents never join rooftop defaults into a vehicle, and
+              conditional rebates never reduce the advertised price.
             </p>
             <Link to="/docs/latest/pricing-and-ftc" className="button button--primary">
               Read the pricing semantics
@@ -215,38 +216,39 @@ function Protocols() {
   return (
     <section className={styles.protocols}>
       <div className="container">
-        <h2 style={{ textAlign: "center", marginBottom: "2rem" }}>
-          How AAP relates to other protocols
-        </h2>
-        <div className="row">
-          <div className="col col--3">
+        <div className={styles.sectionLead}>
+          <p className={styles.sectionEyebrow}>Protocol map</p>
+          <h2>Designed to connect, not duplicate</h2>
+        </div>
+        <div className={styles.protocolGrid}>
+          <article>
             <h3>A2A</h3>
             <p>
               <strong>The base.</strong> AAP is a strict A2A v1.0 profile.
               Every AAP message rides inside an A2A <code>DataPart</code>.
             </p>
-          </div>
-          <div className="col col--3">
+          </article>
+          <article>
             <h3>ACP / UCP</h3>
             <p>
               Complementary. AAP focuses on automotive leads and appointments,
               not commerce checkout flows.
             </p>
-          </div>
-          <div className="col col--3">
+          </article>
+          <article>
             <h3>MCP</h3>
             <p>
               Complementary. AAP publishes an official MCP reference manifest mapping
               every skill to an MCP tool.
             </p>
-          </div>
-          <div className="col col--3">
+          </article>
+          <article>
             <h3>ADF/XML</h3>
             <p>
               Legacy bridge. <code>lead.submit</code> maps field-by-field to
               ADF/XML for existing dealer CRMs.
             </p>
-          </div>
+          </article>
         </div>
       </div>
     </section>

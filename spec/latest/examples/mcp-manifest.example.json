@@ -6,7 +6,7 @@
   "tools": [
     {
       "name": "aap_dealer_information",
-      "description": "Return the dealership profile — group name, welcome message, and one or more rooftops (locations) with their address, geo, contacts, business hours, timezone, and service capabilities (including tags such as motorcycle_sales / powersports).",
+      "description": "Return the dealership profile — group name, welcome message, and one or more rooftops (locations) with address, geo, contacts, business hours, timezone, default dealer fees, and service capabilities (including tags such as motorcycle_sales / powersports).",
       "inputSchema": {
         "$ref": "https://draft.autoagentprotocol.invalid/latest/schemas/dealer-information-request.schema.json"
       },

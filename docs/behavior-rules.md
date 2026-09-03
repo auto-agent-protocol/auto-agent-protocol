@@ -6,7 +6,7 @@ description: Normative MUST/SHOULD rules every AAP-compliant dealer agent and bu
 
 # Behavior rules
 
-![Etiquette for buyer agents: identify honestly, browse anonymously, respect rate limits, quote only the FTC-final price](/img/v1.2/agent-etiquette.png)
+![Four buyer-agent behavior rules: identify honestly, browse anonymously, respect inventory systems, and quote prices safely](./img/agent-etiquette.svg)
 
 This page collects the normative MUST and SHOULD requirements that an AAP-compliant agent must follow. These rules are the bare minimum for interoperability and regulatory compliance; they are referenced from the per-skill pages and applied by the dealer-side test suite.
 
@@ -17,7 +17,7 @@ The keywords MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, RECOMMENDED, and OPTIONAL 
 ### Inventory MUSTs
 
 - **Inventory feeds MUST contain only in-stock statuses.** `Vehicle.status` is a controlled enum: `available` | `intransit` | `pending`. Dealer agents MUST only return vehicles whose `status` is one of these three in `inventory.search` results. A vehicle in any other state is OUT OF STOCK: the dealer MUST omit it, and a buyer agent that somehow observes any other value MUST ignore the vehicle and treat it as unavailable. `status` is REQUIRED on every inventory listing.
-- **`updated_at` is MANDATORY for availability claims.** Every `Vehicle` returned by `inventory.search` and `inventory.vehicle` MUST include `updated_at` whenever the agent is making availability claims about the listing. The field is an RFC 3339 timestamp indicating when the dealer last updated this listing's availability, price, and status.
+- **`updated_at` is MANDATORY for availability and pricing claims.** Every `Vehicle` returned by `inventory.search` and `inventory.vehicle` MUST include `updated_at` whenever the agent is making availability or pricing claims about the listing. The field is an RFC 3339 timestamp indicating when the dealer last updated the listing's availability, price, fees, or status.
 - **`vehicle.vin` or `vehicle.stock` SHOULD be present on detail responses.** `inventory.vehicle` responses SHOULD include `vin` or `stock`. When neither is present (e.g. a deeply pre-allocated unit), the response MUST include `vehicle_id` and SHOULD include free-text `notes` explaining the unit's identification.
 - **When implemented, `inventory.search` MUST support anonymous calls.** A dealer agent is not required to expose `inventory.search`, but if it does, it MUST accept calls without `customer` info and without `consent`. AAP RECOMMENDS dealer agents publish their search surface anonymously by default when they expose one.
 
@@ -29,7 +29,7 @@ The keywords MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, RECOMMENDED, and OPTIONAL 
 
 ## Lead rules
 
-![Consent gate: anonymous inventory access vs consent-gated lead access](/img/v1.2/consent-gate.png)
+![Consent gate separating anonymous inventory access from lead submission with a valid ConsentGrant](./img/consent-gate.svg)
 
 ### Lead MUSTs
 
@@ -66,7 +66,7 @@ The keywords MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, RECOMMENDED, and OPTIONAL 
 
 When optional context fields are omitted, AAP defines deterministic fallbacks so buyer agents and dealer agents agree without out-of-band coordination.
 
-- **Prices are integers in whole US dollars.** `msrp`, `list_price`, and `price` are plain integers in whole US dollars (e.g. `26780`).
+- **Prices and fee amounts are integers in whole US dollars.** `msrp`, `list_price`, `price`, and `fees[].amount` use plain integers (e.g. `26780` or `500`).
 - **Address default country.** `Address.country` is optional; when omitted, the assumed country is `US`.
 - **Idempotency.** Buyer agents that retry `lead.submit` after a network failure SHOULD pass an `idempotency_key` (UUID recommended). Dealer agents SHOULD dedupe on this key for at least 24 hours and return the original `lead_id` and status on retries.
 - **Consent expiration.** When `ConsentGrant.expires_at` is omitted, the dealer MAY apply its own default expiration window per local regulation; an explicit `expires_at` always wins. The dealer MUST reject the lead with `INVALID_CONSENT` if the grant has already expired.
@@ -75,13 +75,14 @@ When optional context fields are omitted, AAP defines deterministic fallbacks so
 
 ### Pricing MUSTs
 
-- **`price` MUST reflect the FINAL out-the-door amount.** `Vehicle.price` is the FTC-final price the buyer would actually pay, including all incentives applied, all mandatory fees added, all required dealer add-ons added. Dealers MUST NOT advertise a `price` that omits required fees, conditions on dealer financing, or required add-ons. See [Pricing and FTC compliance](./pricing-and-ftc.md) for the underlying FTC enforcement context (March 2026 warnings + CARS Rule).
-- **`price_min` / `price_max` and `sort.field: "price"` apply to `price`.** `inventory.search` `filters.price_min`, `filters.price_max`, and `sort.field: "price"` are evaluated against the `price` field, not `list_price` or `msrp`. Dealers MUST keep `price` accurate for the same reason.
+- **`price` MUST be the authoritative advertised vehicle price.** It includes all mandatory, non-government dealer charges and required dealer add-ons, may use only discounts available to every consumer, and is not reduced by an additional required down payment or conditioned on dealer financing. It excludes government charges such as tax, title, and registration, so it is not an out-the-door quote.
+- **A priced vehicle MUST carry its complete fee snapshot.** Whenever `Vehicle.price` is present, `Vehicle.fees` is present too: `[]` means no mandatory dealer charges; a non-empty array itemizes every such charge already included in `price`. Buyer agents MUST NOT add those amounts again or join them from `dealer.information`.
+- **`price_min` / `price_max` and `sort.field: "price"` apply to `price`.** `inventory.search` `filters.price_min`, `filters.price_max`, and `sort.field: "price"` are evaluated against `price`, not `list_price` or `msrp`. Vehicles without `price` do not match price-bound filters. See [Pricing and fee disclosure](./pricing-and-ftc.md).
 
 ### Pricing SHOULDs
 
-- Dealer agents SHOULD publish `list_price`, `msrp`, and `price` together for transparency. `list_price` is the base advertised number; `price` is the final out-the-door number; the difference is the sum of mandatory fees and required add-ons.
-- Buyer agents SHOULD compare offers across dealers on `price` (not `list_price`). Comparing on `list_price` deceives the user about the actual cost.
+- Dealer agents SHOULD publish `list_price`, `msrp`, `price`, and `fees` together when all are known. `list_price + sum(fees)` need not equal `price` because `price` may include universally available discounts; buyer agents do not derive a replacement price.
+- Buyer agents SHOULD compare offers across dealers on `price`, not `list_price`. If only a base/list amount is known, the publisher omits `price` rather than presenting the base amount as payable.
 
 ## Authentication
 

@@ -6,7 +6,7 @@ description: How AAP skills map to Model Context Protocol tools so an LLM client
 
 # MCP compatibility
 
-![MCP server wrapping all 5 AAP skills as MCP tools, sitting between an LLM client and the dealer agent](/img/v1.2/mcp-wrapper.png)
+![An MCP host calls generated AAP tools while the adapter uses standard A2A SendMessage on the dealer-facing wire](../img/mcp-wrapper.svg)
 
 [Model Context Protocol](https://modelcontextprotocol.io) (MCP) is a tool layer between an LLM client and a host application. AAP exposes its five skills as MCP tools so any MCP-compatible LLM client (Claude Desktop, an MCP-aware IDE, or a custom orchestrator) can call a dealer agent without learning the A2A wire format directly.
 

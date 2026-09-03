@@ -41,7 +41,7 @@
         "field": {
           "type": "string",
           "enum": ["price", "list_price", "msrp", "mileage", "year", "make", "model", "stock", "updated_at"],
-          "description": "Field to sort by. Sorting by 'price' uses the FTC-final 'price' field (which dealers MUST keep accurate); 'updated_at' sorts by listing freshness.",
+          "description": "Field to sort by. Sorting by 'price' uses the authoritative advertised vehicle price, including mandatory dealer charges but excluding government charges. Vehicles without `price` sort after priced vehicles regardless of ascending or descending order. `updated_at` sorts by listing freshness.",
           "examples": ["price", "year"]
         },
         "order": { "type": "string", "enum": ["asc", "desc"], "examples": ["asc"] }
@@ -90,8 +90,8 @@
         "rooftops": { "type": "array", "items": { "type": "string" }, "description": "Rooftop names to include, matching `Vehicle.rooftop` and the rooftop `name` from `dealer.information`. For multi-rooftop dealerships; omit to search across all rooftops.", "examples": [["Demo Toyota San Francisco"]] },
         "year_min": { "type": "integer", "minimum": 1900, "maximum": 2100, "examples": [2023] },
         "year_max": { "type": "integer", "minimum": 1900, "maximum": 2100, "examples": [2025] },
-        "price_min": { "type": "integer", "minimum": 0, "description": "Minimum price in whole US dollars, applied against the FTC-final 'price' field.", "examples": [20000] },
-        "price_max": { "type": "integer", "minimum": 0, "description": "Maximum price in whole US dollars, applied against the FTC-final 'price' field.", "examples": [40000] },
+        "price_min": { "type": "integer", "minimum": 0, "description": "Minimum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.", "examples": [20000] },
+        "price_max": { "type": "integer", "minimum": 0, "description": "Maximum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.", "examples": [40000] },
         "mileage_max": { "type": "integer", "minimum": 0, "examples": [60000] },
         "vin": { "type": "string", "pattern": "^[A-HJ-NPR-Z0-9]{17}$", "examples": ["1HGCV1F30NA123456"] },
         "stock": { "type": "string", "examples": ["H12345"] },

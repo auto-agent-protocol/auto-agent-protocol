@@ -6,7 +6,7 @@ description: A2A agent-card.json with the AAP extension. How a buyer agent disco
 
 # Discovery
 
-![Buyer agent fetching /.well-known/agent-card.json from a dealer's domain](/img/v1.2/discovery-flow.png)
+![A buyer agent discovers the binding, AAP extension, and supported skill schemas from one Agent Card](./img/discovery-flow.svg)
 
 Every AAP-compliant dealer agent publishes an A2A v1.0 agent card at the well-known URL on its own domain:
 

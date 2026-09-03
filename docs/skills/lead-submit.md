@@ -10,9 +10,9 @@ description: Unified consented lead. Carries customer info plus any combination 
 This skill is invoked through A2A's `SendMessage` operation — the only A2A operation AAP uses — not a dedicated REST URL. Every AAP agent card MUST expose a JSON-RPC interface (`SendMessage` method); JSON-RPC 2.0 is AAP's sole binding — see [JSON-RPC binding](../bindings/json-rpc.md). AAP only defines what goes inside `Message.parts[].data`, carried as a typed JSON `DataPart`.
 :::
 
-![A consented lead end to end: ConsentGrant, lead.submit request, dealer validation, lead_id response, ADF/XML to the dealer CRM](/img/v1.2/lead-lifecycle.png)
+![A consented lead from ConsentGrant through dealer validation and acknowledgement](../img/lead-lifecycle.svg)
 
-![Consent gate: anonymous browsing on the left, ConsentGrant in the middle, consented lead on the right](/img/v1.2/consent-gate.png)
+![Consent gate separating anonymous browsing from consented lead submission](../img/consent-gate.svg)
 
 The `lead.submit` skill is the **single, unified** lead-capture entry point in AAP v1.2.0. A buyer agent submits one request containing the consented `customer` plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment`. This matches how dealerships actually take leads: a shopper test-driving a new car often wants their old car appraised in the same visit.
 
@@ -136,7 +136,11 @@ A user wants to test-drive a 2024 Honda CR-V, trade in their 2020 Passat, and bo
     "body": "suv",
     "transmission": "automatic",
     "mileage": 14820,
-    "price": 32995
+    "price": 32995,
+    "fees": [
+      { "name": "Documentation fee", "amount": 500 },
+      { "name": "Pre-installed theft protection", "amount": 1000 }
+    ]
   },
   "trade_in": {
     "year": 2020, "make": "Volkswagen", "model": "Passat", "trim": "SE",

@@ -70,7 +70,8 @@ test("draft generation is isolated from frozen releases and stable package types
 
 test("release dry-run changes no repository bytes", async () => {
   const before = releaseState(ROOT);
-  await prepareRelease(ROOT, "1.3.0", true);
+  await assert.rejects(() => prepareRelease(ROOT, "1.3.0", true), /breaking schema changes/);
+  await prepareRelease(ROOT, "2.0.0", true);
   assert.equal(releaseState(ROOT), before);
 });
 
@@ -78,17 +79,20 @@ test("release preparation snapshots latest once and refuses overwrite", async ()
   const context = fixture();
   try {
     const latestBefore = snapshot(join(context.root, "spec/latest"));
-    await prepareRelease(context.root, "1.3.0", false);
+    await prepareRelease(context.root, "2.0.0", false);
     const registry = loadRegistry(context.root);
-    assert.equal(registry.stable, "v1.3");
-    assert.equal(registry.releases.at(-1)?.version, "1.3.0");
+    assert.equal(registry.stable, "v2.0");
+    assert.equal(registry.releases.at(-1)?.version, "2.0.0");
     assert.equal(snapshot(join(context.root, "spec/latest")), latestBefore);
-    assert.equal(readJson<{version: string}>(join(context.root, "package.json")).version, "1.3.0");
-    assert.deepEqual(filesIn(join(context.root, "releases/v1.3/artifacts")).map(file => relative(join(context.root, "releases/v1.3/artifacts"), file)).sort(), ["mcp.json", "openapi-jsonrpc.yaml", "types.d.ts"]);
-    assert.ok(!filesIn(join(context.root, "releases/v1.3")).some(file => readFileSync(file).includes("autoagentprotocol.invalid")));
+    assert.equal(readJson<{version: string}>(join(context.root, "package.json")).version, "2.0.0");
+    assert.deepEqual(filesIn(join(context.root, "releases/v2.0/artifacts")).map(file => relative(join(context.root, "releases/v2.0/artifacts"), file)).sort(), ["mcp.json", "openapi-jsonrpc.yaml", "types.d.ts"]);
+    const latestDiagram = join(context.root, "docs/img/pricing-ladder.svg");
+    const releasedDiagram = join(context.root, "versioned_docs/version-v2.0/img/pricing-ladder.svg");
+    assert.equal(hash(readFileSync(releasedDiagram)), hash(readFileSync(latestDiagram)), "release must freeze the reviewed latest diagrams with its docs");
+    assert.ok(!filesIn(join(context.root, "releases/v2.0")).some(file => readFileSync(file).includes("autoagentprotocol.invalid")));
     await checkAllReleases(context.root);
-    await assert.rejects(() => prepareRelease(context.root, "1.3.0", false), /already exists|immutable/);
-    await assert.rejects(() => prepareRelease(context.root, "1.4.0", false), /clean working tree/);
+    await assert.rejects(() => prepareRelease(context.root, "2.0.0", false), /already exists|immutable/);
+    await assert.rejects(() => prepareRelease(context.root, "2.1.0", false), /clean working tree/);
   } finally {
     context.cleanup();
   }
@@ -102,9 +106,9 @@ test("a late release failure restores metadata and removes partial targets", asy
     git(context.root, ["add", "docs/intro.md"]);
     git(context.root, ["commit", "-qm", "introduce a late integrity failure"]);
     const before = releaseState(context.root);
-    await assert.rejects(() => prepareRelease(context.root, "1.3.0", false), /Missing or unsafe released image/);
+    await assert.rejects(() => prepareRelease(context.root, "2.0.0", false), /Missing or unsafe released image/);
     assert.equal(releaseState(context.root), before);
-    for (const path of ["spec/v1.3", "versioned_docs/version-v1.3", "versioned_sidebars/version-v1.3-sidebars.json", "releases/v1.3"]) assert.equal(existsSync(join(context.root, path)), false, `${path} must be rolled back`);
+    for (const path of ["spec/v2.0", "versioned_docs/version-v2.0", "versioned_sidebars/version-v2.0-sidebars.json", "releases/v2.0"]) assert.equal(existsSync(join(context.root, path)), false, `${path} must be rolled back`);
   } finally {
     context.cleanup();
   }

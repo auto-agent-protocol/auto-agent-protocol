@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/dealer-information.schema.json",
   "title": "DealerInformation",
-  "description": "Public dealership profile. v1.0 reduces this to the minimum: a dealer group `name`, an optional `welcome_message`, and one or more `rooftops` (physical locations). Per-location identity, address, geo, contacts, hours, and service capabilities live on each rooftop. Vehicles reference the rooftop that holds them via `Vehicle.rooftop` = the rooftop's `name`. Returned by the `dealer.information` AAP skill, wrapped in `dealer.information.response` and carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.",
+  "description": "Public dealership profile. A dealer group has a `name`, an optional `welcome_message`, and one or more `rooftops` (physical locations). Per-location identity, address, geo, contacts, hours, default dealer fees, and service capabilities live on each rooftop. Vehicles reference the rooftop that holds them via `Vehicle.rooftop` = the rooftop's `name`. Rooftop fees are publisher defaults and discovery metadata only: inventory publishers materialize the complete effective fee list onto every priced Vehicle, and consumers never join or merge fee arrays. Returned by the `dealer.information` AAP skill, wrapped in `dealer.information.response` and carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.",
   "type": "object",
   "properties": {
     "name": {
@@ -132,6 +132,12 @@
           "type": "string",
           "description": "Free-text notes (e.g. 'closed major holidays').",
           "examples": ["Closed major holidays"]
+        },
+        "fees": {
+          "type": "array",
+          "uniqueItems": true,
+          "description": "Complete default schedule of mandatory, non-government dealer charges and required add-ons for vehicles at this rooftop. Omitted means the rooftop has not disclosed its default fee schedule; an empty array means it affirmatively reports no such charges. These are publisher defaults and discovery metadata only. An inventory publisher MAY use them when constructing listings, but every Vehicle with `price` also carries its own complete effective `fees` snapshot. Consumers MUST NOT join or merge rooftop and vehicle fee arrays. If a vehicle differs from these defaults, its `fees` array replaces this array in full.",
+          "items": { "$ref": "./_primitives/dealer-fee.schema.json" }
         },
         "capabilities": {
           "type": "array",

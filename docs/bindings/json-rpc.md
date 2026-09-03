@@ -8,7 +8,7 @@ description: How to invoke each AAP skill over A2A's JSON-RPC 2.0 binding (Secti
 
 A2A defines a JSON-RPC 2.0 binding in [Section 9](https://a2a-protocol.org/specification#section-9) of its specification. AAP rides on top of **A2A v1.0** without modification, and uses JSON-RPC 2.0 as its **sole** transport: every skill is invoked via the `SendMessage` JSON-RPC method, with the AAP request packaged as a typed `DataPart` inside `params.message.parts[]`.
 
-![JSON-RPC request and response envelopes: method SendMessage, params.message in, result.message out](/img/v1.2/jsonrpc-envelope.png)
+![JSON-RPC request and response envelopes: SendMessage carries params.message in and result.message out](../img/jsonrpc-envelope.svg)
 
 :::note JSON-RPC is the SOLE binding
 A JSON-RPC interface is **REQUIRED** on every AAP agent card: `supportedInterfaces[]` MUST include at least one entry with `protocolBinding: "JSONRPC"`. JSON-RPC 2.0 is the **only** transport AAP defines — the HTTP+JSON (REST) binding was [removed in v1.1.0](rest.md), and gRPC is out of scope.
@@ -371,6 +371,10 @@ The remainder of this page shows the full envelope for each of the five skills.
                   "condition": "cpo",
                   "list_price": 24990,
                   "price": 26780,
+                  "fees": [
+                    { "name": "Documentation fee", "amount": 500 },
+                    { "name": "Pre-installed theft protection", "amount": 1290 }
+                  ],
                   "status": "available",
                   "rooftop": "Demo Toyota San Francisco",
                   "inventory_date": "2026-04-12",
@@ -445,6 +449,10 @@ The remainder of this page shows the full envelope for each of the five skills.
               "msrp": 26500,
               "list_price": 24990,
               "price": 26780,
+              "fees": [
+                { "name": "Documentation fee", "amount": 500 },
+                { "name": "Pre-installed theft protection", "amount": 1290 }
+              ],
               "status": "available",
               "rooftop": "Demo Toyota San Francisco",
               "city_mpg": 31,

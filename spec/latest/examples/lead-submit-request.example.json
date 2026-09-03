@@ -34,7 +34,11 @@
     "mileage": 14820,
     "msrp": 35450,
     "list_price": 31495,
-    "price": 32995
+    "price": 32995,
+    "fees": [
+      { "name": "Documentation fee", "amount": 500 },
+      { "name": "Pre-installed theft protection", "amount": 1000 }
+    ]
   },
   "trade_in": {
     "year": 2020,

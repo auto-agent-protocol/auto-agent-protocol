@@ -6,7 +6,7 @@ description: Aggregated counts and ranges (makes, models, years, conditions, pri
 
 # `inventory.facets`
 
-![inventory.facets returns the shape of the whole lot in one call: makes, years, conditions, price and mileage ranges, rooftops](/img/v1.2/facets-overview.png)
+![Inventory facets describe the available identity, vehicle class, powertrain, range, and authoritative price buckets](../img/facets-overview.svg)
 
 :::info A2A invocation
 This skill is invoked through A2A's `SendMessage` operation — the single A2A operation AAP v1.2.0 uses — not a dedicated REST URL. It travels as the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md). (The HTTP+JSON binding was [removed in v1.1.0](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
@@ -76,7 +76,7 @@ Each facet array entry is `{ value, count }` where `value` is the facet term (st
 
 Powersports dealers additionally return `vehicle_types` (`car` | `motorcycle` | `trailer` | `rv` | `other`), `bodies` (which for motorcycles carry segments like `cruiser`/`touring`), and `displacement_cc_range`, matching the filters on [`inventory.search`](./inventory-search.md). Electric inventory adds `electric_range_mi_range`, `dc_fast_charge`, and `charge_ports`. A dealer omits any facet key for which it has no inventory.
 
-`price_range` aggregates the FTC-final `price` field (see [Pricing and FTC compliance](../pricing-and-ftc.md)).
+`price_range` aggregates available authoritative `price` values, which include mandatory dealer charges and exclude government charges (see [Pricing and fee disclosure](../pricing-and-ftc.md)). Vehicles without `price` do not contribute; omit `price_range` when no matching vehicle has `price`.
 
 ## Scoped facets example
 

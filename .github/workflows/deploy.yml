@@ -49,6 +49,9 @@ jobs:
       - name: Validate draft manifest, schemas, and examples
         run: pnpm run validate
 
+      - name: Verify contract semantics
+        run: pnpm run test:contract
+
       - name: Verify immutable release registry and artifacts
         run: pnpm run check:releases
 
