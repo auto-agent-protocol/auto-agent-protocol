@@ -4,8 +4,8 @@ schema_base_url: https://draft.autoagentprotocol.invalid/latest/schemas/
 skills:
   - id: dealer.information
     name: Dealer Information
-    description: Return the dealership profile — group name, welcome message, and one or more rooftops (locations) with their address, geo, contacts, business hours, timezone, and service capabilities (including tags such as motorcycle_sales / powersports).
-    tags: [dealer, dealership, profile, hours, contact, locations, automotive, motorcycles, powersports]
+    description: Return the dealership profile — group name, welcome message, and one or more rooftops (locations) with address, geo, contacts, business hours, timezone, default dealer fees, and service capabilities (including tags such as motorcycle_sales / powersports).
+    tags: [dealer, dealership, profile, hours, contact, locations, fees, automotive, motorcycles, powersports]
     request_schema: dealer-information-request.schema.json
     response_schema: dealer-information-response.schema.json
     request_type: dealer.information.request

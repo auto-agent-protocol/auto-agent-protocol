@@ -48,7 +48,7 @@
     "interior_colors": { "$ref": "#/$defs/term_facet" },
     "rooftops": { "$ref": "#/$defs/term_facet", "description": "Rooftop facets — vehicle counts per dealership location, matching `Vehicle.rooftop` and `filters.rooftops`." },
     "statuses": { "$ref": "#/$defs/term_facet" },
-    "price_range": { "$ref": "#/$defs/range_facet" },
+    "price_range": { "$ref": "#/$defs/range_facet", "description": "Observed minimum and maximum of authoritative Vehicle.price values. Vehicles without `price` do not contribute; omit `price_range` when no matching vehicle has `price`." },
     "mileage_range": { "$ref": "#/$defs/range_facet" },
     "year_range": { "$ref": "#/$defs/range_facet" },
     "displacement_cc_range": { "$ref": "#/$defs/range_facet", "description": "Engine-displacement range in cc across the matching set, matching `Vehicle.displacement_cc` and `filters.displacement_cc_min` / `filters.displacement_cc_max`." },

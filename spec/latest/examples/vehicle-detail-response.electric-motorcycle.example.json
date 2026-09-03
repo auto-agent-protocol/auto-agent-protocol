@@ -26,6 +26,7 @@
     "msrp": 11999,
     "list_price": 11999,
     "price": 11999,
+    "fees": [],
     "mileage": 2,
     "photos": [
       "https://cdn.demo-powersports.example.com/inventory/em-1042/01.jpg",
@@ -52,5 +53,5 @@
     },
     "delivery_options": ["dealer_pickup", "local_home_delivery"]
   },
-  "message": "The 'price' field is the FTC-final out-the-door cost — the total amount due after current incentives and required fees. Ask about federal and state EV incentives."
+  "message": "The dealer reports no mandatory dealer fees. The 'price' excludes government charges and any buyer-specific EV incentives."
 }

@@ -6,8 +6,6 @@ description: Detail view of a single vehicle by VIN, stock, or vehicle_id, retur
 
 # `inventory.vehicle`
 
-![inventory.vehicle: look up one vehicle by VIN, stock number, or vehicle_id and get the full typed detail card](/img/v1.2/vehicle-detail-lookup.png)
-
 :::info A2A invocation
 This skill is invoked through A2A's `SendMessage` operation — the single A2A operation AAP v1.2.0 uses — not a dedicated REST URL. It travels as the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md). (The HTTP+JSON binding was [removed in v1.1.0](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
 :::
@@ -70,7 +68,8 @@ Pricing fields:
 |---|---|---|
 | `msrp` | optional | Sticker price set by the OEM. |
 | `list_price` | optional | Base advertised price before incentives and fees. |
-| `price` | RECOMMENDED | FTC-final out-the-door amount. See [Pricing and FTC compliance](../pricing-and-ftc.md). |
+| `price` | RECOMMENDED when complete | Authoritative advertised vehicle price including mandatory dealer charges and excluding government charges. |
+| `fees` | REQUIRED with `price` | Complete effective fee snapshot already included in `price`. `[]` affirmatively means no mandatory dealer charges. See [Pricing and fee disclosure](../pricing-and-ftc.md). |
 
 ## Full example
 
@@ -109,6 +108,10 @@ Pricing fields:
     "msrp": 26500,
     "list_price": 24990,
     "price": 26780,
+    "fees": [
+      { "name": "Documentation fee", "amount": 500 },
+      { "name": "Pre-installed theft protection", "amount": 1290 }
+    ],
     "mileage": 22150,
     "rooftop": "Demo Toyota San Francisco",
     "photos": [

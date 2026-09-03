@@ -13,7 +13,7 @@ description: The gap AAP fills against A2A, ACP, MCP, and ADF — and why it is 
 Automotive retail has unusual constraints that no general-purpose agent protocol addresses end-to-end:
 
 - Inventory is **mixed** (new + used + certified + in-transit) and **mutates daily**. A car listed at 9am can be sold by 11am.
-- Pricing is **regulated**. The FTC's CARS Rule and 2026 enforcement actions require advertised prices to reflect the final out-the-door amount, including all required fees and add-ons.
+- Pricing is **regulated**. Current FTC enforcement warns that advertised vehicle prices must include mandatory dealer fees and required add-ons and must not rely on rebates unavailable to all consumers.
 - Customer contact data is **regulated**. TCPA, CAN-SPAM, and state laws require explicit, scoped consent before a dealer can call, text, or email.
 - Lead handoff is **legacy-bound**. Dealer CRMs ingest [ADF/XML](https://en.wikipedia.org/wiki/Auto-lead_Data_Format) (Auto-lead Data Format) leads that have been the de-facto standard for two decades.
 
@@ -43,7 +43,7 @@ AAP fixes the field names, types, and required behavior:
 
 - **Five canonical skill IDs** form the AAP v1.2.0 vocabulary; dealer agents implement whichever subset matches their capabilities.
 - **Strict typed `DataParts`** (`<scope>.<thing>.request`, `<scope>.<thing>.response`) so a buyer agent can validate before sending.
-- **Three explicit pricing fields** (`msrp`, `list_price`, `price`), each an integer in whole US dollars, where `price` is the FTC-final out-the-door amount — see [Pricing and FTC compliance](./pricing-and-ftc.md).
+- **Explicit pricing and fee fields** (`msrp`, `list_price`, `price`, `fees`) where `price` includes the complete itemized mandatory dealer charges in `fees` and excludes buyer-specific government charges — see [Pricing and fee disclosure](./pricing-and-ftc.md).
 - **`ConsentGrant`** structure required when a lead carries customer contact info, with explicit `allowed_channels` and `scope`.
 - **A controlled vehicle `status` enum** (`available`, `intransit`, `pending`) — these are the only statuses that appear in an inventory feed; a vehicle in any other state (sold, reserved, in service, etc.) is out of stock and is omitted by the dealer and ignored by the buyer — see [behavior rules](./behavior-rules.md).
 

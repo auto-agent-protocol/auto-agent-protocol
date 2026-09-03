@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/_primitives/dealer-fee.schema.json",
+  "title": "DealerFee",
+  "description": "One mandatory, non-government charge or dealer-required add-on included in Vehicle.price, expressed in whole US dollars. Examples include a documentation fee or a required pre-installed protection product. Do not include sales tax, title, registration, or other government charges. Do not include optional products. Fee names SHOULD be specific enough for a buyer to understand what the charge represents and MUST be unique within one fees array.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "\\S",
+      "description": "Buyer-facing name of the mandatory charge or dealer-required add-on.",
+      "examples": ["Documentation fee", "Pre-installed theft protection"]
+    },
+    "amount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Amount in whole US dollars. This amount is already included in Vehicle.price and MUST NOT be added to price again.",
+      "examples": [500, 1000]
+    }
+  },
+  "required": ["name", "amount"],
+  "additionalProperties": false
+}

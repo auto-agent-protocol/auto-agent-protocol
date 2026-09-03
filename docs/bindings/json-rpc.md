@@ -371,6 +371,10 @@ The remainder of this page shows the full envelope for each of the five skills.
                   "condition": "cpo",
                   "list_price": 24990,
                   "price": 26780,
+                  "fees": [
+                    { "name": "Documentation fee", "amount": 500 },
+                    { "name": "Pre-installed theft protection", "amount": 1290 }
+                  ],
                   "status": "available",
                   "rooftop": "Demo Toyota San Francisco",
                   "inventory_date": "2026-04-12",
@@ -445,6 +449,10 @@ The remainder of this page shows the full envelope for each of the five skills.
               "msrp": 26500,
               "list_price": 24990,
               "price": 26780,
+              "fees": [
+                { "name": "Documentation fee", "amount": 500 },
+                { "name": "Pre-installed theft protection", "amount": 1290 }
+              ],
               "status": "available",
               "rooftop": "Demo Toyota San Francisco",
               "city_mpg": 31,

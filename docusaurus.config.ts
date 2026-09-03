@@ -262,7 +262,7 @@ const config: Config = {
             { label: "Introduction", to: "/docs/latest/intro" },
             { label: "A2A profile", to: "/docs/latest/a2a-profile" },
             { label: "Discovery", to: "/docs/latest/discovery" },
-            { label: "Pricing and FTC", to: "/docs/latest/pricing-and-ftc" },
+            { label: "Pricing and fees", to: "/docs/latest/pricing-and-ftc" },
           ],
         },
         {

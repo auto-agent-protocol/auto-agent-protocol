@@ -31,6 +31,7 @@
     "check:releases": "tsx tools/check-releases.ts",
     "check:build": "tsx tools/check-build.ts",
     "release:prepare": "tsx tools/release-prepare.ts",
+    "test:contract": "node --import tsx --test tests/contract/*.test.ts",
     "test:release": "node --import tsx --test tests/release/*.test.ts",
     "copy-static": "tsx tools/copy-static.ts",
     "check:packages": "tsx tools/check-packages.ts",

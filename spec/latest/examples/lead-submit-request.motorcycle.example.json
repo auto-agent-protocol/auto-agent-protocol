@@ -32,7 +32,11 @@
     "displacement_cc": 1868,
     "other_attributes": { "final_drive": "belt", "wheel_count": 2 },
     "transmission": "manual",
-    "price": 27480
+    "price": 27480,
+    "fees": [
+      { "name": "Documentation fee", "amount": 481 },
+      { "name": "Dealer preparation fee", "amount": 1000 }
+    ]
   },
   "trade_in": {
     "vehicle_type": "motorcycle",

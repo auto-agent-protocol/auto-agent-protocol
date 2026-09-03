@@ -5,6 +5,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the
 versioning policy is described in the
 [versioning docs](https://autoagentprotocol.org/docs/latest/versioning).
 
+## [Unreleased]
+
+This working draft is a breaking contract candidate and is being rehearsed as
+`2.0.0`. No public release or stable `/latest/` alias has changed.
+
+### Added
+
+- Strict `{ name, amount }` `DealerFee` objects in whole US dollars.
+- Optional rooftop `fees` as a complete default schedule for publishers and
+  discovery.
+- Vehicle `fees` as the complete effective per-vehicle snapshot, with explicit
+  omitted (unknown), empty (affirmatively none), and non-empty semantics.
+- Contract regression tests for fee shape and the `price`/`fees` dependency.
+
+### Changed
+
+- `Vehicle.price` now requires `Vehicle.fees`. Consumer agents use the vehicle
+  snapshot directly and never join or merge fees from `dealer.information`.
+- `price` is defined as the authoritative advertised vehicle price: it includes
+  mandatory non-government dealer charges and required add-ons, excludes
+  government charges, and may reflect only discounts available to every buyer.
+- `list_price` remains optional context. Providers that know only a base/list
+  amount publish `list_price` and omit `price`.
+- Pricing guidance now reflects the current FTC Act enforcement position and
+  correctly notes that the separate CARS Rule was vacated and withdrawn.
+
 ## [1.2.0] — 2026-07-13
 
 Additive, backward-compatible release that extends the profile to multi-class

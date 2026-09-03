@@ -126,6 +126,10 @@ The dealer agent replies with an A2A `Message` containing the AAP response:
               "status": "available",
               "list_price": 24990,
               "price": 26780,
+              "fees": [
+                { "name": "Documentation fee", "amount": 500 },
+                { "name": "Pre-installed theft protection", "amount": 1290 }
+              ],
               "inventory_date": "2026-04-12",
               "updated_at": "2026-04-30T10:15:00Z"
             }

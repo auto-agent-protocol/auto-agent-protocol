@@ -136,7 +136,11 @@ A user wants to test-drive a 2024 Honda CR-V, trade in their 2020 Passat, and bo
     "body": "suv",
     "transmission": "automatic",
     "mileage": 14820,
-    "price": 32995
+    "price": 32995,
+    "fees": [
+      { "name": "Documentation fee", "amount": 500 },
+      { "name": "Pre-installed theft protection", "amount": 1000 }
+    ]
   },
   "trade_in": {
     "year": 2020, "make": "Volkswagen", "model": "Passat", "trim": "SE",

@@ -10,8 +10,6 @@ description: Search vehicle inventory with a flat filter block, pagination, sort
 This skill is invoked through A2A's `SendMessage` operation — the single A2A operation AAP v1.2.0 uses — not a dedicated REST URL. It travels as the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md). (The HTTP+JSON binding was [removed in v1.1.0](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
 :::
 
-![Inventory search flow: filters block flowing into a paginated vehicles list with facets](/img/v1.2/inventory-search-flow.png)
-
 The `inventory.search` skill is the primary inventory discovery surface. A buyer agent submits a flat filter block, optional pagination, optional sort, and optional privacy hints; the dealer agent returns matching `Vehicle` listings together with a total count and OPTIONAL aggregated facets.
 
 | Property | Value |
@@ -46,7 +44,7 @@ AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi
 | `interior_color` | string[] | yes | — | Free-text colors (car context). |
 | `rooftops` | string[] | yes | — | Rooftop names to include, matching `Vehicle.rooftop` and the rooftop `name` from [`dealer.information`](./dealer-information.md). For multi-rooftop dealerships; omit to search across all rooftops. |
 | `year_min` / `year_max` | integer | — | yes | Inclusive year range. |
-| `price_min` / `price_max` | integer | — | yes | Inclusive price range, in whole US dollars. **Applied against the FTC-final `price` field.** See [Pricing and FTC compliance](../pricing-and-ftc.md). |
+| `price_min` / `price_max` | integer | — | yes | Inclusive range applied to the authoritative advertised `price`, including mandatory dealer charges and excluding government charges. Vehicles without `price` do not match. See [Pricing and fee disclosure](../pricing-and-ftc.md). |
 | `mileage_max` | integer | — | — | Maximum odometer reading. |
 | `vin` | string | — | — | Exact VIN match (17 chars, ISO 3779). |
 | `stock` | string | — | — | Exact dealer stock number. |
@@ -65,7 +63,7 @@ AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi
 ```
 
 - `pagination.skip` and `pagination.limit` are integers. AAP recommends defaults of `skip=0`, `limit=20`, and a hard cap of `100`.
-- `sort.field` accepts: `price`, `list_price`, `msrp`, `mileage`, `year`, `make`, `model`, `stock`, `updated_at`. `sort.order` is `asc` or `desc`. **Sorting by `price` uses the FTC-final `price` field** that dealers MUST keep accurate.
+- `sort.field` accepts: `price`, `list_price`, `msrp`, `mileage`, `year`, `make`, `model`, `stock`, `updated_at`. `sort.order` is `asc` or `desc`. Sorting by `price` uses the authoritative advertised price; vehicles without it sort after vehicles with a price.
 - `privacy.anonymous: true` indicates the buyer agent is not attaching user identity to this search. AAP RECOMMENDS anonymous searches by default; user identity is attached only when a lead is submitted.
 
 ## Request shape
@@ -112,7 +110,7 @@ AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi
 | `data.vehicles[]` | `Vehicle[]` | yes | Listings in the requested order. |
 | `data.facets` | `Facets` | no | OPTIONAL embedded aggregation over the matching set. |
 
-Each `Vehicle` MAY include `dealer_id`, `vehicle_id`, `vin`, `stock`, `year`, `make`, `model`, `trim`, `condition` (`new` | `used` | `cpo` for inventory contexts), `vehicle_type` (`car` | `motorcycle` | `trailer` | `rv` | `other`, defaulting to `car` when absent), `rooftop`, `body`, `transmission`, `mileage`, `msrp`, `list_price`, `price`, and `status`. The unified Vehicle schema declares all of these as optional and `additionalProperties: true`, so inventory responses MAY also include rich fields like `photos`, `vdp_url`, `driveline`, `engine`, `fuel`, `city_mpg`, `highway_mpg`, `electric_range_mi`, `exterior_color`, `interior_color`, `features`, `description`, `notes`, `inventory_date`, and `updated_at`. Motorcycle listings (`vehicle_type: "motorcycle"`) carry the class-agnostic `body`/segment and `displacement_cc`, with niche specs (`final_drive`, `engine_stroke`, `wheel_count`, `abs`) in the free-form `other_attributes` map, in place of the car-oriented `driveline`, `interior_color`, and MPG fields. `updated_at` MUST be present whenever the dealer is making availability claims — see [Behavior rules](../behavior-rules.md). Vehicle `status` is **REQUIRED** on inventory listings and is a controlled enum: exactly `available` | `intransit` | `pending`. Only these three statuses appear in inventory feeds; a vehicle in any other state is OUT OF STOCK and MUST be omitted by the dealer (and ignored by the buyer if encountered).
+Each `Vehicle` MAY include `dealer_id`, `vehicle_id`, `vin`, `stock`, `year`, `make`, `model`, `trim`, `condition` (`new` | `used` | `cpo` for inventory contexts), `vehicle_type` (`car` | `motorcycle` | `trailer` | `rv` | `other`, defaulting to `car` when absent), `rooftop`, `body`, `transmission`, `mileage`, `msrp`, `list_price`, `price`, `fees`, and `status`. When `price` is present, `fees` is required and is the complete effective fee snapshot already included in `price`; buyer agents never join or merge fees from the rooftop. The unified Vehicle schema declares the remaining fields as optional and `additionalProperties: true`, so inventory responses MAY also include rich fields like `photos`, `vdp_url`, `driveline`, `engine`, `fuel`, `city_mpg`, `highway_mpg`, `electric_range_mi`, `exterior_color`, `interior_color`, `features`, `description`, `notes`, `inventory_date`, and `updated_at`. Motorcycle listings (`vehicle_type: "motorcycle"`) carry the class-agnostic `body`/segment and `displacement_cc`, with niche specs (`final_drive`, `engine_stroke`, `wheel_count`, `abs`) in the free-form `other_attributes` map, in place of the car-oriented `driveline`, `interior_color`, and MPG fields. `updated_at` MUST be present whenever the dealer is making availability claims — see [Behavior rules](../behavior-rules.md). Vehicle `status` is **REQUIRED** on inventory listings and is a controlled enum: exactly `available` | `intransit` | `pending`. Only these three statuses appear in inventory feeds; a vehicle in any other state is OUT OF STOCK and MUST be omitted by the dealer (and ignored by the buyer if encountered).
 
 ## Full example
 
@@ -163,6 +161,10 @@ A buyer agent searches for certified or used Hondas from 2020 onward, under $30,
         "mileage": 22150,
         "list_price": 24990,
         "price": 26780,
+        "fees": [
+          { "name": "Documentation fee", "amount": 500 },
+          { "name": "Pre-installed theft protection", "amount": 1290 }
+        ],
         "photos": [
           "https://demo-toyota.example.com/photos/T12345-1.jpg"
         ],
@@ -187,6 +189,10 @@ A buyer agent searches for certified or used Hondas from 2020 onward, under $30,
         "body": "sedan",
         "list_price": 27990,
         "price": 29990,
+        "fees": [
+          { "name": "Documentation fee", "amount": 500 },
+          { "name": "Dealer preparation fee", "amount": 1500 }
+        ],
         "status": "intransit",
         "inventory_date": "2026-04-28",
         "updated_at": "2026-04-30T08:00:00Z"
@@ -246,8 +252,8 @@ Returned electric units carry the generic electric-powertrain group (`electric_r
 
 ## Sort considerations
 
-- Sorting by `price` (default for price-comparison flows) sorts on the FTC-final out-the-door amount. This is what buyer agents SHOULD use to honestly compare offers.
-- Sorting by `list_price` or `msrp` is allowed for users who want a different perspective; the dealer SHOULD still publish accurate `price` for FTC compliance.
+- Sorting by `price` (default for price-comparison flows) sorts on the authoritative advertised vehicle price, including mandatory dealer charges and excluding government charges. This is what buyer agents SHOULD use to compare offers.
+- Sorting by `list_price` or `msrp` is allowed for users who want a different perspective; neither field should be presented as the payable advertised price.
 - Sorting by `updated_at desc` is the recommended freshness ordering when buyers care about which listings the dealer has most recently re-confirmed.
 
 ## Anonymous search by default

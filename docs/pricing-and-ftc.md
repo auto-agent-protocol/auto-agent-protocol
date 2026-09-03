@@ -1,92 +1,121 @@
 ---
 sidebar_position: 6
-title: Pricing and FTC compliance
-description: The three pricing fields (msrp, list_price, price), what each one means, and why price MUST be the FTC-final out-the-door amount.
+title: Pricing and fee disclosure
+description: The AAP price fields, complete vehicle fee snapshots, rebate handling, and current FTC enforcement context.
 ---
 
-# Pricing and FTC compliance
+# Pricing and fee disclosure
 
-![Vehicle pricing ladder from msrp to the FTC-final price](/img/v1.2/pricing-ladder.png)
+AAP separates a vehicle's base pricing context from the price a dealer actually advertises, and makes mandatory dealer charges explicit.
 
-AAP standardizes three explicit pricing fields on every vehicle. The single most important rule:
+> **`price` is the authoritative advertised vehicle price.** It includes every mandatory, non-government dealer charge and dealer-required add-on. The accompanying `fees` array itemizes charges already included in `price`; never add them to `price` again.
 
-> **`price` is the FTC-final out-the-door amount.** It is the total amount the buyer would pay for this specific vehicle, including all required fees, mandatory add-ons, and any conditions on dealer financing. Anything less is a violation of FTC enforcement policy.
+`price` is deliberately **not** called an out-the-door price. Sales tax, title, registration, and other required government charges vary by buyer and jurisdiction and are excluded. A true out-the-door quote requires buyer-specific context.
 
-This rule is non-negotiable. Dealers MUST keep `price` accurate; buyer agents and aggregators rely on it to compare offers honestly across dealers.
+This page defines protocol behavior, not legal advice. Dealers remain responsible for federal, state, and local requirements.
 
-## Why the FTC rule exists
+## Current FTC context
 
-In March 2026 the FTC sent warning letters to 97 auto dealership groups about deceptive pricing practices. The letters specifically called out the practice of advertising a price that excludes mandatory fees, conditions on dealer-arranged financing, or required dealer add-ons.
+In March 2026, the FTC warned 97 auto dealership groups that advertised prices must include all mandatory fees. The agency also identified advertisements that use rebates unavailable to all consumers, require an extra down payment, condition price on dealer financing, or omit required add-ons as potentially illegal pricing practices under Section 5 of the FTC Act.
 
-- **FTC press release (March 2026):** [FTC warns 97 auto dealership groups about deceptive pricing](https://www.ftc.gov/news-events/news/press-releases/2026/03/ftc-warns-97-auto-dealership-groups-about-deceptive-pricing)
-- **FTC CARS Rule:** the underlying federal rule that requires "offering price" to reflect the full price minus only required government charges and optional add-ons.
+- [FTC announcement about deceptive auto pricing (March 2026)](https://www.ftc.gov/news-events/news/press-releases/2026/03/ftc-warns-97-auto-dealership-groups-about-deceptive-pricing)
+- [FTC sample warning letter](https://www.ftc.gov/system/files/ftc_gov/pdf/warning-letter-to-best-price-dealer.pdf)
 
-AAP's `price` field is the protocol-level expression of that rule. Buyer agents — including LLM-driven shopping assistants — sort, filter, and compare dealers on `price`. If a dealer publishes a `price` that is not the final amount, the buyer agent will surface that vehicle as artificially cheap and the dealer will be advertising a deceptive price across every agent that touches the API.
+The FTC's separate CARS Rule is **not in force**. The Fifth Circuit [vacated it on January 27, 2025](https://www.ca5.uscourts.gov/opinions/pub/24/24-60013-CV0.pdf), and the FTC later [withdrew the vacated rule](https://public-inspection.federalregister.gov/2026-02866.pdf). AAP therefore does not claim that the CARS Rule is the source of these contract requirements. The contract instead adopts a transparent pricing model that aligns with the FTC's current enforcement statements and makes safer comparison possible.
 
-## The three pricing fields
+## Pricing fields
 
-Every `Vehicle` object in AAP MAY carry three integer price fields (whole US dollars). Each has a precise meaning.
+Every amount is an integer in whole US dollars.
 
-| Field | Required? | Meaning | Includes mandatory fees / add-ons? | Notes |
-|---|---|---|---|---|
-| `msrp` | optional | Manufacturer's Suggested Retail Price (sticker price). | no | Set by the OEM, not the dealer. |
-| `list_price` | optional | Dealer's advertised base list price BEFORE incentives and fees. | no | The number the dealer would put on a window sticker as their asking price, separate from required fees. |
-| `price` | RECOMMENDED | **FTC-final out-the-door price** after all incentives, mandatory fees, and required add-ons. | yes | The single number a buyer agent uses for comparison and the only one used by `inventory.search` `price_min` / `price_max` filters and `sort.field: "price"`. |
+| Field | Required? | Meaning | Buyer-agent treatment |
+|---|---|---|---|
+| `msrp` | optional | Manufacturer's Suggested Retail Price. | Context only. |
+| `list_price` | optional | Dealer's base list price before discounts, rebates, mandatory dealer charges, and required add-ons. | Context only; never present it as the payable price. |
+| `price` | optional | Authoritative advertised vehicle price after universally available discounts and including all mandatory dealer charges and required add-ons. Excludes government charges. | Use for price filters, sorting, and comparisons. When present, `fees` is required. |
+| `fees` | required with `price` | Complete effective list of mandatory, non-government dealer charges and required add-ons already included in `price`. | Display alongside `price`; do not add the amounts again. |
 
-Each is a plain integer in whole US dollars:
+`price` may reflect only discounts or rebates available to every consumer. A discount that depends on military service, recent graduation, loyalty, conquest, financing choice, trade-in, or another eligibility condition must not reduce `price`.
+
+AAP does not add a second `final_price` field. `price` is the one authoritative advertised total; two competing totals would invite ambiguity and stale data. A buyer-specific out-the-door quote is a later calculation outside this inventory contract.
+
+## Fee states
+
+`fees` has three intentionally different states:
+
+| Representation | Meaning |
+|---|---|
+| field omitted | Fee status is unknown or undisclosed. `price` must also be omitted. |
+| `"fees": []` | The publisher affirmatively reports no mandatory dealer charges or required add-ons for this vehicle. |
+| non-empty `fees` | The array is the complete effective fee snapshot for this vehicle. |
+
+Each fee is `{ "name": string, "amount": integer }`. It covers mandatory, non-government dealer charges and dealer-required add-ons. It excludes optional products and government charges such as tax, title, and registration.
 
 ```json
-26780
+{
+  "name": "Documentation fee",
+  "amount": 500
+}
 ```
 
-### How the fields relate
+## Rooftop defaults versus vehicle snapshots
 
-```mermaid
-flowchart LR
-  msrp["msrp<br/>(sticker)"] --> list["list_price<br/>(base advertised)"]
-  list --> price["price<br/>(FTC-final<br/>out-the-door)"]
-```
+A rooftop MAY publish `fees` in `dealer.information` as its complete default schedule. This avoids repeating configuration inside a dealer's own source system, but it does not create a consumer-side join.
 
-`msrp` is informational only. `list_price` is the base advertised number BEFORE incentives and fees. `price` is the final number — the FTC-final out-the-door amount, and the only one a buyer agent should use to make comparisons or run `price_min` / `price_max` filters.
+The resolution rule is simple:
 
-## Concrete worked example
+1. The inventory publisher MAY start with the rooftop defaults.
+2. It resolves any vehicle-specific differences before returning inventory.
+3. Every vehicle with `price` carries its complete effective `fees` snapshot.
+4. Buyer agents use only `Vehicle.fees`. They MUST NOT fetch `dealer.information` to complete a price, join by the mutable rooftop name, or merge rooftop and vehicle fee arrays.
 
-A 2022 Honda Civic listed by a California dealer:
+When vehicle fees differ from rooftop defaults, `Vehicle.fees` replaces the rooftop array in full. It is never a delta. This keeps inventory responses self-contained, deterministic, and safe when dealer information is missing or cached at a different time.
+
+## Arithmetic and discounts
+
+The protocol does not require `list_price + sum(fees) == price`. For example, a universally available discount can make the values differ:
 
 ```json
 {
   "vehicle_id": "vehicle_demo_civic",
-  "vin": "1HGCV1F30KA000001",
   "year": 2022,
   "make": "Honda",
   "model": "Civic",
   "condition": "cpo",
   "msrp": 26500,
   "list_price": 24990,
-  "price": 26780,
+  "price": 26280,
+  "fees": [
+    { "name": "Documentation fee", "amount": 500 },
+    { "name": "Pre-installed theft protection", "amount": 1000 }
+  ],
   "status": "available",
-  "inventory_date": "2026-04-12",
   "updated_at": "2026-04-30T10:15:00Z"
 }
 ```
 
-What the buyer is actually being asked to pay: **$26,780**. That is the FTC-final out-the-door figure. The other two fields are descriptive context. A buyer agent shopping for a Civic at "under $27,000" should match this listing on `price`, not `list_price`.
+Here, the dealer applied a $210 discount available to every buyer: `$24,990 - $210 + $1,500 = $26,280`. `price` remains authoritative. Buyer agents display `$26,280` and the two included fees; they do not derive a replacement price from `list_price`.
 
-If the same dealer lists the same VIN with `price: 24990` while charging the customer $26,780 at the dealership, that is the exact pattern the FTC's 2026 warnings target.
+If the relationship is not explained or cannot be reconstructed, consumers still use `price` and `fees` and SHOULD suppress or de-emphasize `list_price` rather than inventing a discount. Future protocol work may add a structured incentives model; `fees` must not be overloaded for discounts.
 
-## What dealers MUST and MUST NOT do
+## Provider mapping
 
-These are normative; they are also restated in the [Behavior rules](./behavior-rules.md) page.
+| Provider data | AAP mapping |
+|---|---|
+| Complete advertised price plus complete fee status | Publish `price` and `fees` (`[]` when there are affirmatively no mandatory dealer charges). |
+| Base or list amount only | Publish `list_price`; omit `price`. |
+| Advertised amount but mandatory fee status is unknown | Do not publish that amount as `price`. Publish it as `list_price` only if it truly has list-price semantics. |
+| Amount reduced by a conditional rebate | Do not publish it as `price`. Publish the non-conditional advertised amount, or omit `price` if that amount is unavailable. |
+| Rooftop defaults plus vehicle exceptions | Resolve the defaults inside the publisher, then emit one complete `Vehicle.fees` array. |
 
-- Dealers MUST publish `price` as the final out-the-door amount including all mandatory fees, conditions on financing, and required add-ons.
-- Dealers MUST NOT advertise a `price` that omits required fees, conditions on dealer financing, or required add-ons.
-- Dealers SHOULD publish `list_price` and `msrp` for transparency, but the buyer agent will compare on `price`.
-- Buyer agents MUST use `price` (not `list_price`) for filters and sort by default. AAP defines `inventory.search`'s `price_min` / `price_max` filters and `sort.field: "price"` against the `price` field for exactly this reason.
+## Normative behavior
 
-## How `price` is used elsewhere in AAP
+- Publishers MUST include `fees` whenever they include `price`.
+- Publishers MUST include all mandatory, non-government dealer charges and required add-ons in `price` and itemize them in `fees`.
+- Publishers MUST NOT reduce `price` with a rebate or discount unavailable to every consumer.
+- Publishers MUST NOT reduce `price` by an additional required down payment or condition it on dealer financing.
+- Publishers MUST NOT include optional products or government charges in `fees`.
+- Buyer agents MUST NOT add `fees[].amount` to `price`.
+- Buyer agents MUST use `price`, not `list_price`, for `price_min`, `price_max`, `sort.field: "price"`, and cross-dealer comparisons.
+- Buyer agents MUST NOT infer missing fees from a rooftop or another vehicle.
 
-- `inventory.search` — `filters.price_min` and `filters.price_max` apply to `price`. `sort.field` accepts `"price"` (default sort comparator) and also `"list_price"`, `"msrp"` for those who want to sort on a specific field.
-- `inventory.vehicle` — the response SHOULD carry `price` (RECOMMENDED); when present, it follows the FTC all-in rules above.
-- `inventory.facets` — `price_range` aggregates min/max `price` values across the matching set.
-
-For full request/response shapes see the [skills reference](./skills/inventory-search.md).
+`inventory.facets.price_range` likewise aggregates available `price` values. Vehicles without `price` remain valid inventory results, but they cannot safely participate in price-based comparisons without provider-specific behavior that the protocol does not standardize.

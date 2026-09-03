@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: dealer.information
-description: Return the dealership profile — identity, rooftop locations, hours, contact channels, and high-level service capabilities.
+description: Return the dealership profile — identity, rooftop locations, hours, contact channels, default dealer fees, and service capabilities.
 ---
 
 # `dealer.information`
@@ -12,7 +12,7 @@ description: Return the dealership profile — identity, rooftop locations, hour
 This skill is invoked through A2A's `SendMessage` operation — the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md) — not a dedicated REST URL. (The HTTP+JSON binding was [removed in v1.1.0](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
 :::
 
-The `dealer.information` skill returns a dealership's static profile. It is the simplest AAP call: the request carries no parameters, the response carries a [`DealerInformation`](https://autoagentprotocol.org/v1.2/schemas/dealer-information.schema.json) object describing the dealer group and its rooftops — each with identity, address, contact channels, business hours, and service capabilities.
+The `dealer.information` skill returns a dealership's static profile. It is the simplest AAP call: the request carries no parameters, the response carries a [`DealerInformation`](https://autoagentprotocol.org/v1.2/schemas/dealer-information.schema.json) object describing the dealer group and its rooftops — each with identity, address, contact channels, business hours, default dealer fees, and service capabilities.
 
 | Property | Value |
 |---|---|
@@ -73,6 +73,9 @@ The response wraps a `DealerInformation` object inside the standard AAP response
         ],
         "timezone": "America/Los_Angeles",
         "notes": "string",
+        "fees": [
+          { "name": "Documentation fee", "amount": 500 }
+        ],
         "capabilities": ["sales", "service", "parts", "financing", "trade_in", "delivery"]
       }
     ]
@@ -98,7 +101,12 @@ The response wraps a `DealerInformation` object inside the standard AAP response
 | `rooftop.schedules[]` | object[] | no | Named weekly hours; each entry is `{ name, value }` where `value` maps each weekday to `{ open, close }` (24h `HH:MM`) or `null` when closed. |
 | `rooftop.timezone` | string | no | IANA timezone identifier (e.g. `America/Los_Angeles`). |
 | `rooftop.notes` | string | no | Free-text notes (e.g. "closed major holidays"). |
+| `rooftop.fees[]` | `{ name, amount }[]` | no | Complete default schedule of mandatory, non-government dealer charges and required add-ons. Omitted = unknown; `[]` = affirmatively none. Publisher/discovery metadata only; consumers do not join it onto vehicles. |
 | `rooftop.capabilities[]` | string[] | no | Service capabilities, e.g. `sales`, `service`, `parts`, `financing`, `trade_in`, `delivery`. Rooftops MAY also advertise which vehicle types they sell with tags such as `motorcycle_sales` or `powersports`, so buyer agents know a rooftop's `vehicle_type` mix before searching. |
+
+### How rooftop fees are used
+
+Rooftop `fees` are defaults for the inventory publisher, not a consumer-side inheritance mechanism. A publisher MAY start from this schedule, apply any vehicle-specific replacement, and then place the complete effective fee snapshot on the returned `Vehicle`. Every vehicle with `price` therefore has its own `fees` array. Buyer agents MUST NOT fetch this skill to complete a vehicle price or merge rooftop and vehicle arrays.
 
 ## Full example
 
@@ -122,6 +130,10 @@ A complete response from a dealer group with two rooftops:
         "phones": [
           { "name": "Sales",   "value": "+14155550100" },
           { "name": "Service", "value": "+14155550101" }
+        ],
+        "fees": [
+          { "name": "Documentation fee", "amount": 500 },
+          { "name": "Pre-installed theft protection", "amount": 1000 }
         ],
         "address": {
           "country": "US",
