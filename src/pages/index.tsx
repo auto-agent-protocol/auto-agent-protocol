@@ -1,45 +1,46 @@
 import clsx from "clsx";
 import Link from "@docusaurus/Link";
-import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
+import ThemedImage from "@theme/ThemedImage";
 import Layout from "@theme/Layout";
 import Head from "@docusaurus/Head";
 import styles from "./index.module.css";
 
 function Hero() {
-  const { siteConfig } = useDocusaurusContext();
   return (
-    <header className={clsx("hero hero--primary", styles.heroBanner)}>
+    <header className={styles.heroBanner}>
       <div className="container">
-        <div className={styles.heroInner}>
-          <div className={styles.heroText}>
-            <h1 className="hero__title">{siteConfig.title}</h1>
-            <p className="hero__subtitle">{siteConfig.tagline}</p>
-            <div className={styles.buttons}>
-              <Link
-                className="button button--secondary button--lg"
-                to="/docs/v1.2/intro"
-              >
-                Read the Spec
-              </Link>
-              <Link
-                className={clsx("button button--outline button--lg", styles.heroGithubButton)}
-                to="https://github.com/auto-agent-protocol/auto-agent-protocol"
-              >
-                GitHub
-              </Link>
-            </div>
-          </div>
-          <div className={styles.heroImage}>
-            <img
-              src="/img/v1.2/hero.png"
-              alt="A buyer agent and a dealership digital storefront connected by typed AAP messages"
-              width="1376"
-              height="768"
-              // @ts-expect-error -- valid HTML attribute, missing from React 18 img types
-              fetchpriority="high"
-            />
-          </div>
+        <p className={styles.eyebrow}>The open automotive retail profile of A2A</p>
+        <h1 className={styles.brandHeading}>
+          <ThemedImage
+            alt="Auto Agent Protocol"
+            sources={{
+              light: "/img/brand/aap-wordmark.svg",
+              dark: "/img/brand/aap-wordmark-white.svg",
+            }}
+            width={1190}
+            height={200}
+            className={styles.heroWordmark}
+          />
+        </h1>
+        <p className={styles.heroDescription}>
+          Connect AI assistants to dealerships.<br />
+          Real inventory. Typed messages. Consented leads.
+        </p>
+        <div className={styles.buttons}>
+          <Link
+            className="button button--primary button--lg"
+            to="/docs/v1.2/intro"
+          >
+            Read the Spec
+          </Link>
+          <Link
+            className="button button--outline button--primary button--lg"
+            to="https://github.com/auto-agent-protocol/auto-agent-protocol"
+          >
+            GitHub
+          </Link>
         </div>
+        <Link className={styles.profileLink} to="/docs/v1.2/a2a-profile">Built on A2A v1.0 <span aria-hidden="true">↗</span></Link>
       </div>
     </header>
   );
@@ -270,7 +271,7 @@ const specStructuredData = {
   isPartOf: { "@id": "https://autoagentprotocol.org/#website" },
   author: { "@id": "https://autoagentprotocol.org/#organization" },
   publisher: { "@id": "https://autoagentprotocol.org/#organization" },
-  image: "https://autoagentprotocol.org/img/v1.2/aap-hero-banner.png",
+  image: "https://autoagentprotocol.org/img/brand/aap-social-card.png",
   license: "https://www.apache.org/licenses/LICENSE-2.0",
   workExample: [
     {

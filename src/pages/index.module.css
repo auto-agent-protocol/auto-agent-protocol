@@ -1,53 +1,99 @@
 .heroBanner {
-  padding: 4rem 0;
+  padding: clamp(3rem, 6vw, 5.5rem) 0 3rem;
   position: relative;
   overflow: hidden;
+  background: #f5f9ff;
+  border-bottom: 1px solid #dce5f0;
 }
 
-.heroInner {
-  display: flex;
-  align-items: center;
-  gap: 2.5rem;
-  flex-wrap: wrap;
+[data-theme="dark"] .heroBanner {
+  background: #111d30;
+  border-color: #293b54;
 }
 
-.heroText {
-  flex: 1 1 360px;
+.eyebrow {
+  color: var(--ifm-color-primary-dark);
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 1.75rem;
 }
 
-.heroImage {
-  flex: 1 1 420px;
-  display: flex;
-  justify-content: center;
+.brandHeading {
+  line-height: 0;
+  margin: 0 0 1.75rem;
+  max-width: 1060px;
+  animation: brandEnter 600ms ease-out both;
 }
 
-.heroImage img {
+.heroWordmark {
+  display: block;
   width: 100%;
   height: auto;
-  max-width: 560px;
-  border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
 }
 
-@media (max-width: 768px) {
-  .heroBanner {
-    text-align: center;
-  }
-  .heroImage img {
-    max-width: 100%;
-  }
+.heroDescription {
+  font-size: clamp(1.05rem, 2vw, 1.4rem);
+  line-height: 1.65;
+  color: var(--ifm-color-content-secondary);
+  margin-bottom: 0;
+  animation: brandEnter 600ms 80ms ease-out both;
 }
 
 .buttons {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: .8rem;
   margin-top: 2rem;
+  animation: brandEnter 600ms 140ms ease-out both;
 }
 
-.heroGithubButton {
-  margin-left: 1rem;
-  color: white;
-  border-color: white;
+.buttons a {
+  transition: transform 180ms ease, background-color 180ms ease;
+}
+
+.buttons a:hover {
+  transform: translateY(-2px);
+}
+
+.buttons :global(.button--outline:not(:hover):not(:active)) {
+  --ifm-button-color: var(--ifm-color-primary-dark);
+}
+
+.profileLink {
+  display: inline-flex;
+  gap: .45rem;
+  align-items: center;
+  margin-top: 2rem;
+  font-size: .9rem;
+  color: var(--ifm-color-primary-dark);
+}
+
+.profileLink span {
+  transition: transform 180ms ease;
+}
+
+.profileLink:hover span {
+  transform: translate(2px, -2px);
+}
+
+@keyframes brandEnter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .heroBanner { padding: 2.75rem 0 2.5rem; }
+  .eyebrow { font-size: .7rem; letter-spacing: .08em; }
+  .buttons a { font-size: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brandHeading, .heroDescription, .buttons { animation: none; }
+  .buttons a, .profileLink span { transition: none; }
+  .buttons a:hover, .profileLink:hover span { transform: none; }
 }
 
 .features {
@@ -95,7 +141,7 @@
   width: 100%;
   height: auto;
   border-radius: 10px;
-  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
+  border: 1px solid var(--ifm-color-emphasis-200);
 }
 
 .protocols {
