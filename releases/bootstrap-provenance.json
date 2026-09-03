@@ -1,0 +1,105 @@
+{
+  "sourceCommit": "bcc14b7f95b26596d2eeb5632abff311dde4dd3e",
+  "artifacts": [
+    {
+      "url": "https://autoagentprotocol.org/v0.1/mcp.json",
+      "sha256": "064968e54f35d142af79615d9b77c0e87202698d1c5e7657e61562422c3686bd",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v0.1/openapi-jsonrpc.yaml",
+      "sha256": "7c700f30b766952ca00c32454ce29044f540fb28348af32a52e8ffadcb0d3717",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v0.1/openapi-rest.yaml",
+      "sha256": "1870c833afce096f054e7b26c67028cc51b258eed96ded0303f19b7e141f7e8e",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v0.1/types.d.ts",
+      "sha256": "7c3a31f86d8f478a659ccc7df21c5f0e0f53204ce5293ba728bd7d8acfea822a",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v0.2/mcp.json",
+      "sha256": "4ca3c343fbe291d441614af1eaee3aae39d17ef4e975e2ccdd967a2374afc489",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v0.2/openapi-jsonrpc.yaml",
+      "sha256": "6cced0e8a2f8aa65fbb69a13d558adc60b89aec901032dc9aa261cc8dd6a1e16",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v0.2/openapi-rest.yaml",
+      "sha256": "72b28cbe6828f1e8bb0812dc0e4aa5fc978289c750340dc93bfb3e03723f4da8",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v0.2/types.d.ts",
+      "sha256": "5d1fd2927b19b2ebe3fd3cebbf19613709afc342734325a7908457f34dcef526",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v1.0/mcp.json",
+      "sha256": "d321a323bde897a9413da1b288ec0e8fa44be3061475d103b6ebb7ba3a0c70c5",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v1.0/openapi-jsonrpc.yaml",
+      "sha256": "fc30839fc30e26e43fd15fec952609b98cbe019447b6f3371ae57c786dcace75",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v1.0/openapi-rest.yaml",
+      "sha256": "52963c1be05dd4ba470319127c7c5728c7b455a6a8d91544c0c6404fd9a9ec46",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v1.0/types.d.ts",
+      "sha256": "d56424892d3240a1bf34dbe9df229f07e7a2bddf801c105de4c5decc7bb01638",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v1.1/mcp.json",
+      "sha256": "ee40a0fba2c5dc36c1a34397a63a91352b729e794fbdf0bfa6deba27f6266f8f",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v1.1/openapi-jsonrpc.yaml",
+      "sha256": "51a6b4bb44515fd9c3d980796640e7c795f2cd9b686acb7171b6f0d4aae6636c",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v1.1/openapi-rest.yaml",
+      "sha256": "17892ec6c66dce6a9ba387b3b8920d4f9c8d6e450d61f8affcb28f2a8d9d43ae",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v1.1/types.d.ts",
+      "sha256": "6dfc28f44c71cc4e7669dd82f33d456201c29bff6197c9bb769ab7c2f6cec1d3",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v1.2/mcp.json",
+      "sha256": "e0f77391506fdd89412771a625bfe924ce509656cf7c28e3eacaffa3e253e72f",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v1.2/openapi-jsonrpc.yaml",
+      "sha256": "bd78359e95d50db10c607eb9e03cd573ab36dbc5a33f7ba7b304be32f8b3e9c8",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v1.2/openapi-rest.yaml",
+      "sha256": "dfb926767c6f44a4eb10b314c6d24ec2618d268967f3e3e553a0a43844d02b53",
+      "matchesCurrentGenerator": true
+    },
+    {
+      "url": "https://autoagentprotocol.org/v1.2/types.d.ts",
+      "sha256": "0bd21c4c55d2579569b9ef1a002fadef8b6e0fc9156aa496bdd53c4ffe49ebff",
+      "matchesCurrentGenerator": true
+    }
+  ]
+}

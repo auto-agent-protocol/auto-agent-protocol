@@ -1,11 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "fs";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
+import { resolve } from "path";
 import { parse as parseYaml } from "yaml";
-import { ALL_VERSIONS } from "./versions.js";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, "..");
+import { DRAFT_VERSION, ROOT, isMain } from "./lib/releases.js";
 
 interface Skill {
   id: string;
@@ -27,15 +23,12 @@ function toMcpToolName(skillId: string): string {
   return `aap_${skillId.replace(/\./g, "_")}`;
 }
 
-async function main() {
-  const versions = ALL_VERSIONS;
-
-  for (const version of versions) {
-    const skillsFile = resolve(ROOT, "spec", version, "skills.yaml");
-    const outDir = resolve(ROOT, "generated", version);
+export function generateMcp(specDir: string, outDir: string, version: string): void {
+    const skillsFile = resolve(specDir, "skills.yaml");
     mkdirSync(outDir, { recursive: true });
 
     const manifest = parseYaml(readFileSync(skillsFile, "utf-8")) as SkillsManifest;
+    if (manifest.version !== version) throw new Error(`Manifest version ${manifest.version} does not match requested output ${version}`);
 
     const tools = manifest.skills.map((skill) => ({
       name: toMcpToolName(skill.id),
@@ -63,7 +56,13 @@ async function main() {
     const outFile = resolve(outDir, "mcp.json");
     writeFileSync(outFile, JSON.stringify(mcpManifest, null, 2) + "\n");
     console.log(`Generated ${outFile}`);
-  }
 }
 
-main();
+if (isMain(import.meta.url)) {
+  try {
+    generateMcp(resolve(ROOT, "spec/latest"), resolve(ROOT, "generated/latest"), DRAFT_VERSION);
+  } catch (error) {
+    console.error(error);
+    process.exitCode = 1;
+  }
+}

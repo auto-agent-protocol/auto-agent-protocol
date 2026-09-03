@@ -1,6 +1,6 @@
 // Generates static/llms.txt and static/llms-full.txt from the single sources of
-// truth — sidebars.ts (doc structure/order), spec/<latest>/skills.yaml (skills +
-// version + schema URLs), and the docs' own frontmatter/prose — so neither file
+// truth — the stable release registry, frozen sidebars/docs, and the stable
+// skills manifest — so neither file
 // is ever hand-maintained or drifts on a version change. Run as part of
 // `pnpm run generate`; the outputs are gitignored build artifacts.
 //
@@ -12,16 +12,17 @@ import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { parse as parseYaml } from "yaml";
 import { LATEST } from "./versions.js";
-import sidebars from "../sidebars.js";
+import { readJson, stableRelease } from "./lib/releases.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const DOCS_DIR = resolve(ROOT, "docs");
+const DOCS_DIR = resolve(ROOT, "versioned_docs", `version-${LATEST}`);
 const OUT_DIR = resolve(ROOT, "static");
 
 // Stable site identity (not version-dependent). Everything version-specific below
 // is derived from LATEST / skills.yaml.
 const SITE = "https://autoagentprotocol.org";
 const TITLE = "Auto Agent Protocol";
+const STABLE_RELEASE = stableRelease();
 const DOCS_BASE = `${SITE}/docs/${LATEST}`;
 const VER_BASE = `${SITE}/${LATEST}`;
 
@@ -42,7 +43,7 @@ const skillsManifest = parseYaml(
 
 // --- sidebar traversal (doc structure is the single source of order) ---
 type SidebarItem = string | { type: string; label: string; items?: SidebarItem[] };
-const rootItems = (sidebars as { specSidebar: SidebarItem[] }).specSidebar;
+const rootItems = (readJson(resolve(ROOT, "versioned_sidebars", `version-${LATEST}-sidebars.json`)) as { specSidebar: SidebarItem[] }).specSidebar;
 
 const strings = (items: SidebarItem[]): string[] =>
   items.filter((i): i is string => typeof i === "string");
@@ -103,7 +104,7 @@ function buildLlmsTxt(): string {
   const out: string[] = [
     `# ${TITLE}`,
     "",
-    `> ${TITLE} (AAP) is an open A2A v1.0 profile: AI buyer-agents discover a car dealership, browse its real inventory, and submit consented sales leads. ${skillsManifest.skills.length} skills: ${skillIds}. Current version ${LATEST}; sole transport A2A SendMessage over JSON-RPC 2.0; discovery via /.well-known/agent-card.json; extension URI ${skillsManifest.extension_uri}.`,
+    `> ${TITLE} (AAP) is an open A2A v1.0 profile: AI buyer-agents discover a car dealership, browse its real inventory, and submit consented sales leads. ${skillsManifest.skills.length} skills: ${skillIds}. Current release ${STABLE_RELEASE.version} (contract ${LATEST}); sole transport A2A SendMessage over JSON-RPC 2.0; discovery via /.well-known/agent-card.json; extension URI ${skillsManifest.extension_uri}.`,
     "",
     `The entire specification is also available as a single self-contained file at ${SITE}/llms-full.txt.`,
     "",

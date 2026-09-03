@@ -9,7 +9,7 @@ description: Return the dealership profile — identity, rooftop locations, hour
 ![One dealer group with several rooftops, each carrying address, contacts, hours, and capabilities](/img/v1.2/dealer-rooftops.png)
 
 :::info A2A invocation
-This skill is invoked through A2A's `SendMessage` operation — the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md) — not a dedicated REST URL. (The HTTP+JSON binding was [removed in v1.1](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
+This skill is invoked through A2A's `SendMessage` operation — the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md) — not a dedicated REST URL. (The HTTP+JSON binding was [removed in v1.1.0](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
 :::
 
 The `dealer.information` skill returns a dealership's static profile. It is the simplest AAP call: the request carries no parameters, the response carries a [`DealerInformation`](https://autoagentprotocol.org/v1.2/schemas/dealer-information.schema.json) object describing the dealer group and its rooftops — each with identity, address, contact channels, business hours, and service capabilities.

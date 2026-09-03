@@ -1,12 +1,8 @@
 import { readFileSync, writeFileSync, mkdirSync } from "fs";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
+import { resolve } from "path";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import { glob } from "glob";
-import { ALL_VERSIONS } from "./versions.js";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, "..");
+import { DRAFT_VERSION, ROOT, isMain } from "./lib/releases.js";
 
 interface Skill {
   id: string;
@@ -85,17 +81,13 @@ const REQUEST_MESSAGE_IDS: Record<string, string> = {
   "lead.submit": "01HZ9K8R1G4B7Q9WS2F7APYZ6T",
 };
 
-async function main() {
-  const versions = ALL_VERSIONS;
-
-  for (const version of versions) {
-    const specDir = resolve(ROOT, "spec", version);
-    const skillsFile = resolve(specDir, "skills.yaml");
-    const schemasDir = resolve(specDir, "schemas");
-    const outDir = resolve(ROOT, "generated", version);
-    mkdirSync(outDir, { recursive: true });
+export async function generateOpenapi(specDir: string, outDir: string, version: string): Promise<void> {
+  const skillsFile = resolve(specDir, "skills.yaml");
+  const schemasDir = resolve(specDir, "schemas");
+  mkdirSync(outDir, { recursive: true });
 
     const manifest = parseYaml(readFileSync(skillsFile, "utf-8")) as SkillsManifest;
+    if (manifest.version !== version) throw new Error(`Manifest version ${manifest.version} does not match requested output ${version}`);
 
     // Collect schemas → OpenAPI components
     const schemaFiles = await glob("**/*.schema.json", { cwd: schemasDir });
@@ -270,153 +262,12 @@ async function main() {
       },
     };
 
-    // Build the REST binding doc (A2A v1.0 HTTP+JSON binding, Section 11)
-    const rest = {
-      openapi: "3.1.0",
-      info: {
-        title: "Auto Agent Protocol — A2A HTTP+JSON binding",
-        description:
-          `Auto Agent Protocol ${version} documented over the A2A HTTP+JSON binding (A2A spec, Section 11). All AAP skills are invoked via \`POST /message:send\`; the skill is dispatched by the typed DataPart payload. Reflects the A2A v1.0 body shape (no \`kind\` discriminator, ROLE_USER/ROLE_AGENT enum strings, required \`messageId\`, \`mediaType\` per part).`,
-        version,
-        license: {
-          name: "Apache-2.0",
-          url: "https://www.apache.org/licenses/LICENSE-2.0",
-        },
-        contact: {
-          name: "Auto Agent Protocol",
-          url: "https://autoagentprotocol.org",
-        },
-      },
-      servers: [
-        {
-          url: "https://dealer.example/a2a",
-          description: "Dealer agent A2A HTTP+JSON endpoint",
-        },
-      ],
-      paths: {
-        "/message:send": {
-          post: {
-            operationId: "sendMessage",
-            summary: "A2A SendMessage (carries any AAP skill request)",
-            description:
-              "POST an A2A Message whose DataPart carries the AAP request payload. Dispatch is by `type` inside the DataPart.",
-            requestBody: {
-              required: true,
-              content: {
-                "application/json": {
-                  schema: { $ref: "#/components/schemas/A2aMessageRequest" },
-                  examples: Object.fromEntries(
-                    manifest.skills.map((skill) => [
-                      skill.id,
-                      {
-                        summary: skill.name,
-                        value: {
-                          message: {
-                            messageId: exampleMessageId(skill.id),
-                            role: "ROLE_USER",
-                            parts: [
-                              {
-                                data: { type: skill.request_type },
-                                mediaType: skill.media_type_request,
-                              },
-                            ],
-                          },
-                          configuration: {
-                            acceptedOutputModes: [skill.media_type_response],
-                          },
-                        },
-                      },
-                    ])
-                  ),
-                },
-              },
-            },
-            responses: {
-              "200": {
-                description:
-                  "Successful response. Body wraps an A2A Message whose DataPart carries an AAP response payload.",
-                content: {
-                  "application/json": {
-                    schema: { $ref: "#/components/schemas/A2aMessageResponse" },
-                  },
-                },
-              },
-              "400": { description: "Bad request (schema validation failed)" },
-              "401": { description: "Authentication required" },
-              "404": { description: "Resource not found" },
-              "429": { description: "Rate limited" },
-              "500": { description: "Internal server error" },
-            },
-          },
-        },
-      },
-      components: {
-        schemas: {
-          ...components,
-          A2aMessage: {
-            type: "object",
-            description:
-              "A2A v1.0 Message envelope. `messageId` is required on every Message; `role` is the protobuf enum string `ROLE_USER` (buyer agent) or `ROLE_AGENT` (dealer agent). Parts identify their kind by the member they carry — `data` for DataParts (no `kind` discriminator).",
-            properties: {
-              messageId: {
-                type: "string",
-                description: "Unique identifier for this message (e.g. ULID or UUID).",
-              },
-              role: { enum: ["ROLE_USER", "ROLE_AGENT"] },
-              parts: {
-                type: "array",
-                items: { $ref: "#/components/schemas/A2aDataPart" },
-              },
-            },
-            required: ["messageId", "role", "parts"],
-          },
-          A2aDataPart: {
-            type: "object",
-            description:
-              "A2A v1.0 DataPart. The presence of the `data` member identifies this as a DataPart; there is no `kind` field. `mediaType` advertises the AAP media type so generic A2A middleware can route or filter without parsing `data`.",
-            properties: {
-              data: { type: "object" },
-              mediaType: {
-                type: "string",
-                description: "AAP media type (e.g. `application/vnd.autoagent.<skill>-request+json`). Version-free; the AAP version is announced once via the agent-card extension URI.",
-              },
-            },
-            required: ["data"],
-          },
-          A2aMessageRequest: {
-            type: "object",
-            properties: {
-              message: { $ref: "#/components/schemas/A2aMessage" },
-              configuration: {
-                type: "object",
-                properties: {
-                  acceptedOutputModes: {
-                    type: "array",
-                    items: { type: "string" },
-                  },
-                },
-              },
-            },
-            required: ["message"],
-          },
-          A2aMessageResponse: {
-            type: "object",
-            properties: {
-              message: { $ref: "#/components/schemas/A2aMessage" },
-            },
-            required: ["message"],
-          },
-        },
-      },
-    };
-
-    const jsonRpcOut = resolve(outDir, "openapi-jsonrpc.yaml");
-    const restOut = resolve(outDir, "openapi-rest.yaml");
-    writeFileSync(jsonRpcOut, stringifyYaml(jsonRpc, { lineWidth: 120 }));
-    writeFileSync(restOut, stringifyYaml(rest, { lineWidth: 120 }));
-    console.log(`Generated ${jsonRpcOut}`);
-    console.log(`Generated ${restOut}`);
-  }
+  const jsonRpcOut = resolve(outDir, "openapi-jsonrpc.yaml");
+  writeFileSync(jsonRpcOut, stringifyYaml(jsonRpc, { lineWidth: 120 }));
+  console.log(`Generated ${jsonRpcOut}`);
 }
 
-main();
+if (isMain(import.meta.url)) {
+  generateOpenapi(resolve(ROOT, "spec/latest"), resolve(ROOT, "generated/latest"), DRAFT_VERSION)
+    .catch(error => { console.error(error); process.exitCode = 1; });
+}

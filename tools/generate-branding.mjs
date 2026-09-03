@@ -19,10 +19,9 @@ for (const [suffix, color] of [['', '#2874d7'], ['-white', '#ffffff']]) {
 
 artifacts.set('img/brand/aap-social-card.svg', Buffer.from(socialCard()));
 artifacts.set('img/brand/aap-social-card.png', await raster(socialCard(), 1200));
-// A light tile keeps the blue mark readable regardless of browser/tab theme.
-const favicon = icon().replace('<defs>', '<rect width="200" height="200" rx="28" fill="white"/><defs>')
-  .replace('<path fill="#2874d7" mask=', '<g transform="translate(12 12) scale(.88)"><path fill="#2874d7" mask=')
-  .replace('</svg>', '</g></svg>');
+// Match the official A2A icon treatment: a snug blue mark directly on a
+// transparent canvas, without a surrounding tile or artificial padding.
+const favicon = icon();
 artifacts.set('img/brand/favicon.svg', Buffer.from(favicon));
 artifacts.set('img/brand/apple-touch-icon.png', await raster(favicon, 180));
 

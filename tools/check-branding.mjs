@@ -4,6 +4,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import sharp from 'sharp';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha256 = data => createHash('sha256').update(data).digest('hex');
@@ -25,6 +26,21 @@ for (const [file, expected] of Object.entries({...manifest.sources, ...manifest.
 const managed = (await fs.readdir(path.join(root, 'static/img/brand'))).map(file => `static/img/brand/${file}`).sort();
 assert.deepEqual(managed, Object.keys(manifest.files).filter(file => file.startsWith('static/img/brand/')).sort(), 'Unexpected or missing brand assets');
 
+async function assertTransparentCanvas(content, file) {
+  const {data, info} = await sharp(content).ensureAlpha().raw().toBuffer({resolveWithObject: true});
+  const alphaAt = (x, y) => data[(y * info.width + x) * info.channels + 3];
+  const lastX = info.width - 1, lastY = info.height - 1;
+  for (const [x, y] of [[0, 0], [lastX, 0], [0, lastY], [lastX, lastY], [Math.floor(lastX / 2), 0], [lastX, Math.floor(lastY / 2)], [Math.floor(lastX / 2), lastY], [0, Math.floor(lastY / 2)]]) {
+    // The 16 px rasterizer can leave a negligible 1–3/255 antialias trace at
+    // an extreme corner; an opaque or translucent background still fails.
+    assert.ok(alphaAt(x, y) <= 4, `${file}: canvas edge (${x}, ${y}) must be transparent`);
+  }
+  let transparentPixels = 0;
+  for (let index = 3; index < data.length; index += info.channels) if (data[index] === 0) transparentPixels++;
+  assert.ok(transparentPixels / (info.width * info.height) > 0.25, `${file}: transparent canvas area is unexpectedly small`);
+  assert.ok(data.some((value, index) => index % info.channels === 3 && value > 0), `${file}: no visible pixels`);
+}
+
 for (const [file, dimensions] of Object.entries({
   'aap-symbol.png': [1024, 1024],
   'aap-symbol-white.png': [1024, 1024],
@@ -36,10 +52,14 @@ for (const [file, dimensions] of Object.entries({
   const png = await fs.readFile(path.join(root, 'static/img/brand', file));
   assert.equal(png.subarray(1, 4).toString(), 'PNG', `${file}: not a PNG`);
   assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], dimensions, `${file}: incorrect dimensions`);
-  if (file.startsWith('aap-symbol') || file.startsWith('aap-wordmark')) {
+  if (file !== 'aap-social-card.png') {
     assert.equal(png[25], 6, `${file}: expected RGBA transparency`);
+    await assertTransparentCanvas(png, file);
   }
 }
+
+const faviconSvg = await fs.readFile(path.join(root, 'static/img/brand/favicon.svg'), 'utf8');
+assert.ok(!/<rect\b/i.test(faviconSvg), 'favicon.svg: background rectangle is not allowed');
 
 const ico = await fs.readFile(path.join(root, 'static/img/brand/favicon.ico'));
 assert.equal(ico.readUInt16LE(2), 1);
@@ -53,6 +73,7 @@ for (const [index, size] of [16, 32, 48, 256].entries()) {
   assert.ok(offset + length <= ico.length);
   assert.equal(ico.readUInt32BE(offset + 16), size);
   assert.equal(ico.readUInt32BE(offset + 20), size);
+  await assertTransparentCanvas(ico.subarray(offset, offset + length), `favicon.ico ${size}x${size} frame`);
 }
 
 const tracked = execFileSync('git', ['ls-files', '-z', '--cached', '--others', '--exclude-standard'], {cwd: root}).toString().split('\0').filter(Boolean);

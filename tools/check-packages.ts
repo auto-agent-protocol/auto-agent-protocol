@@ -1,9 +1,9 @@
 // Regression guard for the published packages: assert that the built
-// @autoagentprotocol/schemas + validator actually track the latest spec
+// @autoagentprotocol/schemas + validator actually track the stable release
 // version, and that the validator can load the default schemas end-to-end.
 //
 // This guards the class of bug where the packages silently drift from the live
-// spec (schemas/validator pinned to an old version). Run after building both
+// registry (schemas/validator pinned to an old version). Run after building both
 // packages; wired into CI.
 
 import { readFileSync } from "fs";

@@ -46,19 +46,25 @@ jobs:
       - name: Verify branding sources and exports
         run: pnpm run check:branding
 
-      - name: Validate JSON schemas
-        run: pnpm run validate:schemas
+      - name: Validate draft manifest, schemas, and examples
+        run: pnpm run validate
 
-      - name: Validate examples
-        run: pnpm run validate:examples
+      - name: Verify immutable release registry and artifacts
+        run: pnpm run check:releases
 
-      - name: Generate artifacts
-        run: pnpm run generate
+      - name: Rehearse release and freeze invariants
+        run: pnpm run test:release
 
       - name: Freeze-check released versions
-        run: pnpm run freeze-check
+        env:
+          AAP_BASE_REF: ${{ github.event.before }}
+        run: |
+          if [ -z "$AAP_BASE_REF" ] || [[ "$AAP_BASE_REF" =~ ^0+$ ]]; then
+            AAP_BASE_REF="$(git rev-parse HEAD^)"
+          fi
+          pnpm run freeze-check --base "$AAP_BASE_REF"
 
-      - name: Build site (generate + copy-static + docusaurus build)
+      - name: Build stable production site
         run: pnpm run build
 
       - name: Verify branding across every built page

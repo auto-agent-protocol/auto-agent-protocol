@@ -9,7 +9,7 @@ build/
 *.tsbuildinfo
 dist/
 
-# Auto-generated artifacts. Source of truth lives in spec/<version>/.
+# Auto-generated draft artifacts. Editable source lives in spec/latest/.
 # These are produced at build time by `pnpm run generate && pnpm run copy-static`.
 generated/
 static/v0.1/

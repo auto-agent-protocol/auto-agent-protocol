@@ -49,25 +49,31 @@ jobs:
       - name: Typecheck site and tools
         run: pnpm run typecheck
 
-      - name: Validate JSON schemas
-        run: pnpm run validate:schemas
+      - name: Validate draft manifest, schemas, and examples
+        run: pnpm run validate
 
-      - name: Validate examples
-        run: pnpm run validate:examples
+      - name: Verify immutable release registry and artifacts
+        run: pnpm run check:releases
 
-      - name: Packages track the latest spec version
+      - name: Rehearse release and freeze invariants
+        run: pnpm run test:release
+
+      - name: Packages track the stable release
         run: |
           pnpm --filter @autoagentprotocol/schemas run build
           pnpm --filter @autoagentprotocol/validator run build
           pnpm run check:packages
 
-      - name: Generate artifacts
-        run: pnpm run generate
-
       - name: Freeze-check released versions
-        run: pnpm run freeze-check
+        env:
+          AAP_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -z "$AAP_BASE_REF" ] || [[ "$AAP_BASE_REF" =~ ^0+$ ]]; then
+            AAP_BASE_REF="$(git rev-parse HEAD^)"
+          fi
+          pnpm run freeze-check --base "$AAP_BASE_REF"
 
-      - name: Build site (generate + copy-static + docusaurus build)
+      - name: Build stable production site
         run: pnpm run build
 
       - name: Verify branding across every built page

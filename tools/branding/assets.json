@@ -1,7 +1,7 @@
 {
   "sources": {
     "tools/branding/artwork.mjs": "7aab3d52e08c014729ea16d45ecff14ae28dd9054e8cb31c26f751bd479d0d75",
-    "tools/generate-branding.mjs": "5a3c571383223d61e809b060790ea6f57f66bbee99fae1b92b4d4f1f52d08c28"
+    "tools/generate-branding.mjs": "9d2c8e8ec4502bf1e1e0332c9779e19091d22b812d841abbb14ae34f31e0b5db"
   },
   "files": {
     "static/img/brand/aap-symbol.svg": "438174c0210ecd631c9584172c1eba543bf46373f34de5a0a3d79bc375d34a1d",
@@ -14,12 +14,12 @@
     "static/img/brand/aap-wordmark-white.png": "3defd9002c5b2b07d57fd10066df6683134b8afaac0a13fee55d4b8353e8abd4",
     "static/img/brand/aap-social-card.svg": "bf12f8e17ceabbde131441eddddb6666fbddef1b5f3a89983ff589ed931d5ee6",
     "static/img/brand/aap-social-card.png": "28b93dafa630daaa8423e3806ec12b22967aa12caf724fc267bec349686b0c91",
-    "static/img/brand/favicon.svg": "5295ab413e583147255c8c3c696706c02123e38f666b85069a6936cf144c4043",
-    "static/img/brand/apple-touch-icon.png": "0e7d38a653322e47fc8f80a54785de5d12abd0827288a44f3b440ab23ba11bd8",
-    "static/img/brand/favicon.ico": "7d3bac460b81bc41bea572e931f0ffd36977c24855195e5a519b4091f7c0e5a7",
+    "static/img/brand/favicon.svg": "438174c0210ecd631c9584172c1eba543bf46373f34de5a0a3d79bc375d34a1d",
+    "static/img/brand/apple-touch-icon.png": "d1909bfbe77267b5030a431282577ab6a305674d8af3283a009b0491491e6c5f",
+    "static/img/brand/favicon.ico": "46d07b2268817778cb5961ca48e86796ab32ed50bb93da927a2f7a08c582e4b3",
     "static/img/logo.png": "0e94ddd089aefb301740ca98c93eed570b33014fdbdfe3eb14cf46a097305f26",
     "static/img/logo-white.png": "dd1f6797195b1488ab893387e36eb0297806a7f734bed49e62aea0c99415a8e6",
-    "static/img/favicon.ico": "7d3bac460b81bc41bea572e931f0ffd36977c24855195e5a519b4091f7c0e5a7",
+    "static/img/favicon.ico": "46d07b2268817778cb5961ca48e86796ab32ed50bb93da927a2f7a08c582e4b3",
     "static/img/aap-hero-banner.png": "28b93dafa630daaa8423e3806ec12b22967aa12caf724fc267bec349686b0c91",
     "static/img/v1.0/aap-hero-banner.png": "28b93dafa630daaa8423e3806ec12b22967aa12caf724fc267bec349686b0c91",
     "static/img/v1.1/aap-hero-banner.png": "28b93dafa630daaa8423e3806ec12b22967aa12caf724fc267bec349686b0c91",
