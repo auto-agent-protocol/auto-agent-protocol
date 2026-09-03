@@ -91,7 +91,10 @@ const config: Config = {
           onlyIncludeVersions: draftDocs
             ? ["current", ...releases.releases.map((release) => release.contract)]
             : releases.releases.map((release) => release.contract),
-          lastVersion: draftDocs ? "current" : stableContract,
+          // Even in draft mode, Docusaurus's "latest version" suggestion must
+          // resolve to the newest published snapshot. The editable current
+          // docs still own /docs/latest through their explicit path below.
+          lastVersion: stableContract,
           versions: draftDocs
             ? {
                 current: {

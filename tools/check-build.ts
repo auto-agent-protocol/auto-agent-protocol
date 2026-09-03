@@ -4,7 +4,7 @@ import { filesIn, hash, loadRegistry, readJson, ROOT, stableRelease } from "./li
 import { loadPartners } from "./check-partners.js";
 
 interface DocsGlobalData {
-  versions?: Array<{name?: string; label?: string; path?: string}>;
+  versions?: Array<{name?: string; label?: string; path?: string; isLast?: boolean}>;
 }
 
 function tree(directory: string): Record<string, string> {
@@ -41,6 +41,10 @@ const expectedVersions = draftDocs
 if (JSON.stringify(displayedVersions) !== JSON.stringify(expectedVersions)) {
   throw new Error(`Documentation version dropdown does not match releases.json:\nexpected ${JSON.stringify(expectedVersions)}\nreceived ${JSON.stringify(displayedVersions)}`);
 }
+const suggestedVersion = renderedVersions.find(version => version.isLast);
+if (suggestedVersion?.name !== stable.contract) {
+  throw new Error(`Documentation banners must suggest the latest published version ${stable.contract}, not ${suggestedVersion?.name ?? "an unknown version"}`);
+}
 
 const build = resolve(ROOT, "build");
 const textFiles = filesIn(build).filter(file => /\.(?:html|js|json|xml|txt|ya?ml)$/.test(file));
@@ -51,6 +55,19 @@ if (!draftDocs) {
   }
 }
 if (!readdirSync(join(build, "docs")).includes("latest")) throw new Error("Production docs/latest alias is missing");
+if (draftDocs) {
+  const latestDocsRoot = join(build, "docs", "latest");
+  const latestPages = filesIn(latestDocsRoot).filter(file => file.endsWith(".html"));
+  for (const file of latestPages) {
+    const documentPath = relative(latestDocsRoot, file).split("\\").join("/").replace(/\.html$/, "");
+    const expectedTarget = `/docs/${stable.contract}/${documentPath}`;
+    const html = readFileSync(file, "utf8");
+    const target = html.match(/<a href="([^"]+)">latest version<\/a>/)?.[1];
+    if (target !== expectedTarget) {
+      throw new Error(`Draft banner in ${relative(ROOT, file)} must link to published ${expectedTarget}, not ${target ?? "a missing target"}`);
+    }
+  }
+}
 const partnerAnchors = readFileSync(join(build, "partners.html"), "utf8").match(/<a[^>]*data-partner-link[^>]*>/g) ?? [];
 if (partnerAnchors.length !== loadPartners(ROOT).partners.flatMap(partner => partner.links).length) throw new Error("Built partner page does not link every registered partner site");
 const qualified = partnerAnchors.find(anchor => /\b(?:nofollow|noreferrer|sponsored)\b/.test(anchor.match(/rel="([^"]*)"/)?.[1] ?? ""));
