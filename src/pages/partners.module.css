@@ -1,0 +1,180 @@
+.intro {
+  padding: clamp(3rem, 6vw, 5.5rem) 0 3rem;
+  background: #f5f9ff;
+  border-bottom: 1px solid #dce5f0;
+}
+
+[data-theme="dark"] .intro {
+  background: #111d30;
+  border-color: #293b54;
+}
+
+.eyebrow {
+  color: var(--ifm-color-primary-dark);
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 1.75rem;
+}
+
+.title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.15;
+  margin: 0 0 1.75rem;
+}
+
+.lede {
+  font-size: clamp(1.02rem, 1.8vw, 1.25rem);
+  line-height: 1.65;
+  color: var(--ifm-color-content-secondary);
+  max-width: 68ch;
+  margin-bottom: 1.25rem;
+}
+
+.spec {
+  font-size: .95rem;
+  line-height: 1.6;
+  color: var(--ifm-color-emphasis-800);
+  max-width: 68ch;
+  margin-bottom: 1rem;
+}
+
+.count {
+  font-size: .9rem;
+  color: var(--ifm-color-emphasis-700);
+  margin-bottom: 0;
+}
+
+.listing {
+  padding: 3.5rem 0;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.card {
+  border: 1px solid #dce5f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  background: var(--ifm-card-background-color);
+  transition: transform 180ms ease, border-color 180ms ease;
+}
+
+[data-theme="dark"] .card {
+  border-color: #293b54;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--ifm-color-primary);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.name {
+  font-size: 1.35rem;
+  margin-bottom: 0;
+  scroll-margin-top: calc(var(--ifm-navbar-height) + .5rem);
+}
+
+.role {
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-emphasis-700);
+}
+
+.description {
+  margin: 8px 0 0;
+  font-size: .95rem;
+  line-height: 1.6;
+  color: var(--ifm-color-emphasis-800);
+  max-width: 78ch;
+}
+
+.sites {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .8rem;
+  list-style: none;
+  margin: 0;
+  padding: .9rem 0 0;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  margin-top: .9rem;
+}
+
+.site {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  font-size: .9rem;
+  color: var(--ifm-color-primary-dark);
+}
+
+[data-theme="dark"] .site {
+  color: var(--ifm-color-primary);
+}
+
+.site span {
+  transition: transform 180ms ease;
+}
+
+.site:hover span {
+  transform: translate(2px, -2px);
+}
+
+.site:focus-visible {
+  outline: 3px solid var(--ifm-color-primary);
+  outline-offset: 5px;
+  border-radius: 3px;
+}
+
+.join {
+  margin-top: 3.5rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.join h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.joinQuestion {
+  font-weight: 600;
+  margin-bottom: .35rem;
+}
+
+.joinAnswer {
+  color: var(--ifm-color-emphasis-800);
+  max-width: 72ch;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .intro { padding: 2.75rem 0 2.5rem; }
+  .eyebrow { font-size: .7rem; letter-spacing: .08em; }
+  .listing { padding: 2.5rem 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card, .site span { transition: none; }
+  .card:hover, .site:hover span { transform: none; }
+}

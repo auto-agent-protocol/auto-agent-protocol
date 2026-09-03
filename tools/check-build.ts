@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { filesIn, hash, loadRegistry, readJson, ROOT, stableRelease } from "./lib/releases.js";
+import { loadPartners } from "./check-partners.js";
 
 interface DocsGlobalData {
   versions?: Array<{name?: string; label?: string; path?: string}>;
@@ -38,4 +39,8 @@ for (const file of textFiles) {
   if (text.includes("autoagentprotocol.invalid") || text.includes("Unreleased draft")) throw new Error(`Draft content leaked into production build: ${relative(ROOT, file)}`);
 }
 if (!readdirSync(join(build, "docs")).includes("latest")) throw new Error("Production docs/latest alias is missing");
+const partnerAnchors = readFileSync(join(build, "partners.html"), "utf8").match(/<a[^>]*data-partner-link[^>]*>/g) ?? [];
+if (partnerAnchors.length !== loadPartners(ROOT).partners.flatMap(partner => partner.links).length) throw new Error("Built partner page does not link every registered partner site");
+const qualified = partnerAnchors.find(anchor => /\b(?:nofollow|noreferrer|sponsored)\b/.test(anchor.match(/rel="([^"]*)"/)?.[1] ?? ""));
+if (qualified) throw new Error(`Partner links must stay plain dofollow with referrer: ${qualified}`);
 console.log(`Production build valid: /latest equals ${stable.contract}; ${renderedVersions.length} full SemVer labels rendered; no draft identifiers found.`);

@@ -226,6 +226,11 @@ const config: Config = {
           label: "Specification",
         },
         {
+          to: "/partners",
+          label: "Partners",
+          position: "left",
+        },
+        {
           type: "docsVersionDropdown",
           position: "right",
         },
@@ -295,6 +300,7 @@ const config: Config = {
         {
           title: "Community",
           items: [
+            { label: "Partners", to: "/partners" },
             {
               label: "GitHub",
               href: "https://github.com/auto-agent-protocol/auto-agent-protocol",

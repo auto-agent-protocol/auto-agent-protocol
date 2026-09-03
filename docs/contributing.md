@@ -35,6 +35,7 @@ pnpm build
 | `versioned_docs/`, `versioned_sidebars/` | Frozen release documentation. Never edit. |
 | `releases/v*/` | Reviewed generated artifacts, provenance, reports, and integrity manifests. Never edit. |
 | `releases.json` | Explicit release registry and stable-release pointer. |
+| `partners.json` | Partner register behind [/partners](/partners). Alphabetical; validated by `pnpm run validate:partners`. |
 | `generated/latest/` | Uncommitted draft generation output. |
 | `packages/` | Packages built from the registry's stable release. |
 | `tools/` | Validators, generators, release preparation, and integrity checks. |
