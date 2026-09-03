@@ -86,6 +86,7 @@
 .name {
   font-size: 1.35rem;
   margin-bottom: 0;
+  scroll-margin-top: calc(var(--ifm-navbar-height) + .5rem);
 }
 
 .role {
