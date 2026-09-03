@@ -75,18 +75,21 @@ function breakToken(token: string): string[] {
 }
 
 function wrapText(value: string, width: number, size: number, mono = false): string[] {
-  const words = value.split(/\s+/).flatMap((word) =>
-    approximateWidth(word, size, mono) > width ? breakToken(word) : [word]
-  );
   const lines: string[] = [];
   let current = "";
-  for (const word of words) {
-    const candidate = current ? `${current} ${word}` : word;
-    if (current && approximateWidth(candidate, size, mono) > width) {
-      lines.push(current);
-      current = word;
-    } else {
-      current = candidate;
+  for (const word of value.split(/\s+/)) {
+    const parts = approximateWidth(word, size, mono) > width ? breakToken(word) : [word];
+    for (const [index, part] of parts.entries()) {
+      // Preserve ordinary spaces between words, but never invent spaces inside
+      // protocol identifiers broken at '/', '.', '_' or '·'.
+      const separator = current && index === 0 ? " " : "";
+      const candidate = current ? `${current}${separator}${part}` : part;
+      if (current && approximateWidth(candidate, size, mono) > width) {
+        lines.push(current);
+        current = part;
+      } else {
+        current = candidate;
+      }
     }
   }
   if (current) lines.push(current);
@@ -137,9 +140,11 @@ function renderCodeRows(codes: string[], x: number, y: number, width: number, ma
   const rowStep = compact ? 36 : 48;
   for (const code of codes) {
     if (cursor + rowHeight > maxBottom) throw new Error(`${context}: code content exceeds its card; increase the canvas or simplify the copy`);
-    const size = Math.max(12, Math.min(compact ? 15 : 18, width / Math.max(1, approximateWidth(code, 1, true))));
+    const textWidth = width - 28;
+    const size = Math.min(compact ? 15 : 18, textWidth / Math.max(1, approximateWidth(code, 1, true)) * 0.97);
+    if (size < 10) throw new Error(`${context}: ${code} cannot fit legibly on one code row`);
     chunks.push(`<rect x="${x}" y="${cursor}" width="${width}" height="${rowHeight}" rx="9" fill="${palette.canvas}" stroke="${palette.line}"/>`);
-    chunks.push(text(code, x + 14, cursor + rowHeight * 0.67, width - 28, { size, family: "mono", fill: palette.blueDark, weight: 600 }).svg);
+    chunks.push(text(code, x + 14, cursor + rowHeight * 0.67, textWidth, { size, family: "mono", fill: palette.blueDark, weight: 600 }).svg);
     cursor += rowStep;
   }
   return chunks.join("");
@@ -152,8 +157,7 @@ function renderCard(item: DiagramItem, x: number, y: number, width: number, heig
   const contentWidth = width - padding * 2;
   const chunks = [
     `<g class="diagram-card">`,
-    `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="24" fill="${colors.background}" stroke="${colors.border}" stroke-width="2" filter="url(#shadow)"/>`,
-    `<rect x="${x}" y="${y + 20}" width="7" height="${Math.max(0, height - 40)}" rx="3.5" fill="${colors.accent}"/>`,
+    `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="24" fill="${colors.background}" stroke="${colors.border}" stroke-width="3" filter="url(#shadow)"/>`,
   ];
   let cursor = y + (compact ? 30 : 44);
   if (item.label) {
@@ -259,9 +263,9 @@ function renderStack(spec: Extract<DiagramSpec, { kind: "stack" }>): string {
     const title = text(item.title, x + 34, y + 78, 300, { size: 24, weight: 750, fill: palette.ink }).svg;
     const body = text(item.body, x + 390, y + 48, 500, { size: 18, fill: palette.muted }).svg;
     const codes = item.code?.length ? renderCodeRows(item.code, x + 930, y + 28, width - 964, y + itemHeight - 20, true, item.title) : "";
-    return `<g><rect x="${x}" y="${y}" width="${width}" height="${itemHeight}" rx="24" fill="${colors.background}" stroke="${colors.border}" stroke-width="2" filter="url(#shadow)"/><rect x="${x}" y="${y + 20}" width="7" height="${Math.max(0, itemHeight - 40)}" rx="3.5" fill="${colors.accent}"/>${label}${title}${body}${codes}</g>`;
+    return `<g><rect x="${x}" y="${y}" width="${width}" height="${itemHeight}" rx="24" fill="${colors.background}" stroke="${colors.border}" stroke-width="3" filter="url(#shadow)"/>${label}${title}${body}${codes}</g>`;
   }).join("");
-  return renderFrame(spec, `${layers}<path d="M 92 270 V ${height - 150}" stroke="${palette.blue}" stroke-width="4" stroke-linecap="round"/>`);
+  return renderFrame(spec, layers);
 }
 
 function renderNetwork(spec: Extract<DiagramSpec, { kind: "network" }>): string {
@@ -322,16 +326,16 @@ function renderCompare(spec: Extract<DiagramSpec, { kind: "compare" }>): string 
 function renderTimeline(spec: Extract<DiagramSpec, { kind: "timeline" }>): string {
   const height = spec.height ?? 900;
   const count = spec.items.length;
-  const left = 82;
-  const right = WIDTH - 82;
-  const lineY = 338;
-  const spacing = (right - left) / (count - 1);
   const cardWidth = 330;
   const cardHeight = height - 430 - 126;
-  const track = `${line(left, lineY, right, lineY, palette.lineStrong)}${spec.items.map((_, index) => `<circle cx="${left + index * spacing}" cy="${lineY}" r="12" fill="${palette.surface}" stroke="${palette.blue}" stroke-width="5"/>`).join("")}`;
+  const firstCenter = 55 + cardWidth / 2;
+  const lastCenter = WIDTH - firstCenter;
+  const lineY = 338;
+  const spacing = (lastCenter - firstCenter) / (count - 1);
+  const centers = spec.items.map((_, index) => firstCenter + index * spacing);
+  const track = `${line(firstCenter, lineY, lastCenter, lineY, palette.lineStrong)}${centers.map((center) => `<circle cx="${center}" cy="${lineY}" r="12" fill="${palette.surface}" stroke="${palette.blue}" stroke-width="5"/>`).join("")}`;
   const cards = spec.items.map((item, index) => {
-    const center = left + index * spacing;
-    return renderCard(item, Math.max(55, Math.min(WIDTH - 55 - cardWidth, center - cardWidth / 2)), 405, cardWidth, cardHeight);
+    return renderCard(item, centers[index] - cardWidth / 2, 405, cardWidth, cardHeight);
   }).join("");
   return renderFrame(spec, `${track}${cards}`);
 }
@@ -339,7 +343,7 @@ function renderTimeline(spec: Extract<DiagramSpec, { kind: "timeline" }>): strin
 function renderPricing(spec: Extract<DiagramSpec, { kind: "pricing" }>): string {
   const height = spec.height ?? 900;
   const left = 60;
-  const gap = 22;
+  const gap = 52;
   const cardWidth = (WIDTH - left * 2 - gap * 3) / 4;
   const top = 250;
   const cardHeight = height - top - 126;
@@ -349,7 +353,7 @@ function renderPricing(spec: Extract<DiagramSpec, { kind: "pricing" }>): string 
   return renderFrame(spec, spec.items.map((item, index) => {
     const x = left + index * (cardWidth + gap);
     const operator = index > 0
-      ? `<circle cx="${x - gap / 2}" cy="${top + cardHeight / 2}" r="22" fill="${palette.surface}" stroke="${palette.lineStrong}" stroke-width="2"/>${text(operators[index], x - gap / 2, top + cardHeight / 2 + 8, 35, { size: 25, weight: 800, fill: palette.blue, anchor: "middle" }).svg}`
+      ? `<circle cx="${x - gap / 2}" cy="${top + cardHeight / 2}" r="18" fill="${palette.surface}" stroke="${palette.lineStrong}" stroke-width="2"/>${text(operators[index], x - gap / 2, top + cardHeight / 2 + 7, 30, { size: 22, weight: 800, fill: palette.blue, anchor: "middle" }).svg}`
       : "";
     return operator + renderCard(item, x, top, cardWidth, cardHeight);
   }).join(""));

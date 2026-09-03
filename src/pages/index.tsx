@@ -119,8 +119,8 @@ function MultiClass() {
   return (
     <section className={styles.multiClassSection}>
       <div className="container">
-        <div className="row">
-          <div className="col col--5">
+        <div className={styles.mediaRow}>
+          <div className={styles.mediaCopy}>
             <h2>Cars, EVs, and motorcycles — one contract</h2>
             <p>
               v{stableVersion} extends inventory beyond cars. An optional{" "}
@@ -135,13 +135,11 @@ function MultiClass() {
               See the vehicle shape
             </Link>
           </div>
-          <div className="col col--7">
+          <div className={styles.mediaVisual}>
             <MultiClassDiagram
               role="img"
               aria-label="Cars, motorcycles, and electric powertrains sharing one typed inventory contract"
               className={styles.fullImage}
-              width="1600"
-              height="800"
             />
           </div>
         </div>
@@ -154,8 +152,8 @@ function Skills() {
   return (
     <section className={styles.skillsSection}>
       <div className="container">
-        <div className="row">
-          <div className="col col--5">
+        <div className={styles.mediaRow}>
+          <div className={styles.mediaCopy}>
             <h2>Five skills, one contract</h2>
             <p>
               AAP standardizes the five skills that cover a dealership BDC's core
@@ -169,13 +167,11 @@ function Skills() {
               Browse the skills
             </Link>
           </div>
-          <div className="col col--7">
+          <div className={styles.mediaVisual}>
             <SkillsDiagram
               role="img"
               aria-label="Five AAP skills spanning dealership information, inventory, and consented leads"
               className={styles.fullImage}
-              width="1600"
-              height="900"
             />
           </div>
         </div>
@@ -188,17 +184,15 @@ function Pricing() {
   return (
     <section className={styles.pricingSection}>
       <div className="container">
-        <div className="row">
-          <div className="col col--7">
+        <div className={`${styles.mediaRow} ${styles.mediaRowVisualFirst}`}>
+          <div className={styles.mediaVisual}>
             <PricingDiagram
               role="img"
               aria-label="MSRP as a reference and list price plus complete dealer fees equaling the authoritative advertised price"
               className={styles.fullImage}
-              width="1600"
-              height="900"
             />
           </div>
-          <div className="col col--5">
+          <div className={styles.mediaCopy}>
             <h2>FTC-aware pricing, baked in</h2>
             <p>
               A vehicle's <code>price</code> is the authoritative advertised
