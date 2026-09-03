@@ -13,6 +13,7 @@ import { fileURLToPath } from "url";
 import { parse as parseYaml } from "yaml";
 import { LATEST } from "./versions.js";
 import { readJson, stableRelease } from "./lib/releases.js";
+import { loadPartners } from "./check-partners.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DOCS_DIR = resolve(ROOT, "versioned_docs", `version-${LATEST}`);
@@ -119,10 +120,17 @@ function buildLlmsTxt(): string {
     if (ids.length > 0 && ids.every((id) => id.startsWith("skills/"))) continue;
     out.push(`## ${cat.label}`, ...ids.map(docLink), "");
   }
+  const partners = loadPartners(ROOT);
   out.push(
     "## Skills",
     ...skillsManifest.skills.map(
       (s) => `- [${s.name}](${DOCS_BASE}/skills/${s.id.replace(/\./g, "-")}): ${s.description}`
+    ),
+    "",
+    "## Ecosystem",
+    `- [Partners](${SITE}/partners): organizations with a public, verifiable connection to AAP or to the A2A standard it profiles — ${partners.partners.map((p) => p.name).join(", ")} (alphabetical, updated ${partners.updated}).`,
+    ...partners.partners.map(
+      (p) => `- [${p.name}](${p.links[0].url}): ${p.role}. ${p.description}`
     ),
     "",
     "## Machine-readable artifacts",
@@ -150,7 +158,14 @@ function buildLlmsFull(): string {
     "",
   ];
   for (const id of allDocIds) out.push(cleanBody(readDoc(id).body), "");
+  const partners = loadPartners(ROOT);
   out.push(
+    "## Partners",
+    "",
+    `Organizations with a public, verifiable connection to AAP or to the A2A standard it profiles. Listed alphabetically at ${SITE}/partners; updated ${partners.updated}.`,
+    "",
+    ...partners.partners.map((p) => `- ${p.name} (${p.role}, ${p.links.map((l) => l.url).join(", ")}): ${p.description}`),
+    "",
     "## Machine-readable artifacts",
     "",
     `- OpenAPI (JSON-RPC, 3.1): ${VER_BASE}/openapi-jsonrpc.yaml`,

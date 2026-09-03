@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-09-04",
+  "partners": [
+    {
+      "name": "A2A Protocol",
+      "type": "Project",
+      "role": "Upstream standard",
+      "description": "The Agent2Agent open standard that AAP profiles. A2A defines how independently built AI agents discover one another and exchange typed messages; AAP adds the automotive vocabulary on top of A2A v1.0 without changing the wire. Accepted in August 2026 as a Growth Stage project at the Agentic AI Foundation, which A2A describes as Linux Foundation-directed.",
+      "links": [
+        { "label": "A2A Protocol", "url": "https://a2a-protocol.org" }
+      ]
+    },
+    {
+      "name": "Dealer Handshake",
+      "type": "Organization",
+      "role": "AAP implementation",
+      "description": "Connects a dealership's live inventory to compatible AI assistants over AAP and routes consented shopper leads into the CRM the dealer already runs, delivered as ADF. Car Handshake, the consumer marketplace it operates, publishes an agent card declaring the AAP v1.2 extension and serving inventory.facets, inventory.search, and inventory.vehicle over the JSON-RPC binding.",
+      "links": [
+        { "label": "Dealer Handshake", "url": "https://dealerhandshake.com" },
+        { "label": "Car Handshake", "url": "https://carhandshake.com" }
+      ]
+    },
+    {
+      "name": "Space Auto",
+      "type": "Organization",
+      "role": "Dealership platform",
+      "description": "Unified dealership platform covering websites, digital retailing, AI-powered CRM, automation, and analytics for franchise and independent retailers, with DAISI as its AI assistant layer. Space Auto, Inc. is based in Dallas, Texas, and joined the A2A Protocol partner ecosystem in July 2026.",
+      "links": [
+        { "label": "Space Auto", "url": "https://space.auto" }
+      ]
+    }
+  ]
+}
