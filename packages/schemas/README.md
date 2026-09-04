@@ -24,7 +24,7 @@ if (!validate(payload)) {
 }
 ```
 
-Each schema is exported by its camelCased name (`agentCardSchema`, `vehicleSchema`, `inventorySearchRequestSchema`, …) for the current AAP version. The same schemas are hosted at [autoagentprotocol.org/v1.2/schemas/](https://autoagentprotocol.org/v1.2/schemas/) and documented on the [spec site](https://autoagentprotocol.org).
+Each schema is exported by its camelCased name (`agentCardSchema`, `vehicleSchema`, `inventorySearchRequestSchema`, …) for the current AAP version. The same schemas are hosted at [autoagentprotocol.org/v1.3/schemas/](https://autoagentprotocol.org/v1.3/schemas/) and documented on the [spec site](https://autoagentprotocol.org).
 
 - Ready-made validator (library + `aap-validate` CLI): [`@autoagentprotocol/validator`](https://www.npmjs.com/package/@autoagentprotocol/validator)
 - TypeScript types: [`@autoagentprotocol/types`](https://www.npmjs.com/package/@autoagentprotocol/types)

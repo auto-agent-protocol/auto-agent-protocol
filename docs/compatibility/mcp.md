@@ -48,7 +48,7 @@ A complete MCP server descriptor that exposes all five AAP skills as tools:
 ```json
 {
   "name": "auto-agent-protocol",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "MCP server descriptor that exposes Auto Agent Protocol automotive skills as MCP tools. Each tool's input matches the corresponding AAP request schema; the wrapper invokes the dealer's A2A endpoint with the same payload as a typed DataPart.",
   "protocolVersion": "2025-06-18",
   "tools": [
