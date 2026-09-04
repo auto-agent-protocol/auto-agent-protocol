@@ -14,9 +14,9 @@ This skill is invoked through A2A's `SendMessage` operation — the only A2A ope
 
 ![Consent gate separating anonymous browsing from consented lead submission](../img/consent-gate.svg)
 
-The `lead.submit` skill is the **single, unified** lead-capture entry point in AAP v1.2.0. A buyer agent submits one request containing the consented `customer` plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment`. This matches how dealerships actually take leads: a shopper test-driving a new car often wants their old car appraised in the same visit.
+The `lead.submit` skill is the **single, unified** lead-capture entry point in AAP v1.3.0. A buyer agent submits one request containing the consented `customer` plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment`. This matches how dealerships actually take leads: a shopper test-driving a new car often wants their old car appraised in the same visit.
 
-`lead.submit` replaced the early-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment` with a single contract, which AAP v1.2.0 carries forward unchanged.
+`lead.submit` replaced the early-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment` with a single contract, which AAP v1.3.0 carries forward unchanged.
 
 | Property | Value |
 |---|---|
@@ -64,10 +64,10 @@ For the field-by-field ADF/XML mapping, see [ADF mapping](../compatibility/adf-m
 | `source_agent.agent_card_url` | string (uri) | no | URL of the buyer agent's A2A agent card. |
 | `submitted_at` | date-time | no | Buyer-agent timestamp at submission. |
 
-The unified `Vehicle` interface is the same shape used by `inventory.search` results — see the [Vehicle schema source](https://autoagentprotocol.org/v1.2/schemas/vehicle.schema.json). Both `vehicle_of_interest` and `trade_in` use this shape; only the valid `condition` enum subset differs. Either may be a motorcycle: set `vehicle_type: "motorcycle"` and include the powersports fields (`body`/segment, `displacement_cc`, plus niche specs such as `final_drive` or `wheel_count` in `other_attributes`). For a motorcycle, an `appointment_type` of `test_drive` denotes a demo ride.
+The unified `Vehicle` interface is the same shape used by `inventory.search` results — see the [Vehicle schema source](https://autoagentprotocol.org/v1.3/schemas/vehicle.schema.json). Both `vehicle_of_interest` and `trade_in` use this shape; only the valid `condition` enum subset differs. Either may be a motorcycle: set `vehicle_type: "motorcycle"` and include the powersports fields (`body`/segment, `displacement_cc`, plus niche specs such as `final_drive` or `wheel_count` in `other_attributes`). For a motorcycle, an `appointment_type` of `test_drive` denotes a demo ride.
 
 :::note Self-discovery
-A buyer agent does not have to hard-code or guess this shape. The dealer's [agent card](../discovery.md) publishes each skill's request/response JSON Schema URLs in the **AAP extension params** — `capabilities.extensions[].params.skills["lead.submit"].request_schema` points at the canonical schema (e.g. `https://autoagentprotocol.org/v1.2/schemas/lead-submit-request.schema.json`). The URLs live in the extension params, not as fields on the A2A `skill` object, so strict A2A AgentCard parsers still accept the card. Buyer agents SHOULD fetch that schema and validate against it, rather than relying on the prose here. The top-level `source_agent` object — and the removal of `consent.source_agent` in v1.1.0 — are both reflected in that published schema.
+A buyer agent does not have to hard-code or guess this shape. The dealer's [agent card](../discovery.md) publishes each skill's request/response JSON Schema URLs in the **AAP extension params** — `capabilities.extensions[].params.skills["lead.submit"].request_schema` points at the canonical schema (e.g. `https://autoagentprotocol.org/v1.3/schemas/lead-submit-request.schema.json`). The URLs live in the extension params, not as fields on the A2A `skill` object, so strict A2A AgentCard parsers still accept the card. Buyer agents SHOULD fetch that schema and validate against it, rather than relying on the prose here. The top-level `source_agent` object — and the removal of `consent.source_agent` in v1.1.0 — are both reflected in that published schema.
 :::
 
 ## Response shape
@@ -249,7 +249,7 @@ Real shopping flows naturally bundle the inquiry, the trade-in, and the appointm
 - **Consent friction** — users sign off 3 disclosures for one decision.
 - **Race conditions** — the appointment may be booked before the lead arrives, or vice-versa.
 
-A single `lead.submit` lets the dealer transactionally accept the lead, queue the trade-in for appraisal, and confirm or propose the appointment in one round trip. v1.2.0 keeps the contract tight by NOT supporting multi-vehicle leads (one `vehicle_of_interest` per submission); send N requests for N vehicles.
+A single `lead.submit` lets the dealer transactionally accept the lead, queue the trade-in for appraisal, and confirm or propose the appointment in one round trip. v1.3.0 keeps the contract tight by NOT supporting multi-vehicle leads (one `vehicle_of_interest` per submission); send N requests for N vehicles.
 
 ## Consent and channel rules
 

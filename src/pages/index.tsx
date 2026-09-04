@@ -73,7 +73,7 @@ const features = [
   {
     title: "FTC-Aware Pricing",
     description:
-      "The authoritative price includes mandatory dealer charges and travels with the vehicle's complete effective fee snapshot. Government charges remain outside price; conditional rebates never reduce it.",
+      "The authoritative price includes mandatory dealer charges. An optional fee breakdown makes those included charges visible; government charges remain outside price and conditional rebates never reduce it.",
   },
   {
     title: "Anonymous First",
@@ -188,7 +188,7 @@ function Pricing() {
           <div className={styles.mediaVisual}>
             <PricingDiagram
               role="img"
-              aria-label="MSRP as a reference and list price plus complete dealer fees equaling the authoritative advertised price"
+              aria-label="Authoritative advertised price with optional MSRP, list price, and included dealer-fee context"
               className={styles.fullImage}
             />
           </div>
@@ -198,7 +198,7 @@ function Pricing() {
               A vehicle's <code>price</code> is the authoritative advertised
               price: it includes every mandatory dealer charge and excludes
               government charges. When <code>price</code> is present, the same
-              vehicle carries the complete effective <code>fees</code> snapshot.
+              vehicle may also carry a complete effective <code>fees</code> breakdown.
               Buyer agents never join rooftop defaults into a vehicle, and
               conditional rebates never reduce the advertised price.
             </p>

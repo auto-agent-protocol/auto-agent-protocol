@@ -5,7 +5,7 @@
 
 # Auto Agent Protocol (AAP)
 
-[![Spec version](https://img.shields.io/badge/spec-v1.2.0-2874d7)](https://autoagentprotocol.org/docs/latest/intro)
+[![Spec version](https://img.shields.io/badge/spec-v1.3.0-2874d7)](https://autoagentprotocol.org/docs/latest/intro)
 [![A2A](https://img.shields.io/badge/A2A-v1.0-2874d7)](https://a2a-protocol.org)
 [![License](https://img.shields.io/badge/license-Apache--2.0-52657c)](LICENSE)
 [![Validate](https://github.com/auto-agent-protocol/auto-agent-protocol/actions/workflows/validate.yml/badge.svg)](https://github.com/auto-agent-protocol/auto-agent-protocol/actions/workflows/validate.yml)
@@ -22,34 +22,35 @@ Listings carry an optional `vehicle_type` (`car`, `motorcycle`, `trailer`, `rv`,
 
 ![Why AAP: from a mesh of custom integrations to one open profile](docs/img/why-before-after.svg)
 
-**For engineers:** AAP is an open [A2A v1.0](https://a2a-protocol.org) profile. A compliant dealer agent is an A2A agent that publishes an `agent-card.json` with the AAP automotive extension URI (`https://autoagentprotocol.org/extensions/aap/v1.2`) and implements **one or more** of the five standard AAP automotive skills (a small used-car lot might only do `inventory.search` + `lead.submit`; a franchise dealership might do all five).
+**For engineers:** AAP is an open [A2A v1.0](https://a2a-protocol.org) profile. A compliant dealer agent is an A2A agent that publishes an `agent-card.json` with the AAP automotive extension URI (`https://autoagentprotocol.org/extensions/aap/v1.3`) and implements **one or more** of the five standard AAP automotive skills (a small used-car lot might only do `inventory.search` + `lead.submit`; a franchise dealership might do all five).
 
 The transport surface is deliberately minimal: every AAP agent exposes the **JSON-RPC 2.0 binding** — the sole transport (the optional HTTP+JSON binding was removed in v1.1.0); the only A2A operation AAP uses is **`SendMessage`** — request `Message` in, response `Message` out. The optional A2A surface (streaming, tasks, push notifications, extended cards) is out of scope: dealer agents do not need to implement it and buyer agents must not require it.
 
 ![The Agent Card advertises the A2A binding, AAP extension, supported skill subset, and per-skill schema URLs](docs/img/agent-card-passport.svg)
 
-## v1.2.0 Scope
+## v1.3.0 Scope
 
-v1.2.0 is the **current release**. It is fully additive over v1.1.0: it adds multi-class inventory via the optional `vehicle_type` discriminator (`car`, `motorcycle`, `trailer`, `rv`, `other`; absent = `car`, so existing car integrations keep validating) plus generic electric-powertrain fields (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `dc_fast_charge`, `charge_port`) that describe any BEV/PHEV unit. It keeps the v1.0.0 AAP payload shape — a single `agent-card.json` is the only file a dealer publishes, prices are plain integers, the vehicle and dealer shapes are flat, and `status` is a controlled enum — riding the released A2A v1.0 wire (`SendMessage`, `ROLE_USER`/`ROLE_AGENT`, `supportedInterfaces[]`), and inherits the JSON-RPC-only transport from v1.1.0 (the optional HTTP+JSON binding was dropped in v1.1.0). v0.1.0, v0.2.0, v1.0.0, and v1.1.0 remain published and frozen for anyone pinned to them.
+v1.3.0 is the **current release**. It is fully additive over v1.2.0 and introduces interoperable dealer-fee disclosure. `price` remains the authoritative advertised vehicle price and includes every mandatory non-government dealer charge and required add-on. Optional `{ name, amount }` `fees` arrays expose the complete itemized breakdown at vehicle level and default schedules at rooftop level. A truthful all-in `price` may stand alone; `list_price` and `fees` without `price` are informational and never become a consumer-facing price through client-side arithmetic. The five-skill vocabulary, A2A v1.0 wire, and JSON-RPC-only transport remain unchanged. v0.1.0 through v1.2.0 remain published and frozen for consumers pinned to them.
 
 - **Discovery** via `/.well-known/agent-card.json` only (A2A-compatible) — no second well-known file
 - **Inventory**: facets, search, vehicle detail — across **cars and motorcycles** via an optional `vehicle_type` discriminator, with motorcycle body/segment carried in `body`, displacement in `displacement_cc`, niche specs in a free-form `other_attributes` map, and a generic electric-powertrain group (range, battery kWh, motor hp, DC fast charge, charge port) for BEV/PHEV cars and motorcycles alike
-- **Dealership information**: group name, welcome message, and one or more rooftops (locations) with address, geo, contacts, hours, timezone, and capabilities (including powersports tags such as `motorcycle_sales`)
+- **Transparent pricing**: one authoritative all-in `price`, optional complete vehicle fee itemization, optional rooftop fee defaults for publishers, and explicit handling for list-only and conditional-rebate data
+- **Dealership information**: group name, welcome message, and one or more rooftops (locations) with address, geo, contacts, hours, timezone, capabilities, and optional default fee schedules
 - **Leads**: a single unified `lead.submit` accepting a consented customer plus any combination of vehicle of interest, trade-in, and appointment
 - **ADF/XML mapping** documented for legacy CRM compatibility
 - **Interoperability proven** against the official A2A v1.0 client SDKs (`@a2a-js/sdk` and `a2a-sdk` for Python) — a standard A2A client can discover an AAP dealer and invoke every skill with no AAP-specific code
 
-v1.2.0 does **not** cover: authentication (agents are public by default; auth is left to A2A's native `securitySchemes`), payments, financing approval, RFQ/quote flows, trade-in valuations, or reservations.
+v1.3.0 does **not** cover: authentication (agents are public by default; auth is left to A2A's native `securitySchemes`), payments, financing approval, RFQ/quote flows, trade-in valuations, buyer-specific out-the-door calculations, or reservations.
 
 ![How an AI agent shops: discover the dealer, search inventory, inspect one complete vehicle, and submit a consented lead](docs/img/buyer-journey.svg)
 
 ## Quick links
 
 - **Specification**: [autoagentprotocol.org](https://autoagentprotocol.org)
-- **Stable v1.2.0 agent card**: [`spec/v1.2/examples/agent-card.example.json`](spec/v1.2/examples/agent-card.example.json)
+- **Stable v1.3.0 agent card**: [`spec/v1.3/examples/agent-card.example.json`](spec/v1.3/examples/agent-card.example.json)
 - **Editable JSON Schemas**: [`spec/latest/schemas/`](spec/latest/schemas/)
 - **Editable examples**: [`spec/latest/examples/`](spec/latest/examples/)
-- **OpenAPI 3.1** (built at deploy time): `https://autoagentprotocol.org/v1.2/openapi-jsonrpc.yaml`
+- **OpenAPI 3.1** (built at deploy time): `https://autoagentprotocol.org/v1.3/openapi-jsonrpc.yaml`
 - **Changelog**: [CHANGELOG.md](CHANGELOG.md)
 
 ## The five skills
@@ -130,12 +131,12 @@ Released versions are immutable. Repository changes use `spec/latest/`; the publ
 | Layer | Protocol | Role for AAP |
 |---|---|---|
 | Transport / data model (BASE) | **[A2A v1.0](https://a2a-protocol.org)** | The base protocol AAP profiles. Every AAP message travels inside `Message.parts[].data` as a typed `DataPart`. AAP does not invent a wire format. |
-| Adjacent / complementary | **ACP** (Agentic Commerce), **MCP** (Model Context Protocol) | ACP covers commerce checkout (out of scope for AAP). MCP can expose AAP skills as LLM tools — AAP publishes an official MCP reference manifest (generated from `skills.yaml` at build time and served at `https://autoagentprotocol.org/v1.2/mcp.json`). |
+| Adjacent / complementary | **ACP** (Agentic Commerce), **MCP** (Model Context Protocol) | ACP covers commerce checkout (out of scope for AAP). MCP can expose AAP skills as LLM tools — AAP publishes an official MCP reference manifest (generated from `skills.yaml` at build time and served at `https://autoagentprotocol.org/v1.3/mcp.json`). |
 | Legacy / target system | **ADF/XML** | The 25-year-old dealer-CRM lead format. `lead.submit` is field-by-field mappable to ADF/XML so existing CRMs ingest AAP leads without code changes. |
 
 ## License
 
-- Specification and schemas: [Apache-2.0](LICENSE) — chosen (and kept at 1.2.0) for its explicit patent grant, which protects every adopting dealership, platform, and SDK vendor; it is also the license of A2A itself.
+- Specification and schemas: [Apache-2.0](LICENSE) — chosen for its explicit patent grant, which protects every adopting dealership, platform, and SDK vendor; it is also the license of A2A itself.
 - Documentation prose: [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
 
 ## Security

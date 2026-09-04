@@ -17,7 +17,7 @@ In technical terms: AAP is a strict [A2A v1.0](https://a2a-protocol.org) (Agent2
 The extension is identified by a single URI:
 
 ```
-https://autoagentprotocol.org/extensions/aap/v1.2
+https://autoagentprotocol.org/extensions/aap/v1.3
 ```
 
 A dealer agent declares itself AAP-compliant by listing this URI in `capabilities.extensions[]` of its A2A agent card and by implementing **one or more** of the five standard AAP automotive skills. Agents pick the subset they support; AAP RECOMMENDS at least `inventory.search` + `lead.submit` for an end-to-end shopping flow, but neither is mandatory.
@@ -26,7 +26,7 @@ A dealer agent declares itself AAP-compliant by listing this URI in `capabilitie
 
 ![Five AAP skills cover dealership information, inventory discovery, search, vehicle detail, and consented leads](./img/skills-overview.svg)
 
-AAP v1.2.0 defines a **vocabulary** of five standard skill IDs that cover the read-and-lead lifecycle of automotive retail. A dealer agent picks whichever subset matches its capabilities — none of the five is individually mandatory.
+AAP v1.3.0 defines a **vocabulary** of five standard skill IDs that cover the read-and-lead lifecycle of automotive retail. A dealer agent picks whichever subset matches its capabilities — none of the five is individually mandatory.
 
 | Skill | Purpose |
 |---|---|
@@ -36,7 +36,7 @@ AAP v1.2.0 defines a **vocabulary** of five standard skill IDs that cover the re
 | `inventory.vehicle` | Detail view of one specific vehicle or motorcycle (by VIN, stock, or vehicle_id) |
 | `lead.submit` | Unified consented lead carrying customer info plus optional vehicle of interest, trade-in, and appointment |
 
-It does NOT define authentication (v1.2.0 agents are public by default; auth is left to A2A), payments, financing approval, RFQ/quote workflows, trade-in valuations, or reservations. Future versions MAY extend this surface; v1.2.0 is intentionally minimal.
+It does NOT define authentication (v1.3.0 agents are public by default; auth is left to A2A), payments, financing approval, RFQ/quote workflows, trade-in valuations, or reservations. Future versions MAY extend this surface; v1.3.0 is intentionally minimal.
 
 ## Layered architecture
 
@@ -182,5 +182,5 @@ All five skills have been exercised live through the official A2A v1.0 SDKs (`@a
 - [Why automotive needs AAP](./why.md) — the gap AAP fills against A2A, ACP, MCP, and ADF.
 - [A2A profile](./a2a-profile.md) — how AAP slots into A2A's three-layer architecture.
 - [Discovery](./discovery.md) — full agent card example.
-- [Pricing and fee disclosure](./pricing-and-ftc.md) — price semantics, complete vehicle fee snapshots, provider mapping, and current FTC context.
+- [Pricing and fee disclosure](./pricing-and-ftc.md) — authoritative price semantics, optional vehicle fee itemization, provider mapping, and current FTC context.
 - [Skills reference](./skills/dealer-information.md) — one page per skill with full request/response examples.

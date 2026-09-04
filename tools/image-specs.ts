@@ -195,7 +195,7 @@ export const imageSpecs: Record<string, DiagramSpec> = {
     items: [
       { label: "01", title: "Discover", body: "Read the dealer's Agent Card and supported skill subset.", code: ["/.well-known/agent-card.json"] },
       { label: "02", title: "Search", body: "Query real inventory with anonymous filters and pagination.", code: ["inventory.search"] },
-      { label: "03", title: "Inspect", body: "Retrieve one complete vehicle, including the effective fee snapshot when price is present.", code: ["inventory.vehicle"], tone: "primary" },
+      { label: "03", title: "Inspect", body: "Retrieve one complete vehicle with authoritative price and optional fee itemization.", code: ["inventory.vehicle"], tone: "primary" },
       { label: "04", title: "Lead", body: "Send customer details only with an explicit ConsentGrant.", code: ["lead.submit"], tone: "teal" },
     ],
     footer: "Five skills, one A2A conversation, zero invented transport layers.",
@@ -305,9 +305,9 @@ export const imageSpecs: Record<string, DiagramSpec> = {
       { label: "WORK", title: "spec/latest + docs", body: "Review normal diffs in the editable contract and documentation.", tone: "primary" },
       { label: "VERIFY", title: "Release checks", body: "Validate schemas, examples, compatibility, artifacts and image sources." },
       { label: "SNAPSHOT", title: "vN.N.0", body: "Copy the reviewed spec, docs and diagrams into a frozen version." },
-      { label: "PUBLISH", title: "Public latest", body: "Point the latest alias at the newest approved release.", tone: "teal" },
+      { label: "PUBLISH", title: "Stable release", body: "Expose the frozen contract at its pinned URL and advance the artifact latest alias.", tone: "teal" },
     ],
-    footer: "Historical schema URLs, documentation and artwork never change after release.",
+    footer: "Docs/latest remains editable; historical schema URLs, documentation and artwork never change after release.",
   },
 
   "consent-gate": {
@@ -337,7 +337,7 @@ export const imageSpecs: Record<string, DiagramSpec> = {
       { label: "ROOFTOP 02", title: "Premier Toyota Downtown", body: "Address · geo · phones · schedules · timezone · sales · financing", code: ["fees: []  · no defaults"] },
       { label: "ROOFTOP 03", title: "Premier EV Center", body: "Address · geo · phones · schedules · timezone · EV sales · service", code: ["fees omitted · unknown"] },
     ],
-    footer: "Rooftop fees are publisher/discovery defaults. A priced vehicle carries its complete effective fees; buyers never join the two.",
+    footer: "Rooftop fees are publisher/discovery defaults. Vehicle itemization is optional and never assembled by a buyer-side join.",
   },
 
   "adf-bridge": {
@@ -398,15 +398,15 @@ export const imageSpecs: Record<string, DiagramSpec> = {
   "pricing-ladder": {
     kind: "pricing",
     eyebrow: "PRICE + FEE DISCLOSURE",
-    title: "One authoritative vehicle price, with the fees made visible",
-    description: "The vehicle record carries the effective disclosure snapshot; buyer agents never reconstruct it from rooftop defaults.",
+    title: "One authoritative vehicle price, with optional disclosure context",
+    description: "Price is the all-in advertised amount. The other fields add context but never replace or reconstruct it.",
     items: [
-      { label: "OPTIONAL", title: "msrp", body: "Manufacturer's suggested retail price.", code: ["$27,500"] },
-      { label: "OPTIONAL", title: "list_price", body: "Advertised base price before mandatory dealer charges.", code: ["$24,990"] },
-      { label: "COMPLETE SNAPSHOT", title: "fees", body: "Every mandatory dealer charge already included in price.", code: ["Documentation · $500", "Theft protection · $1,290"], tone: "primary" },
       { label: "AUTHORITATIVE", title: "price", body: "Advertised vehicle price including mandatory dealer charges; government charges excluded.", code: ["$26,780"], tone: "teal" },
+      { label: "OPTIONAL BREAKDOWN", title: "fees", body: "Complete itemization when supplied; already included in price.", code: ["Documentation · $500", "Theft protection · $1,290"], tone: "primary" },
+      { label: "CONTEXT ONLY", title: "list_price", body: "Base/list amount; never presented or computed as the payable price.", code: ["$24,990"] },
+      { label: "REFERENCE", title: "msrp", body: "Manufacturer's suggested retail price.", code: ["$27,500"] },
     ],
-    footer: "24,990 + 500 + 1,290 = 26,780 · Conditional rebates never reduce price · Unknown fees means price is omitted",
+    footer: "Use price for comparison · Never compute price from list_price + fees · Conditional rebates never reduce price",
   },
 
   "inventory-search-flow": {
@@ -418,7 +418,7 @@ export const imageSpecs: Record<string, DiagramSpec> = {
       { label: "01", title: "Buyer request", body: "Send optional filters, pagination, sort and anonymous privacy preference.", code: ["inventory.search.request"] },
       { label: "02", title: "A2A SendMessage", body: "Carry the request in a typed DataPart over the sole JSON-RPC binding.", code: ["POST {base}/a2a"], tone: "primary" },
       { label: "03", title: "Dealer response", body: "Return total, page coordinates and the matching Vehicle records.", code: ["inventory.search.response"] },
-      { label: "04", title: "Price safely", body: "When price exists, the same vehicle includes the complete effective fees snapshot.", code: ["price + fees[]"], tone: "teal" },
+      { label: "04", title: "Price safely", body: "Use price as authoritative; an optional fees array explains charges already included.", code: ["price · optional fees[]"], tone: "teal" },
     ],
     footer: "price filters use authoritative price; vehicles without price do not match a price range.",
   },
@@ -473,7 +473,7 @@ export const imageSpecs: Record<string, DiagramSpec> = {
       { label: "01", title: "Identify honestly", body: "Send a real source_agent on every lead; never spoof the caller." },
       { label: "02", title: "Browse anonymously", body: "Keep personal data behind an explicit and valid ConsentGrant." },
       { label: "03", title: "Respect the lot", body: "Cache facets, paginate searches and honor typed rate-limit errors." },
-      { label: "04", title: "Quote safely", body: "Use authoritative price only when complete fees are attached; never infer or auto-apply rebates.", tone: "primary" },
+      { label: "04", title: "Quote safely", body: "Use authoritative price; never infer a total from list context or auto-apply rebates.", tone: "primary" },
     ],
     footer: "Dealer agents may reject requests that violate normative protocol behavior.",
   },

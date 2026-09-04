@@ -6,16 +6,17 @@ description: How editable latest work becomes an immutable, version-pinned AAP r
 
 # Versioning
 
-![Versioning workflow: edit latest, verify, snapshot a frozen release, then update the public latest alias](./img/versioning-timeline.svg)
+![Versioning workflow: edit latest, verify, snapshot a frozen release, then advance the stable contract-artifact alias](./img/versioning-timeline.svg)
 
 Auto Agent Protocol uses [Semantic Versioning](https://semver.org/) for approved releases. The repository deliberately separates editable work from public releases:
 
 - `spec/latest/` is the only editable specification source.
 - `spec/v{major}.{minor}/` is an immutable release snapshot.
-- `https://autoagentprotocol.org/latest/` aliases the latest **approved release**, not `spec/latest/`.
+- `https://autoagentprotocol.org/latest/` aliases the latest **approved contract release**, not `spec/latest/`.
+- `https://autoagentprotocol.org/docs/latest/` serves the editable documentation and links to the newest frozen documentation release.
 - There is no `next` directory, URL, or package channel.
 
-The word “latest” therefore has two scoped meanings: `spec/latest/` means the latest work under review inside the repository, while the public `/latest/` URL means the latest stable release. Draft identifiers use the non-routable `https://draft.autoagentprotocol.invalid` namespace so they cannot be mistaken for a public contract.
+The word “latest” therefore has scoped meanings: `spec/latest/` and `/docs/latest/` expose current work, while the public contract-artifact `/latest/` URL means the latest stable release. Draft schema identifiers use the non-routable `https://draft.autoagentprotocol.invalid` namespace so they cannot be mistaken for a public contract.
 
 ## SemVer policy
 
@@ -35,8 +36,8 @@ The automated compatibility report is conservative and structural. A minor candi
 Released schemas and extensions are version-pinned:
 
 ```text
-https://autoagentprotocol.org/v1.2/schemas/vehicle.schema.json
-https://autoagentprotocol.org/extensions/aap/v1.2
+https://autoagentprotocol.org/v1.3/schemas/vehicle.schema.json
+https://autoagentprotocol.org/extensions/aap/v1.3
 ```
 
 The schema `$id` matches its public URL. Relative `$ref` values stay within the same release. A dealer advertises the supported AAP version through the A2A extension URI; buyer agents should use the exact version the dealer advertises.
@@ -53,17 +54,18 @@ A release freezes all material needed to reproduce and review it:
 
 CI compares the entire pull request with its base commit and rejects additions, edits, deletions, copies, or renames within an already released path. Integrity manifests also detect local or post-merge drift. Release artifacts are copied from their reviewed snapshots; old releases are never regenerated with newer tooling.
 
-## The public `latest` alias
+## Public latest and released versions
 
-`releases.json` is the explicit registry of approved releases and names exactly one stable release. The production build copies that frozen release to both its pinned URL and `/latest/`.
+`releases.json` is the explicit registry of approved releases and names exactly one stable release. The production build copies that frozen contract to both its pinned artifact URL and `/latest/`. Documentation keeps the editable latest pages and every frozen version separately visible.
 
 | URL | Meaning |
 |---|---|
-| `/v1.2/...` | Immutable production contract |
+| `/v1.3/...` | Immutable production contract |
 | `/latest/...` | Alias of the registry's stable release |
-| `/docs/latest/...` | Stable documentation alias |
+| `/docs/latest/...` | Editable latest documentation, with an unreleased banner |
+| `/docs/v1.3/...` | Immutable documentation for release 1.3.0 |
 
-Production agents should pin `/v1.2/` (or another advertised contract), because `/latest/` advances when maintainers approve a new release.
+Production agents should pin `/v1.3/` (or another advertised contract), because `/latest/` advances when maintainers approve a new release.
 
 ## Release process
 

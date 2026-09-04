@@ -40,7 +40,7 @@ pnpm build
 | `packages/` | Packages built from the registry's stable release. |
 | `tools/` | Validators, generators, release preparation, and integrity checks. |
 
-There is no `next` channel. Local `pnpm start` serves the editable documentation with an unreleased banner at `/docs/latest/`. Production builds exclude that draft and make `/docs/latest/` an alias of the frozen stable release.
+There is no `next` channel. Both local and production builds serve editable documentation with an unreleased banner at `/docs/latest/`; the version selector separately exposes every frozen release by full SemVer. Public contract artifacts at `/latest/` remain an alias of the frozen stable release.
 
 ## Released versions are frozen
 

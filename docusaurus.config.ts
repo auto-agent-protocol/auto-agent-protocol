@@ -3,23 +3,10 @@ import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 import releases from "./releases.json";
 
-const draftDocs = process.env.AAP_DOCS_DRAFT === "1";
 const stableRelease = releases.releases.find((release) => release.contract === releases.stable);
 if (!stableRelease) throw new Error(`Stable release ${releases.stable} is missing from releases.json`);
 const stableContract = stableRelease.contract;
 const releasedDocs = Object.fromEntries(
-  releases.releases.map((release) => [
-    release.contract,
-    {
-      label: release.version,
-      path: release.contract === stableContract ? "latest" : release.contract,
-      ...(release.contract === stableContract
-        ? { banner: "none" as const }
-        : { banner: "unmaintained" as const, noIndex: true }),
-    },
-  ])
-);
-const draftReleasedDocs = Object.fromEntries(
   releases.releases.map((release) => [
     release.contract,
     {
@@ -83,29 +70,23 @@ const config: Config = {
           sidebarPath: "./sidebars.ts",
           editUrl:
             "https://github.com/auto-agent-protocol/auto-agent-protocol/tree/main/",
-          // Local development puts the editable docs at /docs/latest and also
-          // keeps every frozen release available in the version selector.
-          // Production excludes the draft and aliases /docs/latest to the
-          // approved stable release from the registry.
-          includeCurrentVersion: draftDocs,
-          onlyIncludeVersions: draftDocs
-            ? ["current", ...releases.releases.map((release) => release.contract)]
-            : releases.releases.map((release) => release.contract),
-          // Even in draft mode, Docusaurus's "latest version" suggestion must
-          // resolve to the newest published snapshot. The editable current
-          // docs still own /docs/latest through their explicit path below.
+          // The editable documentation always owns /docs/latest. Every frozen
+          // release remains separately addressable and selectable by full
+          // SemVer, including the newest approved release.
+          includeCurrentVersion: true,
+          onlyIncludeVersions: ["current", ...releases.releases.map((release) => release.contract)],
+          // Docusaurus's unreleased banner must point from the editable latest
+          // page to the corresponding page in the newest published snapshot.
           lastVersion: stableContract,
-          versions: draftDocs
-            ? {
-                current: {
-                  label: `Unreleased draft (from ${stableRelease.version})`,
-                  path: "latest",
-                  banner: "unreleased",
-                  badge: false,
-                },
-                ...draftReleasedDocs,
-              }
-            : releasedDocs,
+          versions: {
+            current: {
+              label: "Latest",
+              path: "latest",
+              banner: "unreleased",
+              badge: false,
+            },
+            ...releasedDocs,
+          },
         },
         blog: false,
         sitemap: {
@@ -119,22 +100,6 @@ const config: Config = {
           customCss: "./src/css/custom.css",
         },
       } satisfies Preset.Options,
-    ],
-  ],
-
-  plugins: [
-    [
-      "@docusaurus/plugin-client-redirects",
-      {
-        createRedirects(existingPath: string) {
-          // Stable docs are canonical at /docs/latest; retain the immutable
-          // release label as an equivalent deep-link route.
-          if (!draftDocs && existingPath.startsWith("/docs/latest/")) {
-            return [existingPath.replace("/docs/latest/", `/docs/${stableContract}/`)];
-          }
-          return undefined;
-        },
-      },
     ],
   ],
 

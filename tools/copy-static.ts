@@ -57,8 +57,8 @@ async function main(): Promise<void> {
     await copyVersion(version, version);
   }
 
-  // Mirror the registry's approved stable release under /latest (parallel to
-  // the Docusaurus /docs/latest/* alias).
+  // Mirror the registry's approved stable contract artifacts under /latest.
+  // Documentation uses a separate policy: /docs/latest is editable content.
   await copyVersion(LATEST_VERSION, "latest");
 }
 

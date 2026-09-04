@@ -7,29 +7,56 @@ versioning policy is described in the
 
 ## [Unreleased]
 
-This working draft is a breaking contract candidate and is being rehearsed as
-`2.0.0`. No public release or stable `/latest/` alias has changed.
+No unreleased contract changes.
+
+## [1.3.0] — 2026-09-04
+
+Additive, backward-compatible release focused on transparent vehicle pricing,
+dealer-fee interoperability, and a clearer community presence. Existing v1.2
+payloads remain valid.
 
 ### Added
 
 - Strict `{ name, amount }` `DealerFee` objects in whole US dollars.
-- Optional rooftop `fees` as a complete default schedule for publishers and
-  discovery.
-- Vehicle `fees` as the complete effective per-vehicle snapshot, with explicit
-  omitted (unknown), empty (affirmatively none), and non-empty semantics.
-- Contract regression tests for fee shape and the `price`/`fees` dependency.
+- Optional rooftop `fees` as a complete default schedule for publisher-side
+  resolution and discovery metadata.
+- Optional vehicle `fees` as a complete effective itemization: omitted means no
+  breakdown was supplied, `[]` affirmatively means no mandatory dealer charges,
+  and a non-empty array itemizes the vehicle's mandatory charges.
+- Contract tests covering fee shape, all fee states, authoritative standalone
+  prices, and informational `list_price` plus `fees` payloads.
+- A public partners register with evidence-based listings, validation, and a
+  contribution template for implementers and ecosystem participants.
 
 ### Changed
 
-- `Vehicle.price` now requires `Vehicle.fees`. Consumer agents use the vehicle
-  snapshot directly and never join or merge fees from `dealer.information`.
 - `price` is defined as the authoritative advertised vehicle price: it includes
   mandatory non-government dealer charges and required add-ons, excludes
   government charges, and may reflect only discounts available to every buyer.
-- `list_price` remains optional context. Providers that know only a base/list
-  amount publish `list_price` and omit `price`.
+- `fees` is an optional breakdown and does not gate an otherwise authoritative
+  `price`. When both are present, the fee amounts are already included in
+  `price`; consumers never add them again.
+- `list_price` remains optional context. `list_price` and `fees` may be supplied
+  without `price`, but consumers must not present either value—or their sum—as
+  the purchasable price.
+- Buyer agents never join rooftop defaults into vehicle pricing. When vehicle
+  `fees` is present, it is a complete snapshot rather than a delta.
 - Pricing guidance now reflects the current FTC Act enforcement position and
-  correctly notes that the separate CARS Rule was vacated and withdrawn.
+  correctly notes that the separate CARS Rule was vacated and withdrawn. The
+  protocol supports truthful all-in advertising without claiming that federal
+  law universally requires an itemized fee breakdown.
+
+### Documentation and community
+
+- Introduced the AAP visual identity and transparent symbol/wordmark asset set,
+  with a consistent light-blue documentation palette and responsive artwork.
+- Modernized the documentation navigation, version selector, homepage, and
+  generated diagrams while preserving immutable historical releases.
+- Formalized the editable `latest` workflow and immutable release snapshots,
+  including provenance, integrity manifests, compatibility reports, and stable
+  aliases for generated TypeScript, OpenAPI, and MCP artifacts.
+- Expanded machine-readable discovery for developers and agents, including the
+  partners register, generated LLM documentation, and validated public assets.
 
 ## [1.2.0] — 2026-07-13
 

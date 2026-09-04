@@ -76,17 +76,17 @@ When optional context fields are omitted, AAP defines deterministic fallbacks so
 ### Pricing MUSTs
 
 - **`price` MUST be the authoritative advertised vehicle price.** It includes all mandatory, non-government dealer charges and required dealer add-ons, may use only discounts available to every consumer, and is not reduced by an additional required down payment or conditioned on dealer financing. It excludes government charges such as tax, title, and registration, so it is not an out-the-door quote.
-- **A priced vehicle MUST carry its complete fee snapshot.** Whenever `Vehicle.price` is present, `Vehicle.fees` is present too: `[]` means no mandatory dealer charges; a non-empty array itemizes every such charge already included in `price`. Buyer agents MUST NOT add those amounts again or join them from `dealer.information`.
+- **`fees` is an optional breakdown, not a condition of `price`.** `Vehicle.price` remains authoritative when `Vehicle.fees` is omitted. When `fees` is present, `[]` means no mandatory dealer charges and a non-empty array completely itemizes charges already included in `price`. Buyer agents MUST NOT add those amounts again or join them from `dealer.information`.
 - **`price_min` / `price_max` and `sort.field: "price"` apply to `price`.** `inventory.search` `filters.price_min`, `filters.price_max`, and `sort.field: "price"` are evaluated against `price`, not `list_price` or `msrp`. Vehicles without `price` do not match price-bound filters. See [Pricing and fee disclosure](./pricing-and-ftc.md).
 
 ### Pricing SHOULDs
 
 - Dealer agents SHOULD publish `list_price`, `msrp`, `price`, and `fees` together when all are known. `list_price + sum(fees)` need not equal `price` because `price` may include universally available discounts; buyer agents do not derive a replacement price.
-- Buyer agents SHOULD compare offers across dealers on `price`, not `list_price`. If only a base/list amount is known, the publisher omits `price` rather than presenting the base amount as payable.
+- Buyer agents SHOULD compare offers across dealers on `price`, not `list_price`. If only `list_price` and optional `fees` are known, the publisher omits `price`, and consumer agents treat those components as informational rather than payable or computable.
 
 ## Authentication
 
-AAP v1.2.0 defines **no authentication of its own** — agents are public by default. A dealer that needs to protect its endpoint uses A2A's native `securitySchemes` / `securityRequirements` on its agent card; obtaining and presenting credentials then follows A2A (a transport concern), not AAP. See [Discovery](./discovery.md#authentication).
+AAP v1.3.0 defines **no authentication of its own** — agents are public by default. A dealer that needs to protect its endpoint uses A2A's native `securitySchemes` / `securityRequirements` on its agent card; obtaining and presenting credentials then follows A2A (a transport concern), not AAP. See [Discovery](./discovery.md#authentication).
 
 ## Rate limits
 
