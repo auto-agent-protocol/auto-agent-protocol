@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v1.3/schemas/inventory-search-request.schema.json",
+  "title": "InventorySearchRequest",
+  "description": "Typed AAP request for the `inventory.search` skill. Filters are FLAT (no nested make/model trees) and multi-value filters are arrays. Pagination uses skip/limit; sort is field+order. `privacy.anonymous` declares whether the buyer agent is sharing user identity. Carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.",
+  "type": "object",
+  "examples": [
+    {
+      "type": "inventory.search.request",
+      "filters": {
+        "make": ["Honda"],
+        "condition": ["new"],
+        "body": ["suv"],
+        "price_max": 40000,
+        "year_min": 2023
+      },
+      "pagination": { "skip": 0, "limit": 25 },
+      "sort": { "field": "price", "order": "asc" },
+      "privacy": { "anonymous": true }
+    }
+  ],
+  "properties": {
+    "type": { "const": "inventory.search.request" },
+    "filters": {
+      "$ref": "#/$defs/filters",
+      "description": "Optional filter block. All fields optional; absent fields mean 'no constraint'."
+    },
+    "pagination": {
+      "type": "object",
+      "description": "Result paging. Default values are dealer-defined; spec recommends limit defaults <= 50 and limit cap of 100.",
+      "properties": {
+        "skip": { "type": "integer", "minimum": 0, "description": "Number of results to skip from the start of the matching set.", "examples": [0, 25] },
+        "limit": { "type": "integer", "minimum": 1, "maximum": 1000, "description": "Maximum number of results to return on this page.", "examples": [25] }
+      },
+      "additionalProperties": false
+    },
+    "sort": {
+      "type": "object",
+      "description": "Result ordering. Default ordering is dealer-defined.",
+      "properties": {
+        "field": {
+          "type": "string",
+          "enum": ["price", "list_price", "msrp", "mileage", "year", "make", "model", "stock", "updated_at"],
+          "description": "Field to sort by. Sorting by 'price' uses the authoritative advertised vehicle price, including mandatory dealer charges but excluding government charges. Vehicles without `price` sort after priced vehicles regardless of ascending or descending order. `updated_at` sorts by listing freshness.",
+          "examples": ["price", "year"]
+        },
+        "order": { "type": "string", "enum": ["asc", "desc"], "examples": ["asc"] }
+      },
+      "required": ["field", "order"],
+      "additionalProperties": false
+    },
+    "privacy": {
+      "type": "object",
+      "description": "Privacy hints from the buyer agent. AAP RECOMMENDS anonymous searches by default; user identity is only attached when a lead is submitted.",
+      "properties": {
+        "anonymous": { "type": "boolean", "description": "True when no user-identifying information is included with the request.", "examples": [true] }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["type"],
+  "additionalProperties": false,
+  "$defs": {
+    "filters": {
+      "type": "object",
+      "description": "Flat filter block. Multi-value filters use arrays; range filters use *_min / *_max.",
+      "properties": {
+        "make": { "type": "array", "items": { "type": "string" }, "description": "Vehicle makes to include (e.g. ['Honda','BMW']).", "examples": [["Honda"], ["Honda", "BMW"]] },
+        "model": { "type": "array", "items": { "type": "string" }, "description": "Vehicle models to include.", "examples": [["CR-V"]] },
+        "trim": { "type": "array", "items": { "type": "string" }, "description": "Trim levels to include.", "examples": [["EX-L"]] },
+        "condition": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["new", "used", "cpo"] },
+          "description": "Sale conditions to include. Inventory uses the sale-condition vocabulary (`new` | `used` | `cpo`).",
+          "examples": [["new"], ["used", "cpo"]]
+        },
+        "vehicle_type": { "type": "array", "items": { "type": "string", "enum": ["car", "motorcycle", "trailer", "rv", "other"] }, "description": "Vehicle types to include (e.g. ['motorcycle']). Omit to search all types; a value absent on a listing is treated as 'car'.", "examples": [["motorcycle"], ["car"]] },
+        "transmission": { "type": "array", "items": { "type": "string" }, "examples": [["automatic"]] },
+        "fuel": { "type": "array", "items": { "type": "string" }, "examples": [["hybrid", "bev"]] },
+        "electric_range_mi_min": { "type": "integer", "minimum": 0, "description": "Minimum electric range in miles, applied against `electric_range_mi`. Generic electric filter (EV cars and electric motorcycles).", "examples": [100] },
+        "electric_range_mi_max": { "type": "integer", "minimum": 0, "description": "Maximum electric range in miles, applied against `electric_range_mi`. Generic electric filter.", "examples": [300] },
+        "dc_fast_charge": { "type": "boolean", "description": "When true, include only units that support DC fast charging (matches `Vehicle.dc_fast_charge`). Generic electric filter.", "examples": [true] },
+        "charge_port": { "type": "array", "items": { "type": "string" }, "description": "EV charge/plug connectors to include (e.g. ['nacs','ccs']), matching `Vehicle.charge_port`.", "examples": [["nacs"]] },
+        "driveline": { "type": "array", "items": { "type": "string" }, "description": "Drivetrain layouts to include (e.g. ['awd']). Car context.", "examples": [["awd"]] },
+        "body": { "type": "array", "items": { "type": "string" }, "description": "Body styles / segments to include, applicable to any vehicle_type (e.g. ['sedan','suv','truck'] for cars, ['cruiser','touring'] for motorcycles).", "examples": [["suv"], ["cruiser"]] },
+        "displacement_cc_min": { "type": "integer", "minimum": 0, "description": "Minimum engine displacement in cc, applied against `displacement_cc`.", "examples": [600] },
+        "displacement_cc_max": { "type": "integer", "minimum": 0, "description": "Maximum engine displacement in cc, applied against `displacement_cc`.", "examples": [1200] },
+        "exterior_color": { "type": "array", "items": { "type": "string" }, "examples": [["black"]] },
+        "interior_color": { "type": "array", "items": { "type": "string" }, "examples": [["black"]] },
+        "rooftops": { "type": "array", "items": { "type": "string" }, "description": "Rooftop names to include, matching `Vehicle.rooftop` and the rooftop `name` from `dealer.information`. For multi-rooftop dealerships; omit to search across all rooftops.", "examples": [["Demo Toyota San Francisco"]] },
+        "year_min": { "type": "integer", "minimum": 1900, "maximum": 2100, "examples": [2023] },
+        "year_max": { "type": "integer", "minimum": 1900, "maximum": 2100, "examples": [2025] },
+        "price_min": { "type": "integer", "minimum": 0, "description": "Minimum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.", "examples": [20000] },
+        "price_max": { "type": "integer", "minimum": 0, "description": "Maximum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.", "examples": [40000] },
+        "mileage_max": { "type": "integer", "minimum": 0, "examples": [60000] },
+        "vin": { "type": "string", "pattern": "^[A-HJ-NPR-Z0-9]{17}$", "examples": ["1HGCV1F30NA123456"] },
+        "stock": { "type": "string", "examples": ["H12345"] },
+        "query": { "type": "string", "maxLength": 200, "description": "Optional free-text query.", "examples": ["AWD hybrid SUV under 40k"] }
+      },
+      "additionalProperties": false
+    }
+  }
+}

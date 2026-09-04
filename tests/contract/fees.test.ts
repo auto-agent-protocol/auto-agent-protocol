@@ -31,9 +31,8 @@ function validators(): { vehicle: ValidateFunction; dealer: ValidateFunction; fe
 
 const { vehicle, dealer, fee } = validators();
 
-test("a vehicle price requires an explicit complete fee state", () => {
-  assert.equal(vehicle({ price: 25_000 }), false);
-  assert.match(JSON.stringify(vehicle.errors), /fees/);
+test("an authoritative price is valid with or without an itemized fee breakdown", () => {
+  assert.equal(vehicle({ price: 25_000 }), true);
   assert.equal(vehicle({ price: 25_000, fees: [] }), true);
   assert.equal(vehicle({
     price: 25_500,
@@ -41,7 +40,7 @@ test("a vehicle price requires an explicit complete fee state", () => {
   }), true);
 });
 
-test("list-only inventory remains valid without fee assertions", () => {
+test("list-only inventory and informational list-plus-fee components remain valid", () => {
   assert.equal(vehicle({ list_price: 25_000 }), true);
   assert.equal(vehicle({ list_price: 25_000, fees: [{ name: "Documentation fee", amount: 500 }] }), true);
 });

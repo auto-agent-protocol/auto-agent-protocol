@@ -1,0 +1,65 @@
+{
+  "type": "lead.submit.request",
+  "customer": {
+    "first_name": "Dana",
+    "last_name": "Reyes",
+    "email": "dana.reyes@example.com",
+    "phone": "+14085551234",
+    "preferred_contact": "phone",
+    "address": {
+      "address_line_1": "88 Almaden Boulevard",
+      "city": "San Jose",
+      "state": "CA",
+      "zip": "95113"
+    }
+  },
+  "consent": {
+    "granted_at": "2026-04-30T16:20:00Z",
+    "expires_at": "2027-04-30T16:20:00Z",
+    "allowed_channels": ["email", "phone"],
+    "consent_text": "I authorize Demo Powersports to contact me by phone or email about VIN 1AM1KRM19NB654321 and my requested demo ride on May 4, and about trading in my 2019 Meridian Cruiser 500. I understand I can withdraw consent at any time.",
+    "scope": ["lead_submission"]
+  },
+  "vehicle_of_interest": {
+    "vehicle_type": "motorcycle",
+    "vin": "1AM1KRM19NB654321",
+    "year": 2024,
+    "make": "Acme Moto",
+    "model": "Grand Tourer",
+    "condition": "new",
+    "stock": "M-5012",
+    "body": "touring",
+    "displacement_cc": 1868,
+    "other_attributes": { "final_drive": "belt", "wheel_count": 2 },
+    "transmission": "manual",
+    "price": 27480,
+    "fees": [
+      { "name": "Documentation fee", "amount": 481 },
+      { "name": "Dealer preparation fee", "amount": 1000 }
+    ]
+  },
+  "trade_in": {
+    "vehicle_type": "motorcycle",
+    "year": 2019,
+    "make": "Meridian",
+    "model": "Cruiser 500",
+    "condition": "good",
+    "body": "cruiser",
+    "displacement_cc": 471,
+    "other_attributes": { "final_drive": "chain", "wheel_count": 2 },
+    "mileage": 8600
+  },
+  "appointment": {
+    "appointment_type": "test_drive",
+    "appointment_at": "2026-05-04T17:00:00Z",
+    "duration_minutes": 45,
+    "notes": "I'd like a demo ride on the Grand Tourer and to have my Cruiser 500 appraised the same day."
+  },
+  "message": "Interested in the 2024 Acme Moto Grand Tourer (VIN 1AM1KRM19NB654321). I'd like a demo ride and to trade in my 2019 Meridian Cruiser 500 with 8,600 miles.",
+  "source_agent": {
+    "name": "claude-auto-shopper",
+    "agent_card_url": "https://shopper.example.com/.well-known/agent-card.json"
+  },
+  "submitted_at": "2026-04-30T16:20:09Z",
+  "idempotency_key": "01HZ9DANAREYES5521LEAD0007"
+}

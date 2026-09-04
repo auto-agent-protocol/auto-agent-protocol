@@ -4,7 +4,7 @@ This repository has one editable source and immutable release snapshots.
 
 - Edit `spec/latest/` and `docs/` during normal development.
 - Treat every path registered in `releases.json` as read-only.
-- Treat public `/latest/` as an alias of the registry's approved stable release.
+- Treat public contract artifacts under `/latest/` as an alias of the registry's approved stable release; `/docs/latest/` remains the editable documentation channel.
 - Do not create a `next` directory, URL, tag, or package channel.
 
 ## Before preparing a release

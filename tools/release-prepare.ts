@@ -12,6 +12,7 @@ import { generateMcp } from "./generate-mcp-manifest.js";
 import { validateManifest } from "./validate-manifest.js";
 
 interface Change {kind: "additive" | "breaking"; file: string; path: string; detail: string}
+const JSON_SCHEMA_ANNOTATIONS = new Set(["$comment", "$id", "default", "deprecated", "description", "examples", "readOnly", "title", "writeOnly"]);
 function normalizeReleaseIdentifiers(value: unknown): unknown {
   if (typeof value === "string") return value
     .replaceAll(/https:\/\/autoagentprotocol\.org\/v\d+\.\d+\//g, `${SITE}/v{release}/`)
@@ -22,14 +23,16 @@ function normalizeReleaseIdentifiers(value: unknown): unknown {
 }
 function structuralDiff(previous: unknown, candidate: unknown, file: string, path = "$"): Change[] {
   if (JSON.stringify(previous) === JSON.stringify(candidate)) return [];
-  if (path.endsWith(".$id") || path.endsWith(".description") || path.endsWith(".title")) return [];
+  const keyword = path.slice(path.lastIndexOf(".") + 1);
+  if (JSON_SCHEMA_ANNOTATIONS.has(keyword)) return [];
   if (previous && candidate && typeof previous === "object" && typeof candidate === "object" && !Array.isArray(previous) && !Array.isArray(candidate)) {
     const before = previous as Record<string, unknown>, after = candidate as Record<string, unknown>, changes: Change[] = [];
     for (const key of Object.keys(before)) {
-      if (!(key in after)) changes.push({kind: "breaking", file, path: `${path}.${key}`, detail: "removed"});
+      if (!(key in after) && !JSON_SCHEMA_ANNOTATIONS.has(key)) changes.push({kind: "breaking", file, path: `${path}.${key}`, detail: "removed"});
       else changes.push(...structuralDiff(before[key], after[key], file, `${path}.${key}`));
     }
     for (const key of Object.keys(after)) if (!(key in before)) {
+      if (JSON_SCHEMA_ANNOTATIONS.has(key)) continue;
       const additive = path.endsWith(".properties") || path.endsWith(".$defs");
       changes.push({kind: additive ? "additive" : "breaking", file, path: `${path}.${key}`, detail: additive ? "optional definition/property added" : "value added outside an optional property map"});
     }
@@ -80,7 +83,10 @@ export async function prepareRelease(root: string, version: string, dryRun: bool
     mkdirSync(artifacts, {recursive: true});
     await generateTypes(join(candidateSpec, "schemas"), artifacts, version); await generateOpenapi(candidateSpec, artifacts, version); generateMcp(candidateSpec, artifacts, version);
     const changes = compatibility(root, stable.contract, candidateSpec);
-    if (changes.some(change => change.kind === "breaking") && major === oldMajor) throw new Error("Compatibility report found breaking schema changes; a minor release is not permitted");
+    const breaking = changes.filter(change => change.kind === "breaking");
+    if (breaking.length > 0 && major === oldMajor) {
+      throw new Error(`Compatibility report found breaking schema changes; a minor release is not permitted:\n${JSON.stringify(breaking, null, 2)}`);
+    }
     const report = {schemaVersion: 1, previous: stable.version, candidate: version, summary: {additive: changes.filter(c => c.kind === "additive").length, breaking: changes.filter(c => c.kind === "breaking").length}, changes, note: "Structural schema check only. Maintainers must review normative behavior and documentation."};
     if (dryRun) { console.log(JSON.stringify(report, null, 2)); return {contract, changes}; }
     const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], {cwd: root, encoding: "utf8"}).trim();

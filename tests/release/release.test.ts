@@ -27,6 +27,15 @@ function git(root: string, args: string[]): string {
   return execFileSync("git", args, {cwd: root, encoding: "utf8"}).trim();
 }
 
+function nextMinor(root: string): {version: string; contract: string} {
+  const registry = loadRegistry(root);
+  const stable = registry.releases.find(release => release.contract === registry.stable);
+  if (!stable) throw new Error(`Stable release ${registry.stable} is missing`);
+  const [major, minor] = stable.version.split(".").map(Number);
+  const version = `${major}.${minor + 1}.0`;
+  return {version, contract: contractFor(version)};
+}
+
 function fixture(): {root: string; cleanup: () => void; base: string} {
   const temporary = mkdtempSync(join(tmpdir(), "aap-release-test-"));
   const root = join(temporary, "repo");
@@ -70,29 +79,30 @@ test("draft generation is isolated from frozen releases and stable package types
 
 test("release dry-run changes no repository bytes", async () => {
   const before = releaseState(ROOT);
-  await assert.rejects(() => prepareRelease(ROOT, "1.3.0", true), /breaking schema changes/);
-  await prepareRelease(ROOT, "2.0.0", true);
+  await prepareRelease(ROOT, nextMinor(ROOT).version, true);
   assert.equal(releaseState(ROOT), before);
 });
 
 test("release preparation snapshots latest once and refuses overwrite", async () => {
   const context = fixture();
   try {
+    const candidate = nextMinor(context.root);
     const latestBefore = snapshot(join(context.root, "spec/latest"));
-    await prepareRelease(context.root, "2.0.0", false);
+    await prepareRelease(context.root, candidate.version, false);
     const registry = loadRegistry(context.root);
-    assert.equal(registry.stable, "v2.0");
-    assert.equal(registry.releases.at(-1)?.version, "2.0.0");
+    assert.equal(registry.stable, candidate.contract);
+    assert.equal(registry.releases.at(-1)?.version, candidate.version);
     assert.equal(snapshot(join(context.root, "spec/latest")), latestBefore);
-    assert.equal(readJson<{version: string}>(join(context.root, "package.json")).version, "2.0.0");
-    assert.deepEqual(filesIn(join(context.root, "releases/v2.0/artifacts")).map(file => relative(join(context.root, "releases/v2.0/artifacts"), file)).sort(), ["mcp.json", "openapi-jsonrpc.yaml", "types.d.ts"]);
+    assert.equal(readJson<{version: string}>(join(context.root, "package.json")).version, candidate.version);
+    const releaseRoot = join(context.root, "releases", candidate.contract);
+    assert.deepEqual(filesIn(join(releaseRoot, "artifacts")).map(file => relative(join(releaseRoot, "artifacts"), file)).sort(), ["mcp.json", "openapi-jsonrpc.yaml", "types.d.ts"]);
     const latestDiagram = join(context.root, "docs/img/pricing-ladder.svg");
-    const releasedDiagram = join(context.root, "versioned_docs/version-v2.0/img/pricing-ladder.svg");
+    const releasedDiagram = join(context.root, "versioned_docs", `version-${candidate.contract}`, "img/pricing-ladder.svg");
     assert.equal(hash(readFileSync(releasedDiagram)), hash(readFileSync(latestDiagram)), "release must freeze the reviewed latest diagrams with its docs");
-    assert.ok(!filesIn(join(context.root, "releases/v2.0")).some(file => readFileSync(file).includes("autoagentprotocol.invalid")));
+    assert.ok(!filesIn(releaseRoot).some(file => readFileSync(file).includes("autoagentprotocol.invalid")));
     await checkAllReleases(context.root);
-    await assert.rejects(() => prepareRelease(context.root, "2.0.0", false), /already exists|immutable/);
-    await assert.rejects(() => prepareRelease(context.root, "2.1.0", false), /clean working tree/);
+    await assert.rejects(() => prepareRelease(context.root, candidate.version, false), /already exists|immutable/);
+    await assert.rejects(() => prepareRelease(context.root, nextMinor(context.root).version, false), /clean working tree/);
   } finally {
     context.cleanup();
   }
@@ -101,14 +111,15 @@ test("release preparation snapshots latest once and refuses overwrite", async ()
 test("a late release failure restores metadata and removes partial targets", async () => {
   const context = fixture();
   try {
+    const candidate = nextMinor(context.root);
     const docs = join(context.root, "docs/intro.md");
     writeFileSync(docs, `${readFileSync(docs, "utf8")}\n![missing release asset](/img/missing-release-asset.png)\n`);
     git(context.root, ["add", "docs/intro.md"]);
     git(context.root, ["commit", "-qm", "introduce a late integrity failure"]);
     const before = releaseState(context.root);
-    await assert.rejects(() => prepareRelease(context.root, "2.0.0", false), /Missing or unsafe released image/);
+    await assert.rejects(() => prepareRelease(context.root, candidate.version, false), /Missing or unsafe released image/);
     assert.equal(releaseState(context.root), before);
-    for (const path of ["spec/v2.0", "versioned_docs/version-v2.0", "versioned_sidebars/version-v2.0-sidebars.json", "releases/v2.0"]) assert.equal(existsSync(join(context.root, path)), false, `${path} must be rolled back`);
+    for (const path of [`spec/${candidate.contract}`, `versioned_docs/version-${candidate.contract}`, `versioned_sidebars/version-${candidate.contract}-sidebars.json`, `releases/${candidate.contract}`]) assert.equal(existsSync(join(context.root, path)), false, `${path} must be rolled back`);
   } finally {
     context.cleanup();
   }

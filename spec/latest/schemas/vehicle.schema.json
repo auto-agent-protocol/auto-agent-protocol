@@ -126,7 +126,7 @@
     "price": {
       "type": "integer",
       "minimum": 0,
-      "description": "Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. When present, `fees` is required and itemizes the mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context.",
+      "description": "Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context.",
       "examples": [35500]
     },
     "list_price": {
@@ -138,7 +138,7 @@
     "fees": {
       "type": "array",
       "uniqueItems": true,
-      "description": "Complete effective snapshot of mandatory, non-government dealer charges and dealer-required add-ons for this vehicle. Every amount is already included in `price`; consumers MUST NOT add these amounts to `price`. Omitted means fee status is unknown and therefore `price` MUST also be omitted. An empty array means the publisher affirmatively reports no mandatory dealer charges. A non-empty array is the full vehicle-specific list. This array never represents a delta from rooftop fees: consumers MUST NOT join or merge it with `dealer.information`; when vehicle fees differ from rooftop defaults, this array replaces the rooftop array in full.",
+      "description": "Optional itemized snapshot of mandatory, non-government dealer charges and dealer-required add-ons for this vehicle. When `price` is present, every listed amount is already included in `price`; consumers MUST NOT add these amounts again. Omitted means the itemized breakdown was not provided and does not invalidate an otherwise authoritative `price`. An empty array means the publisher affirmatively reports no mandatory dealer charges. When present, a non-empty array is the complete vehicle-specific list. This array never represents a delta from rooftop fees: consumers MUST NOT join or merge it with `dealer.information`; when vehicle fees differ from rooftop defaults, this array replaces the rooftop array in full. If `list_price` and `fees` are present without `price`, they are informational components only; consumers MUST NOT derive or advertise a replacement price from them.",
       "items": { "$ref": "./_primitives/dealer-fee.schema.json" }
     },
     "stock": {
@@ -297,9 +297,6 @@
       "description": "ISO 8601 / RFC 3339 timestamp (with timezone offset) of the last update to this vehicle's availability, price, fees, or status (e.g. '2026-04-30T08:42:00Z'). Buyer agents treat this as the freshness signal for availability and pricing claims.",
       "examples": ["2026-04-30T08:42:00Z"]
     }
-  },
-  "dependentRequired": {
-    "price": ["fees"]
   },
   "additionalProperties": true
 }

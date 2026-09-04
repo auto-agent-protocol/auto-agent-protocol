@@ -347,15 +347,11 @@ function renderPricing(spec: Extract<DiagramSpec, { kind: "pricing" }>): string 
   const cardWidth = (WIDTH - left * 2 - gap * 3) / 4;
   const top = 250;
   const cardHeight = height - top - 126;
-  // MSRP is a reference price, not an input to the advertised-price equation.
-  // The actual relationship is list_price + fees = price.
-  const operators = ["", "→", "+", "="];
+  // These are independent protocol fields, not an equation. In particular,
+  // consumers never derive price from list_price plus fees.
   return renderFrame(spec, spec.items.map((item, index) => {
     const x = left + index * (cardWidth + gap);
-    const operator = index > 0
-      ? `<circle cx="${x - gap / 2}" cy="${top + cardHeight / 2}" r="18" fill="${palette.surface}" stroke="${palette.lineStrong}" stroke-width="2"/>${text(operators[index], x - gap / 2, top + cardHeight / 2 + 7, 30, { size: 22, weight: 800, fill: palette.blue, anchor: "middle" }).svg}`
-      : "";
-    return operator + renderCard(item, x, top, cardWidth, cardHeight);
+    return renderCard(item, x, top, cardWidth, cardHeight);
   }).join(""));
 }
 
@@ -416,6 +412,9 @@ async function check(): Promise<void> {
   for (const file of currentFiles) {
     const source = readFileSync(join(ROOT, file), "utf8");
     if (/static\/img\/v\d|\/img\/v\d/.test(source)) throw new Error(`${file}: current content must not reuse frozen version artwork`);
+    if (/(?:docs\/img\/|\.\.?\/img\/)[^\s)'\"]+\.(?:png|jpe?g|gif|webp)/i.test(source)) {
+      throw new Error(`${file}: current documentation diagrams must use the generated SVG set, not legacy raster artwork`);
+    }
   }
   console.log(`Image check passed: ${expected.size} SVGs, one palette, all referenced.`);
 }
