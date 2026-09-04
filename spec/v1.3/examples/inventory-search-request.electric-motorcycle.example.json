@@ -1,0 +1,15 @@
+{
+  "type": "inventory.search.request",
+  "filters": {
+    "vehicle_type": ["motorcycle"],
+    "make": ["Acme Moto"],
+    "fuel": ["bev"],
+    "condition": ["new"],
+    "electric_range_mi_min": 100,
+    "charge_port": ["nacs"],
+    "price_max": 15000
+  },
+  "pagination": { "skip": 0, "limit": 25 },
+  "sort": { "field": "price", "order": "asc" },
+  "privacy": { "anonymous": true }
+}

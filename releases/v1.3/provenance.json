@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "3d3a0c455fe2738a9154efaff16e9f2b57195f3b",
+  "workingSpecSha256": "06307f97c5d7477ada9d8ca96dddb700a887d3cb3118eb905cb39767f605ea93",
+  "generators": {
+    "tools/generate-types.ts": "6f5512ebe03c784822d2f1c41f34d3008fa266ae00eee5b20c48a4d56abfd219",
+    "tools/generate-openapi.ts": "ef183190fe09512c560e6385c8042dd4056a6f9c28d6ada2ce48ba6c6c73fe78",
+    "tools/generate-mcp-manifest.ts": "2889da9a662acd52ec6a89601889f20e19aa146bacd6cec51099e67c69292b69",
+    "pnpm-lock.yaml": "7a86897b759a76012b160dedd48202ba135f64764264727160c2484e8541acac"
+  }
+}

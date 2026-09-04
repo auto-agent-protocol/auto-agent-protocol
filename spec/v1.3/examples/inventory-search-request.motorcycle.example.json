@@ -1,0 +1,16 @@
+{
+  "type": "inventory.search.request",
+  "filters": {
+    "vehicle_type": ["motorcycle"],
+    "make": ["Acme Moto"],
+    "condition": ["new"],
+    "body": ["cruiser", "touring"],
+    "displacement_cc_min": 1200,
+    "displacement_cc_max": 2000,
+    "price_max": 30000,
+    "year_min": 2023
+  },
+  "pagination": { "skip": 0, "limit": 25 },
+  "sort": { "field": "price", "order": "asc" },
+  "privacy": { "anonymous": true }
+}

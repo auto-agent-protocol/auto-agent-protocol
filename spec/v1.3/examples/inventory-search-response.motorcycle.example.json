@@ -1,0 +1,118 @@
+{
+  "type": "inventory.search.response",
+  "data": {
+    "total": 2,
+    "skip": 0,
+    "limit": 25,
+    "vehicles": [
+      {
+        "vehicle_type": "motorcycle",
+        "dealer_id": "dealer_demo_powersports",
+        "vehicle_id": "veh_dp_5012",
+        "vin": "1AM1KRM19NB654321",
+        "stock": "M-5012",
+        "rooftop": "Demo Powersports San Jose",
+        "year": 2024,
+        "make": "Acme Moto",
+        "model": "Grand Tourer",
+        "body": "touring",
+        "engine": "1868cc V-twin",
+        "displacement_cc": 1868,
+        "other_attributes": { "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2, "abs": true },
+        "transmission": "manual",
+        "fuel": "gas",
+        "exterior_color": "Gloss Black",
+        "condition": "new",
+        "status": "available",
+        "description": "New 2024 Acme Moto Grand Tourer with a 1868cc V-twin, ABS, and infotainment.",
+        "msrp": 25999,
+        "list_price": 25999,
+        "price": 27480,
+        "fees": [
+          { "name": "Documentation fee", "amount": 481 },
+          { "name": "Dealer preparation fee", "amount": 1000 }
+        ],
+        "mileage": 3,
+        "photos": [
+          "https://cdn.demo-powersports.example.com/inventory/m-5012/01.jpg",
+          "https://cdn.demo-powersports.example.com/inventory/m-5012/02.jpg"
+        ],
+        "vdp_url": "https://demo-powersports.example.com/inventory/new/2024-acme-moto-grand-tourer-M-5012",
+        "inventory_date": "2026-04-18",
+        "updated_at": "2026-04-30T07:20:00Z"
+      },
+      {
+        "vehicle_type": "motorcycle",
+        "dealer_id": "dealer_demo_powersports",
+        "vehicle_id": "veh_dp_5044",
+        "vin": "1AM1FBM17NB112233",
+        "stock": "M-5044",
+        "rooftop": "Demo Powersports San Jose",
+        "year": 2023,
+        "make": "Acme Moto",
+        "model": "Classic Cruiser",
+        "body": "cruiser",
+        "engine": "1746cc V-twin",
+        "displacement_cc": 1746,
+        "other_attributes": { "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2, "abs": true },
+        "transmission": "manual",
+        "fuel": "gas",
+        "exterior_color": "Classic Red",
+        "condition": "used",
+        "status": "available",
+        "description": "One-owner 2023 Classic Cruiser with saddlebags and a clean title.",
+        "msrp": 21499,
+        "list_price": 18995,
+        "price": 19995,
+        "fees": [
+          { "name": "Dealer preparation fee", "amount": 1000 }
+        ],
+        "mileage": 4210,
+        "photos": [
+          "https://cdn.demo-powersports.example.com/inventory/m-5044/01.jpg"
+        ],
+        "vdp_url": "https://demo-powersports.example.com/inventory/used/2023-acme-moto-classic-cruiser-M-5044",
+        "inventory_date": "2026-04-22",
+        "updated_at": "2026-04-30T08:10:00Z"
+      }
+    ],
+    "facets": {
+      "makes": [
+        { "value": "Acme Moto", "count": 2 }
+      ],
+      "models": [
+        { "value": "Grand Tourer", "count": 1 },
+        { "value": "Classic Cruiser", "count": 1 }
+      ],
+      "years": [
+        { "value": 2024, "count": 1 },
+        { "value": 2023, "count": 1 }
+      ],
+      "conditions": [
+        { "value": "new", "count": 1 },
+        { "value": "used", "count": 1 }
+      ],
+      "vehicle_types": [
+        { "value": "motorcycle", "count": 2 }
+      ],
+      "bodies": [
+        { "value": "touring", "count": 1 },
+        { "value": "cruiser", "count": 1 }
+      ],
+      "fuels": [
+        { "value": "gas", "count": 2 }
+      ],
+      "rooftops": [
+        { "value": "Demo Powersports San Jose", "count": 2 }
+      ],
+      "statuses": [
+        { "value": "available", "count": 2 }
+      ],
+      "price_range": { "min": 19995, "max": 27480 },
+      "mileage_range": { "min": 3, "max": 4210 },
+      "year_range": { "min": 2023, "max": 2024 },
+      "displacement_cc_range": { "min": 1746, "max": 1868 }
+    }
+  },
+  "message": "2 Acme Moto motorcycles match your filters. Each 'price' includes the itemized mandatory dealer fees; government charges are excluded."
+}

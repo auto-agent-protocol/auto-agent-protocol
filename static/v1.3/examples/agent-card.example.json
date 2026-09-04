@@ -1,0 +1,134 @@
+{
+  "name": "Demo Toyota",
+  "description": "Auto Agent Protocol dealer agent for Demo Toyota \u2014 browse inventory and submit consented leads over A2A.",
+  "supportedInterfaces": [
+    {
+      "url": "https://demo-toyota.example.com/a2a",
+      "protocolBinding": "JSONRPC",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "provider": {
+    "organization": "Lumika AI",
+    "url": "https://lumika.ai"
+  },
+  "version": "1.0.0",
+  "documentationUrl": "https://autoagentprotocol.org/",
+  "capabilities": {
+    "extensions": [
+      {
+        "uri": "https://autoagentprotocol.org/extensions/aap/v1.3",
+        "params": {
+          "id": "0192f3c0-1a2b-7c3d-8e4f-5a6b7c8d9e0f",
+          "version": "1.3.0",
+          "schema_base_url": "https://autoagentprotocol.org/v1.3/schemas/",
+          "skills": {
+            "dealer.information": {
+              "request_schema": "https://autoagentprotocol.org/v1.3/schemas/dealer-information-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v1.3/schemas/dealer-information-response.schema.json"
+            },
+            "inventory.facets": {
+              "request_schema": "https://autoagentprotocol.org/v1.3/schemas/inventory-facets-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v1.3/schemas/inventory-facets-response.schema.json"
+            },
+            "inventory.search": {
+              "request_schema": "https://autoagentprotocol.org/v1.3/schemas/inventory-search-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v1.3/schemas/inventory-search-response.schema.json"
+            },
+            "inventory.vehicle": {
+              "request_schema": "https://autoagentprotocol.org/v1.3/schemas/vehicle-detail-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v1.3/schemas/vehicle-detail-response.schema.json"
+            },
+            "lead.submit": {
+              "request_schema": "https://autoagentprotocol.org/v1.3/schemas/lead-submit-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v1.3/schemas/lead-submit-response.schema.json"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "defaultInputModes": [
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "dealer.information",
+      "name": "Dealer Information",
+      "description": "Return the dealership profile — group name, welcome message, and one or more rooftops (locations) with address, geo, contacts, business hours, timezone, default dealer fees, and service capabilities (including tags such as motorcycle_sales / powersports).",
+      "tags": [
+        "dealer",
+        "dealership",
+        "profile",
+        "hours",
+        "contact",
+        "locations",
+        "fees",
+        "automotive",
+        "motorcycles",
+        "powersports"
+      ]
+    },
+    {
+      "id": "inventory.facets",
+      "name": "Inventory Facets",
+      "description": "Return searchable inventory facets such as makes, models, years, conditions, body styles/segments, price ranges, mileage ranges, drivetrain, fuel type, statuses, vehicle type, engine-displacement range, and electric facets (electric-range span, DC fast charge, charge port).",
+      "tags": [
+        "inventory",
+        "facets",
+        "aggregation",
+        "filters",
+        "automotive",
+        "motorcycles",
+        "powersports"
+      ]
+    },
+    {
+      "id": "inventory.search",
+      "name": "Inventory Search",
+      "description": "Search vehicle inventory by query, make, model, trim, year, condition, price, mileage, body style/segment, VIN, stock, features, and availability — across cars, motorcycles, and other vehicle types, including filters such as vehicle type, body/segment, and engine displacement, plus electric filters such as electric range and DC fast charging.",
+      "tags": [
+        "inventory",
+        "vehicles",
+        "search",
+        "cars",
+        "motorcycles",
+        "powersports",
+        "automotive"
+      ]
+    },
+    {
+      "id": "inventory.vehicle",
+      "name": "Vehicle Detail",
+      "description": "Return details for a specific car or motorcycle by VIN, stock number, or vehicle_id, including status, pricing disclosure, photos, mileage, trim, features, fuel economy or engine displacement, electric range/battery/charging for BEV and PHEV units, and dealer page URL.",
+      "tags": [
+        "inventory",
+        "vehicle",
+        "vin",
+        "stock",
+        "detail",
+        "automotive",
+        "motorcycles",
+        "powersports"
+      ]
+    },
+    {
+      "id": "lead.submit",
+      "name": "Submit Lead",
+      "description": "Submit a consented lead carrying customer info plus any combination of vehicle of interest, trade-in, and appointment request — a single unified contract that matches how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).",
+      "tags": [
+        "lead",
+        "contact",
+        "consent",
+        "sales",
+        "appointment",
+        "automotive",
+        "motorcycles",
+        "powersports"
+      ]
+    }
+  ]
+}
