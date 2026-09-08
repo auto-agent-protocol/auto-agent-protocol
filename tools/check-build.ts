@@ -53,8 +53,13 @@ for (const file of latestPages) {
     throw new Error(`Latest-docs banner in ${relative(ROOT, file)} must link to published ${expectedTarget}, not ${target ?? "a missing target"}`);
   }
 }
+const searchIndex = readJson<Array<{documents?: Array<{u?: string}>}>>(join(build, "search-index.json"));
+const searchRoutes = new Set(searchIndex.flatMap(part => part.documents ?? []).map(document => document.u ?? ""));
+if (!searchRoutes.has(`/docs/${stable.contract}/intro`)) {
+  throw new Error(`Site-wide search index build/search-index.json carries no /docs/${stable.contract} documentation, so every page without a documentation version of its own searches an index holding no specification`);
+}
 const partnerAnchors = readFileSync(join(build, "partners.html"), "utf8").match(/<a[^>]*data-partner-link[^>]*>/g) ?? [];
 if (partnerAnchors.length !== loadPartners(ROOT).partners.flatMap(partner => partner.links).length) throw new Error("Built partner page does not link every registered partner site");
 const qualified = partnerAnchors.find(anchor => /\b(?:nofollow|noreferrer|sponsored)\b/.test(anchor.match(/rel="([^"]*)"/)?.[1] ?? ""));
 if (qualified) throw new Error(`Partner links must stay plain dofollow with referrer: ${qualified}`);
-console.log(`Production build valid: editable docs rendered at /docs/latest; /latest artifacts equal ${stable.contract}; ${renderedVersions.length - 1} frozen releases remain selectable.`);
+console.log(`Production build valid: editable docs rendered at /docs/latest; /latest artifacts equal ${stable.contract}; ${renderedVersions.length - 1} frozen releases remain selectable; site-wide search index carries ${[...searchRoutes].filter(route => route.startsWith(`/docs/${stable.contract}/`)).length} ${stable.contract} pages.`);
