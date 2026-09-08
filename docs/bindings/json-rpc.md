@@ -47,7 +47,7 @@ All AAP skills use a single JSON-RPC method:
 
 `SendMessage` is the **only** A2A operation AAP uses (message-only pattern: request `Message` in, response `Message` out). The optional A2A surface — `SendStreamingMessage`, the `tasks` operations (Get/List/Cancel/Subscribe), push notification configs, and `GetExtendedAgentCard` — is out of scope for AAP: dealer agents do not need to implement it, and buyer agents MUST NOT require it.
 
-Out of scope does not mean undefined on the wire. An AAP card declares no `streaming`, `pushNotifications` or `extendedAgentCard` capability, and A2A §3.3.4 fixes what an agent MUST answer when a client calls into a capability the card does not declare. A dealer agent MUST answer accordingly rather than inventing a code:
+Out of scope does not mean undefined on the wire. An AAP card normally declares no `streaming`, `pushNotifications` or `extendedAgentCard` capability, and A2A §3.3.4 fixes what an agent MUST answer when a client calls into a capability the card does not declare. A dealer agent MUST answer accordingly rather than inventing a code:
 
 | Operation a client calls anyway | A2A error | JSON-RPC |
 |---|---|---|
@@ -57,6 +57,8 @@ Out of scope does not mean undefined on the wire. An AAP card declares no `strea
 | `GetTask`, `ListTasks`, `CancelTask` | `UnsupportedOperationError` | -32004 |
 
 These are A2A protocol-level errors, so they carry A2A's own `error.data` shape — an array whose entries each carry an `@type` — not a typed `aap.error` payload.
+
+A dealer agent MUST NOT declare a capability it cannot serve. The flags are not decorative: the reference `a2a-python` client branches on `card.capabilities.streaming` in its ordinary send path, so a card claiming `streaming: true` in front of a `SendMessage`-only dealer turns a default-configured client's normal call into `SendStreamingMessage` against an agent that cannot serve it. A dealer that genuinely serves A2A streaming to non-AAP partners MAY declare it truthfully — A2A requires the card to be truthful — but then it MUST actually implement that surface. AAP itself never requires it, and a buyer agent MUST NOT depend on it.
 
 The `id` field is the standard JSON-RPC request id; AAP does not constrain it. The `params.message` is an A2A `Message` whose first `parts[]` entry is the typed AAP `DataPart`. A buyer agent MUST also include `params.configuration.acceptedOutputModes` listing the AAP response media type it expects.
 

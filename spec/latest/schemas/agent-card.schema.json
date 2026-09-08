@@ -30,7 +30,19 @@
           }
         },
         "required": ["url", "protocolBinding", "protocolVersion"],
-        "additionalProperties": true
+        "additionalProperties": true,
+        "if": {
+          "properties": { "protocolBinding": { "const": "JSONRPC" } },
+          "required": ["protocolBinding"]
+        },
+        "then": {
+          "properties": {
+            "url": {
+              "pattern": "^(?:https://[^\\s/?#]+|http://(?:localhost|127\\.0\\.0\\.1|\\[::1\\])(?::\\d+)?)(?:[/?#]|$)",
+              "description": "AAP's own binding MUST be served over HTTPS in production (A2A 7.1 and 13.4; a2a.proto AgentInterface.url says a valid absolute HTTPS URL in production). Loopback over http is permitted for a local development harness only and MUST NOT be published. Other bindings a dealer advertises are A2A's concern, so this constraint applies only to the JSONRPC entry."
+            }
+          }
+        }
       },
       "contains": {
         "type": "object",

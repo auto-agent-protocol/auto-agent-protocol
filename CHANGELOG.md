@@ -91,6 +91,19 @@ versioning policy is described in the
 - The inline agent card in `docs/discovery.md` is synced to the published
   copy-pasteable example; the two had drifted on every skill description and
   tag list.
+- The AAP binding's `url` MUST be HTTPS, enforced in the card schema with a
+  loopback carve-out for a local development harness. Scoped to the JSONRPC
+  entry, so a dealer's other bindings — including gRPC's scheme-less
+  `hostname:port` — are unaffected.
+- `event.schema.json` is marked RESERVED and names no delivery mechanism. It
+  described delivery over push notifications and task status events, both out
+  of scope for the profile.
+- States that a dealer MUST NOT declare a capability it cannot serve. The
+  reference `a2a-python` client branches on `capabilities.streaming` in its
+  ordinary send path, so an untruthful flag turns a default client's normal
+  call into `SendStreamingMessage` against an agent that cannot serve it.
+- The inline MCP manifest in `docs/compatibility/mcp.md` is synced to the
+  generated artifact it claims to reproduce.
 
 ## [1.3.0] — 2026-09-04
 

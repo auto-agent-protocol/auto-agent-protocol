@@ -84,8 +84,8 @@ Several A2A errors are raised by the A2A layer itself, not by AAP skill logic, s
 | A2A error | JSON-RPC | Returned when |
 |---|---|---|
 | `ExtensionSupportRequiredError` | -32008 | The request did not activate the AAP extension via the `A2A-Extensions` header, though the agent card declares it `required: true` (A2A §3.3.4). |
-| `ContentTypeNotSupportedError` | -32005 | A part's `mediaType`, or a `configuration.acceptedOutputModes` entry, names a media type this skill does not serve. AAP pins every part to `application/vnd.autoagent.<skill>-request+json`, so this is the code for a mismatch. |
-| `UnsupportedOperationError` | -32004 | The client called an A2A operation outside AAP's single-operation surface — streaming, tasks, push notification configs, or the extended card. See the [capability table](./bindings/json-rpc.md#endpoint-and-method). |
+| `ContentTypeNotSupportedError` | -32005 | A part's `mediaType`, or a `configuration.acceptedOutputModes` entry, names a media type the skill does not serve. A2A names this error for `SendMessage`; a dealer agent that rejects on media type SHOULD use it rather than a generic code. |
+| `UnsupportedOperationError` | -32004 | The client called an A2A operation outside AAP's single-operation surface — streaming, tasks, or the extended card. See the [capability table](./bindings/json-rpc.md#endpoint-and-method). |
 | `PushNotificationNotSupportedError` | -32003 | The client called a push notification config operation; no AAP card declares that capability. |
 | `VersionNotSupportedError` | -32009 | The `A2A-Version` header names a `Major.Minor` the interface does not serve. An empty or absent header is read as `0.3`, not as `1.0` — A2A §3.6.1 assumes 0.3 for an empty header and §3.6.2 requires agents to interpret an empty value that way. |
 
@@ -93,7 +93,7 @@ Dealer agents return these in A2A's own error shape, not as a typed `aap.error` 
 
 ### The activation error MUST be self-healing
 
-A buyer agent that omitted `A2A-Extensions` is one header away from a correct call, so the rejection MUST carry what it needs to fix itself in a single retry — the same one-round-trip principle `details.errors[]` applies to validation. A dealer agent returning `-32008` MUST include a `google.rpc.ErrorInfo` detail whose `metadata` names the extension URI to activate and the header to send it in:
+A buyer agent that omitted `A2A-Extensions` is one header away from a correct call, so the rejection MUST carry what it needs to fix itself in a single retry — the same one-round-trip principle `details.errors[]` applies to validation. A2A leaves the body of this error open — details are optional there. AAP closes it: a dealer agent returning `-32008` MUST include a `google.rpc.ErrorInfo` whose `domain` is `a2a-protocol.org` (A2A owns this error type) and whose `metadata` names the extension URI to activate and the header to send it in:
 
 ```json
 {
@@ -106,7 +106,7 @@ A buyer agent that omitted `A2A-Extensions` is one header away from a correct ca
       {
         "@type": "type.googleapis.com/google.rpc.ErrorInfo",
         "reason": "EXTENSION_SUPPORT_REQUIRED",
-        "domain": "autoagentprotocol.org",
+        "domain": "a2a-protocol.org",
         "metadata": {
           "extensionUri": "https://autoagentprotocol.org/extensions/aap/v1.3",
           "requiredHeader": "A2A-Extensions"

@@ -62,6 +62,23 @@ test("securityRequirements takes the A2A v1.0 schemes shape", () => {
   assert.equal(card(withCard({ securityRequirements: [{ bearer: [] }] })), false);
 });
 
+test("the AAP binding must be HTTPS, with loopback allowed for a dev harness", () => {
+  const jsonrpc = (url: string) => [{ url, protocolBinding: "JSONRPC", protocolVersion: "1.0" }];
+  assert.equal(card(withCard({ supportedInterfaces: jsonrpc("https://demo.example.com/a2a") })), true);
+  assert.equal(card(withCard({ supportedInterfaces: jsonrpc("http://localhost:3000/a2a") })), true);
+  assert.equal(card(withCard({ supportedInterfaces: jsonrpc("http://127.0.0.1/a2a") })), true);
+  assert.equal(card(withCard({ supportedInterfaces: jsonrpc("http://demo.example.com/a2a") })), false);
+  assert.equal(card(withCard({ supportedInterfaces: jsonrpc("http://localhost.evil.com/a2a") })), false);
+});
+
+test("the HTTPS rule constrains AAP's own binding, not other bindings a dealer advertises", () => {
+  const interfaces = [
+    { url: "https://demo.example.com/a2a", protocolBinding: "JSONRPC", protocolVersion: "1.0" },
+    { url: "demo.example.com:443", protocolBinding: "GRPC", protocolVersion: "1.0" },
+  ];
+  assert.equal(card(withCard({ supportedInterfaces: interfaces })), true, JSON.stringify(card.errors));
+});
+
 test("declared media-type modes match what AAP actually exchanges", () => {
   const modes = [...(example.defaultInputModes as string[]), ...(example.defaultOutputModes as string[])];
   assert.ok(modes.length > 0);
