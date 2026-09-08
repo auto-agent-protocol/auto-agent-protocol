@@ -165,6 +165,14 @@ const config: Config = {
   ],
 
   themeConfig: {
+    docs: {
+      // Docusaurus otherwise persists the last version a reader opened and
+      // replays it as the navbar default on every page that has no version of
+      // its own. The version dropdown and the Specification item then advertise
+      // a frozen release the reader is not on. With persistence off, a version
+      // is displayed only while it is genuinely the active one.
+      versionPersistence: "none",
+    },
     // Default social-share image (og:image + twitter:image). Relative to
     // static/; Docusaurus expands it to an absolute URL per page.
     image: "img/brand/aap-social-card.png",
