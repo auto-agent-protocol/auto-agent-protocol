@@ -10,7 +10,7 @@ description: How AAP slots into A2A's three-layer architecture (data model, abst
 
 The Auto Agent Protocol is a strict profile of [A2A v1.0](https://a2a-protocol.org). It does not redefine discovery, message envelopes, the task model, or transport. It only constrains the shape of one specific A2A construct: typed `DataParts` carried inside `Message.parts[]`.
 
-AAP v1.3.0 is compliant with the A2A **v1.0.x** line, **including A2A v1.0.1** — a non-breaking patch that changed no AgentCard, AgentSkill, or message field. Per A2A §3.6 the agent card advertises the `Major.Minor` version only, so AAP cards keep `protocolVersion: "1.0"` (patch numbers are never put on the wire). A2A v1.0.1's one transport nudge — preferring `application/a2a+json` on the HTTP+JSON binding — does not apply to AAP, which uses JSON-RPC 2.0 exclusively. AAP publishes each skill's request/response JSON Schema URLs in `capabilities.extensions[].params` (a free-form A2A `Struct`) rather than on the `AgentSkill` object, because A2A's `AgentSkill` has no schema field in v1.0 or v1.0.1 and strict A2A card parsers reject unknown skill fields.
+AAP v1.3.0 is compliant with the A2A **v1.0.x** line, **including A2A v1.0.1** — a non-breaking patch that changed no AgentCard, AgentSkill, or message field. Per A2A §3.6 the agent card advertises the `Major.Minor` version only, so AAP cards keep `protocolVersion: "1.0"` (patch numbers are never put on the wire). A2A v1.0.1's one transport nudge — preferring `application/a2a+json` on the HTTP+JSON binding — does not apply to AAP, which uses JSON-RPC 2.0 exclusively. AAP publishes each skill's request/response JSON Schema URLs in `capabilities.extensions[].params` (a free-form A2A `Struct`) rather than on the `AgentSkill` object, because A2A's `AgentSkill` has no schema field in v1.0 or v1.0.1, and `capabilities.extensions[].params` is the place A2A designates for extension-specific configuration.
 
 ## The three layers of A2A
 
@@ -52,7 +52,7 @@ AAP does NOT redefine layer 2 (abstract operations) or layer 3 (protocol binding
 
 ![Anatomy of an A2A v1.0 Message and the typed AAP payload inside DataPart.data](./img/datapart-anatomy.svg)
 
-A2A messages are composed of one or more `parts`. Each part identifies its kind by the member it carries — a part with a `text` member is a `TextPart`, with a `file` member is a `FilePart`, with a `data` member is a `DataPart`. AAP only uses `DataParts` — it never relies on free-text natural-language parsing for protocol semantics.
+A2A messages are composed of one or more `parts`. Each part identifies its kind by the member it carries — the v1.0 `Part` is a `oneof` over `text`, `raw` (inline bytes), `url` (a file reference), and `data`; a part carrying `data` is a `DataPart`. AAP only uses `DataParts` — it never relies on free-text natural-language parsing for protocol semantics.
 
 A `DataPart` looks like this:
 

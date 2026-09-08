@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/error.schema.json",
   "title": "Error",
-  "description": "Typed AAP error payload. Returned inside an A2A error envelope (JSON-RPC 'error' member or HTTP 'application/json' error body, per A2A spec sections 9.5 and 11.6). Buyer agents use 'code' and 'retryable' to drive client behavior; humans see 'message'.",
+  "description": "Typed AAP error payload. Returned as one entry of the 'error.data' array of a JSON-RPC error response, tagged with '@type', per A2A spec section 9.5. Buyer agents use 'code' and 'retryable' to drive client behavior; humans see 'message'.",
   "type": "object",
   "properties": {
     "type": { "const": "aap.error" },

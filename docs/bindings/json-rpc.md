@@ -47,6 +47,17 @@ All AAP skills use a single JSON-RPC method:
 
 `SendMessage` is the **only** A2A operation AAP uses (message-only pattern: request `Message` in, response `Message` out). The optional A2A surface — `SendStreamingMessage`, the `tasks` operations (Get/List/Cancel/Subscribe), push notification configs, and `GetExtendedAgentCard` — is out of scope for AAP: dealer agents do not need to implement it, and buyer agents MUST NOT require it.
 
+Out of scope does not mean undefined on the wire. An AAP card declares no `streaming`, `pushNotifications` or `extendedAgentCard` capability, and A2A §3.3.4 fixes what an agent MUST answer when a client calls into a capability the card does not declare. A dealer agent MUST answer accordingly rather than inventing a code:
+
+| Operation a client calls anyway | A2A error | JSON-RPC |
+|---|---|---|
+| `SendStreamingMessage`, `SubscribeToTask` | `UnsupportedOperationError` | -32004 |
+| Push notification config (Create/Get/List/Delete) | `PushNotificationNotSupportedError` | -32003 |
+| `GetExtendedAgentCard` | `UnsupportedOperationError` | -32004 |
+| `GetTask`, `ListTasks`, `CancelTask` | `UnsupportedOperationError` | -32004 |
+
+These are A2A protocol-level errors, so they carry A2A's own `error.data` shape — an array whose entries each carry an `@type` — not a typed `aap.error` payload.
+
 The `id` field is the standard JSON-RPC request id; AAP does not constrain it. The `params.message` is an A2A `Message` whose first `parts[]` entry is the typed AAP `DataPart`. A buyer agent MUST also include `params.configuration.acceptedOutputModes` listing the AAP response media type it expects.
 
 ## Request headers
@@ -662,14 +673,14 @@ Recommended JSON-RPC code mapping:
 | `SCHEMA_VALIDATION_FAILED` | -32602 | JSON-RPC "Invalid params". |
 | `MISSING_REQUIRED_FIELD` | -32602 | "Invalid params". |
 | `INVALID_CONDITION` | -32602 | "Invalid params" — a `condition` value is in the wrong vocabulary. |
-| `UNSUPPORTED_SKILL` | -32601 | JSON-RPC "Method not found" — the dealer does not implement this skill (rare for AAP-compliant agents but allowed for forward compat). |
+| `UNSUPPORTED_SKILL` | -32004 | A2A `UnsupportedOperationError` — the dealer does not implement this AAP skill. NOT -32601: the JSON-RPC method is always `SendMessage` and it always exists, so "Method not found" would tell a generic A2A client the endpoint does not speak A2A. |
 | `VEHICLE_NOT_FOUND` | -32000 | Application error. |
 | `VEHICLE_UNAVAILABLE` | -32000 | Application error. |
 | `CONTACT_CONSENT_REQUIRED` | -32000 | Application error. |
 | `INVALID_CONSENT` | -32000 | Application error. |
 | `APPOINTMENT_TIME_UNAVAILABLE` | -32000 | Application error. |
 | `IDEMPOTENCY_CONFLICT` | -32000 | Application error — an `idempotency_key` was reused with a different payload. |
-| `RATE_LIMITED` | -32002 | Reserved server-error range; AAP-specific. |
+| `RATE_LIMITED` | -32000 | Generic JSON-RPC server error. NOT -32002: A2A §5.4 assigns that code to `TaskNotCancelableError`, which both reference SDKs decode as a terminal task-lifecycle failure rather than a retryable throttle. |
 | `INTERNAL_ERROR` | -32603 | JSON-RPC "Internal error". |
 
 See [Errors](../errors.md) for the full vocabulary and per-code semantics.

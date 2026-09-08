@@ -142,7 +142,7 @@
       },
       "required": ["id", "name", "description", "tags"],
       "additionalProperties": true,
-      "description": "An A2A AgentSkill. AAP v1.3 cards do NOT carry per-skill natural-language `examples` — AAP is JSON-only, with no NL prompt examples. AAP publishes each skill's request/response JSON Schema URLs in the AAP extension's `params.skills` map as `params.skills[\"<id>\"].request_schema` / `response_schema` (see capabilities.extensions[].params) — NOT as fields on the skill — because strict A2A AgentCard parsers reject unknown skill fields."
+      "description": "An A2A AgentSkill. AAP v1.3 cards do NOT carry per-skill natural-language `examples` — AAP is JSON-only, with no NL prompt examples. AAP publishes each skill's request/response JSON Schema URLs in the AAP extension's `params.skills` map as `params.skills[\"<id>\"].request_schema` / `response_schema` (see capabilities.extensions[].params) — NOT as fields on the skill — because that is where A2A designates extension-specific configuration."
     }
   }
 }

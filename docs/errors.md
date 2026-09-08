@@ -57,7 +57,7 @@ The 12 codes, their meaning, recommended JSON-RPC code, and `retryable` default.
 
 | `code` | Meaning | JSON-RPC | `retryable` default |
 |---|---|---|---|
-| `UNSUPPORTED_SKILL` | The agent does not implement this skill. | -32601 (Method not found) | `false` |
+| `UNSUPPORTED_SKILL` | The agent does not implement this skill. | -32004 (A2A `UnsupportedOperationError`) | `false` |
 | `SCHEMA_VALIDATION_FAILED` | Request body fails JSON Schema validation. | -32602 (Invalid params) | `false` |
 | `MISSING_REQUIRED_FIELD` | A specifically required field is absent. | -32602 (Invalid params) | `false` |
 | `INVALID_CONDITION` | `vehicle_of_interest.condition` is in the trade-in vocabulary, or `trade_in.condition` is in the sale-condition vocabulary. | -32602 (Invalid params) | `false` |
@@ -67,18 +67,21 @@ The 12 codes, their meaning, recommended JSON-RPC code, and `retryable` default.
 | `INVALID_CONSENT` | `consent` is present but malformed, expired, or its scope does not cover the called skill. | -32000 (Server error) | `false` |
 | `APPOINTMENT_TIME_UNAVAILABLE` | The requested `appointment_at` cannot be honored AND the dealer has no proposed alternatives. | -32000 (Server error) | `false` |
 | `IDEMPOTENCY_CONFLICT` | An `idempotency_key` was reused with a different request payload. | -32000 (Server error) | `false` |
-| `RATE_LIMITED` | Client has exceeded the dealer's rate limit. | -32002 (Server error reserved) | **`true`** |
+| `RATE_LIMITED` | Client has exceeded the dealer's rate limit. | -32000 (Server error) | **`true`** |
 | `INTERNAL_ERROR` | Unhandled dealer-side error. | -32603 (Internal error) | `true` |
 
 `retryable` is a default, not a hard rule. Dealer agents MAY override it per-instance — for example, a `SCHEMA_VALIDATION_FAILED` is conceptually non-retryable (the request is malformed and a retry will fail identically), but a transient `INTERNAL_ERROR` is conceptually retryable. Buyer agents MUST honor the value the dealer returns rather than the table default.
 
 ## A2A protocol-level errors
 
-Two A2A errors fire before the AAP payload is read, so they are not `aap.error` codes and are absent from the table above. Both follow from AAP being a **required profile extension** on an A2A v1.0 interface:
+Several A2A errors are raised by the A2A layer itself, not by AAP skill logic, so they are not `aap.error` codes and are absent from the table above. A dealer agent returns them in A2A's own shape:
 
 | A2A error | JSON-RPC | Returned when |
 |---|---|---|
 | `ExtensionSupportRequiredError` | -32008 | The request did not activate the AAP extension via the `A2A-Extensions` header, though the agent card declares it `required: true` (A2A §3.3.4). |
+| `ContentTypeNotSupportedError` | -32005 | A part's `mediaType`, or a `configuration.acceptedOutputModes` entry, names a media type this skill does not serve. AAP pins every part to `application/vnd.autoagent.<skill>-request+json`, so this is the code for a mismatch. |
+| `UnsupportedOperationError` | -32004 | The client called an A2A operation outside AAP's single-operation surface — streaming, tasks, push notification configs, or the extended card. See the [capability table](./bindings/json-rpc.md#endpoint-and-method). |
+| `PushNotificationNotSupportedError` | -32003 | The client called a push notification config operation; no AAP card declares that capability. |
 | `VersionNotSupportedError` | -32009 | The `A2A-Version` header names a `Major.Minor` the interface does not serve. An empty or absent header is read as `0.3`, not as `1.0` — A2A §3.6.1 assumes 0.3 for an empty header and §3.6.2 requires agents to interpret an empty value that way. |
 
 Dealer agents return these in A2A's own error shape, not as a typed `aap.error` payload: per A2A §9.5, `error.data` is an **array** of detail objects and each one **MUST** carry an `@type` key. See [request headers](./bindings/json-rpc.md#request-headers).
@@ -227,6 +230,6 @@ A `lead.submit` request with `customer` but no `consent`:
 
 ## What dealer agents MUST and MUST NOT do
 
-- Dealer agents MUST return errors using this schema (typed `aap.error` payload), not free-text messages.
+- Dealer agents MUST return **skill-level** errors using this schema (typed `aap.error` payload), not free-text messages. A2A protocol-level errors — the ones in the table above — keep A2A's own shape.
 - Dealer agents MUST NOT leak internal stack traces in `message`. Use `details` for structured diagnostic information that is safe to display.
 - Dealer agents MUST set `retryable` truthfully. Buyer agents follow this signal to decide whether to retry.

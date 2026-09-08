@@ -36,7 +36,15 @@ The AgentCard structure itself is defined by [A2A](https://a2a-protocol.org/late
 
 3. `supportedInterfaces[]` includes an entry whose `protocolBinding` is `JSONRPC` (REQUIRED on every AAP agent card). JSON-RPC 2.0 is the sole AAP binding; the HTTP+JSON (REST) binding was [removed in v1.1.0](./bindings/rest.md), and gRPC is out of scope for AAP v1.3.0.
 
+   A2A §8.3.2 treats `supportedInterfaces[]` as preference-ordered, so a dealer that also serves non-AAP bindings from the same card SHOULD list its JSONRPC entry first. If an interface sets `tenant`, a client **MUST** echo that opaque value in the `tenant` field of every request to it — AAP does not define tenancy, but it does not exempt a dealer from A2A's rule when the dealer's platform sets one.
+
 A buyer agent that does not find a matching extension URI MUST treat the agent as a generic A2A agent, not as an AAP dealer agent.
+
+## Transport security
+
+Every AAP endpoint — the agent card URL and every `supportedInterfaces[].url` — **MUST** be served over HTTPS in production. This is not an AAP addition: A2A makes it a MUST in §7.1 and again in §13.4, and the canonical `a2a.proto` says `AgentInterface.url` "must be a valid absolute HTTPS URL in production". `http://` is permitted only for a local development harness on loopback, and a card carrying one MUST NOT be published.
+
+Public does not mean plaintext. `lead.submit` carries a customer's name, email, phone and postal address, so a plaintext AAP endpoint exposes personal data in transit regardless of whether the dealer requires authentication.
 
 ## Authentication
 
@@ -135,7 +143,7 @@ This is the **smallest** card that satisfies the three requirements above — a 
 }
 ```
 
-`provider` names who operates the agent. The AAP extension's `params.id` is a unique identifier (UUID v7 recommended) the dealer regenerates whenever the card changes — onboarding tools cache it to cheaply detect changes. The published per-skill request/response JSON Schemas also live inside the extension `params` — under `capabilities.extensions[].params.skills["<id>"].request_schema` / `response_schema` — not as fields on the A2A `skills[]` entries (strict A2A proto parsers reject unknown skill fields). Both `params` and any AAP-specific data live inside the extension entry, which is the only A2A-sanctioned place for it.
+`provider` names who operates the agent. The AAP extension's `params.id` is a unique identifier (UUID v7 recommended) the dealer regenerates whenever the card changes — onboarding tools cache it to cheaply detect changes. The published per-skill request/response JSON Schemas also live inside the extension `params` — under `capabilities.extensions[].params.skills["<id>"].request_schema` / `response_schema` — not as fields on the A2A `skills[]` entries — `capabilities.extensions[].params` is where A2A puts extension-specific configuration. Both `params` and any AAP-specific data live inside the extension entry, which is the only A2A-sanctioned place for it.
 
 Each skill carries the A2A-required `tags` (keywords clients/LLMs use to categorize and rank skills). Everything else is **optional** A2A surface a dealer MAY add to the same card — `documentationUrl`, per-skill `inputModes`, or `securitySchemes` + `securityRequirements` for auth. Note that the optional A2A surface beyond `SendMessage` (streaming, tasks, push notification configs, extended agent card) is out of scope for AAP v1.3.0 — dealer agents do not need to implement it and buyer agents MUST NOT require it. The AgentCard shape is A2A's; see the [A2A spec](https://a2a-protocol.org/latest/specification/).
 
