@@ -83,6 +83,6 @@ The command refuses an existing destination, a dirty working tree, a skipped ver
 
 - Pin the version advertised by the dealer; do not infer compatibility.
 - Validate against version-pinned schema URLs.
-- A dealer may advertise multiple extension versions during migration.
+- A dealer migrating between AAP versions serves each version from its own agent card and interface URL. One card advertises exactly one AAP extension URI: A2A §4.6.3 forbids an agent from falling back to an earlier extension version automatically, so two required AAP entries on one card cannot both be satisfied.
 - Do not use repository draft identifiers on the wire.
 - Do not depend on `/latest/` remaining on the same release.

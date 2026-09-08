@@ -16,7 +16,26 @@ versioning policy is described in the
   operation, and the canonical agent-card example now carry them.
 - Documented `ExtensionSupportRequiredError` (-32008) and
   `VersionNotSupportedError` (-32009) as A2A protocol-level errors, distinct
-  from the typed `aap.error` vocabulary.
+  from the typed `aap.error` vocabulary, in A2A's own `error.data` shape.
+- A dealer agent returning `-32008` MUST carry a `google.rpc.ErrorInfo` detail
+  naming the extension URI and the `A2A-Extensions` header, so a buyer agent
+  that omitted activation recovers in a single retry.
+
+### Changed
+
+- The client-side obligation to activate the extension is now cited to
+  `a2a.proto` `AgentExtension.required` ("if true, the client must understand
+  and comply with the extension's requirements"), which is A2A's normative
+  source per A2A 1.4. A2A 3.3.4 continues to carry the dealer-side MUST.
+- `A2A-Version` is documented as header-only on the JSON-RPC binding on the
+  authority of A2A 9.2, which forecloses the `?A2A-Version=1.0`
+  request-parameter form A2A 3.6.1 permits on other bindings.
+- An agent card declares exactly one AAP extension URI, and a dealer migrating
+  between AAP versions serves each from its own card and interface URL: A2A
+  4.6.3 forbids automatic fallback to an earlier extension version.
+- The generated OpenAPI accepts `A2A-Extensions` as a member of a
+  comma-separated list rather than as the entire header value, per A2A 9.2.
+- The generated MCP manifest names the A2A headers the wrapper must send.
 
 ## [1.3.0] — 2026-09-04
 

@@ -26,7 +26,11 @@ The AgentCard structure itself is defined by [A2A](https://a2a-protocol.org/late
    https://autoagentprotocol.org/extensions/aap/v1.3
    ```
 
-   The entry MUST be marked `required: true`. AAP is a **profile extension** in A2A's taxonomy — it narrows the shape of every message rather than adding optional metadata — so a client that has not activated it cannot be served as an AAP client. The consequence is on the wire: a buyer agent MUST activate the extension with the `A2A-Extensions` header on every call, and a dealer agent MUST reject a request that does not with `ExtensionSupportRequiredError` (A2A §3.3.4). See [request headers](./bindings/json-rpc.md#request-headers).
+   The entry MUST be marked `required: true`, and a card MUST declare exactly one AAP extension URI. AAP is a **profile extension** in A2A's taxonomy — it narrows the shape of every message rather than adding optional metadata — so a client that has not activated it cannot be served as an AAP client. The consequence is on the wire: a buyer agent MUST activate the extension with the `A2A-Extensions` header on every call — A2A defines the field as "if true, the client must understand and comply with the extension's requirements" (`a2a.proto`, `AgentExtension.required`, normative per A2A §1.4) — and a dealer agent MUST reject a request that does not with `ExtensionSupportRequiredError` (A2A §3.3.4). See [request headers](./bindings/json-rpc.md#request-headers).
+
+   Two AAP versions on one card cannot both be honored: A2A §4.6.3 requires an agent to error rather than fall back when a required extension's version is unsupported, and it **MUST NOT** downgrade automatically. A dealer migrating between AAP versions serves each version from its own agent card and interface URL.
+
+   Cards published for AAP v1.3 and earlier omit `required`; the rule above applies from the next release. A v1.3 dealer that leaves the field absent remains conformant with v1.3.
 
 2. `skills[]` contains one entry per AAP skill the agent implements (one or more). Buyer agents discover capability from `skills[]`, not from the AAP extension URI alone. AAP RECOMMENDS that an agent expose at least `inventory.search` + `lead.submit` for a meaningful shopping experience, but no single skill is individually required.
 

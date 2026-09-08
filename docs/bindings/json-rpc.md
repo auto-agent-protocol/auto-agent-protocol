@@ -56,13 +56,14 @@ A2A carries its **service parameters** ([A2A §3.2.6](https://a2a-protocol.org/l
 | Header | Value | Rule |
 |---|---|---|
 | `Content-Type` | `application/json` | A2A §9.1 — the JSON-RPC binding's media type. |
-| `A2A-Version` | `1.0` | A2A §3.6.1 — clients **MUST** send it on every request. `Major.Minor` only; patch numbers never go on the wire. |
-| `A2A-Extensions` | `https://autoagentprotocol.org/extensions/aap/v1.3` | Activates the AAP profile. AAP cards declare the extension `required: true`, so it **MUST** be present. |
+| `A2A-Version` | `1.0` | A2A §3.6.1 — clients **MUST** send the version on every request. On this binding it **MUST** be a header: A2A §9.2 requires service parameters to travel as HTTP header fields, which forecloses the `?A2A-Version=1.0` request-parameter form §3.6.1 permits elsewhere. `Major.Minor` only — A2A §3.6 says patch numbers **SHOULD NOT** appear in requests and **MUST NOT** be considered when negotiating versions. |
+| `A2A-Extensions` | `https://autoagentprotocol.org/extensions/aap/v1.3` | Activates the AAP profile. AAP cards declare the extension `required: true`, which A2A defines as the client having to "understand and comply with the extension's requirements" (`a2a.proto`, `AgentExtension.required`), so it **MUST** be present. A client activating several extensions sends them comma-separated in this one header. |
 
 Both A2A headers are load-bearing, not decorative:
 
 - **Omitting `A2A-Version` does not mean "latest".** A2A §3.6.2 requires agents to read an empty version as `0.3`, and an AAP interface advertises `protocolVersion: "1.0"`. An agent that does not support the requested version returns `VersionNotSupportedError` (JSON-RPC `-32009`).
 - **Omitting `A2A-Extensions` is a rejected request.** The AAP extension is marked `required: true` on the [agent card](../discovery.md), so per A2A §3.3.4 a dealer agent **MUST** answer a request that did not activate it with `ExtensionSupportRequiredError` (JSON-RPC `-32008`). AAP is a profile extension — it constrains the shape of every message — so a client that has not declared AAP support cannot be served as an AAP client.
+- **A version error you did not cause means the version header is missing.** A dealer built on a stock A2A SDK answers a request with no `A2A-Version` header with `-32009` and a message naming protocol version `0.3` — a version the caller never asked for, because A2A §3.6.2 reads an empty value as `0.3`. The version gate runs before the extension gate, so fix `A2A-Version` first and only then look at `A2A-Extensions`.
 
 A dealer agent SHOULD echo the extensions it activated back on the response in an `A2A-Extensions` header, per A2A's extension-activation flow.
 

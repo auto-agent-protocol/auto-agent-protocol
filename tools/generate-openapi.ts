@@ -141,7 +141,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
                 in: "header",
                 required: true,
                 description:
-                  "A2A protocol version the client speaks, `Major.Minor` (A2A spec, Section 3.2.6 service parameter carried as an HTTP header per Section 9.2). A2A Section 3.6.1 requires it on every request; an absent value is read as `0.3`, not as the latest version. An unsupported version is answered with `VersionNotSupportedError` (JSON-RPC -32009).",
+                  "A2A protocol version the client speaks, `Major.Minor` (A2A spec, Section 3.2.6 service parameter carried as an HTTP header per Section 9.2). A2A Section 3.6.1 requires it on every request; an empty or absent value is read as `0.3`, not as the latest version. An unsupported version is answered with `VersionNotSupportedError` (JSON-RPC -32009).",
                 schema: { type: "string", const: "1.0" },
               },
               {
@@ -150,7 +150,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
                 required: true,
                 description:
                   "Comma-separated extension URIs the client activates. The AAP profile extension is declared `required: true` on the agent card, so a request that does not activate it is answered with `ExtensionSupportRequiredError` (JSON-RPC -32008), per A2A Section 3.3.4.",
-                schema: { type: "string", const: manifest.extension_uri },
+                schema: { type: "string", pattern: `(^|,)\\s*${manifest.extension_uri.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*(,|$)` },
               },
             ],
             requestBody: {

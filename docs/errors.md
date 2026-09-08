@@ -79,9 +79,37 @@ Two A2A errors fire before the AAP payload is read, so they are not `aap.error` 
 | A2A error | JSON-RPC | Returned when |
 |---|---|---|
 | `ExtensionSupportRequiredError` | -32008 | The request did not activate the AAP extension via the `A2A-Extensions` header, though the agent card declares it `required: true` (A2A §3.3.4). |
-| `VersionNotSupportedError` | -32009 | The `A2A-Version` header names a `Major.Minor` the interface does not serve. An absent header is read as `0.3` by A2A §3.6.2 — not as `1.0`. |
+| `VersionNotSupportedError` | -32009 | The `A2A-Version` header names a `Major.Minor` the interface does not serve. An empty or absent header is read as `0.3`, not as `1.0` — A2A §3.6.1 assumes 0.3 for an empty header and §3.6.2 requires agents to interpret an empty value that way. |
 
-Dealer agents return these in A2A's own error shape, not as a typed `aap.error` payload. See [request headers](./bindings/json-rpc.md#request-headers).
+Dealer agents return these in A2A's own error shape, not as a typed `aap.error` payload: per A2A §9.5, `error.data` is an **array** of detail objects and each one **MUST** carry an `@type` key. See [request headers](./bindings/json-rpc.md#request-headers).
+
+### The activation error MUST be self-healing
+
+A buyer agent that omitted `A2A-Extensions` is one header away from a correct call, so the rejection MUST carry what it needs to fix itself in a single retry — the same one-round-trip principle `details.errors[]` applies to validation. A dealer agent returning `-32008` MUST include a `google.rpc.ErrorInfo` detail whose `metadata` names the extension URI to activate and the header to send it in:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "req-3",
+  "error": {
+    "code": -32008,
+    "message": "This agent requires the Auto Agent Protocol extension to be activated.",
+    "data": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "EXTENSION_SUPPORT_REQUIRED",
+        "domain": "autoagentprotocol.org",
+        "metadata": {
+          "extensionUri": "https://autoagentprotocol.org/extensions/aap/v1.3",
+          "requiredHeader": "A2A-Extensions"
+        }
+      }
+    ]
+  }
+}
+```
+
+A dealer agent MUST NOT return a bare `-32008` with no detail object. Without `extensionUri` the client cannot know which URI to send, and a rejection it cannot act on turns a one-retry recovery into a lost buyer.
 
 ## Per-code semantics
 
