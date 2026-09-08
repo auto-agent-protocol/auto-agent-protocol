@@ -37,7 +37,7 @@ This page documents the field-by-field translation. The dealer agent (or the dea
 | `appointment.appointment_at` | `<customer><comments>Requested appointment: 2026-05-03 11:00 PT</comments></customer>` | Free-text in `<comments>`; CRMs route to the appointment desk. |
 | `submitted_at` | `<requestdate>...</requestdate>` | ISO 8601 (e.g. `2026-04-30T10:15:10Z`). |
 | `message` | `<customer><comments>...</comments></customer>` | Free-text user message. |
-| `source_agent` | `<provider><name part="full">{source_agent}</name></provider>` | Identifies the originating buyer agent (e.g. `chatgpt-shopping`). **Direct integration:** put `source_agent` in `<provider><name part="full">`. **Lead-network delivery:** when an intermediary (e.g. the AAP platform) delivers the ADF, it MAY instead set `<provider><name part="full">` to the network brand, carry `source_agent` in `<provider><service>`, and add `<provider><url>` for the network — `<vendor>` always stays the selling dealership either way. |
+| `source_agent.name` | `<provider><name part="full">{source_agent.name}</name></provider>` | Identifies the originating buyer agent (e.g. `chatgpt-shopping`). `source_agent` has been an object since v1.1.0; only its `name` maps here. **Direct integration:** put `source_agent.name` in `<provider><name part="full">`. **Lead-network delivery:** when an intermediary (e.g. the AAP platform) delivers the ADF, it MAY instead set `<provider><name part="full">` to the network brand, carry `source_agent.name` in `<provider><service>`, and add `<provider><url>` for the network — `<vendor>` always stays the selling dealership either way. |
 | Dealer name (from the `dealer.information` rooftop `name`) | `<vendor><vendorname>...</vendorname></vendor>` | Dealer agent fills this from its own profile, not from the buyer agent. |
 | `trade_in.year` / `make` / `model` / `trim` | A second `<vehicle interest="trade-in">...</vehicle>` block with `<year>`, `<make>`, `<model>`, `<trim>` | Trade-in vehicle goes in its own ADF `<vehicle>` block. |
 | `trade_in.mileage` | `<vehicle interest="trade-in"><odometer units="mi">...</odometer></vehicle>` | Strongly recommended; ADF `<odometer>`. |
@@ -72,7 +72,6 @@ Given a [`lead.submit`](../skills/lead-submit.md) request bundling a vehicle of 
     "granted_at": "2026-04-30T10:15:00Z",
     "allowed_channels": ["email", "phone"],
     "consent_text": "I agree to share my contact info with Demo Toyota about this 2022 Honda Civic, my Sunday test drive, and my Toyota Corolla trade-in.",
-    "source_agent": "chatgpt-shopping",
     "scope": ["lead_submission"]
   },
   "vehicle_of_interest": {
@@ -92,7 +91,11 @@ Given a [`lead.submit`](../skills/lead-submit.md) request bundling a vehicle of 
     "appointment_at": "2026-05-03T18:00:00Z"
   },
   "message": "Interested in this Civic; can you confirm availability and best price with my trade?",
-  "source_agent": "chatgpt-shopping",
+  "source_agent": {
+    "name": "chatgpt-shopping",
+    "url": "https://chatgpt.com",
+    "agent_card_url": "https://chatgpt.com/.well-known/agent-card.json"
+  },
   "submitted_at": "2026-04-30T10:15:10Z"
 }
 ```

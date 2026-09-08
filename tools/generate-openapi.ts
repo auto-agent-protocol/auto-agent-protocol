@@ -135,6 +135,24 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
             summary: "A2A SendMessage (carries any AAP skill request)",
             description:
               "All AAP skills are invoked through the A2A `SendMessage` JSON-RPC method. The skill is dispatched by the typed DataPart payload (`type: <scope>.<thing>.request`, e.g. `inventory.search.request`).",
+            parameters: [
+              {
+                name: "A2A-Version",
+                in: "header",
+                required: true,
+                description:
+                  "A2A protocol version the client speaks, `Major.Minor` (A2A Sections 3.2.6 and 9.2). A2A Section 3.6.2 interprets an empty value as `0.3`; this does not select `1.0`. AAP additionally requires rejection of a missing version header with `VersionNotSupportedError` (-32009). An unsupported version is also rejected with -32009. When multiple checks fail, no error precedence is prescribed.",
+                schema: { type: "string", const: "1.0" },
+              },
+              {
+                name: "A2A-Extensions",
+                in: "header",
+                required: true,
+                description:
+                  "Comma-separated extension URIs the client activates. The AAP profile extension is declared `required: true` on the agent card, so a request that does not activate it is answered with `ExtensionSupportRequiredError` (JSON-RPC -32008), per A2A Section 3.3.4.",
+                schema: { type: "string", pattern: `(^|,)\\s*${manifest.extension_uri.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*(,|$)` },
+              },
+            ],
             requestBody: {
               required: true,
               content: {
@@ -174,7 +192,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
             responses: {
               "200": {
                 description:
-                  "Successful JSON-RPC response. The result wraps an A2A Message whose DataPart carries an AAP response payload.",
+                  "JSON-RPC response containing either a result or an error. A successful result wraps an A2A Message whose DataPart carries an AAP response payload.",
                 content: {
                   "application/json": {
                     schema: { $ref: "#/components/schemas/JsonRpcResponse" },
@@ -197,6 +215,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
               params: {
                 type: "object",
                 properties: {
+                  tenant: { type: "string", description: "Echo the tenant routing value when the selected AgentInterface declares one." },
                   message: { $ref: "#/components/schemas/A2aMessage" },
                   configuration: {
                     type: "object",
@@ -217,25 +236,69 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
             type: "object",
             properties: {
               jsonrpc: { const: "2.0" },
-              id: { type: ["string", "number"] },
+              id: { type: ["string", "number", "null"], description: "Echoes the request id; null when it could not be determined, such as a parse error." },
               result: {
                 type: "object",
                 properties: {
-                  message: { $ref: "#/components/schemas/A2aMessage" },
+                  message: {
+                    allOf: [
+                      { $ref: "#/components/schemas/A2aMessage" },
+                      {
+                        properties: { role: { const: "ROLE_AGENT" }, contextId: { minLength: 1 } },
+                        required: ["contextId"],
+                      },
+                    ],
+                  },
                 },
+                required: ["message"],
               },
-              error: { $ref: "#/components/schemas/Error" },
+              error: { $ref: "#/components/schemas/JsonRpcError" },
             },
             required: ["jsonrpc", "id"],
+            oneOf: [
+              { required: ["result"], not: { required: ["error"] } },
+              { required: ["error"], not: { required: ["result"] } },
+            ],
+          },
+          JsonRpcError: {
+            type: "object",
+            description:
+              "JSON-RPC 2.0 error object. When present, `data` is an array of details tagged with `@type` (A2A section 9.5). AAP skill errors lead with google.rpc.ErrorInfo and include the typed AAP payload. Core protocol errors need not include AAP details.",
+            properties: {
+              code: { type: "integer", description: "JSON-RPC error code. Numeric, not the AAP string code." },
+              message: { type: "string" },
+              data: {
+                type: "array",
+                description: "A2A error details. Locate an entry by its `@type`, never by position.",
+                items: {
+                  oneOf: [
+                    { $ref: "#/components/schemas/Error" },
+                    {
+                      type: "object",
+                      properties: {
+                        "@type": { type: "string", not: { const: components.Error.properties["@type"].const } },
+                      },
+                      required: ["@type"],
+                      additionalProperties: true,
+                    },
+                  ],
+                },
+              },
+            },
+            required: ["code", "message"],
           },
           A2aMessage: {
             type: "object",
             description:
-              "A2A v1.0 Message envelope. `messageId` is required on every Message; `role` is the protobuf enum string `ROLE_USER` (buyer agent) or `ROLE_AGENT` (dealer agent). Parts identify their kind by the member they carry — `data` for DataParts (no `kind` discriminator).",
+              "A2A v1.0 Message envelope. `messageId` is required on every Message. `contextId` is optional on a client request but required on a server response (A2A Message definition). `role` is `ROLE_USER` (buyer) or `ROLE_AGENT` (dealer). Parts identify their kind by the member they carry — `data` for DataParts (no `kind` discriminator).",
             properties: {
               messageId: {
                 type: "string",
                 description: "Unique identifier for this message (e.g. ULID or UUID).",
+              },
+              contextId: {
+                type: "string",
+                description: "Context identifier. Preserve a supplied context for the same interaction; generate one when starting a context. Server response Messages must include it even when no Task is created.",
               },
               role: { enum: ["ROLE_USER", "ROLE_AGENT"] },
               parts: {

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/event.schema.json",
   "title": "Event",
-  "description": "Minimal AAP event envelope. Used for asynchronous status updates (e.g. lead status changes, appointment confirmations) delivered via A2A push notifications or task status update events.",
+  "description": "RESERVED. Minimal AAP event envelope, defined for forward compatibility only. AAP specifies no delivery mechanism for it: the profile uses SendMessage alone, and streaming, tasks and push notification configs are out of scope. A dealer agent MUST NOT emit this envelope and a buyer agent MUST NOT expect it until a future AAP version defines how it is delivered.",
   "type": "object",
   "properties": {
     "type": { "const": "aap.event" },

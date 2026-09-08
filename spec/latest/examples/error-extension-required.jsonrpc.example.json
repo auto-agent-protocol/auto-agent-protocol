@@ -1,0 +1,19 @@
+{
+  "jsonrpc": "2.0",
+  "id": "req-3",
+  "error": {
+    "code": -32008,
+    "message": "Activate the supported AAP profile with A2A-Extensions: https://draft.autoagentprotocol.invalid/extensions/aap/latest",
+    "data": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "EXTENSION_SUPPORT_REQUIRED",
+        "domain": "a2a-protocol.org",
+        "metadata": {
+          "extensionUri": "https://draft.autoagentprotocol.invalid/extensions/aap/latest",
+          "requiredHeader": "A2A-Extensions"
+        }
+      }
+    ]
+  }
+}

@@ -6,6 +6,14 @@ description: What the Auto Agent Protocol is, what it standardizes, and how to c
 
 # Introduction
 
+{/* aap-draft-only:start */}
+
+:::info Unreleased contract — planned 2.0.0
+This page describes the editable next-major contract, not the frozen v1.3 release. Example extension and schema URLs use the non-routable `draft.autoagentprotocol.invalid` namespace; release preparation replaces them with approved version-pinned URLs. Do not send draft identifiers to a production agent. See [migration guidance](./versioning.md#for-implementers).
+:::
+
+{/* aap-draft-only:end */}
+
 ![Buyer agents and dealer storefronts connected through typed AAP messages over A2A](./img/network-overview.svg)
 
 **The Auto Agent Protocol (AAP) lets AI assistants shop at car and motorcycle dealerships.** People increasingly ask an AI assistant to find their next car or motorcycle. AAP is the free, open standard that lets any of those assistants find a dealership, browse its real inventory, and — with the customer's clear permission — send the dealership a sales lead. Inventory listings carry an optional `vehicle_type` (`car`, `motorcycle`, `trailer`, `rv`, `other`; absent = `car`) so a single vocabulary covers both automotive and powersports retail, including electric models via a generic electric-powertrain field group. For a dealership, joining in means publishing **one small file on your own website** and answering a few well-defined questions; no app store, no middleman, no per-partner integration work.
@@ -17,7 +25,7 @@ In technical terms: AAP is a strict [A2A v1.0](https://a2a-protocol.org) (Agent2
 The extension is identified by a single URI:
 
 ```
-https://autoagentprotocol.org/extensions/aap/v1.3
+https://draft.autoagentprotocol.invalid/extensions/aap/latest
 ```
 
 A dealer agent declares itself AAP-compliant by listing this URI in `capabilities.extensions[]` of its A2A agent card and by implementing **one or more** of the five standard AAP automotive skills. Agents pick the subset they support; AAP RECOMMENDS at least `inventory.search` + `lead.submit` for an end-to-end shopping flow, but neither is mandatory.
@@ -26,7 +34,7 @@ A dealer agent declares itself AAP-compliant by listing this URI in `capabilitie
 
 ![Five AAP skills cover dealership information, inventory discovery, search, vehicle detail, and consented leads](./img/skills-overview.svg)
 
-AAP v1.3.0 defines a **vocabulary** of five standard skill IDs that cover the read-and-lead lifecycle of automotive retail. A dealer agent picks whichever subset matches its capabilities — none of the five is individually mandatory.
+The AAP profile defines a **vocabulary** of five standard skill IDs that cover the read-and-lead lifecycle of automotive retail. A dealer agent picks whichever subset matches its capabilities — none of the five is individually mandatory.
 
 | Skill | Purpose |
 |---|---|
@@ -36,7 +44,7 @@ AAP v1.3.0 defines a **vocabulary** of five standard skill IDs that cover the re
 | `inventory.vehicle` | Detail view of one specific vehicle or motorcycle (by VIN, stock, or vehicle_id) |
 | `lead.submit` | Unified consented lead carrying customer info plus optional vehicle of interest, trade-in, and appointment |
 
-It does NOT define authentication (v1.3.0 agents are public by default; auth is left to A2A), payments, financing approval, RFQ/quote workflows, trade-in valuations, or reservations. Future versions MAY extend this surface; v1.3.0 is intentionally minimal.
+It does NOT define authentication (agents are public by default; auth is left to A2A), payments, financing approval, RFQ/quote workflows, trade-in valuations, or reservations. Future versions MAY extend this surface; the profile is intentionally minimal.
 
 ## Layered architecture
 
@@ -96,6 +104,8 @@ Wrap an AAP request inside an A2A `Message` and send it with `SendMessage` — t
 ```bash
 curl -X POST https://demo-toyota.example.com/a2a \
   -H "Content-Type: application/json" \
+  -H "A2A-Version: 1.0" \
+  -H "A2A-Extensions: https://draft.autoagentprotocol.invalid/extensions/aap/latest" \
   -d '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -118,7 +128,9 @@ curl -X POST https://demo-toyota.example.com/a2a \
   }'
 ```
 
-The dealer agent replies with a `SendMessageResponse` in the JSON-RPC `result` — `{ "message": <Message> }` — where the `message` is an A2A `Message` whose first `DataPart.data` is an AAP response:
+`A2A-Version` is required by A2A on every request, and `A2A-Extensions` activates the AAP profile — AAP cards declare the extension `required: true`, so a call that omits it is rejected with `ExtensionSupportRequiredError`. See [request headers](./bindings/json-rpc.md#request-headers).
+
+The dealer agent MUST include a nonempty `contextId` in every response Message, preserving the context of the interaction or generating one for a new interaction. The dealer agent replies with a `SendMessageResponse` in the JSON-RPC `result` — `{ "message": <Message> }` — where the `message` is an A2A `Message` whose first `DataPart.data` is an AAP response:
 
 ```json
 {
@@ -127,6 +139,7 @@ The dealer agent replies with a `SendMessageResponse` in the JSON-RPC `result` �
   "result": {
     "message": {
       "messageId": "01HZ9G5P2KA8RT9WMS3B4C5D6E",
+      "contextId": "ctx_example_001",
       "role": "ROLE_AGENT",
       "parts": [
         {
@@ -171,11 +184,11 @@ The dealer agent replies with a `SendMessageResponse` in the JSON-RPC `result` �
 }
 ```
 
-## Verified interoperability
+## SDK integration
 
-![Verified JavaScript and Python A2A clients invoking the AAP dealer skill surface](./img/interop-clients.svg)
+![SDK integration: activate the AAP profile, send a standard A2A message, and preserve raw error details for the application](./img/interop-clients.svg)
 
-All five skills have been exercised live through the official A2A v1.0 SDKs (`@a2a-js/sdk` and `a2a-sdk` for Python): inventory search, facets, vehicle detail, dealer information, and a consented `lead.submit` — with no AAP-specific client code.
+AAP uses the standard A2A `SendMessage` operation. An SDK integration must also activate the selected AAP extension, validate its payloads, and preserve the error details needed for validation feedback and retry decisions. The reviewed JavaScript and Python SDKs do not expose every detail through their typed exceptions; see the [SDK error-handling notes](./errors.md#sdk-error-handling) before implementing an adapter. Transport support alone does not establish AAP conformance.
 
 ## Where to read next
 

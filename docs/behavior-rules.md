@@ -90,7 +90,7 @@ AAP v1.3.0 defines **no authentication of its own** — agents are public by def
 
 ## Rate limits
 
-- Dealer agents SHOULD return `RATE_LIMITED` (HTTP 429 / JSON-RPC code -32002) with `retryable: true` and a hint in `details.retry_after_ms` when the buyer agent exceeds a per-key quota.
+- Dealer agents SHOULD return `RATE_LIMITED` (JSON-RPC code -32000) with `retryable: true` and a hint in `details.retry_after_ms` when the buyer agent exceeds a per-key quota.
 
 ## Ordering of rules
 

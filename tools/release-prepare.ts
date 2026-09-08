@@ -52,13 +52,35 @@ function compatibility(root: string, previousContract: string, candidateSpec: st
   for (const file of newFiles) if (!oldFiles.includes(file)) changes.push({kind: "additive", file, path: "$", detail: "schema added"});
   return changes;
 }
-function transformDraft(file: string, stable: string, contract: string, version: string): string {
-  return readFileSync(file, "utf8")
+function stripDraftOnlySections(source: string, file: string): string {
+  if (!/\.mdx?$/.test(file)) return source;
+  const start = "{/* aap-draft-only:start */}", end = "{/* aap-draft-only:end */}";
+  const retained: string[] = [];
+  let inDraftOnlySection = false;
+  for (const line of source.split(/(?<=\n)/)) {
+    const marker = line.trim();
+    if (marker === start) {
+      if (inDraftOnlySection) throw new Error(`${file}: nested draft-only section`);
+      inDraftOnlySection = true;
+    } else if (marker === end) {
+      if (!inDraftOnlySection) throw new Error(`${file}: unmatched draft-only closing marker`);
+      inDraftOnlySection = false;
+    } else {
+      if (line.includes("aap-draft-only:")) throw new Error(`${file}: draft-only markers must be on their own lines`);
+      if (!inDraftOnlySection) retained.push(line);
+    }
+  }
+  if (inDraftOnlySection) throw new Error(`${file}: unclosed draft-only section`);
+  return retained.join("");
+}
+
+function transformDraft(file: string, contract: string, version: string): string {
+  // Only explicitly marked draft notices disappear. All other reviewed prose,
+  // including historical links to immutable releases, keeps its meaning.
+  return stripDraftOnlySections(readFileSync(file, "utf8"), file)
     .replaceAll(`${DRAFT_SITE}/latest/`, `${SITE}/${contract}/`)
     .replaceAll(`${DRAFT_SITE}/extensions/aap/latest`, `${SITE}/extensions/aap/${contract}`)
-    .replaceAll(DRAFT_VERSION, version)
-    .replaceAll(`${SITE}/${stable}/`, `${SITE}/${contract}/`)
-    .replaceAll(`${SITE}/extensions/aap/${stable}`, `${SITE}/extensions/aap/${contract}`);
+    .replaceAll(DRAFT_VERSION, version);
 }
 function workingTree(root: string): string { return execFileSync("git", ["status", "--porcelain", "--untracked-files=all"], {cwd: root, encoding: "utf8"}).trim(); }
 function updatePackageVersion(file: string, version: string): void { const value = JSON.parse(readFileSync(file, "utf8")); value.version = version; writeJson(file, value); }
@@ -76,7 +98,7 @@ export async function prepareRelease(root: string, version: string, dryRun: bool
     const candidateSpec = join(staging, "spec", contract), candidateDocs = join(staging, "versioned_docs", `version-${contract}`), artifacts = join(staging, "artifacts");
     cpSync(join(root, "spec/latest"), candidateSpec, {recursive: true});
     cpSync(join(root, "docs"), candidateDocs, {recursive: true});
-    for (const file of [...filesIn(candidateSpec), ...filesIn(candidateDocs)]) writeFileSync(file, transformDraft(file, stable.contract, contract, version));
+    for (const file of [...filesIn(candidateSpec), ...filesIn(candidateDocs)]) writeFileSync(file, transformDraft(file, contract, version));
     const manifest = validateManifest(candidateSpec, contract);
     if (manifest.version !== version || manifest.extension_uri !== `${SITE}/extensions/aap/${contract}` || manifest.schema_base_url !== `${SITE}/${contract}/schemas/`) throw new Error("Candidate manifest did not resolve to pinned release identifiers");
     await validateSchemas(candidateSpec, contract); await validateExamples(candidateSpec, contract);

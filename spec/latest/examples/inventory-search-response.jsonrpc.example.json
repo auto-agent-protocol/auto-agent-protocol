@@ -4,6 +4,7 @@
   "result": {
     "message": {
       "messageId": "01HZ9F4N1JZ7QS8VKR2A3B4C5D",
+      "contextId": "ctx_inventory_search_001",
       "role": "ROLE_AGENT",
       "parts": [
         {
