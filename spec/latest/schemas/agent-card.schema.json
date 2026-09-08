@@ -126,6 +126,7 @@
       "description": "A2A v1.0 SecurityRequirement alternatives. The v0.3 name for this field was 'security'; A2A v1.0 parsers read only 'securityRequirements', so a card using the old name is treated as allowing anonymous access. Empty or absent means anonymous access is allowed.",
       "items": {
         "type": "object",
+        "description": "An empty requirement permits anonymous access. ProtoJSON may omit the empty schemes map entirely. Non-empty requirements use the schemes wrapper, not the v0.3 map shape.",
         "properties": {
           "schemes": {
             "type": "object",
@@ -137,7 +138,7 @@
             }
           }
         },
-        "required": ["schemes"],
+        "anyOf": [{ "required": ["schemes"] }, { "maxProperties": 0 }],
         "additionalProperties": true
       }
     },

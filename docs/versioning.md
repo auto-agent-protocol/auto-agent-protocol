@@ -72,7 +72,7 @@ Production agents should pin `/v1.3/` (or another advertised contract), because 
 All normal changes edit `spec/latest/` and `docs/`. A maintainer then rehearses a release:
 
 ```bash
-pnpm release:prepare 1.3.0 --dry-run
+pnpm release:prepare 2.0.0 --dry-run
 ```
 
 After reviewing the compatibility report and committing the approved draft, the maintainer runs the command without `--dry-run`. It copies the working source into new pinned directories, transforms draft identifiers, validates schemas and examples, generates artifacts, records provenance and hashes, updates the stable registry, and leaves `spec/latest/` unchanged.

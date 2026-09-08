@@ -67,6 +67,8 @@ versioning policy is described in the
 - The agent card's `security` is renamed `securityRequirements` with A2A's
   `SecurityRequirement{schemes}` shape. `security` is the v0.3 name; no A2A
   v1.0 parser reads it, so a protected dealer's card parsed as anonymous.
+  Empty security alternatives accept the `{}` form emitted by ProtoJSON
+  when it omits an empty `schemes` map.
 - `protocolBinding` is an open string, as A2A defines it. The closed enum
   rejected `GRPC` and custom-binding URIs while still blessing `HTTP+JSON`,
   removed from AAP in v1.1.0. Additional interfaces on the same card must

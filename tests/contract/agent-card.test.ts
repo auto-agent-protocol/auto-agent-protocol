@@ -86,6 +86,16 @@ test("securityRequirements takes the A2A v1.0 schemes shape", () => {
   assert.equal(card(withCard({ securityRequirements: [{ bearer: [] }] })), false);
 });
 
+test("securityRequirements accepts ProtoJSON's omitted empty schemes map", () => {
+  for (const requirement of [{}, { schemes: {} }]) {
+    assert.equal(card(withCard({ securityRequirements: [requirement] })), true, JSON.stringify(card.errors));
+    assert.equal(card(withCard({ securityRequirements: [
+      { schemes: { bearer: { list: ["inventory.read"] } } }, requirement,
+    ] })), true, JSON.stringify(card.errors));
+  }
+  assert.equal(card(withCard({ securityRequirements: [{ schemes: { bearer: [] } }] })), false);
+});
+
 test("the AAP binding must be HTTPS, with loopback allowed for a dev harness", () => {
   const jsonrpc = (url: string) => [{ url, protocolBinding: "JSONRPC", protocolVersion: "1.0" }];
   assert.equal(card(withCard({ supportedInterfaces: jsonrpc("https://demo.example.com/a2a") })), true);
