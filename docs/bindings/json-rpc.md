@@ -648,20 +648,40 @@ Validation errors (`SCHEMA_VALIDATION_FAILED`, `MISSING_REQUIRED_FIELD`, `INVALI
   "error": {
     "code": -32602,
     "message": "Invalid params: 2 validation errors",
-    "data": {
-      "type": "aap.error",
-      "error_id": "err_01HZ9EXAMPLE",
-      "code": "SCHEMA_VALIDATION_FAILED",
-      "message": "Request failed validation with 2 errors; see details.errors[].",
-      "retryable": false,
-      "details": {
-        "errors": [
-          { "instanceLocation": "/filters/year_min", "keyword": "type", "error": "must be integer" },
-          { "instanceLocation": "/filters/condition/0", "keyword": "enum", "error": "must be one of: new, used, cpo" }
+    "data": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "SCHEMA_VALIDATION_FAILED",
+        "domain": "autoagentprotocol.org",
+        "metadata": {
+          "error_id": "err_01HZ9EXAMPLE",
+          "retryable": "false",
+          "created_at": "2026-04-30T10:15:30Z"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.BadRequest",
+        "fieldViolations": [
+          { "field": "/filters/year_min", "description": "type: must be integer" },
+          { "field": "/filters/condition/0", "description": "enum: must be one of: new, used, cpo" }
         ]
       },
-      "created_at": "2026-04-30T10:15:30Z"
-    }
+      {
+        "@type": "https://autoagentprotocol.org/extensions/aap/error",
+        "type": "aap.error",
+        "error_id": "err_01HZ9EXAMPLE",
+        "code": "SCHEMA_VALIDATION_FAILED",
+        "message": "Request failed validation with 2 errors; see details.errors[].",
+        "retryable": false,
+        "details": {
+          "errors": [
+            { "instanceLocation": "/filters/year_min", "keyword": "type", "error": "must be integer" },
+            { "instanceLocation": "/filters/condition/0", "keyword": "enum", "error": "must be one of: new, used, cpo" }
+          ]
+        },
+        "created_at": "2026-04-30T10:15:30Z"
+      }
+    ]
   }
 }
 ```

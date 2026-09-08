@@ -81,6 +81,7 @@ The command refuses an existing destination, a dirty working tree, a skipped ver
 
 ## For implementers
 
+- `error.data` is an array of `@type`-tagged objects, per A2A §9.5. AAP contracts before this release put a bare `aap.error` object there. A buyer agent that must interoperate with both reads it defensively for one release: `Array.isArray(error.data) ? error.data.find(d => d["@type"] === "https://autoagentprotocol.org/extensions/aap/error") : error.data`.
 - Pin the version advertised by the dealer; do not infer compatibility.
 - Validate against version-pinned schema URLs.
 - A dealer migrating between AAP versions serves each version from its own agent card and interface URL. One card advertises exactly one AAP extension URI: A2A §4.6.3 forbids an agent from falling back to an earlier extension version automatically, so two required AAP entries on one card cannot both be satisfied.

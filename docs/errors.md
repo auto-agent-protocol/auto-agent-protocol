@@ -8,12 +8,17 @@ description: The 12 AAP error codes — meaning, suggested JSON-RPC mapping, and
 
 ![A JSON-RPC protocol error paired with a typed AAP domain error and validation details](./img/error-anatomy.svg)
 
-AAP defines a single typed error payload (`aap.error`) that every dealer agent MUST use when a skill cannot be fulfilled. The error rides inside the standard A2A error envelope: `error.data` of the JSON-RPC error response ([Section 9.5](./bindings/json-rpc.md#error-mapping-a2a-section-95)). AAP v1.3.0 uses a single transport — JSON-RPC 2.0; the HTTP+JSON (REST) binding was [removed in v1.1.0](./bindings/rest.md).
+AAP defines a single typed error payload (`aap.error`) that every dealer agent MUST use when a skill cannot be fulfilled. It rides as one entry of the `error.data` **array** that A2A §9.5 and §3.3.2 require, tagged with `@type` ([Section 9.5](./bindings/json-rpc.md#error-mapping-a2a-section-95)).
+
+The array MUST lead with a `google.rpc.ErrorInfo` carrying `reason` = the AAP code, `domain` = `autoagentprotocol.org`, and string-valued `metadata` for `error_id`, `retryable` and `created_at`. That entry is what a generic A2A client reads: the reference `a2a-python` JSON-RPC transport extracts `metadata` from the first `ErrorInfo` in the array and ignores everything else, so without it a Python buyer agent receives the error with no code and no retry signal at all. `ErrorInfo.metadata` is a `map<string,string>`, so every value is a JSON string (`"false"`, not `false`).
+
+Dealer agents MAY append further well-known A2A detail objects as additional entries. Buyer agents MUST locate the AAP payload by its `@type`, never by array position, and MUST ignore entries whose `@type` they do not recognize. AAP v1.3.0 uses a single transport — JSON-RPC 2.0; the HTTP+JSON (REST) binding was [removed in v1.1.0](./bindings/rest.md).
 
 ## Error payload shape
 
 ```json
 {
+  "@type": "https://autoagentprotocol.org/extensions/aap/error",
   "type": "aap.error",
   "error_id": "err_01HZ9EXAMPLE",
   "code": "SCHEMA_VALIDATION_FAILED",
@@ -175,20 +180,40 @@ A catch-all for unexpected dealer-side failures. `retryable: true` is the defaul
   "error": {
     "code": -32602,
     "message": "Invalid params: filters.year_min must be an integer",
-    "data": {
-      "type": "aap.error",
-      "error_id": "err_01HZ9EXAMPLE",
-      "code": "SCHEMA_VALIDATION_FAILED",
-      "message": "request failed validation with 2 errors",
-      "retryable": false,
-      "details": {
-        "errors": [
-          { "instanceLocation": "/filters/year_min", "keyword": "type", "error": "must be an integer" },
-          { "instanceLocation": "/filters/make", "keyword": "additionalProperties", "error": "unknown filter key" }
+    "data": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "SCHEMA_VALIDATION_FAILED",
+        "domain": "autoagentprotocol.org",
+        "metadata": {
+          "error_id": "err_01HZ9EXAMPLE",
+          "retryable": "false",
+          "created_at": "2026-04-30T10:15:30Z"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.BadRequest",
+        "fieldViolations": [
+          { "field": "/filters/year_min", "description": "type: must be an integer" },
+          { "field": "/filters/make", "description": "additionalProperties: unknown filter key" }
         ]
       },
-      "created_at": "2026-04-30T10:15:30Z"
-    }
+      {
+        "@type": "https://autoagentprotocol.org/extensions/aap/error",
+        "type": "aap.error",
+        "error_id": "err_01HZ9EXAMPLE",
+        "code": "SCHEMA_VALIDATION_FAILED",
+        "message": "request failed validation with 2 errors",
+        "retryable": false,
+        "details": {
+          "errors": [
+            { "instanceLocation": "/filters/year_min", "keyword": "type", "error": "must be an integer" },
+            { "instanceLocation": "/filters/make", "keyword": "additionalProperties", "error": "unknown filter key" }
+          ]
+        },
+        "created_at": "2026-04-30T10:15:30Z"
+      }
+    ]
   }
 }
 ```
@@ -199,6 +224,7 @@ A `lead.submit` request with `customer` but no `consent`:
 
 ```json
 {
+  "@type": "https://autoagentprotocol.org/extensions/aap/error",
   "type": "aap.error",
   "error_id": "err_01HZ9CONSENT01",
   "code": "CONTACT_CONSENT_REQUIRED",
@@ -216,6 +242,7 @@ A `lead.submit` request with `customer` but no `consent`:
 
 ```json
 {
+  "@type": "https://autoagentprotocol.org/extensions/aap/error",
   "type": "aap.error",
   "error_id": "err_01HZ9RATE01",
   "code": "RATE_LIMITED",

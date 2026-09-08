@@ -242,9 +242,29 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
                   message: { $ref: "#/components/schemas/A2aMessage" },
                 },
               },
-              error: { $ref: "#/components/schemas/Error" },
+              error: { $ref: "#/components/schemas/JsonRpcError" },
             },
             required: ["jsonrpc", "id"],
+          },
+          JsonRpcError: {
+            type: "object",
+            description:
+              "JSON-RPC 2.0 error object. `data` is the A2A error-details array (A2A spec, Section 9.5): every entry carries an `@type`, the first entry is a google.rpc.ErrorInfo a generic A2A client reads, and the AAP payload is the entry tagged with the AAP error type.",
+            properties: {
+              code: { type: "integer", description: "JSON-RPC error code. Numeric, not the AAP string code." },
+              message: { type: "string" },
+              data: {
+                type: "array",
+                description: "A2A error details. Locate an entry by its `@type`, never by position.",
+                items: {
+                  type: "object",
+                  properties: { "@type": { type: "string" } },
+                  required: ["@type"],
+                  additionalProperties: true,
+                },
+              },
+            },
+            required: ["code", "message"],
           },
           A2aMessage: {
             type: "object",

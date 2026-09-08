@@ -1,4 +1,5 @@
 {
+  "@type": "https://autoagentprotocol.org/extensions/aap/error",
   "type": "aap.error",
   "error_id": "err_01HX9P7Z6ZK4N3D6V5K3W2T7M0",
   "code": "VEHICLE_NOT_FOUND",

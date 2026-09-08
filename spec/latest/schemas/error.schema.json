@@ -5,6 +5,10 @@
   "description": "Typed AAP error payload. Returned as one entry of the 'error.data' array of a JSON-RPC error response, tagged with '@type', per A2A spec section 9.5. Buyer agents use 'code' and 'retryable' to drive client behavior; humans see 'message'.",
   "type": "object",
   "properties": {
+    "@type": {
+      "const": "https://autoagentprotocol.org/extensions/aap/error",
+      "description": "ProtoJSON Any type tag. A2A section 9.5 requires every object in the 'error.data' array to carry an '@type' key. Version-free by design, like the AAP media types: the AAP version is announced once via the agent-card extension URI, so a buyer agent's discriminator does not churn each release."
+    },
     "type": { "const": "aap.error" },
     "error_id": {
       "type": "string",
@@ -51,6 +55,6 @@
       "examples": ["2026-04-30T10:15:30Z"]
     }
   },
-  "required": ["type", "error_id", "code", "message", "retryable", "created_at"],
+  "required": ["@type", "type", "error_id", "code", "message", "retryable", "created_at"],
   "additionalProperties": false
 }

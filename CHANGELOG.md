@@ -7,6 +7,12 @@ versioning policy is described in the
 
 ## [Unreleased]
 
+> **This set requires a MAJOR release.** `pnpm release:prepare` refuses it as a
+> minor: the compatibility report lists seven breaking schema changes, all of
+> them corrections that bring AAP in line with A2A v1.0. `pnpm test:release`
+> fails for the same reason, because its cases derive the next *minor*. Both
+> are the release gate working as designed, not a regression.
+
 ### Added
 
 - Documented the A2A service-parameter headers every AAP request carries:
@@ -36,6 +42,44 @@ versioning policy is described in the
 - The generated OpenAPI accepts `A2A-Extensions` as a member of a
   comma-separated list rather than as the entire header value, per A2A 9.2.
 - The generated MCP manifest names the A2A headers the wrapper must send.
+
+### Fixed — A2A v1.0 conformance
+
+- `error.data` is an array of `@type`-tagged detail objects, per A2A 9.5 and
+  3.3.2, and leads with a `google.rpc.ErrorInfo`. AAP previously put a bare
+  object there; the reference `a2a-python` JSON-RPC transport reads details
+  only from a list and only from an `ErrorInfo`, so it silently discarded
+  every AAP error payload — including on -32602, AAP's highest-volume code —
+  leaving a buyer agent to retry with no code and no `retryable` signal.
+  BREAKING WIRE CHANGE; `docs/versioning.md` carries a dual-accept note.
+- `RATE_LIMITED` moves from -32002 to -32000. A2A 5.4 assigns -32002 to
+  `TaskNotCancelableError`, and both reference SDKs decode it that way, so a
+  throttled client received a terminal task-lifecycle error. BREAKING.
+- `UNSUPPORTED_SKILL` moves from -32601 to -32004 `UnsupportedOperationError`.
+  The JSON-RPC method is always `SendMessage` and always exists, so -32601
+  told a generic A2A client the endpoint does not speak A2A. BREAKING.
+- The agent card's `security` is renamed `securityRequirements` with A2A's
+  `SecurityRequirement{schemes}` shape. `security` is the v0.3 name; no A2A
+  v1.0 parser reads it, so a protected dealer's card parsed as anonymous.
+- `protocolBinding` is an open string, as A2A defines it. The closed enum
+  rejected `GRPC` and custom-binding URIs while still blessing `HTTP+JSON`,
+  removed from AAP in v1.1.0.
+- `defaultInputModes`, `defaultOutputModes` and `skills` require at least one
+  entry; all three are REQUIRED in the canonical proto.
+- Both mode lists name the `application/vnd.autoagent.*` media types the
+  agent actually exchanges instead of a bare `application/json`, and each
+  skill pins its own pair.
+- Documents the errors A2A 3.3.4 obliges an agent to return for capabilities
+  an AAP card does not declare, plus `ContentTypeNotSupportedError` (-32005).
+- Transport security: every AAP endpoint MUST be served over HTTPS, which A2A
+  makes a MUST in 7.1 and 13.4 and AAP had never stated.
+- Adds optional `signatures` and the interface `tenant` field, documents A2A's
+  interface preference order, and corrects three claims that do not survive
+  the primary source: the removed v0.x `file` Part member, "strict A2A parsers
+  reject unknown skill fields", and a citation to the removed REST binding.
+- Contract tests now cover the agent-card accept set in both directions and
+  the ProtoJSON wire form of the published JSON-RPC envelopes, which
+  `validate-examples` skips.
 
 ## [1.3.0] — 2026-09-04
 
