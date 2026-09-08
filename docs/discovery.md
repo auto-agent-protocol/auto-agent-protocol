@@ -106,8 +106,20 @@ This is the **smallest** card that satisfies the three requirements above — a 
       }
     ]
   },
-  "defaultInputModes": ["application/json"],
-  "defaultOutputModes": ["application/json"],
+  "defaultInputModes": [
+    "application/vnd.autoagent.dealer-information-request+json",
+    "application/vnd.autoagent.inventory-facets-request+json",
+    "application/vnd.autoagent.inventory-search-request+json",
+    "application/vnd.autoagent.vehicle-detail-request+json",
+    "application/vnd.autoagent.lead-submit-request+json"
+  ],
+  "defaultOutputModes": [
+    "application/vnd.autoagent.dealer-information-response+json",
+    "application/vnd.autoagent.inventory-facets-response+json",
+    "application/vnd.autoagent.inventory-search-response+json",
+    "application/vnd.autoagent.vehicle-detail-response+json",
+    "application/vnd.autoagent.lead-submit-response+json"
+  ],
   "skills": [
     {
       "id": "dealer.information",
@@ -145,7 +157,7 @@ This is the **smallest** card that satisfies the three requirements above — a 
 
 `provider` names who operates the agent. The AAP extension's `params.id` is a unique identifier (UUID v7 recommended) the dealer regenerates whenever the card changes — onboarding tools cache it to cheaply detect changes. The published per-skill request/response JSON Schemas also live inside the extension `params` — under `capabilities.extensions[].params.skills["<id>"].request_schema` / `response_schema` — not as fields on the A2A `skills[]` entries — `capabilities.extensions[].params` is where A2A puts extension-specific configuration. Both `params` and any AAP-specific data live inside the extension entry, which is the only A2A-sanctioned place for it.
 
-Each skill carries the A2A-required `tags` (keywords clients/LLMs use to categorize and rank skills). Everything else is **optional** A2A surface a dealer MAY add to the same card — `documentationUrl`, per-skill `inputModes`, or `securitySchemes` + `securityRequirements` for auth. Note that the optional A2A surface beyond `SendMessage` (streaming, tasks, push notification configs, extended agent card) is out of scope for AAP v1.3.0 — dealer agents do not need to implement it and buyer agents MUST NOT require it. The AgentCard shape is A2A's; see the [A2A spec](https://a2a-protocol.org/latest/specification/).
+Each skill carries the A2A-required `tags` (keywords clients/LLMs use to categorize and rank skills). `defaultInputModes` and `defaultOutputModes` are REQUIRED by A2A and MUST name the media types the agent actually exchanges — for AAP that is the `application/vnd.autoagent.*` family, never a bare `application/json`, because a buyer agent intersects its `configuration.acceptedOutputModes` against them. A dealer SHOULD also pin per-skill `inputModes` / `outputModes` to that skill's pair. `documentationUrl`, `signatures`, and `securitySchemes` + `securityRequirements` for auth remain optional A2A surface a dealer MAY add. Note that the optional A2A surface beyond `SendMessage` (streaming, tasks, push notification configs, extended agent card) is out of scope for AAP v1.3.0 — dealer agents do not need to implement it and buyer agents MUST NOT require it. The AgentCard shape is A2A's; see the [A2A spec](https://a2a-protocol.org/latest/specification/).
 
 ## What a buyer agent does next
 

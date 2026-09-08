@@ -10,19 +10,23 @@
     "supportedInterfaces": {
       "type": "array",
       "minItems": 1,
-      "description": "The A2A v1.0 service interfaces (transport + endpoint). AAP v1.3 uses a single transport: a JSONRPC interface is REQUIRED and is the only transport an AAP agent advertises (every AAP client can rely on it). The HTTP+JSON (REST) binding was removed in v1.1; gRPC is out of scope. The protocolBinding enum still lists 'HTTP+JSON' for raw A2A compatibility, but AAP v1.3 advertises only 'JSONRPC'.",
+      "description": "The A2A v1.0 service interfaces (transport + endpoint). AAP v1.3 uses a single transport: a JSONRPC interface is REQUIRED and is the only transport an AAP agent advertises (every AAP client can rely on it). The HTTP+JSON (REST) binding was removed in v1.1; gRPC is out of scope. protocolBinding is an open string per A2A; AAP requires a 'JSONRPC' entry and is served only over it. A2A treats this array as preference-ordered, so a dealer that also serves non-AAP bindings SHOULD list its JSONRPC entry first.",
       "items": {
         "type": "object",
         "properties": {
           "url": { "type": "string", "format": "uri", "description": "Endpoint URL for this interface." },
           "protocolBinding": {
             "type": "string",
-            "enum": ["JSONRPC", "HTTP+JSON"],
-            "description": "The A2A transport binding available at this URL."
+            "minLength": 1,
+            "description": "The A2A transport binding available at this URL. A2A defines this as an open string so bindings can be added; the core values are 'JSONRPC', 'GRPC' and 'HTTP+JSON', and a custom binding uses a URI. AAP itself is served only over 'JSONRPC', but a dealer MAY advertise other bindings it serves for non-AAP clients."
           },
           "protocolVersion": {
             "type": "string",
             "description": "The A2A protocol version this interface exposes (Major.Minor), e.g. '1.0'."
+          },
+          "tenant": {
+            "type": "string",
+            "description": "Optional opaque routing value when several agents are served behind one endpoint. When present, a client MUST echo it in the 'tenant' field of every request to this interface."
           }
         },
         "required": ["url", "protocolBinding", "protocolVersion"],
@@ -74,28 +78,51 @@
     },
     "defaultInputModes": {
       "type": "array",
+      "minItems": 1,
       "items": { "type": "string" },
       "description": "Default media types accepted by this agent across all skills."
     },
     "defaultOutputModes": {
       "type": "array",
+      "minItems": 1,
       "items": { "type": "string" },
       "description": "Default media types produced by this agent across all skills."
     },
     "skills": {
       "type": "array",
+      "minItems": 1,
       "description": "Skills the agent exposes. AAP defines 5 standard skill IDs (`dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`); a compliant agent declares the subset it implements. Buyer agents MUST inspect `skills[]` to discover what is supported.",
       "items": { "$ref": "#/$defs/skill" }
     },
     "securitySchemes": {
       "type": "object",
-      "description": "A2A security scheme definitions. AAP agents are public by default (no scheme).",
+      "description": "Map of scheme name to an A2A v1.0 SecurityScheme (a oneof over apiKeySecurityScheme, httpAuthSecurityScheme, oauth2SecurityScheme, openIdConnectSecurityScheme, mtlsSecurityScheme). AAP agents are public by default (no scheme).",
       "additionalProperties": true
     },
-    "security": {
+    "securityRequirements": {
       "type": "array",
-      "description": "Required security schemes (alternatives, by name). Empty or absent means anonymous access is allowed.",
-      "items": { "type": "object" }
+      "description": "A2A v1.0 SecurityRequirement alternatives. The v0.3 name for this field was 'security'; A2A v1.0 parsers read only 'securityRequirements', so a card using the old name is treated as allowing anonymous access. Empty or absent means anonymous access is allowed.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "schemes": {
+            "type": "object",
+            "description": "Map of security-scheme name to the scopes required from it.",
+            "additionalProperties": {
+              "type": "object",
+              "properties": { "list": { "type": "array", "items": { "type": "string" } } },
+              "additionalProperties": true
+            }
+          }
+        },
+        "required": ["schemes"],
+        "additionalProperties": true
+      }
+    },
+    "signatures": {
+      "type": "array",
+      "description": "Optional A2A AgentCardSignature entries (JWS over the card). AAP does not require signing; a buyer agent that finds signatures SHOULD verify them before trusting the card.",
+      "items": { "type": "object", "additionalProperties": true }
     },
     "iconUrl": { "type": "string", "format": "uri" }
   },
