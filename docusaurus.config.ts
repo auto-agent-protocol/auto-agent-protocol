@@ -55,6 +55,12 @@ const config: Config = {
         indexPages: true,
         language: ["en"],
         docsRouteBasePath: "/docs",
+        // Released versions carry noIndex so search engines see one canonical
+        // doc surface. The search plugin reuses that same tag to skip pages,
+        // which empties the index it serves from every page outside
+        // /docs/latest — including the homepage, whose index is built from the
+        // newest published release. On-site search is not crawling.
+        forceIgnoreNoIndex: true,
         highlightSearchTermsOnTargetPage: true,
         searchBarShortcutHint: true,
         explicitSearchResultPath: true,
