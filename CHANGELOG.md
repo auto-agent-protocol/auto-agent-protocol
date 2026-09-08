@@ -80,6 +80,17 @@ versioning policy is described in the
 - Contract tests now cover the agent-card accept set in both directions and
   the ProtoJSON wire form of the published JSON-RPC envelopes, which
   `validate-examples` skips.
+- States the one A2A SHOULD NOT that AAP knowingly diverges from: A2A 3.7
+  asks for results as Artifacts on a Task; AAP returns them in the response
+  Message, so a buyer agent never has to implement the tasks surface.
+- Carries A2A 3.6.2's agent-side version obligations, and defines how a dealer
+  matches `A2A-Extensions` when a client activates several extensions.
+- `docs/compatibility/adf-mapping.md` no longer ships a pre-v1.1.0 lead: it
+  used the removed `consent.source_agent` and the string form of
+  `source_agent`, two minor versions after both were replaced.
+- The inline agent card in `docs/discovery.md` is synced to the published
+  copy-pasteable example; the two had drifted on every skill description and
+  tag list.
 
 ## [1.3.0] — 2026-09-04
 

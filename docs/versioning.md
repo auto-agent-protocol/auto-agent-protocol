@@ -79,6 +79,15 @@ After reviewing the compatibility report and committing the approved draft, the 
 
 The command refuses an existing destination, a dirty working tree, a skipped version, a patch contract, or a breaking minor candidate. It does not commit, tag, push, publish packages, or deploy the site. Those remain explicit review steps. See [RELEASING.md](https://github.com/auto-agent-protocol/auto-agent-protocol/blob/main/RELEASING.md) for the maintainer checklist.
 
+## A2A protocol version
+
+AAP's own SemVer above governs the AAP contract. The A2A protocol version is separate and is negotiated per request. A dealer agent's obligations under A2A §3.6.2:
+
+- It MUST process a request using the semantics of the `A2A-Version` the client sent, matching on `Major.Minor`.
+- It MUST interpret an empty value as `0.3` — not as the newest version it serves.
+- It MUST return `VersionNotSupportedError` (-32009) when the interface does not serve the requested version.
+- It MAY expose several interfaces for the same transport at different A2A versions, under the same or different URLs.
+
 ## For implementers
 
 - `error.data` is an array of `@type`-tagged objects, per A2A §9.5. AAP contracts before this release put a bare `aap.error` object there. A buyer agent that must interoperate with both reads it defensively for one release: `Array.isArray(error.data) ? error.data.find(d => d["@type"] === "https://autoagentprotocol.org/extensions/aap/error") : error.data`.

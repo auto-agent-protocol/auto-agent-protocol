@@ -62,7 +62,7 @@ The `id` field is the standard JSON-RPC request id; AAP does not constrain it. T
 
 ## Request headers
 
-A2A carries its **service parameters** ([A2A §3.2.6](https://a2a-protocol.org/latest/specification/#326-service-parameters)) as HTTP request headers on the JSON-RPC binding — [A2A §9.2](https://a2a-protocol.org/latest/specification/#92-service-parameter-transmission) requires it (`MUST` be transmitted as HTTP header fields). Every AAP request carries three:
+A2A carries its **service parameters** ([A2A §3.2.6](https://a2a-protocol.org/latest/specification/#326-service-parameters)) as HTTP request headers on the JSON-RPC binding — [A2A §9.2](https://a2a-protocol.org/latest/specification/#92-service-parameter-transmission) requires it (`MUST` be transmitted as HTTP header fields). Two of the three headers below are A2A service parameters; `Content-Type` is the binding's own media type, not a service parameter. Every AAP request carries all three:
 
 | Header | Value | Rule |
 |---|---|---|
@@ -76,7 +76,7 @@ Both A2A headers are load-bearing, not decorative:
 - **Omitting `A2A-Extensions` is a rejected request.** The AAP extension is marked `required: true` on the [agent card](../discovery.md), so per A2A §3.3.4 a dealer agent **MUST** answer a request that did not activate it with `ExtensionSupportRequiredError` (JSON-RPC `-32008`). AAP is a profile extension — it constrains the shape of every message — so a client that has not declared AAP support cannot be served as an AAP client.
 - **A version error you did not cause means the version header is missing.** A dealer built on a stock A2A SDK answers a request with no `A2A-Version` header with `-32009` and a message naming protocol version `0.3` — a version the caller never asked for, because A2A §3.6.2 reads an empty value as `0.3`. The version gate runs before the extension gate, so fix `A2A-Version` first and only then look at `A2A-Extensions`.
 
-A dealer agent SHOULD echo the extensions it activated back on the response in an `A2A-Extensions` header, per A2A's extension-activation flow.
+A dealer agent parses `A2A-Extensions` as a comma-separated list and treats the AAP extension as activated when its exact URI appears as a member; extension URIs it does not recognize are ignored rather than rejected, per A2A's activation flow. A version mismatch is not a match — A2A §4.6.3 requires an error and forbids falling back to an earlier version of the extension. A dealer agent SHOULD echo the extensions it activated back on the response in an `A2A-Extensions` header.
 
 `ExtensionSupportRequiredError` and `VersionNotSupportedError` are A2A protocol-level errors raised before the AAP payload is read, so they carry A2A's own error shape, not the typed [`aap.error`](../errors.md) payload.
 

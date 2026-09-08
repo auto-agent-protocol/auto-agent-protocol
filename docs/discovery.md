@@ -124,32 +124,107 @@ This is the **smallest** card that satisfies the three requirements above — a 
     {
       "id": "dealer.information",
       "name": "Dealer Information",
-      "description": "Return the dealership profile: group name, welcome message, and rooftops with address, hours, contacts, and capabilities.",
-      "tags": ["dealer", "dealership", "profile", "hours", "contact", "locations", "automotive"]
+      "description": "Return the dealership profile — group name, welcome message, and one or more rooftops (locations) with address, geo, contacts, business hours, timezone, default dealer fees, and service capabilities (including tags such as motorcycle_sales / powersports).",
+      "tags": [
+        "dealer",
+        "dealership",
+        "profile",
+        "hours",
+        "contact",
+        "locations",
+        "fees",
+        "automotive",
+        "motorcycles",
+        "powersports"
+      ],
+      "inputModes": [
+        "application/vnd.autoagent.dealer-information-request+json"
+      ],
+      "outputModes": [
+        "application/vnd.autoagent.dealer-information-response+json"
+      ]
     },
     {
       "id": "inventory.facets",
       "name": "Inventory Facets",
-      "description": "Return aggregated facets (makes, models, years, conditions, price/mileage ranges, statuses) over the dealer's inventory.",
-      "tags": ["inventory", "facets", "aggregation", "filters", "automotive"]
+      "description": "Return searchable inventory facets such as makes, models, years, conditions, body styles/segments, price ranges, mileage ranges, drivetrain, fuel type, statuses, vehicle type, engine-displacement range, and electric facets (electric-range span, DC fast charge, charge port).",
+      "tags": [
+        "inventory",
+        "facets",
+        "aggregation",
+        "filters",
+        "automotive",
+        "motorcycles",
+        "powersports"
+      ],
+      "inputModes": [
+        "application/vnd.autoagent.inventory-facets-request+json"
+      ],
+      "outputModes": [
+        "application/vnd.autoagent.inventory-facets-response+json"
+      ]
     },
     {
       "id": "inventory.search",
       "name": "Inventory Search",
-      "description": "Search the dealer's vehicle inventory by make, model, year, condition, price, mileage, body, fuel, drivetrain, VIN, or stock.",
-      "tags": ["inventory", "vehicles", "search", "cars", "automotive"]
+      "description": "Search vehicle inventory by query, make, model, trim, year, condition, price, mileage, body style/segment, VIN, stock, features, and availability — across cars, motorcycles, and other vehicle types, including filters such as vehicle type, body/segment, and engine displacement, plus electric filters such as electric range and DC fast charging.",
+      "tags": [
+        "inventory",
+        "vehicles",
+        "search",
+        "cars",
+        "motorcycles",
+        "powersports",
+        "automotive"
+      ],
+      "inputModes": [
+        "application/vnd.autoagent.inventory-search-request+json"
+      ],
+      "outputModes": [
+        "application/vnd.autoagent.inventory-search-response+json"
+      ]
     },
     {
       "id": "inventory.vehicle",
       "name": "Vehicle Detail",
-      "description": "Return full detail for a specific vehicle by VIN, stock number, or vehicle_id.",
-      "tags": ["inventory", "vehicle", "vin", "stock", "detail", "automotive"]
+      "description": "Return details for a specific car or motorcycle by VIN, stock number, or vehicle_id, including status, pricing disclosure, photos, mileage, trim, features, fuel economy or engine displacement, electric range/battery/charging for BEV and PHEV units, and dealer page URL.",
+      "tags": [
+        "inventory",
+        "vehicle",
+        "vin",
+        "stock",
+        "detail",
+        "automotive",
+        "motorcycles",
+        "powersports"
+      ],
+      "inputModes": [
+        "application/vnd.autoagent.vehicle-detail-request+json"
+      ],
+      "outputModes": [
+        "application/vnd.autoagent.vehicle-detail-response+json"
+      ]
     },
     {
       "id": "lead.submit",
       "name": "Submit Lead",
-      "description": "Submit a consented lead with optional vehicle of interest, trade-in, and appointment.",
-      "tags": ["lead", "contact", "consent", "sales", "appointment", "automotive"]
+      "description": "Submit a consented lead carrying customer info plus any combination of vehicle of interest, trade-in, and appointment request — a single unified contract that matches how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).",
+      "tags": [
+        "lead",
+        "contact",
+        "consent",
+        "sales",
+        "appointment",
+        "automotive",
+        "motorcycles",
+        "powersports"
+      ],
+      "inputModes": [
+        "application/vnd.autoagent.lead-submit-request+json"
+      ],
+      "outputModes": [
+        "application/vnd.autoagent.lead-submit-response+json"
+      ]
     }
   ]
 }
