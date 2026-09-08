@@ -36,7 +36,7 @@ The MCP tool's `inputSchema` is the AAP request schema (referenced by URL). The 
 
 1. Validating `arguments` against the request schema (best practice but optional).
 2. Wrapping `arguments` as `Message.parts[].data` (a Part carrying the `data` member).
-3. Sending it to the dealer's A2A endpoint as a `SendMessage` call over AAP's single transport, [JSON-RPC 2.0](../bindings/json-rpc.md), which every AAP agent exposes. (The [HTTP+JSON (REST) binding](../bindings/rest.md) was removed in v1.1.0.)
+3. Sending it to the dealer's A2A endpoint as a `SendMessage` call over AAP's single transport, [JSON-RPC 2.0](../bindings/json-rpc.md), which every AAP agent exposes. (The [HTTP+JSON (REST) binding](../bindings/rest.md) was removed in v1.1.0.) The adapter is the A2A client here, so it MUST send the [request headers](../bindings/json-rpc.md#request-headers) — `A2A-Version` and `A2A-Extensions` — on that call; the MCP host never sees them.
 4. Unwrapping the dealer's A2A `Message` response and returning the AAP `data` payload as the MCP tool result.
 
 The MCP tool result is the AAP response payload (the same thing the dealer returned in `parts[0].data`).

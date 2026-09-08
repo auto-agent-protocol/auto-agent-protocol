@@ -72,6 +72,17 @@ The 12 codes, their meaning, recommended JSON-RPC code, and `retryable` default.
 
 `retryable` is a default, not a hard rule. Dealer agents MAY override it per-instance — for example, a `SCHEMA_VALIDATION_FAILED` is conceptually non-retryable (the request is malformed and a retry will fail identically), but a transient `INTERNAL_ERROR` is conceptually retryable. Buyer agents MUST honor the value the dealer returns rather than the table default.
 
+## A2A protocol-level errors
+
+Two A2A errors fire before the AAP payload is read, so they are not `aap.error` codes and are absent from the table above. Both follow from AAP being a **required profile extension** on an A2A v1.0 interface:
+
+| A2A error | JSON-RPC | Returned when |
+|---|---|---|
+| `ExtensionSupportRequiredError` | -32008 | The request did not activate the AAP extension via the `A2A-Extensions` header, though the agent card declares it `required: true` (A2A §3.3.4). |
+| `VersionNotSupportedError` | -32009 | The `A2A-Version` header names a `Major.Minor` the interface does not serve. An absent header is read as `0.3` by A2A §3.6.2 — not as `1.0`. |
+
+Dealer agents return these in A2A's own error shape, not as a typed `aap.error` payload. See [request headers](./bindings/json-rpc.md#request-headers).
+
 ## Per-code semantics
 
 ### `UNSUPPORTED_SKILL`

@@ -7,7 +7,16 @@ versioning policy is described in the
 
 ## [Unreleased]
 
-No unreleased contract changes.
+### Added
+
+- Documented the A2A service-parameter headers every AAP request carries:
+  `A2A-Version: 1.0`, required by A2A on every request, and `A2A-Extensions`
+  naming the AAP extension URI, which activates the profile the agent card
+  declares `required: true`. Request examples, the generated JSON-RPC OpenAPI
+  operation, and the canonical agent-card example now carry them.
+- Documented `ExtensionSupportRequiredError` (-32008) and
+  `VersionNotSupportedError` (-32009) as A2A protocol-level errors, distinct
+  from the typed `aap.error` vocabulary.
 
 ## [1.3.0] — 2026-09-04
 

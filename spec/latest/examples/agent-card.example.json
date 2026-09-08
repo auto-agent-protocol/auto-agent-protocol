@@ -18,6 +18,8 @@
     "extensions": [
       {
         "uri": "https://draft.autoagentprotocol.invalid/extensions/aap/latest",
+        "description": "Auto Agent Protocol v0.0.0-dev \u2014 A2A Automotive Retail Profile.",
+        "required": true,
         "params": {
           "id": "0192f3c0-1a2b-7c3d-8e4f-5a6b7c8d9e0f",
           "version": "0.0.0-dev",

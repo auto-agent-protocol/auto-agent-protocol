@@ -26,6 +26,8 @@ The AgentCard structure itself is defined by [A2A](https://a2a-protocol.org/late
    https://autoagentprotocol.org/extensions/aap/v1.3
    ```
 
+   The entry MUST be marked `required: true`. AAP is a **profile extension** in A2A's taxonomy — it narrows the shape of every message rather than adding optional metadata — so a client that has not activated it cannot be served as an AAP client. The consequence is on the wire: a buyer agent MUST activate the extension with the `A2A-Extensions` header on every call, and a dealer agent MUST reject a request that does not with `ExtensionSupportRequiredError` (A2A §3.3.4). See [request headers](./bindings/json-rpc.md#request-headers).
+
 2. `skills[]` contains one entry per AAP skill the agent implements (one or more). Buyer agents discover capability from `skills[]`, not from the AAP extension URI alone. AAP RECOMMENDS that an agent expose at least `inventory.search` + `lead.submit` for a meaningful shopping experience, but no single skill is individually required.
 
 3. `supportedInterfaces[]` includes an entry whose `protocolBinding` is `JSONRPC` (REQUIRED on every AAP agent card). JSON-RPC 2.0 is the sole AAP binding; the HTTP+JSON (REST) binding was [removed in v1.1.0](./bindings/rest.md), and gRPC is out of scope for AAP v1.3.0.
@@ -138,4 +140,5 @@ Each skill carries the A2A-required `tags` (keywords clients/LLMs use to categor
 Once the card is fetched and validated:
 
 1. Read `skills[]` from the card to learn which AAP skills the agent implements. The request/response JSON Schema for each skill is defined by the AAP spec itself (this docs site), version-pinned by the extension URI, and the card publishes the schemas inline under `capabilities.extensions[].params.skills["<id>"].request_schema` / `response_schema`.
-2. Invoke skills via standard A2A `SendMessage` over the [JSON-RPC binding](./bindings/json-rpc.md) — JSON-RPC 2.0 is the only AAP transport (the [REST binding was removed in v1.1.0](./bindings/rest.md)). `SendMessage` is the only A2A operation AAP uses: request `Message` in, response `Message` out. If the card declares A2A `securitySchemes`, obtain credentials out of band first.
+2. Send the required [request headers](./bindings/json-rpc.md#request-headers) on every call: `A2A-Version: 1.0` (A2A requires it on every request) and `A2A-Extensions: https://autoagentprotocol.org/extensions/aap/v1.3` (activates the AAP profile the card declares `required`).
+3. Invoke skills via standard A2A `SendMessage` over the [JSON-RPC binding](./bindings/json-rpc.md) — JSON-RPC 2.0 is the only AAP transport (the [REST binding was removed in v1.1.0](./bindings/rest.md)). `SendMessage` is the only A2A operation AAP uses: request `Message` in, response `Message` out. If the card declares A2A `securitySchemes`, obtain credentials out of band first.

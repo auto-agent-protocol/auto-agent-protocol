@@ -96,6 +96,8 @@ Wrap an AAP request inside an A2A `Message` and send it with `SendMessage` — t
 ```bash
 curl -X POST https://demo-toyota.example.com/a2a \
   -H "Content-Type: application/json" \
+  -H "A2A-Version: 1.0" \
+  -H "A2A-Extensions: https://autoagentprotocol.org/extensions/aap/v1.3" \
   -d '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -117,6 +119,8 @@ curl -X POST https://demo-toyota.example.com/a2a \
     }
   }'
 ```
+
+`A2A-Version` is required by A2A on every request, and `A2A-Extensions` activates the AAP profile — AAP cards declare the extension `required: true`, so a call that omits it is rejected with `ExtensionSupportRequiredError`. See [request headers](./bindings/json-rpc.md#request-headers).
 
 The dealer agent replies with a `SendMessageResponse` in the JSON-RPC `result` — `{ "message": <Message> }` — where the `message` is an A2A `Message` whose first `DataPart.data` is an AAP response:
 
