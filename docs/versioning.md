@@ -90,9 +90,12 @@ AAP's own SemVer above governs the AAP contract. The A2A protocol version is sep
 
 ## For implementers
 
-- `error.data` is an array of `@type`-tagged objects, per A2A §9.5. AAP contracts before this release put a bare `aap.error` object there. A buyer agent that must interoperate with both reads it defensively for one release: `Array.isArray(error.data) ? error.data.find(d => d["@type"] === "https://autoagentprotocol.org/extensions/aap/error") : error.data`.
+- These changes require the next major release. The existing v1.3 contract and packages remain unchanged until a separate release is approved. New wire behavior MUST NOT be deployed behind the existing v1.3 extension URI.
+- `error.data` becomes an array of `@type`-tagged objects, per A2A §9.5. Earlier AAP contracts put a bare `aap.error` object there. Buyers supporting both versions preserve the raw error envelope and accept the shape for the dealer's advertised contract. For the array form, locate the detail by `@type`; for the old object form, verify `type === "aap.error"`. Handle A2A protocol errors separately, since they need not contain an AAP detail.
+- `RATE_LIMITED` changes from -32002 to -32000 and `UNSUPPORTED_SKILL` from -32601 to -32004. Dispatch AAP behavior from the typed payload's `code` and `retryable`, rather than assuming the numeric transport code identifies one AAP condition. Some SDKs discard unknown-code details; see [SDK error handling](./errors.md).
+- The AAP extension is newly required. Update buyers to send `A2A-Version` and activate the exact AAP extension URI before enabling the new contract. Keep support for the old contract for as long as deployed clients need it; this specification does not impose a one-release transition window.
 - Pin the version advertised by the dealer; do not infer compatibility.
 - Validate against version-pinned schema URLs.
-- A dealer migrating between AAP versions serves each version from its own agent card and interface URL. One card advertises exactly one AAP extension URI: A2A §4.6.3 forbids an agent from falling back to an earlier extension version automatically, so two required AAP entries on one card cannot both be satisfied.
+- A dealer migrating between AAP versions serves each version from its own agent card and interface URL. AAP requires exactly one AAP extension URI per card to select an unambiguous contract. Multiple required extension entries mean all must be activated; they do not negotiate alternative versions. A2A §4.6.3 separately forbids automatic fallback to an earlier extension version.
 - Do not use repository draft identifiers on the wire.
 - Do not depend on `/latest/` remaining on the same release.

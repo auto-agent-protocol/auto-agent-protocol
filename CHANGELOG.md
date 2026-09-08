@@ -8,8 +8,9 @@ versioning policy is described in the
 ## [Unreleased]
 
 > **This set requires a MAJOR release.** `pnpm release:prepare` refuses it as a
-> minor: the compatibility report lists nine breaking schema changes, all of
-> them corrections that bring AAP in line with A2A v1.0. `tests/release` now
+> minor: the compatibility report detects breaking schema changes.
+> The new error envelope and extension activation rules must not be deployed
+> under the frozen v1.3 contract. `tests/release` now
 > rehearses the next *major* rather than the next minor, which is the release
 > the branch's own content requires; the compatibility gate itself is
 > unchanged and still refuses a breaking minor.
@@ -37,9 +38,11 @@ versioning policy is described in the
 - `A2A-Version` is documented as header-only on the JSON-RPC binding on the
   authority of A2A 9.2, which forecloses the `?A2A-Version=1.0`
   request-parameter form A2A 3.6.1 permits on other bindings.
-- An agent card declares exactly one AAP extension URI, and a dealer migrating
-  between AAP versions serves each from its own card and interface URL: A2A
-  4.6.3 forbids automatic fallback to an earlier extension version.
+- AAP requires exactly one AAP extension URI per card, marked `required: true`,
+  enforced by the card schema. A dealer migrating between AAP versions serves
+  each from its own card and interface URL. This is AAP's choice for selecting
+  a contract; multiple required A2A extensions would require all of them,
+  rather than negotiating an alternative.
 - The generated OpenAPI accepts `A2A-Extensions` as a member of a
   comma-separated list rather than as the entire header value, per A2A 9.2.
 - The generated MCP manifest names the A2A headers the wrapper must send.
@@ -50,9 +53,11 @@ versioning policy is described in the
   3.3.2, and leads with a `google.rpc.ErrorInfo`. AAP previously put a bare
   object there; the reference `a2a-python` JSON-RPC transport reads details
   only from a list and only from an `ErrorInfo`, so it silently discarded
-  every AAP error payload — including on -32602, AAP's highest-volume code —
-  leaving a buyer agent to retry with no code and no `retryable` signal.
-  BREAKING WIRE CHANGE; `docs/versioning.md` carries a dual-accept note.
+  AAP details. `ErrorInfo.metadata.code` now preserves the AAP code when a
+  client exposes metadata alone. The reviewed Python SDK still discards
+  structured details for -32000, so AAP adapters must preserve the raw error
+  to recover complete validation and retry details. BREAKING WIRE CHANGE;
+  `docs/versioning.md` describes coexistence with the earlier contract.
 - `RATE_LIMITED` moves from -32002 to -32000. A2A 5.4 assigns -32002 to
   `TaskNotCancelableError`, and both reference SDKs decode it that way, so a
   throttled client received a terminal task-lifecycle error. BREAKING.
@@ -64,7 +69,9 @@ versioning policy is described in the
   v1.0 parser reads it, so a protected dealer's card parsed as anonymous.
 - `protocolBinding` is an open string, as A2A defines it. The closed enum
   rejected `GRPC` and custom-binding URIs while still blessing `HTTP+JSON`,
-  removed from AAP in v1.1.0.
+  removed from AAP in v1.1.0. Additional interfaces on the same card must
+  expose equivalent functionality under A2A 5.1; unrelated services belong
+  on separate cards.
 - `defaultInputModes`, `defaultOutputModes` and `skills` require at least one
   entry; all three are REQUIRED in the canonical proto.
 - Both mode lists name the `application/vnd.autoagent.*` media types the
@@ -81,9 +88,8 @@ versioning policy is described in the
 - Contract tests now cover the agent-card accept set in both directions and
   the ProtoJSON wire form of the published JSON-RPC envelopes, which
   `validate-examples` skips.
-- States the one A2A SHOULD NOT that AAP knowingly diverges from: A2A 3.7
-  asks for results as Artifacts on a Task; AAP returns them in the response
-  Message, so a buyer agent never has to implement the tasks surface.
+- Explains the direct Message response permitted by A2A 3.1.1. AAP's
+  message-only interaction does not create a Task or require an Artifact.
 - Carries A2A 3.6.2's agent-side version obligations, and defines how a dealer
   matches `A2A-Extensions` when a client activates several extensions.
 - `docs/compatibility/adf-mapping.md` no longer ships a pre-v1.1.0 lead: it
@@ -92,10 +98,10 @@ versioning policy is described in the
 - The inline agent card in `docs/discovery.md` is synced to the published
   copy-pasteable example; the two had drifted on every skill description and
   tag list.
-- The AAP binding's `url` MUST be HTTPS, enforced in the card schema with a
-  loopback carve-out for a local development harness. Scoped to the JSONRPC
-  entry, so a dealer's other bindings — including gRPC's scheme-less
-  `hostname:port` — are unaffected.
+- Every advertised interface URL MUST use HTTPS in production, including
+  GRPC, as the normative A2A AgentInterface definition requires. The schema
+  permits loopback HTTP for local development; bare gRPC channel targets
+  are not AgentInterface URLs.
 - `event.schema.json` is marked RESERVED and names no delivery mechanism. It
   described delivery over push notifications and task status events, both out
   of scope for the profile.
@@ -109,6 +115,12 @@ versioning policy is described in the
   generator, and a contract test now regenerates the manifest and compares it,
   so the two cannot drift into a frozen release again. `validate-examples`
   skips this file by pattern, which is why the drift went unnoticed.
+- The wire tests include validation, activation and rate-limit error
+  fixtures and validate the documentation's error envelopes. Generated
+  OpenAPI accepts null ids for parse errors, requires exactly one of result
+  or error, and exposes the interface's optional tenant routing field.
+- Release tests explicitly reject a breaking minor and verify the generated
+  extension-header pattern after release identifiers are substituted.
 
 ## [1.3.0] — 2026-09-04
 

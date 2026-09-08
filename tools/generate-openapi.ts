@@ -192,7 +192,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
             responses: {
               "200": {
                 description:
-                  "Successful JSON-RPC response. The result wraps an A2A Message whose DataPart carries an AAP response payload.",
+                  "JSON-RPC response containing either a result or an error. A successful result wraps an A2A Message whose DataPart carries an AAP response payload.",
                 content: {
                   "application/json": {
                     schema: { $ref: "#/components/schemas/JsonRpcResponse" },
@@ -215,6 +215,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
               params: {
                 type: "object",
                 properties: {
+                  tenant: { type: "string", description: "Echo the tenant routing value when the selected AgentInterface declares one." },
                   message: { $ref: "#/components/schemas/A2aMessage" },
                   configuration: {
                     type: "object",
@@ -235,21 +236,26 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
             type: "object",
             properties: {
               jsonrpc: { const: "2.0" },
-              id: { type: ["string", "number"] },
+              id: { type: ["string", "number", "null"], description: "Echoes the request id; null when it could not be determined, such as a parse error." },
               result: {
                 type: "object",
                 properties: {
                   message: { $ref: "#/components/schemas/A2aMessage" },
                 },
+                required: ["message"],
               },
               error: { $ref: "#/components/schemas/JsonRpcError" },
             },
             required: ["jsonrpc", "id"],
+            oneOf: [
+              { required: ["result"], not: { required: ["error"] } },
+              { required: ["error"], not: { required: ["result"] } },
+            ],
           },
           JsonRpcError: {
             type: "object",
             description:
-              "JSON-RPC 2.0 error object. `data` is the A2A error-details array (A2A spec, Section 9.5): every entry carries an `@type`, the first entry is a google.rpc.ErrorInfo a generic A2A client reads, and the AAP payload is the entry tagged with the AAP error type.",
+              "JSON-RPC 2.0 error object. When present, `data` is an array of details tagged with `@type` (A2A section 9.5). AAP skill errors lead with google.rpc.ErrorInfo and include the typed AAP payload. Core protocol errors need not include AAP details.",
             properties: {
               code: { type: "integer", description: "JSON-RPC error code. Numeric, not the AAP string code." },
               message: { type: "string" },

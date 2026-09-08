@@ -4,6 +4,7 @@ import { cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, renameSync, r
 import { tmpdir } from "node:os";
 import { dirname, join, relative } from "node:path";
 import test from "node:test";
+import { parse as parseYaml } from "yaml";
 import { checkAllReleases } from "../../tools/check-releases.js";
 import { freezeCheck } from "../../tools/freeze-check.js";
 import { generateMcp } from "../../tools/generate-mcp-manifest.js";
@@ -83,6 +84,25 @@ test("release dry-run changes no repository bytes", async () => {
   assert.equal(releaseState(ROOT), before);
 });
 
+test("rehearsing a major release does not bypass rejection of a breaking minor", async () => {
+  const context = fixture();
+  try {
+    const registry = loadRegistry(context.root);
+    const stable = registry.releases.find(release => release.contract === registry.stable)!;
+    const [major, minor] = stable.version.split(".").map(Number);
+    const schemaFile = join(context.root, "spec/latest/schemas/agent-card.schema.json");
+    const schema = JSON.parse(readFileSync(schemaFile, "utf8"));
+    // A new upper bound preserves these examples but narrows the public contract.
+    schema.properties.description.maxLength = 100000;
+    writeFileSync(schemaFile, `${JSON.stringify(schema, null, 2)}\n`);
+    const before = releaseState(context.root);
+    await assert.rejects(() => prepareRelease(context.root, `${major}.${minor + 1}.0`, true), /breaking schema changes; a minor release is not permitted/);
+    assert.equal(releaseState(context.root), before);
+  } finally {
+    context.cleanup();
+  }
+});
+
 test("release preparation snapshots latest once and refuses overwrite", async () => {
   const context = fixture();
   try {
@@ -100,6 +120,11 @@ test("release preparation snapshots latest once and refuses overwrite", async ()
     const releasedDiagram = join(context.root, "versioned_docs", `version-${candidate.contract}`, "img/pricing-ladder.svg");
     assert.equal(hash(readFileSync(releasedDiagram)), hash(readFileSync(latestDiagram)), "release must freeze the reviewed latest diagrams with its docs");
     assert.ok(!filesIn(releaseRoot).some(file => readFileSync(file).includes("autoagentprotocol.invalid")));
+    const openapi = parseYaml(readFileSync(join(releaseRoot, "artifacts/openapi-jsonrpc.yaml"), "utf8"));
+    const header = openapi.paths["/"].post.parameters.find((parameter: {name: string}) => parameter.name === "A2A-Extensions");
+    const extensionUri = `https://autoagentprotocol.org/extensions/aap/${candidate.contract}`;
+    assert.ok(new RegExp(header.schema.pattern).test(extensionUri), "released header must accept the pinned extension URI");
+    assert.equal(new RegExp(header.schema.pattern).test(extensionUri.replace("autoagentprotocol.", "autoagentprotocolX")), false);
     await checkAllReleases(context.root);
     await assert.rejects(() => prepareRelease(context.root, candidate.version, false), /already exists|immutable/);
     await assert.rejects(() => prepareRelease(context.root, nextRelease(context.root).version, false), /clean working tree/);

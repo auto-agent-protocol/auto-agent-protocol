@@ -28,7 +28,7 @@ The AgentCard structure itself is defined by [A2A](https://a2a-protocol.org/late
 
    The entry MUST be marked `required: true`, and a card MUST declare exactly one AAP extension URI. AAP is a **profile extension** in A2A's taxonomy — it narrows the shape of every message rather than adding optional metadata — so a client that has not activated it cannot be served as an AAP client. The consequence is on the wire: a buyer agent MUST activate the extension with the `A2A-Extensions` header on every call — A2A defines the field as "if true, the client must understand and comply with the extension's requirements" (`a2a.proto`, `AgentExtension.required`, normative per A2A §1.4) — and a dealer agent MUST reject a request that does not with `ExtensionSupportRequiredError` (A2A §3.3.4). See [request headers](./bindings/json-rpc.md#request-headers).
 
-   Two AAP versions on one card cannot both be honored: A2A §4.6.3 requires an agent to error rather than fall back when a required extension's version is unsupported, and it **MUST NOT** downgrade automatically. A dealer migrating between AAP versions serves each version from its own agent card and interface URL.
+   The single-version rule is an AAP profile choice. A2A can activate multiple supported extensions, but two entries marked required would require both; they do not express an either/or choice of AAP versions. A dealer migrating between AAP versions serves each version from its own agent card and interface URL, so every request selects an unambiguous contract. A2A §4.6.3 separately forbids automatic fallback to an earlier extension version.
 
    Cards published for AAP v1.3 and earlier omit `required`; the rule above applies from the next release. A v1.3 dealer that leaves the field absent remains conformant with v1.3.
 
@@ -36,13 +36,15 @@ The AgentCard structure itself is defined by [A2A](https://a2a-protocol.org/late
 
 3. `supportedInterfaces[]` includes an entry whose `protocolBinding` is `JSONRPC` (REQUIRED on every AAP agent card). JSON-RPC 2.0 is the sole AAP binding; the HTTP+JSON (REST) binding was [removed in v1.1.0](./bindings/rest.md), and gRPC is out of scope for AAP v1.3.0.
 
-   A2A §8.3.2 treats `supportedInterfaces[]` as preference-ordered, so a dealer that also serves non-AAP bindings from the same card SHOULD list its JSONRPC entry first. If an interface sets `tenant`, a client **MUST** echo that opaque value in the `tenant` field of every request to it — AAP does not define tenancy, but it does not exempt a dealer from A2A's rule when the dealer's platform sets one.
+   A2A §8.3.2 treats `supportedInterfaces[]` as preference-ordered, so the JSONRPC entry SHOULD come first for AAP clients. Additional bindings are outside AAP's conformance requirements, but [A2A §5.1](https://a2a-protocol.org/v1.0.0/specification/#51-functional-equivalence-requirements) requires all bindings on the same card to expose equivalent functionality, behavior, errors and authentication. An unrelated service belongs on a separate card. If an interface sets `tenant`, a client **MUST** echo that opaque value in the `tenant` field of every request to it.
 
 A buyer agent that does not find a matching extension URI MUST treat the agent as a generic A2A agent, not as an AAP dealer agent.
 
 ## Transport security
 
 Every AAP endpoint — the agent card URL and every `supportedInterfaces[].url` — **MUST** be served over HTTPS in production. This is not an AAP addition: A2A makes it a MUST in §7.1 and again in §13.4, and the canonical `a2a.proto` says `AgentInterface.url` "must be a valid absolute HTTPS URL in production". `http://` is permitted only for a local development harness on loopback, and a card carrying one MUST NOT be published.
+
+This URL rule also applies to additional interfaces. The [normative `AgentInterface` definition](https://github.com/a2aproject/A2A/blob/v1.0.0/specification/a2a.proto#L336) explicitly illustrates a gRPC interface with an HTTPS URL. A gRPC library's bare `hostname:port` channel target is not the URL to publish on the card.
 
 Public does not mean plaintext. `lead.submit` carries a customer's name, email, phone and postal address, so a plaintext AAP endpoint exposes personal data in transit regardless of whether the dealer requires authentication.
 

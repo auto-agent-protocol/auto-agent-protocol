@@ -1,0 +1,19 @@
+{
+  "jsonrpc": "2.0",
+  "id": "req-3",
+  "error": {
+    "code": -32008,
+    "message": "This agent requires the Auto Agent Protocol extension to be activated.",
+    "data": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "EXTENSION_SUPPORT_REQUIRED",
+        "domain": "a2a-protocol.org",
+        "metadata": {
+          "extensionUri": "https://draft.autoagentprotocol.invalid/extensions/aap/latest",
+          "requiredHeader": "A2A-Extensions"
+        }
+      }
+    ]
+  }
+}

@@ -49,7 +49,7 @@ export function generateMcp(specDir: string, outDir: string, version: string): v
       name: "auto-agent-protocol",
       version: manifest.version,
       description:
-        `MCP server descriptor that exposes Auto Agent Protocol automotive skills as MCP tools. Each tool's input matches the corresponding AAP request schema; the wrapper invokes the dealer's A2A endpoint with the same payload as a typed DataPart. The wrapper is the A2A client on that call and must send the A2A service-parameter headers: "A2A-Version: 1.0" and "A2A-Extensions: ${manifest.extension_uri}". A request omitting them is answered with VersionNotSupportedError (-32009) or ExtensionSupportRequiredError (-32008).`,
+        `MCP server descriptor that exposes Auto Agent Protocol automotive skills as MCP tools. Each tool's input matches the corresponding AAP request schema; the wrapper invokes the dealer's A2A endpoint with the same payload as a typed DataPart. The wrapper is the A2A client on that call and must send the A2A service-parameter headers: "A2A-Version: 1.0" and "A2A-Extensions: ${manifest.extension_uri}". An unsupported protocol version is answered with VersionNotSupportedError (-32009); failure to activate the required extension is answered with ExtensionSupportRequiredError (-32008).`,
       protocolVersion: "2025-06-18",
       tools,
     };

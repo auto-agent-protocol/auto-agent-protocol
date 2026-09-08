@@ -47,14 +47,15 @@ All AAP skills use a single JSON-RPC method:
 
 `SendMessage` is the **only** A2A operation AAP uses (message-only pattern: request `Message` in, response `Message` out). The optional A2A surface — `SendStreamingMessage`, the `tasks` operations (Get/List/Cancel/Subscribe), push notification configs, and `GetExtendedAgentCard` — is out of scope for AAP: dealer agents do not need to implement it, and buyer agents MUST NOT require it.
 
-Out of scope does not mean undefined on the wire. An AAP card normally declares no `streaming`, `pushNotifications` or `extendedAgentCard` capability, and A2A §3.3.4 fixes what an agent MUST answer when a client calls into a capability the card does not declare. A dealer agent MUST answer accordingly rather than inventing a code:
+Out of scope does not mean undefined on the wire. An AAP card normally declares no `streaming`, `pushNotifications` or `extendedAgentCard` capability. A2A §3.3.4 requires the following errors when the corresponding capability is false or absent:
 
 | Operation a client calls anyway | A2A error | JSON-RPC |
 |---|---|---|
 | `SendStreamingMessage`, `SubscribeToTask` | `UnsupportedOperationError` | -32004 |
 | Push notification config (Create/Get/List/Delete) | `PushNotificationNotSupportedError` | -32003 |
 | `GetExtendedAgentCard` | `UnsupportedOperationError` | -32004 |
-| `GetTask`, `ListTasks`, `CancelTask` | `UnsupportedOperationError` | -32004 |
+
+Task retrieval, listing and cancellation have no capability flag in A2A §3.3.4. AAP does not require these operations; an implementation that omits them returns `UnsupportedOperationError` (-32004). An implementation that does serve them follows their A2A semantics, including `TaskNotFoundError` for an unknown task where applicable.
 
 These are A2A protocol-level errors, so they carry A2A's own `error.data` shape — an array whose entries each carry an `@type` — not a typed `aap.error` payload.
 
@@ -76,7 +77,7 @@ Both A2A headers are load-bearing, not decorative:
 
 - **Omitting `A2A-Version` does not mean "latest".** A2A §3.6.2 requires agents to read an empty version as `0.3`, and an AAP interface advertises `protocolVersion: "1.0"`. An agent that does not support the requested version returns `VersionNotSupportedError` (JSON-RPC `-32009`).
 - **Omitting `A2A-Extensions` is a rejected request.** The AAP extension is marked `required: true` on the [agent card](../discovery.md), so per A2A §3.3.4 a dealer agent **MUST** answer a request that did not activate it with `ExtensionSupportRequiredError` (JSON-RPC `-32008`). AAP is a profile extension — it constrains the shape of every message — so a client that has not declared AAP support cannot be served as an AAP client.
-- **A version error you did not cause means the version header is missing.** A dealer built on a stock A2A SDK answers a request with no `A2A-Version` header with `-32009` and a message naming protocol version `0.3` — a version the caller never asked for, because A2A §3.6.2 reads an empty value as `0.3`. The version gate runs before the extension gate, so fix `A2A-Version` first and only then look at `A2A-Extensions`.
+- **A version error naming `0.3` can indicate a missing version header.** Check the actual transmitted headers and the interface's advertised version. A2A does not prescribe the order of version and extension validation, and an interface that also supports `0.3` need not reject that version.
 
 A dealer agent parses `A2A-Extensions` as a comma-separated list and treats the AAP extension as activated when its exact URI appears as a member; extension URIs it does not recognize are ignored rather than rejected, per A2A's activation flow. A version mismatch is not a match — A2A §4.6.3 requires an error and forbids falling back to an earlier version of the extension. A dealer agent SHOULD echo the extensions it activated back on the response in an `A2A-Extensions` header.
 
@@ -656,6 +657,7 @@ Validation errors (`SCHEMA_VALIDATION_FAILED`, `MISSING_REQUIRED_FIELD`, `INVALI
         "reason": "SCHEMA_VALIDATION_FAILED",
         "domain": "autoagentprotocol.org",
         "metadata": {
+          "code": "SCHEMA_VALIDATION_FAILED",
           "error_id": "err_01HZ9EXAMPLE",
           "retryable": "false",
           "created_at": "2026-04-30T10:15:30Z"

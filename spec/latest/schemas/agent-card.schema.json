@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/agent-card.schema.json",
   "title": "AgentCard",
-  "description": "A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. A2A v1.0 declares every transport in 'supportedInterfaces[]' (it replaced the earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). AAP v1.3 uses a single transport: JSON-RPC 2.0. A compliant AAP dealer agent advertises a JSONRPC interface in 'supportedInterfaces[]' and does not advertise any other transport for AAP. To be a compliant AAP dealer agent, 'capabilities.extensions' MUST include an entry whose 'uri' equals 'https://draft.autoagentprotocol.invalid/extensions/aap/latest'.",
+  "description": "A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. AAP requires a JSONRPC interface in 'supportedInterfaces[]'. Additional bindings are outside AAP's conformance requirements, but all bindings on the same card MUST expose equivalent functionality, behavior, errors and authentication under A2A section 5.1. The card MUST declare exactly one AAP extension, whose 'uri' equals 'https://draft.autoagentprotocol.invalid/extensions/aap/latest' and whose 'required' flag is true.",
   "type": "object",
   "properties": {
     "name": { "type": "string", "description": "Human-readable agent name." },
@@ -10,15 +10,20 @@
     "supportedInterfaces": {
       "type": "array",
       "minItems": 1,
-      "description": "The A2A v1.0 service interfaces (transport + endpoint). AAP v1.3 uses a single transport: a JSONRPC interface is REQUIRED and is the only transport an AAP agent advertises (every AAP client can rely on it). The HTTP+JSON (REST) binding was removed in v1.1; gRPC is out of scope. protocolBinding is an open string per A2A; AAP requires a 'JSONRPC' entry and is served only over it. A2A treats this array as preference-ordered, so a dealer that also serves non-AAP bindings SHOULD list its JSONRPC entry first.",
+      "description": "The A2A v1.0 service interfaces (transport + endpoint). A JSONRPC interface is REQUIRED. AAP defines no REST or gRPC binding. A dealer may advertise additional bindings only when they expose equivalent functionality under A2A section 5.1; unrelated services belong on separate cards. This array is preference-ordered, so the JSONRPC entry SHOULD be first for AAP clients.",
       "items": {
         "type": "object",
         "properties": {
-          "url": { "type": "string", "format": "uri", "description": "Endpoint URL for this interface." },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^(?:https://[^\\s/?#]+|http://(?:localhost|127\\.0\\.0\\.1|\\[::1\\])(?::\\d+)?)(?:[/?#]|$)",
+            "description": "A2A AgentInterface.url requires a valid absolute HTTPS URL in production, including for GRPC. Loopback HTTP is permitted only for local development and MUST NOT be published. A bare gRPC hostname:port is a channel target, not an AgentInterface URL."
+          },
           "protocolBinding": {
             "type": "string",
             "minLength": 1,
-            "description": "The A2A transport binding available at this URL. A2A defines this as an open string so bindings can be added; the core values are 'JSONRPC', 'GRPC' and 'HTTP+JSON', and a custom binding uses a URI. AAP itself is served only over 'JSONRPC', but a dealer MAY advertise other bindings it serves for non-AAP clients."
+            "description": "The A2A transport binding available at this URL. A2A defines this as an open string so bindings can be added; the core values are 'JSONRPC', 'GRPC' and 'HTTP+JSON', and a custom binding uses a URI. Other bindings on this card MUST serve equivalent functionality under A2A section 5.1. AAP clients use 'JSONRPC'."
           },
           "protocolVersion": {
             "type": "string",
@@ -30,19 +35,7 @@
           }
         },
         "required": ["url", "protocolBinding", "protocolVersion"],
-        "additionalProperties": true,
-        "if": {
-          "properties": { "protocolBinding": { "const": "JSONRPC" } },
-          "required": ["protocolBinding"]
-        },
-        "then": {
-          "properties": {
-            "url": {
-              "pattern": "^(?:https://[^\\s/?#]+|http://(?:localhost|127\\.0\\.0\\.1|\\[::1\\])(?::\\d+)?)(?:[/?#]|$)",
-              "description": "AAP's own binding MUST be served over HTTPS in production (A2A 7.1 and 13.4; a2a.proto AgentInterface.url says a valid absolute HTTPS URL in production). Loopback over http is permitted for a local development harness only and MUST NOT be published. Other bindings a dealer advertises are A2A's concern, so this constraint applies only to the JSONRPC entry."
-            }
-          }
-        }
+        "additionalProperties": true
       },
       "contains": {
         "type": "object",
@@ -74,15 +67,32 @@
         "pushNotifications": { "type": "boolean" },
         "extensions": {
           "type": "array",
-          "description": "Declared A2A extensions. MUST include the AAP automotive-retail v1.3 entry.",
+          "description": "Declared A2A extensions. MUST include exactly one AAP profile entry, marked required: true. Other, unrelated extensions may also be declared.",
           "items": { "$ref": "#/$defs/extension" },
           "contains": {
             "type": "object",
             "properties": {
-              "uri": { "const": "https://draft.autoagentprotocol.invalid/extensions/aap/latest" }
+              "uri": { "const": "https://draft.autoagentprotocol.invalid/extensions/aap/latest" },
+              "required": { "const": true }
             },
-            "required": ["uri"]
-          }
+            "required": ["uri", "required"]
+          },
+          "allOf": [{
+            "contains": {
+              "type": "object",
+              "properties": {
+                "uri": {
+                  "anyOf": [
+                    { "const": "https://draft.autoagentprotocol.invalid/extensions/aap/latest" },
+                    { "pattern": "^https://autoagentprotocol\\.org/extensions/aap/" }
+                  ]
+                }
+              },
+              "required": ["uri"]
+            },
+            "minContains": 1,
+            "maxContains": 1
+          }]
         }
       },
       "required": ["extensions"],

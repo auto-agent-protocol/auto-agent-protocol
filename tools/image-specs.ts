@@ -251,8 +251,8 @@ export const imageSpecs: Record<string, DiagramSpec> = {
     },
     right: {
       label: "AAP LAYER",
-      title: "error.data",
-      body: "The typed aap.error gives the stable domain code, retry behavior and every validation problem.",
+      title: "error.data[]",
+      body: "Find the typed AAP detail by @type. It carries the domain code, retry behavior and every validation problem.",
       code: ["code: SCHEMA_VALIDATION_FAILED", "retryable: false", "errors[]: location · keyword · error"],
       tone: "primary",
     },
