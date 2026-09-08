@@ -17,6 +17,7 @@ This repository has one editable source and immutable release snapshots.
    pnpm install --frozen-lockfile
    pnpm validate
    pnpm typecheck
+   pnpm test:contract
    pnpm check:releases
    pnpm test:release
    pnpm build
@@ -29,7 +30,7 @@ Patch releases are not cut because public contract URLs identify major/minor onl
 ## Rehearse first
 
 ```bash
-pnpm release:prepare 1.3.0 --dry-run
+pnpm release:prepare 2.0.0 --dry-run
 ```
 
 Dry-run validation creates candidates in an operating-system temporary directory, prints the structural compatibility report, and leaves the repository byte-for-byte unchanged. Review every reported change. The report intentionally does not certify normative behavior, security, privacy, legal compliance, or interoperability.
@@ -39,18 +40,19 @@ Dry-run validation creates candidates in an operating-system temporary directory
 Commit the approved editable source, confirm the tree is clean, then run:
 
 ```bash
-pnpm release:prepare 1.3.0
+pnpm release:prepare 2.0.0
 ```
 
 The command:
 
 - copies `spec/latest/` and `docs/` into new version-pinned snapshots;
-- replaces non-routable draft identifiers with public release identifiers;
+- replaces non-routable draft identifiers with public release identifiers, preserving explicitly version-pinned historical URLs;
+- removes documentation sections enclosed by standalone `{/* aap-draft-only:start */}` and `{/* aap-draft-only:end */}` lines from the release copy only; use these markers for draft-only notices, never contract requirements;
 - validates JSON Schema 2020-12 registration, references, and examples;
 - creates TypeScript, JSON-RPC OpenAPI, and MCP artifact snapshots;
 - records the source commit, input hashes, compatibility report, and integrity manifest;
 - updates `releases.json`, `versions.json`, stable package versions, and stable generated types;
-- verifies that `spec/latest/` did not change.
+- leaves the editable `spec/latest/` and `docs/` sources unchanged.
 
 It refuses dirty input, an existing target, a skipped version, a patch contract, and a breaking minor candidate. If applying the snapshot fails, it restores every mutable metadata and package file and removes only the newly created target directories.
 

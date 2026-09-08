@@ -3,7 +3,7 @@
   "id": "req-3",
   "error": {
     "code": -32008,
-    "message": "This agent requires the Auto Agent Protocol extension to be activated.",
+    "message": "Activate the supported AAP profile with A2A-Extensions: https://draft.autoagentprotocol.invalid/extensions/aap/latest",
     "data": [
       {
         "@type": "type.googleapis.com/google.rpc.ErrorInfo",

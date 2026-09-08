@@ -141,7 +141,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
                 in: "header",
                 required: true,
                 description:
-                  "A2A protocol version the client speaks, `Major.Minor` (A2A spec, Section 3.2.6 service parameter carried as an HTTP header per Section 9.2). A2A Section 3.6.1 requires it on every request; an empty or absent value is read as `0.3`, not as the latest version. An unsupported version is answered with `VersionNotSupportedError` (JSON-RPC -32009).",
+                  "A2A protocol version the client speaks, `Major.Minor` (A2A Sections 3.2.6 and 9.2). A2A Section 3.6.2 interprets an empty value as `0.3`; this does not select `1.0`. AAP additionally requires rejection of a missing version header with `VersionNotSupportedError` (-32009). An unsupported version is also rejected with -32009. When multiple checks fail, no error precedence is prescribed.",
                 schema: { type: "string", const: "1.0" },
               },
               {
@@ -240,7 +240,15 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
               result: {
                 type: "object",
                 properties: {
-                  message: { $ref: "#/components/schemas/A2aMessage" },
+                  message: {
+                    allOf: [
+                      { $ref: "#/components/schemas/A2aMessage" },
+                      {
+                        properties: { role: { const: "ROLE_AGENT" }, contextId: { minLength: 1 } },
+                        required: ["contextId"],
+                      },
+                    ],
+                  },
                 },
                 required: ["message"],
               },
@@ -263,10 +271,17 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
                 type: "array",
                 description: "A2A error details. Locate an entry by its `@type`, never by position.",
                 items: {
-                  type: "object",
-                  properties: { "@type": { type: "string" } },
-                  required: ["@type"],
-                  additionalProperties: true,
+                  oneOf: [
+                    { $ref: "#/components/schemas/Error" },
+                    {
+                      type: "object",
+                      properties: {
+                        "@type": { type: "string", not: { const: components.Error.properties["@type"].const } },
+                      },
+                      required: ["@type"],
+                      additionalProperties: true,
+                    },
+                  ],
                 },
               },
             },
@@ -275,11 +290,15 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
           A2aMessage: {
             type: "object",
             description:
-              "A2A v1.0 Message envelope. `messageId` is required on every Message; `role` is the protobuf enum string `ROLE_USER` (buyer agent) or `ROLE_AGENT` (dealer agent). Parts identify their kind by the member they carry — `data` for DataParts (no `kind` discriminator).",
+              "A2A v1.0 Message envelope. `messageId` is required on every Message. `contextId` is optional on a client request but required on a server response (A2A Message definition). `role` is `ROLE_USER` (buyer) or `ROLE_AGENT` (dealer). Parts identify their kind by the member they carry — `data` for DataParts (no `kind` discriminator).",
             properties: {
               messageId: {
                 type: "string",
                 description: "Unique identifier for this message (e.g. ULID or UUID).",
+              },
+              contextId: {
+                type: "string",
+                description: "Context identifier. Preserve a supplied context for the same interaction; generate one when starting a context. Server response Messages must include it even when no Task is created.",
               },
               role: { enum: ["ROLE_USER", "ROLE_AGENT"] },
               parts: {

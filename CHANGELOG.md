@@ -7,13 +7,34 @@ versioning policy is described in the
 
 ## [Unreleased]
 
-> **This set requires a MAJOR release.** `pnpm release:prepare` refuses it as a
-> minor: the compatibility report detects breaking schema changes.
+> **This set is planned for 2.0.0 and requires a MAJOR release.**
+> `pnpm release:prepare` refuses it as a minor: the compatibility report detects
+> breaking schema changes.
 > The new error envelope and extension activation rules must not be deployed
 > under the frozen v1.3 contract. `tests/release` now
 > rehearses the next *major* rather than the next minor, which is the release
 > the branch's own content requires; the compatibility gate itself is
 > unchanged and still refuses a breaking minor.
+
+### Breaking migration scope
+
+The [old/new/action checklist](./docs/versioning.md#breaking-migration-checklist)
+covers every affected path: server `Message.contextId`, the `error.data` array,
+mandatory `@type`, both changed numeric error mappings, the
+`security` → `securityRequirements` rename and wrapper shape, schema-mandatory
+`required: true`, exactly one AAP profile per card, request headers and activation
+enforcement, non-empty card arrays, advertised AAP media types, HTTPS
+interface URLs, and constraints on optional signatures and tenant values.
+These are breaking contract changes even when they correct A2A conformance.
+The frozen v1.3 release is unchanged; a direct upgrade from an older
+release also includes all intervening release obligations.
+
+Publish the approved versioned specification and artifacts before advertising
+the new runtime contract. Operators must explicitly choose coordinated cutover
+or coexistence; neither a mandatory transition window nor an automatic client
+fallback is implied. Coexistence uses separate cards/interface URLs, with
+non-default cards discovered through direct configuration, a registry, or
+separate origins, not multiple AAP versions on one card.
 
 ### Added
 
@@ -25,9 +46,19 @@ versioning policy is described in the
 - Documented `ExtensionSupportRequiredError` (-32008) and
   `VersionNotSupportedError` (-32009) as A2A protocol-level errors, distinct
   from the typed `aap.error` vocabulary, in A2A's own `error.data` shape.
-- A dealer agent returning `-32008` MUST carry a `google.rpc.ErrorInfo` detail
-  naming the extension URI and the `A2A-Extensions` header, so a buyer agent
-  that omitted activation recovers in a single retry.
+- A dealer agent returning `-32008` MUST name the exact extension URI and the
+  literal `A2A-Extensions` header in the human-readable error message as well
+  as its `google.rpc.ErrorInfo` detail. `extensionUri` and `requiredHeader`
+  are AAP-defined metadata keys under the A2A error domain, not A2A-standard
+  keys. Recovery requires an application that already supports that contract;
+  stock SDKs do not automatically activate or retry it.
+- SDK handling is documented for pinned Python and JavaScript reference
+  revisions. JavaScript's recognized errors retain only the message and
+  collapse `-32602`/`-32603` into one class, while its unknown `-32000` error
+  retains the raw envelope. Python exposes only `ErrorInfo.metadata` for
+  recognized errors and loses data for `-32000`. Neither stock validation-error
+  path exposes `details.errors[]`; AAP-aware raw-envelope handling is required.
+  The reviewed Python v1 server also needs an explicit required-extension check.
 
 ### Changed
 
@@ -35,9 +66,11 @@ versioning policy is described in the
   `a2a.proto` `AgentExtension.required` ("if true, the client must understand
   and comply with the extension's requirements"), which is A2A's normative
   source per A2A 1.4. A2A 3.3.4 continues to carry the dealer-side MUST.
-- `A2A-Version` is documented as header-only on the JSON-RPC binding on the
-  authority of A2A 9.2, which forecloses the `?A2A-Version=1.0`
-  request-parameter form A2A 3.6.1 permits on other bindings.
+- `A2A-Version` is required as a header on the JSON-RPC binding, following
+  A2A 9.2. Although A2A 3.6.1 mentions a request parameter, the REST binding
+  also mandates headers; no other-binding exception is claimed. The A2A rule
+  for an explicitly empty value (`0.3`) is distinguished from AAP's own new
+  policy to reject an absent header with `-32009`.
 - AAP requires exactly one AAP extension URI per card, marked `required: true`,
   enforced by the card schema. A dealer migrating between AAP versions serves
   each from its own card and interface URL. This is AAP's choice for selecting
@@ -58,6 +91,12 @@ versioning policy is described in the
   structured details for -32000, so AAP adapters must preserve the raw error
   to recover complete validation and retry details. BREAKING WIRE CHANGE;
   `docs/versioning.md` describes coexistence with the earlier contract.
+- Every server `Message` response includes `contextId`, as the normative
+  `Message.context_id` description requires. Its optional shared-field label
+  permits client omission; it does not waive the server obligation. Response
+  examples and response validation now include it. The claim that a TCK check
+  requiring a server context is a bug is withdrawn. This change does not
+  require a Task or Artifact for AAP's direct-message interaction. BREAKING.
 - `RATE_LIMITED` moves from -32002 to -32000. A2A 5.4 assigns -32002 to
   `TaskNotCancelableError`, and both reference SDKs decode it that way, so a
   throttled client received a terminal task-lifecycle error. BREAKING.
@@ -65,20 +104,25 @@ versioning policy is described in the
   The JSON-RPC method is always `SendMessage` and always exists, so -32601
   told a generic A2A client the endpoint does not speak A2A. BREAKING.
 - The agent card's `security` is renamed `securityRequirements` with A2A's
-  `SecurityRequirement{schemes}` shape. `security` is the v0.3 name; no A2A
-  v1.0 parser reads it, so a protected dealer's card parsed as anonymous.
+  `SecurityRequirement{schemes}` shape. `security` is the v0.3 name, not the
+  A2A v1.0 authentication field, so a v1.0 reader can interpret a protected
+  dealer's old declaration as anonymous.
   Empty security alternatives accept the `{}` form emitted by ProtoJSON
-  when it omits an empty `schemes` map.
+  when it omits an empty `schemes` map. BREAKING: rename and reshape protected
+  cards and verify authorization; unknown-field tolerance means schema
+  acceptance alone cannot prove the old declaration is understood.
 - `protocolBinding` is an open string, as A2A defines it. The closed enum
   rejected `GRPC` and custom-binding URIs while still blessing `HTTP+JSON`,
   removed from AAP in v1.1.0. Additional interfaces on the same card must
   expose equivalent functionality under A2A 5.1; unrelated services belong
   on separate cards.
 - `defaultInputModes`, `defaultOutputModes` and `skills` require at least one
-  entry; all three are REQUIRED in the canonical proto.
+  entry; all three are REQUIRED in the canonical proto. BREAKING schema
+  tightening: previously accepted empty arrays no longer validate.
 - Both mode lists name the `application/vnd.autoagent.*` media types the
   agent actually exchanges instead of a bare `application/json`, and each
-  skill pins its own pair.
+  skill pins its own pair. BREAKING discovery change: align card modes,
+  request/response parts, and clients' accepted output modes.
 - Documents the errors A2A 3.3.4 obliges an agent to return for capabilities
   an AAP card does not declare, plus `ContentTypeNotSupportedError` (-32005).
 - Transport security: every AAP endpoint MUST be served over HTTPS, which A2A
@@ -87,6 +131,8 @@ versioning policy is described in the
   interface preference order, and corrects three claims that do not survive
   the primary source: the removed v0.x `file` Part member, "strict A2A parsers
   reject unknown skill fields", and a citation to the removed REST binding.
+  Signature entries, when present, now require the A2A `protected` and
+  `signature` fields; their previous unconstrained acceptance is tightened.
 - Contract tests now cover the agent-card accept set in both directions and
   the ProtoJSON wire form of the published JSON-RPC envelopes, which
   `validate-examples` skips.
@@ -103,7 +149,8 @@ versioning policy is described in the
 - Every advertised interface URL MUST use HTTPS in production, including
   GRPC, as the normative A2A AgentInterface definition requires. The schema
   permits loopback HTTP for local development; bare gRPC channel targets
-  are not AgentInterface URLs.
+  are not AgentInterface URLs. BREAKING schema tightening for previously
+  accepted non-HTTPS production URLs.
 - `event.schema.json` is marked RESERVED and names no delivery mechanism. It
   described delivery over push notifications and task status events, both out
   of scope for the profile.
@@ -123,6 +170,13 @@ versioning policy is described in the
   or error, and exposes the interface's optional tenant routing field.
 - Release tests explicitly reject a breaking minor and verify the generated
   extension-header pattern after release identifiers are substituted.
+- Draft-only notices are removed only from prepared release documentation;
+  editable notices and explicitly version-pinned historical links remain
+  unchanged. Release tests cover the transformation and reject malformed markers.
+- Regression tests now assert the mapping tables, required error tags, server
+  contexts, typed OpenAPI error validation, precise negative card errors, and
+  agreement between inline examples and generated manifests. SDK integration
+  guidance no longer claims unverified next-major live interoperability.
 
 ## [1.3.0] — 2026-09-04
 

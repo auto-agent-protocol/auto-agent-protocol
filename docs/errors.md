@@ -6,7 +6,11 @@ description: The 12 AAP error codes — meaning, suggested JSON-RPC mapping, and
 
 # Errors
 
-The array envelope below applies to the contract after v1.3.0. Existing v1.3 endpoints retain their frozen error shape; see [migration guidance](./versioning.md#for-implementers).
+{/* aap-draft-only:start */}
+
+This editable page describes the planned **2.0.0** contract, not the frozen v1.3.0 contract. Existing v1.3 endpoints retain their released error shape and activation behavior; see [migration guidance](./versioning.md#for-implementers). Draft extension identifiers below are illustrative and MUST NOT be deployed; release preparation replaces them with the approved version URI.
+
+{/* aap-draft-only:end */}
 
 ![A JSON-RPC protocol error paired with a typed AAP domain error and validation details](./img/error-anatomy.svg)
 
@@ -14,9 +18,18 @@ AAP defines a single typed error payload (`aap.error`) that every dealer agent M
 
 The array MUST lead with a `google.rpc.ErrorInfo` carrying `reason` = the AAP code, `domain` = `autoagentprotocol.org`, and string-valued `metadata` for `code`, `error_id`, `retryable` and `created_at`. Duplicate the AAP code into `metadata.code`: an SDK may expose only the metadata and discard `reason`. `ErrorInfo.metadata` is a `map<string,string>`, so every value is a JSON string (`"false"`, not `false`).
 
-SDKs do not necessarily preserve every detail. The [Python JSON-RPC transport reviewed at commit 2d4d304](https://github.com/a2aproject/a2a-python/blob/2d4d3048b245d2af854bad804f0e722ea9febc08/src/a2a/client/transports/jsonrpc.py#L318) exposes only the first `ErrorInfo.metadata` for recognized codes such as `-32602`, discarding the typed AAP payload and `BadRequest`. For an unrecognized code such as `-32000`, it raises a generic exception without structured data. Buyer agents using such an SDK MUST preserve and parse the raw JSON-RPC error through a transport adapter to recover `details.errors[]` and retry information. The conformant array shape alone does not make an unmodified SDK an AAP client.
+Dealer agents MAY append further well-known A2A detail objects as additional entries. Buyer agents MUST locate the AAP payload by its `@type`, never by array position, and MUST ignore entries whose `@type` they do not recognize. AAP defines a single transport — JSON-RPC 2.0; the HTTP+JSON (REST) binding was [removed in v1.1.0](./bindings/rest.md).
 
-Dealer agents MAY append further well-known A2A detail objects as additional entries. Buyer agents MUST locate the AAP payload by its `@type`, never by array position, and MUST ignore entries whose `@type` they do not recognize. AAP v1.3.0 uses a single transport — JSON-RPC 2.0; the HTTP+JSON (REST) binding was [removed in v1.1.0](./bindings/rest.md).
+## SDK error handling
+
+The array envelope fixes the wire contract; it does not guarantee that a stock SDK exposes its contents or retries automatically. The following findings are pinned to the reviewed JSON-RPC implementations, not promises about all SDK versions:
+
+| Reference implementation | Recognized codes, including `-32008` | Unrecognized `-32000`, including AAP `RATE_LIMITED` |
+|---|---|---|
+| [a2a-python `b264a6f`](https://github.com/a2aproject/a2a-python/blob/b264a6ffafe156f684828edeaa3e526b9fcbe7b0/src/a2a/client/transports/jsonrpc.py#L318) (also observed at [the earlier `2d4d304`](https://github.com/a2aproject/a2a-python/blob/2d4d3048b245d2af854bad804f0e722ea9febc08/src/a2a/client/transports/jsonrpc.py#L318)) | Exposes only the first `ErrorInfo.metadata`; drops `reason`, the typed AAP detail, and `BadRequest`. | Raises a generic exception without structured data, losing the retry signal. |
+| [a2a-js `314d9e3`](https://github.com/a2aproject/a2a-js/blob/314d9e36946d52c3c20c8f55fac77a2a715fb4fb/src/errors.ts#L327) | Constructs typed exceptions from `message` alone, dropping all details and metadata. `-32602` and `-32603` both become `RequestMalformedError`. | Its `JSONRPCTransportError.errorResponse` retains the raw envelope. |
+
+Neither reviewed stock client exposes AAP `details.errors[]` through its ordinary validation-error exception, whether the server sends the old object or the new array. The array helps a client that preserves and parses the raw envelope. Buyer agents using a lossy SDK MUST add an AAP-aware transport adapter before SDK error conversion to retain the numeric code, locate the typed AAP detail, and recover all validation and retry information. Where the SDK already retains the raw envelope, that envelope can be parsed directly. Do not infer retry behavior from an SDK exception class: `code` and `retryable` in the AAP payload remain authoritative.
 
 ## Error payload shape
 
@@ -67,7 +80,7 @@ The 12 codes, their meaning, recommended JSON-RPC code, and `retryable` default.
 
 | `code` | Meaning | JSON-RPC | `retryable` default |
 |---|---|---|---|
-| `UNSUPPORTED_SKILL` | The agent does not implement this skill. | -32004 (A2A `UnsupportedOperationError`) | `false` |
+| `UNSUPPORTED_SKILL` | The agent does not implement this skill. Dispatch on the typed AAP payload's `code`: `-32004` also represents A2A operations and capabilities that are unsupported. | -32004 (A2A `UnsupportedOperationError`) | `false` |
 | `SCHEMA_VALIDATION_FAILED` | Request body fails JSON Schema validation. | -32602 (Invalid params) | `false` |
 | `MISSING_REQUIRED_FIELD` | A specifically required field is absent. | -32602 (Invalid params) | `false` |
 | `INVALID_CONDITION` | `vehicle_of_interest.condition` is in the trade-in vocabulary, or `trade_in.condition` is in the sale-condition vocabulary. | -32602 (Invalid params) | `false` |
@@ -92,13 +105,15 @@ Several A2A errors are raised by the A2A layer itself, not by AAP skill logic, s
 | `ContentTypeNotSupportedError` | -32005 | An input part's `mediaType` is unsupported, or none of the client's `configuration.acceptedOutputModes` can be produced. Output modes are alternatives: an additional unsupported choice does not invalidate a supported one. A dealer agent that rejects on media type SHOULD use this error rather than a generic code. |
 | `UnsupportedOperationError` | -32004 | The client called streaming or the extended card without the corresponding capability being declared, or a task operation the dealer does not implement. See the [capability table](./bindings/json-rpc.md#endpoint-and-method). |
 | `PushNotificationNotSupportedError` | -32003 | The client called a push notification config operation and `capabilities.pushNotifications` is false or absent. |
-| `VersionNotSupportedError` | -32009 | The `A2A-Version` header names a `Major.Minor` the interface does not serve. An empty or absent header is read as `0.3`, not as `1.0` — A2A §3.6.1 assumes 0.3 for an empty header and §3.6.2 requires agents to interpret an empty value that way. |
+| `VersionNotSupportedError` | -32009 | The `A2A-Version` header names a `Major.Minor` the interface does not serve. A2A §3.6.2 explicitly treats an empty value as `0.3`, not `1.0`; that statement does not itself define absence. See the AAP policy in [request headers](./bindings/json-rpc.md#request-headers). |
 
 Dealer agents return these in A2A's own error shape, not as a typed `aap.error` payload: per A2A §9.5, `error.data` is an **array** of detail objects and each one **MUST** carry an `@type` key. See [request headers](./bindings/json-rpc.md#request-headers).
 
-### The activation error MUST be self-healing
+### The activation error MUST carry recovery instructions
 
-A buyer agent that omitted `A2A-Extensions` is one header away from a correct call, so the rejection MUST carry what it needs to fix itself in a single retry — the same one-round-trip principle `details.errors[]` applies to validation. A2A leaves the body of this error open — details are optional there. AAP closes it: a dealer agent returning `-32008` MUST include a `google.rpc.ErrorInfo` whose `domain` is `a2a-protocol.org` (A2A owns this error type) and whose `metadata` names the extension URI to activate and the header to send it in:
+A client that already supports the advertised AAP contract can correct omitted activation. To make that recovery possible even when an SDK drops structured details, a dealer agent returning `-32008` MUST include both the exact required extension URI and the literal header name `A2A-Extensions` in the human-readable `error.message`. It MUST also include a `google.rpc.ErrorInfo` detail with `domain: "a2a-protocol.org"`, `reason: "EXTENSION_SUPPORT_REQUIRED"`, and string-valued `metadata.extensionUri` and `metadata.requiredHeader`. **`extensionUri` and `requiredHeader` are AAP-defined metadata keys, not standardized A2A keys**; the domain identifies the A2A protocol error. The message and metadata MUST name the same extension URI.
+
+For example:
 
 ```json
 {
@@ -106,14 +121,14 @@ A buyer agent that omitted `A2A-Extensions` is one header away from a correct ca
   "id": "req-3",
   "error": {
     "code": -32008,
-    "message": "This agent requires the Auto Agent Protocol extension to be activated.",
+    "message": "Activate https://draft.autoagentprotocol.invalid/extensions/aap/latest in the A2A-Extensions header before retrying this request.",
     "data": [
       {
         "@type": "type.googleapis.com/google.rpc.ErrorInfo",
         "reason": "EXTENSION_SUPPORT_REQUIRED",
         "domain": "a2a-protocol.org",
         "metadata": {
-          "extensionUri": "https://autoagentprotocol.org/extensions/aap/v1.3",
+          "extensionUri": "https://draft.autoagentprotocol.invalid/extensions/aap/latest",
           "requiredHeader": "A2A-Extensions"
         }
       }
@@ -122,15 +137,17 @@ A buyer agent that omitted `A2A-Extensions` is one header away from a correct ca
 }
 ```
 
-A dealer agent MUST NOT return a bare `-32008` with no detail object. Without `extensionUri` the client cannot know which URI to send, and a rejection it cannot act on turns a one-retry recovery into a lost buyer.
+A dealer agent MUST NOT return a bare `-32008` without those message instructions and the detail object. Neither this envelope nor the header hint provides automatic recovery in an unmodified reference SDK: the buyer application must handle the exception and decide whether to retry.
 
 A client retries with that URI only if it already implements the advertised AAP version. Receiving an activation hint does not supply the extension's implementation; a client that does not support it reports the incompatibility instead of activating an unknown profile.
+
+The server MUST check activation before invoking AAP skill logic and reject a request whose `A2A-Extensions` list lacks the card's exact required URI. Merely declaring `required: true` or importing an SDK error class does not enforce this. The reviewed [a2a-python v1 request handler (`b264a6f`)](https://github.com/a2aproject/a2a-python/blob/b264a6ffafe156f684828edeaa3e526b9fcbe7b0/src/a2a/server/request_handlers/default_request_handler.py) does not supply a required-extension enforcement check; an AAP integration must implement and test it. Other SDK integrations must verify both enforcement and the AAP-required message/detail content.
 
 ## Per-code semantics
 
 ### `UNSUPPORTED_SKILL`
 
-Returned when a buyer agent calls a skill id the dealer agent does not implement. AAP v1.3.0 agents declare the subset of the five skills they implement (at least one) on their agent card, so buyer agents SHOULD check the declared skills before calling. This code also covers forward-compat scenarios where future AAP versions add skills not present in v1.3.0.
+Returned when a buyer agent calls a skill id the dealer agent does not implement. Agents declare the subset of AAP skills they implement (at least one) on their agent card, so buyer agents SHOULD check the declared skills before calling. This code also covers forward-compatibility scenarios where a later AAP contract adds skills. Distinguish it from A2A protocol-level `-32004` errors by the typed AAP payload's `code`, not the numeric code alone.
 
 ### `SCHEMA_VALIDATION_FAILED`
 

@@ -6,11 +6,19 @@ description: How AAP slots into A2A's three-layer architecture (data model, abst
 
 # AAP as an A2A profile
 
+{/* aap-draft-only:start */}
+
+:::info Unreleased contract — planned 2.0.0
+This page describes the editable next-major contract, not the frozen v1.3 release. Example extension and schema URLs use the non-routable `draft.autoagentprotocol.invalid` namespace; release preparation replaces them with approved version-pinned URLs. Do not send draft identifiers to a production agent. See [migration guidance](./versioning.md#for-implementers).
+:::
+
+{/* aap-draft-only:end */}
+
 ![Three-layer stack: HTTPS, A2A v1.0, and the AAP automotive payload profile](./img/architecture-stack.svg)
 
 The Auto Agent Protocol is a strict profile of [A2A v1.0](https://a2a-protocol.org). It does not redefine discovery, message envelopes, the task model, or transport. It only constrains the shape of one specific A2A construct: typed `DataParts` carried inside `Message.parts[]`.
 
-This editable AAP profile targets the A2A **v1.0.x** line, **including A2A v1.0.1** — a non-breaking patch that changed no AgentCard, AgentSkill, or message field. Per A2A §3.6 the agent card advertises the `Major.Minor` version only, so AAP cards keep `protocolVersion: "1.0"` (patch numbers are never put on the wire). A2A v1.0.1's one transport nudge — preferring `application/a2a+json` on the HTTP+JSON binding — does not apply to AAP, which uses JSON-RPC 2.0 exclusively. AAP publishes each skill's request/response JSON Schema URLs in `capabilities.extensions[].params` (a free-form A2A `Struct`) rather than on the `AgentSkill` object, because A2A's `AgentSkill` has no schema field in v1.0 or v1.0.1, and `capabilities.extensions[].params` is the place A2A designates for extension-specific configuration.
+The AAP profile targets the A2A **v1.0.x** line, **including A2A v1.0.1** — a non-breaking patch that changed no AgentCard, AgentSkill, or message field. Per A2A §3.6 the agent card advertises the `Major.Minor` version only, so AAP cards keep `protocolVersion: "1.0"` (patch numbers SHOULD NOT be sent and MUST NOT affect version negotiation). A2A v1.0.1's one transport nudge — preferring `application/a2a+json` on the HTTP+JSON binding — does not apply to AAP, which uses JSON-RPC 2.0 exclusively. AAP publishes each skill's request/response JSON Schema URLs in `capabilities.extensions[].params` (a free-form A2A `Struct`) rather than on the `AgentSkill` object, because A2A's `AgentSkill` has no schema field in v1.0 or v1.0.1, and `capabilities.extensions[].params` is the place A2A designates for extension-specific configuration.
 
 The error-envelope and required-extension corrections described here require a major release after v1.3.0. They do not amend the frozen v1.3 contract; see [migration guidance](./versioning.md#for-implementers).
 
@@ -21,7 +29,7 @@ A2A is structured in three layers. AAP sits as a profile that constrains layer 1
 ```mermaid
 flowchart TB
   subgraph Layer1["Layer 1 — Data model"]
-    L1["Message, Task, Part, DataPart, FilePart, TextPart, AgentCard"]
+    L1["Message, Task, Part (text / raw / url / data), AgentCard"]
   end
 
   subgraph Layer2["Layer 2 — Abstract operations"]
@@ -44,7 +52,7 @@ AAP is a layer 1 profile. It defines:
 
 1. **Standard skill vocabulary.** Five canonical `skills[].id` values an AAP-compliant agent card draws from: `dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`. An agent declares the subset it actually implements (one or more); none is individually mandatory. AAP RECOMMENDS at least `inventory.search` + `lead.submit` for an end-to-end shopping flow.
 2. **Typed `DataPart` payloads.** For each skill, an exact request and response JSON Schema. Each payload includes a `type` field whose value is `<scope>.<thing>.request` or `<scope>.<thing>.response` (e.g. `inventory.search.request`). The AAP version is announced once via the agent-card extension URI; it is not repeated on the wire.
-3. **An extension URI.** `https://autoagentprotocol.org/extensions/aap/v1.3`, declared in `capabilities.extensions[]` of the agent card and marked `required: true`.
+3. **An extension URI.** `https://draft.autoagentprotocol.invalid/extensions/aap/latest`, declared in `capabilities.extensions[]` of the agent card and marked `required: true`.
 
    A2A splits extensions into data-only ones, which add metadata and leave the request/response flow alone, and **profile extensions**, which overlay structure on the core messages — A2A's own illustration of the class is "requiring all messages to use `DataParts` adhering to a specific schema". That is AAP exactly. A2A says only that agents shouldn't mark data-only extensions as required; it does not say profile extensions must be required, and it cautions that `required: true` "creates a hard dependency for all clients". AAP accepts that dependency deliberately: an AAP dealer agent's core function is serving AAP-schema `DataParts`, and a caller that has not accepted the profile cannot be served as an AAP client. The flag is therefore load-bearing rather than decorative — a buyer agent activates the profile with the `A2A-Extensions` header on every call, which A2A defines as the client having to "understand and comply with the extension's requirements" (`a2a.proto`, `AgentExtension.required`, normative per A2A §1.4), and a dealer agent MUST reject a request that does not with `ExtensionSupportRequiredError` (A2A §3.3.4). See [request headers](./bindings/json-rpc.md#request-headers).
 
@@ -74,7 +82,7 @@ A `DataPart` looks like this:
 The `type` field is the AAP-typed identifier (e.g. `inventory.search.request`). Every AAP request and response carries a `type` matching the regex `^[a-z_]+(\.[a-z_]+){1,2}$`. This lets a buyer agent or middleware validate the payload against the right schema without inspecting the surrounding A2A envelope. The `mediaType` field on the part advertises the AAP media type so generic A2A middleware can route or filter parts without parsing the inner `data`.
 
 :::note A2A v1.0 wire format — the single canonical ProtoJSON form
-AAP rides on **A2A v1.0**, whose single canonical wire format is the ProtoJSON form: the method is `SendMessage`, `Role` is the enum name `"ROLE_USER"` (buyer agent) / `"ROLE_AGENT"` (dealer response), and a `Part` has no `kind` discriminator (it is typed by the member it carries — AAP uses the `data` member). The `Message` has no `kind` discriminator either. **A compliant AAP agent MUST emit and accept this form** so any A2A v1.0 client and the published A2A SDKs (`a2a-js`, `a2a-python`) can parse its replies. Every `Message` carries a unique `messageId`.
+AAP rides on **A2A v1.0**, whose single canonical wire format is the ProtoJSON form: the method is `SendMessage`, `Role` is the enum name `"ROLE_USER"` (buyer agent) / `"ROLE_AGENT"` (dealer response), and a `Part` has no `kind` discriminator (it is typed by the member it carries — AAP uses the `data` member). The `Message` has no `kind` discriminator either. **A compliant AAP agent MUST emit and accept this form** so any A2A v1.0 client and the published A2A SDKs (`a2a-js`, `a2a-python`) can parse its replies. Every `Message` carries a unique `messageId`. Every server response `Message` MUST also include a nonempty `contextId`, including direct responses that create no Task; clients may omit it on an initial request.
 :::
 
 ### Concrete example: `inventory.search`
@@ -110,6 +118,7 @@ The dealer agent replies with an A2A `Message` containing the AAP response:
 ```json
 {
   "messageId": "01HZ9Q2W9SH5ZB6DUA0J1K2L3M",
+  "contextId": "ctx_example_001",
   "role": "ROLE_AGENT",
   "parts": [
     {

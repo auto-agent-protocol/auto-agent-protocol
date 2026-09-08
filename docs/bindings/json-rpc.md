@@ -6,6 +6,14 @@ description: How to invoke each AAP skill over A2A's JSON-RPC 2.0 binding (Secti
 
 # JSON-RPC 2.0 binding
 
+{/* aap-draft-only:start */}
+
+:::info Unreleased contract — planned 2.0.0
+This page describes the editable next-major contract, not the frozen v1.3 release. Example extension and schema URLs use the non-routable `draft.autoagentprotocol.invalid` namespace; release preparation replaces them with approved version-pinned URLs. Do not send draft identifiers to a production agent. See [migration guidance](../versioning.md#for-implementers).
+:::
+
+{/* aap-draft-only:end */}
+
 A2A defines a JSON-RPC 2.0 binding in [Section 9](https://a2a-protocol.org/specification#section-9) of its specification. AAP rides on top of **A2A v1.0** without modification, and uses JSON-RPC 2.0 as its **sole** transport: every skill is invoked via the `SendMessage` JSON-RPC method, with the AAP request packaged as a typed `DataPart` inside `params.message.parts[]`.
 
 ![JSON-RPC request and response envelopes: SendMessage carries params.message in and result.message out](../img/jsonrpc-envelope.svg)
@@ -25,6 +33,7 @@ AAP rides on A2A v1.0, whose single canonical wire format is the ProtoJSON form:
 | Message discriminator | (none — no `kind`) |
 | `result` (JSON-RPC) | the `SendMessageResponse`, i.e. `{ "message": <Message> }` |
 | `messageId` | required on every `Message` |
+| `contextId` | required and nonempty on every server response `Message`; optional on an initial client request |
 | `mediaType` on DataPart | `application/vnd.autoagent.<skill>-request+json` |
 :::
 
@@ -36,7 +45,7 @@ A dealer agent advertises one or more JSON-RPC endpoints under `supportedInterfa
 POST {jsonrpc-url}
 Content-Type: application/json
 A2A-Version: 1.0
-A2A-Extensions: https://autoagentprotocol.org/extensions/aap/v1.3
+A2A-Extensions: https://draft.autoagentprotocol.invalid/extensions/aap/latest
 ```
 
 All AAP skills use a single JSON-RPC method:
@@ -70,14 +79,14 @@ A2A carries its **service parameters** ([A2A §3.2.6](https://a2a-protocol.org/l
 | Header | Value | Rule |
 |---|---|---|
 | `Content-Type` | `application/json` | A2A §9.1 — the JSON-RPC binding's media type. |
-| `A2A-Version` | `1.0` | A2A §3.6.1 — clients **MUST** send the version on every request. On this binding it **MUST** be a header: A2A §9.2 requires service parameters to travel as HTTP header fields, which forecloses the `?A2A-Version=1.0` request-parameter form §3.6.1 permits elsewhere. `Major.Minor` only — A2A §3.6 says patch numbers **SHOULD NOT** appear in requests and **MUST NOT** be considered when negotiating versions. |
-| `A2A-Extensions` | `https://autoagentprotocol.org/extensions/aap/v1.3` | Activates the AAP profile. AAP cards declare the extension `required: true`, which A2A defines as the client having to "understand and comply with the extension's requirements" (`a2a.proto`, `AgentExtension.required`), so it **MUST** be present. A client activating several extensions sends them comma-separated in this one header. |
+| `A2A-Version` | `1.0` | A2A §3.6.1 — clients **MUST** send the version on every request. On this binding it **MUST** be a header: A2A §9.2 requires service parameters to travel as HTTP header fields. The general query-parameter allowance in §3.6.1 conflicts with binding-specific header requirements in both §9.2 (JSON-RPC) and §11.2 (REST); AAP requires the header and does not accept a query parameter as its substitute. `Major.Minor` only — A2A §3.6 says patch numbers **SHOULD NOT** appear in requests and **MUST NOT** be considered when negotiating versions. |
+| `A2A-Extensions` | `https://draft.autoagentprotocol.invalid/extensions/aap/latest` | Activates the AAP profile. AAP cards declare the extension `required: true`, which A2A defines as the client having to "understand and comply with the extension's requirements" (`a2a.proto`, `AgentExtension.required`), so it **MUST** be present. A client activating several extensions sends them comma-separated in this one header. |
 
 Both A2A headers are load-bearing, not decorative:
 
-- **Omitting `A2A-Version` does not mean "latest".** A2A §3.6.2 requires agents to read an empty version as `0.3`, and an AAP interface advertises `protocolVersion: "1.0"`. An agent that does not support the requested version returns `VersionNotSupportedError` (JSON-RPC `-32009`).
+- **Omitting `A2A-Version` is rejected on the new AAP interface.** This missing-header rule is an explicit AAP requirement: return `VersionNotSupportedError` (`-32009`) before skill execution. A2A §3.6.2 separately requires an empty value to be interpreted as `0.3`, not `1.0`; reject it when that version is unsupported. Do not attribute the missing-header rule to A2A’s empty-value wording.
 - **Omitting `A2A-Extensions` is a rejected request.** The AAP extension is marked `required: true` on the [agent card](../discovery.md), so per A2A §3.3.4 a dealer agent **MUST** answer a request that did not activate it with `ExtensionSupportRequiredError` (JSON-RPC `-32008`). AAP is a profile extension — it constrains the shape of every message — so a client that has not declared AAP support cannot be served as an AAP client.
-- **A version error naming `0.3` can indicate a missing version header.** Check the actual transmitted headers and the interface's advertised version. A2A does not prescribe the order of version and extension validation, and an interface that also supports `0.3` need not reject that version.
+- **A version error naming `0.3` can indicate an empty version header.** Check the actual transmitted headers and the interface's advertised version. A2A does not prescribe the order of version and extension validation, and an interface that also supports `0.3` need not reject that version.
 
 A dealer agent parses `A2A-Extensions` as a comma-separated list and treats the AAP extension as activated when its exact URI appears as a member; extension URIs it does not recognize are ignored rather than rejected, per A2A's activation flow. A version mismatch is not a match — A2A §4.6.3 requires an error and forbids falling back to an earlier version of the extension. A dealer agent SHOULD echo the extensions it activated back on the response in an `A2A-Extensions` header.
 
@@ -92,7 +101,7 @@ POST /a2a HTTP/1.1
 Host: demo-toyota.example.com
 Content-Type: application/json
 A2A-Version: 1.0
-A2A-Extensions: https://autoagentprotocol.org/extensions/aap/v1.3
+A2A-Extensions: https://draft.autoagentprotocol.invalid/extensions/aap/latest
 
 {
   "jsonrpc": "2.0",
@@ -130,6 +139,7 @@ The JSON-RPC `result` is the `SendMessageResponse`, which ProtoJSON serializes a
   "result": {
     "message": {
       "messageId": "01HZ9F4N1JZ7QS8VKR2A3B4C5D",
+      "contextId": "ctx_example_001",
       "role": "ROLE_AGENT",
       "parts": [
         {
@@ -148,6 +158,8 @@ The JSON-RPC `result` is the `SendMessageResponse`, which ProtoJSON serializes a
 ```
 
 The `messageId` on the response is generated by the dealer agent; it MUST differ from the `messageId` the buyer agent sent on the request.
+
+Every server response `Message` MUST contain a nonempty `contextId`, even in this message-only interaction. The server preserves a client-supplied context for the same interaction and generates a context identifier when starting a new interaction. A client may omit `contextId` on its initial request; do not make it universally required on request Messages. This follows the [A2A Message definition](https://a2a-protocol.org/latest/specification/#414-message). The shared field’s optional annotation does not remove the server-message requirement. The earlier assertion that the TCK’s response-context check was a bug is withdrawn.
 
 The remainder of this page shows the full envelope for each of the five skills. Every one of them is sent with the [request headers](#request-headers) above; the blocks below show the JSON-RPC body only.
 
@@ -191,6 +203,7 @@ The remainder of this page shows the full envelope for each of the five skills. 
   "result": {
     "message": {
       "messageId": "01HZ9G5P2KA8RT9WMS3B4C5D6E",
+      "contextId": "ctx_example_001",
       "role": "ROLE_AGENT",
       "parts": [
         {
@@ -290,6 +303,7 @@ The remainder of this page shows the full envelope for each of the five skills. 
   "result": {
     "message": {
       "messageId": "01HZ9H6Q3KB9SV0XNT4C5D6E7F",
+      "contextId": "ctx_example_001",
       "role": "ROLE_AGENT",
       "parts": [
         {
@@ -392,6 +406,7 @@ The remainder of this page shows the full envelope for each of the five skills. 
   "result": {
     "message": {
       "messageId": "01HZ9F4N1JZ7QS8VKR2A3B4C5D",
+      "contextId": "ctx_example_001",
       "role": "ROLE_AGENT",
       "parts": [
         {
@@ -474,6 +489,7 @@ The remainder of this page shows the full envelope for each of the five skills. 
   "result": {
     "message": {
       "messageId": "01HZ9J7R4MC0TW1YPV5D6E7F8G",
+      "contextId": "ctx_example_001",
       "role": "ROLE_AGENT",
       "parts": [
         {
@@ -610,6 +626,7 @@ The unified lead carries customer info plus any combination of `vehicle_of_inter
   "result": {
     "message": {
       "messageId": "01HZ9K8S5ND1VX2ZQW6E7F8G9H",
+      "contextId": "ctx_example_001",
       "role": "ROLE_AGENT",
       "parts": [
         {
@@ -697,7 +714,7 @@ Recommended JSON-RPC code mapping:
 | `SCHEMA_VALIDATION_FAILED` | -32602 | JSON-RPC "Invalid params". |
 | `MISSING_REQUIRED_FIELD` | -32602 | "Invalid params". |
 | `INVALID_CONDITION` | -32602 | "Invalid params" — a `condition` value is in the wrong vocabulary. |
-| `UNSUPPORTED_SKILL` | -32004 | A2A `UnsupportedOperationError` — the dealer does not implement this AAP skill. NOT -32601: the JSON-RPC method is always `SendMessage` and it always exists, so "Method not found" would tell a generic A2A client the endpoint does not speak A2A. |
+| `UNSUPPORTED_SKILL` | -32004 | A2A `UnsupportedOperationError` — the dealer does not implement this AAP skill. Dispatch AAP behavior from the typed payload’s `code`, not -32004 alone; protocol-level capability and task-operation errors also use -32004. NOT -32601: the JSON-RPC method is always `SendMessage` and it always exists, so "Method not found" would tell a generic A2A client the endpoint does not speak A2A. |
 | `VEHICLE_NOT_FOUND` | -32000 | Application error. |
 | `VEHICLE_UNAVAILABLE` | -32000 | Application error. |
 | `CONTACT_CONSENT_REQUIRED` | -32000 | Application error. |

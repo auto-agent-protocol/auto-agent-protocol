@@ -17,7 +17,7 @@
           "url": {
             "type": "string",
             "format": "uri",
-            "pattern": "^(?:https://[^\\s/?#]+|http://(?:localhost|127\\.0\\.0\\.1|\\[::1\\])(?::\\d+)?)(?:[/?#]|$)",
+            "pattern": "^(?:[hH][tT][tT][pP][sS]://(?:[^\\s/?#@]*@)?(?:\\[[^\\s/?#\\]]+\\]|[^\\s/?#@:\\[\\]]+)(?::\\d*)?|[hH][tT][tT][pP]://(?:[lL][oO][cC][aA][lL][hH][oO][sS][tT]|127\\.0\\.0\\.1|\\[::1\\])(?::\\d+)?)(?:[/?#]|$)",
             "description": "A2A AgentInterface.url requires a valid absolute HTTPS URL in production, including for GRPC. Loopback HTTP is permitted only for local development and MUST NOT be published. A bare gRPC hostname:port is a channel target, not an AgentInterface URL."
           },
           "protocolBinding": {
@@ -145,7 +145,25 @@
     "signatures": {
       "type": "array",
       "description": "Optional A2A AgentCardSignature entries (JWS over the card). AAP does not require signing; a buyer agent that finds signatures SHOULD verify them before trusting the card.",
-      "items": { "type": "object", "additionalProperties": true }
+      "items": {
+        "type": "object",
+        "properties": {
+          "protected": {
+            "type": "string",
+            "description": "Required base64url-encoded protected JWS header JSON object."
+          },
+          "signature": {
+            "type": "string",
+            "description": "Required base64url-encoded JWS signature."
+          },
+          "header": {
+            "type": "object",
+            "description": "Optional unprotected JWS header values."
+          }
+        },
+        "required": ["protected", "signature"],
+        "additionalProperties": true
+      }
     },
     "iconUrl": { "type": "string", "format": "uri" }
   },
@@ -192,7 +210,7 @@
       },
       "required": ["id", "name", "description", "tags"],
       "additionalProperties": true,
-      "description": "An A2A AgentSkill. AAP v1.3 cards do NOT carry per-skill natural-language `examples` — AAP is JSON-only, with no NL prompt examples. AAP publishes each skill's request/response JSON Schema URLs in the AAP extension's `params.skills` map as `params.skills[\"<id>\"].request_schema` / `response_schema` (see capabilities.extensions[].params) — NOT as fields on the skill — because that is where A2A designates extension-specific configuration."
+      "description": "An A2A AgentSkill. AAP cards do NOT carry per-skill natural-language `examples` — AAP is JSON-only, with no NL prompt examples. AAP publishes each skill's request/response JSON Schema URLs in the AAP extension's `params.skills` map as `params.skills[\"<id>\"].request_schema` / `response_schema` (see capabilities.extensions[].params) — NOT as fields on the skill — because that is where A2A designates extension-specific configuration."
     }
   }
 }

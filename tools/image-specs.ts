@@ -127,23 +127,33 @@ export const imageSpecs: Record<string, DiagramSpec> = {
   },
 
   "interop-clients": {
-    kind: "network",
-    eyebrow: "VERIFIED INTEROPERABILITY",
-    title: "Standard A2A clients can invoke every AAP skill",
-    description: "The profile has been exercised through the official JavaScript and Python A2A v1.0 SDKs.",
-    left: [
-      { title: "@a2a-js/sdk", body: "Official JavaScript SDK", code: ["VERIFIED"] },
-      { title: "a2a-sdk", body: "Official Python SDK", code: ["VERIFIED"] },
-      { title: "Any A2A v1.0 client", body: "No AAP-specific transport code" },
+    kind: "flow",
+    eyebrow: "SDK INTEGRATION",
+    title: "Pair A2A transport with AAP-aware handling",
+    description: "Clients activate the selected profile, send typed messages, and retain actionable error details.",
+    items: [
+      {
+        label: "01",
+        title: "Activate the profile",
+        body: "Read the Agent Card and send its exact AAP extension URI in the request header.",
+        code: ["A2A-Version: 1.0", "A2A-Extensions: <extension URI>"],
+      },
+      {
+        label: "02",
+        title: "Send a typed message",
+        body: "Validate the AAP payload and invoke the standard A2A operation over JSON-RPC.",
+        code: ["SendMessage", "Message → DataPart → AAP"],
+        tone: "primary",
+      },
+      {
+        label: "03",
+        title: "Preserve error details",
+        body: "Keep the raw error envelope before lossy SDK conversion. The application decides how to recover.",
+        code: ["Typed aap.error detail", "code · retryable · details"],
+        tone: "teal",
+      },
     ],
-    center: { title: "A2A", body: "Parse Agent Card, then call SendMessage", code: ["Message → DataPart → AAP"], tone: "primary" },
-    right: [
-      { title: "Dealer information", body: "Profiles and rooftops" },
-      { title: "Inventory", body: "Facets, search and detail" },
-      { title: "Consented lead", body: "One unified submission" },
-    ],
-    footer: "Compatibility comes from the shared A2A wire contract—not a private integration.",
-    height: 1050,
+    footer: "A2A transport support alone does not establish AAP conformance. Test the profile and error paths.",
   },
 
   "why-before-after": {

@@ -22,12 +22,15 @@ async function openapi(): Promise<Record<string, any>> {
   }
 }
 
-function documentedErrors(): Array<{ file: string; value: Record<string, any> }> {
-  return ["docs/errors.md", "docs/bindings/json-rpc.md"].flatMap(file =>
+function documentedJson(): Array<{ file: string; value: Record<string, any> }> {
+  return ["docs/errors.md", "docs/bindings/json-rpc.md", "docs/intro.md", "docs/a2a-profile.md"].flatMap(file =>
     [...readFileSync(resolve(ROOT, file), "utf8").matchAll(/```json\n([\s\S]*?)\n```/g)]
       .map(match => ({ file, value: JSON.parse(match[1]) }))
-      .filter(({ value }) => value.jsonrpc && value.error)
   );
+}
+
+function documentedErrors(): Array<{ file: string; value: Record<string, any> }> {
+  return documentedJson().filter(({ value }) => value.jsonrpc && value.error);
 }
 
 function envelopes(): Array<{ file: string; value: Record<string, any> }> {
@@ -70,6 +73,39 @@ test("messages use the A2A v1.0 ProtoJSON form: role enum names, no kind discrim
   }
 });
 
+test("every documented or published server Message includes its context even without a Task", () => {
+  const responses = [...envelopes(), ...documentedJson()].flatMap(({ file, value }) => {
+    const message = value.result?.message ?? (value.role === "ROLE_AGENT" ? value : undefined);
+    return message ? [{ file, message }] : [];
+  });
+  assert.ok(responses.length >= 9, "response examples are missing from the audit");
+  for (const { file, message } of responses) {
+    assert.equal(message.role, "ROLE_AGENT", file);
+    assert.ok(typeof message.contextId === "string" && message.contextId.length > 0, `${file}: server contextId required`);
+  }
+});
+
+test("both documented mapping tables preserve the reviewed numeric code for every AAP condition", () => {
+  const mappings = {
+    UNSUPPORTED_SKILL: -32004, SCHEMA_VALIDATION_FAILED: -32602, MISSING_REQUIRED_FIELD: -32602,
+    INVALID_CONDITION: -32602, VEHICLE_NOT_FOUND: -32000, VEHICLE_UNAVAILABLE: -32000,
+    CONTACT_CONSENT_REQUIRED: -32000, INVALID_CONSENT: -32000, APPOINTMENT_TIME_UNAVAILABLE: -32000,
+    IDEMPOTENCY_CONFLICT: -32000, RATE_LIMITED: -32000, INTERNAL_ERROR: -32603,
+  };
+  for (const [file, column] of [["docs/errors.md", 3], ["docs/bindings/json-rpc.md", 2]] as const) {
+    const rows = readFileSync(resolve(ROOT, file), "utf8").split("\n");
+    for (const [code, numeric] of Object.entries(mappings)) {
+      const row = rows.find(line => line.startsWith(`| \`${code}\` |`));
+      assert.ok(row, `${file}: missing ${code}`);
+      assert.equal(Number(row.split(/(?<!\\)\|/)[column].match(/-\d+/)?.[0]), numeric, `${file}: ${code}`);
+    }
+  }
+  for (const { file, value } of envelopes().filter(({ value }) => value.error)) {
+    const payload = value.error.data.find((detail: any) => detail.type === "aap.error");
+    if (payload) assert.equal(value.error.code, mappings[payload.code as keyof typeof mappings], file);
+  }
+});
+
 test("published and documented errors preserve A2A details and the AAP payload", () => {
   const errors = envelopes().filter(({ value }) => value.error);
   assert.ok(errors.some(({ value }) => value.error.code === -32602), "missing validation error envelope");
@@ -94,6 +130,8 @@ test("published and documented errors preserve A2A details and the AAP payload",
       assert.equal(info.reason, "EXTENSION_SUPPORT_REQUIRED", file);
       assert.equal(info.metadata.requiredHeader, "A2A-Extensions", file);
       assert.ok(info.metadata.extensionUri, `${file}: activation error needs an extension URI`);
+      assert.ok(value.error.message.includes(info.metadata.extensionUri), `${file}: message-only SDKs need the exact extension URI`);
+      assert.ok(value.error.message.includes(info.metadata.requiredHeader), `${file}: message-only SDKs need the header name`);
       continue;
     }
     const payload = value.error.data.find((detail: Record<string, any>) => detail["@type"] === "https://autoagentprotocol.org/extensions/aap/error");
@@ -112,7 +150,7 @@ test("generated OpenAPI accepts wire examples and rejects malformed error envelo
   addFormats(ajv);
   ajv.addSchema(doc, "openapi");
   const response = ajv.getSchema("openapi#/components/schemas/JsonRpcResponse")!;
-  for (const { file, value } of [...envelopes(), ...documentedErrors()]) {
+  for (const { file, value } of [...envelopes(), ...documentedJson().filter(({ value }) => value.jsonrpc)]) {
     if (value.method) continue;
     assert.ok(response(value), `${file}: ${JSON.stringify(response.errors)}`);
   }
@@ -128,6 +166,54 @@ test("generated OpenAPI accepts wire examples and rejects malformed error envelo
     { ...error, error: { code: -32000, message: "Throttled", data: { type: "aap.error" } } },
     { ...error, error: { code: -32000, message: "Throttled", data: [{}] } },
   ]) assert.equal(response(invalid), false, JSON.stringify(invalid));
+});
+
+test("generated response schemas require contextId without requiring it on an initial request", async () => {
+  const doc = await openapi();
+  const ajv = new Ajv2020({ strict: false, allErrors: true });
+  addFormats(ajv);
+  ajv.addSchema(doc, "openapi");
+  const response = ajv.getSchema("openapi#/components/schemas/JsonRpcResponse")!;
+  const request = ajv.getSchema("openapi#/components/schemas/JsonRpcRequest")!;
+  const requestValue = structuredClone(envelopes().find(({ value }) => value.method)!.value);
+  delete requestValue.params.message.contextId;
+  assert.ok(request(requestValue), JSON.stringify(request.errors));
+  requestValue.params.message.contextId = "ctx_existing";
+  assert.ok(request(requestValue), JSON.stringify(request.errors));
+  requestValue.params.message.contextId = "";
+  assert.ok(request(requestValue), "the response fix must not tighten client request context validation");
+  const responseValue = envelopes().find(({ value }) => value.result)!.value;
+  for (const contextId of [undefined, "", 123]) {
+    const invalid = structuredClone(responseValue);
+    if (contextId === undefined) delete invalid.result.message.contextId;
+    else invalid.result.message.contextId = contextId;
+    assert.equal(response(invalid), false);
+    assert.ok(response.errors?.some(error => error.instancePath === "/result/message/contextId" || (error.keyword === "required" && error.params.missingProperty === "contextId")), JSON.stringify(response.errors));
+  }
+  const wrongRole = structuredClone(responseValue);
+  wrongRole.result.message.role = "ROLE_USER";
+  assert.equal(response(wrongRole), false);
+  assert.ok(response.errors?.some(error => error.instancePath === "/result/message/role" && error.keyword === "const"));
+});
+
+test("generated error details validate the reachable AAP component without swallowing malformed known types", async () => {
+  const doc = await openapi();
+  const ajv = new Ajv2020({ strict: false, allErrors: true });
+  addFormats(ajv);
+  ajv.addSchema(doc, "openapi");
+  const response = ajv.getSchema("openapi#/components/schemas/JsonRpcResponse")!;
+  const envelope = structuredClone(envelopes().find(({ value }) => value.error?.code === -32602)!.value);
+  const payload = envelope.error.data.find((detail: any) => detail.type === "aap.error");
+  assert.ok(response(envelope), JSON.stringify(response.errors));
+  payload.retryable = "false";
+  assert.equal(response(envelope), false, "known AAP type must not fall through the generic detail branch");
+  assert.ok(response.errors?.some(error => error.instancePath.endsWith("/retryable") && error.keyword === "type"));
+  payload.retryable = false;
+  delete payload.code;
+  assert.equal(response(envelope), false);
+  assert.ok(response.errors?.some(error => error.keyword === "required" && error.params.missingProperty === "code"));
+  envelope.error.data = [{ "@type": "https://example.com/future/detail", opaque: { value: true } }];
+  assert.ok(response(envelope), "unknown non-AAP error details stay forward compatible");
 });
 
 test("generated extension headers accept exact list members and reject lookalikes", async () => {
@@ -147,6 +233,27 @@ test("the typed AAP error payload carries the ProtoJSON type tag its schema requ
   const error = JSON.parse(readFileSync(resolve(examplesDir, "error.example.json"), "utf8")) as Record<string, unknown>;
   assert.equal(error["@type"], "https://autoagentprotocol.org/extensions/aap/error");
   assert.equal(error.type, "aap.error");
+  const ajv = new Ajv2020({ strict: false, allErrors: true });
+  addFormats(ajv);
+  const validate = ajv.compile(JSON.parse(readFileSync(resolve(ROOT, "spec/latest/schemas/error.schema.json"), "utf8")));
+  for (const key of ["@type", "type", "error_id", "code", "message", "retryable", "created_at"]) {
+    const missing = { ...error };
+    delete missing[key];
+    assert.equal(validate(missing), false, `${key} is required, not merely present in examples`);
+    assert.ok(validate.errors?.some(issue => issue.keyword === "required" && issue.params.missingProperty === key));
+  }
+});
+
+test("editable discovery and activation examples use the same draft contract rather than the frozen URI", () => {
+  const example = JSON.parse(readFileSync(resolve(examplesDir, "agent-card.example.json"), "utf8"));
+  const discovery = readFileSync(resolve(ROOT, "docs/discovery.md"), "utf8");
+  const card = JSON.parse(discovery.match(/```json\n([\s\S]*?)\n```/)![1]);
+  assert.deepEqual(card, example);
+  for (const file of ["docs/intro.md", "docs/a2a-profile.md", "docs/bindings/json-rpc.md", "docs/discovery.md", "docs/errors.md", "docs/compatibility/mcp.md"]) {
+    const text = readFileSync(resolve(ROOT, file), "utf8");
+    assert.doesNotMatch(text, /A2A-Extensions:\s*https:\/\/autoagentprotocol\.org\/extensions\/aap\/v1\.3\b/, `${file}: new activation rules must not use the frozen URI`);
+    assert.match(text, /(?:[Uu]nreleased|next.major|2\.0\.0)/, `${file}: missing release scope`);
+  }
 });
 
 test("the published MCP manifest example matches what the generator produces", async () => {
@@ -158,6 +265,9 @@ test("the published MCP manifest example matches what the generator produces", a
     const generated = JSON.parse(readFileSync(resolve(out, "mcp.json"), "utf8"));
     const published = JSON.parse(readFileSync(resolve(examplesDir, "mcp-manifest.example.json"), "utf8"));
     assert.deepEqual(published, generated, "spec/latest/examples/mcp-manifest.example.json has drifted from tools/generate-mcp-manifest.ts");
+    const docs = readFileSync(resolve(ROOT, "docs/compatibility/mcp.md"), "utf8");
+    const documented = JSON.parse(docs.match(/```json\n([\s\S]*?)\n```/)![1]);
+    assert.deepEqual(documented, generated, "the documented MCP manifest has drifted from the generator");
   } finally {
     rmSync(out, { recursive: true, force: true });
   }
