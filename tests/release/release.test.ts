@@ -27,12 +27,12 @@ function git(root: string, args: string[]): string {
   return execFileSync("git", args, {cwd: root, encoding: "utf8"}).trim();
 }
 
-function nextMinor(root: string): {version: string; contract: string} {
+function nextRelease(root: string): {version: string; contract: string} {
   const registry = loadRegistry(root);
   const stable = registry.releases.find(release => release.contract === registry.stable);
   if (!stable) throw new Error(`Stable release ${registry.stable} is missing`);
-  const [major, minor] = stable.version.split(".").map(Number);
-  const version = `${major}.${minor + 1}.0`;
+  const [major] = stable.version.split(".").map(Number);
+  const version = `${major + 1}.0.0`;
   return {version, contract: contractFor(version)};
 }
 
@@ -79,14 +79,14 @@ test("draft generation is isolated from frozen releases and stable package types
 
 test("release dry-run changes no repository bytes", async () => {
   const before = releaseState(ROOT);
-  await prepareRelease(ROOT, nextMinor(ROOT).version, true);
+  await prepareRelease(ROOT, nextRelease(ROOT).version, true);
   assert.equal(releaseState(ROOT), before);
 });
 
 test("release preparation snapshots latest once and refuses overwrite", async () => {
   const context = fixture();
   try {
-    const candidate = nextMinor(context.root);
+    const candidate = nextRelease(context.root);
     const latestBefore = snapshot(join(context.root, "spec/latest"));
     await prepareRelease(context.root, candidate.version, false);
     const registry = loadRegistry(context.root);
@@ -102,7 +102,7 @@ test("release preparation snapshots latest once and refuses overwrite", async ()
     assert.ok(!filesIn(releaseRoot).some(file => readFileSync(file).includes("autoagentprotocol.invalid")));
     await checkAllReleases(context.root);
     await assert.rejects(() => prepareRelease(context.root, candidate.version, false), /already exists|immutable/);
-    await assert.rejects(() => prepareRelease(context.root, nextMinor(context.root).version, false), /clean working tree/);
+    await assert.rejects(() => prepareRelease(context.root, nextRelease(context.root).version, false), /clean working tree/);
   } finally {
     context.cleanup();
   }
@@ -111,7 +111,7 @@ test("release preparation snapshots latest once and refuses overwrite", async ()
 test("a late release failure restores metadata and removes partial targets", async () => {
   const context = fixture();
   try {
-    const candidate = nextMinor(context.root);
+    const candidate = nextRelease(context.root);
     const docs = join(context.root, "docs/intro.md");
     writeFileSync(docs, `${readFileSync(docs, "utf8")}\n![missing release asset](/img/missing-release-asset.png)\n`);
     git(context.root, ["add", "docs/intro.md"]);

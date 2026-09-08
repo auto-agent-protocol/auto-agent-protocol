@@ -64,3 +64,17 @@ test("the typed AAP error payload carries the ProtoJSON type tag its schema requ
   assert.equal(error["@type"], "https://autoagentprotocol.org/extensions/aap/error");
   assert.equal(error.type, "aap.error");
 });
+
+test("the published MCP manifest example matches what the generator produces", async () => {
+  const { mkdtempSync, readFileSync: read } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { generateMcp } = await import("../../tools/generate-mcp-manifest.js");
+  const { DRAFT_VERSION } = await import("../../tools/lib/releases.js");
+
+  const out = mkdtempSync(resolve(tmpdir(), "aap-mcp-"));
+  generateMcp(resolve(ROOT, "spec/latest"), out, DRAFT_VERSION);
+
+  const generated = JSON.parse(read(resolve(out, "mcp.json"), "utf8"));
+  const published = JSON.parse(read(resolve(examplesDir, "mcp-manifest.example.json"), "utf8"));
+  assert.deepEqual(published, generated, "spec/latest/examples/mcp-manifest.example.json has drifted from tools/generate-mcp-manifest.ts");
+});

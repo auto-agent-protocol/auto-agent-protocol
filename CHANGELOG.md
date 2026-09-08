@@ -8,10 +8,11 @@ versioning policy is described in the
 ## [Unreleased]
 
 > **This set requires a MAJOR release.** `pnpm release:prepare` refuses it as a
-> minor: the compatibility report lists seven breaking schema changes, all of
-> them corrections that bring AAP in line with A2A v1.0. `pnpm test:release`
-> fails for the same reason, because its cases derive the next *minor*. Both
-> are the release gate working as designed, not a regression.
+> minor: the compatibility report lists nine breaking schema changes, all of
+> them corrections that bring AAP in line with A2A v1.0. `tests/release` now
+> rehearses the next *major* rather than the next minor, which is the release
+> the branch's own content requires; the compatibility gate itself is
+> unchanged and still refuses a breaking minor.
 
 ### Added
 
@@ -104,6 +105,10 @@ versioning policy is described in the
   call into `SendStreamingMessage` against an agent that cannot serve it.
 - The inline MCP manifest in `docs/compatibility/mcp.md` is synced to the
   generated artifact it claims to reproduce.
+- `spec/latest/examples/mcp-manifest.example.json` is resynced with the
+  generator, and a contract test now regenerates the manifest and compares it,
+  so the two cannot drift into a frozen release again. `validate-examples`
+  skips this file by pattern, which is why the drift went unnoticed.
 
 ## [1.3.0] — 2026-09-04
 
