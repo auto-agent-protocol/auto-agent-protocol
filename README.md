@@ -5,7 +5,7 @@
 
 # Auto Agent Protocol (AAP)
 
-[![Spec version](https://img.shields.io/badge/spec-v1.3.0-2874d7)](https://autoagentprotocol.org/docs/latest/intro)
+[![Spec version](https://img.shields.io/badge/spec-v1.3.0-2874d7)](https://autoagentprotocol.org/docs/v1.3/intro)
 [![A2A](https://img.shields.io/badge/A2A-v1.0-2874d7)](https://a2a-protocol.org)
 [![License](https://img.shields.io/badge/license-Apache--2.0-52657c)](LICENSE)
 [![Validate](https://github.com/auto-agent-protocol/auto-agent-protocol/actions/workflows/validate.yml/badge.svg)](https://github.com/auto-agent-protocol/auto-agent-protocol/actions/workflows/validate.yml)
@@ -13,6 +13,8 @@
 Brand assets: [symbol, wordmark, and usage guidance](tools/branding/README.md).
 
 **AAP lets AI assistants shop at your car or motorcycle dealership.**
+
+New to the protocol? Read the [AAP FAQ](https://autoagentprotocol.org/faq) for its purpose, supported capabilities, assistant compatibility, and how to get started.
 
 More and more car and motorcycle buyers start their search by asking an AI assistant. AAP is the free, open standard that lets any AI assistant **find your dealership, browse your real inventory, and send you a sales lead with the customer's permission** — straight into the systems you already use. You publish one small file on your own website, answer a few well-defined kinds of questions, and any AAP-capable agent can do business with you. No app store. No middleman. No per-partner integration projects.
 
