@@ -216,6 +216,11 @@ const config: Config = {
       },
       items: [
         {
+          to: "/faq",
+          label: "FAQ",
+          position: "left",
+        },
+        {
           type: "docSidebar",
           sidebarId: "specSidebar",
           position: "left",
@@ -296,6 +301,7 @@ const config: Config = {
         {
           title: "Community",
           items: [
+            { label: "FAQ", to: "/faq" },
             { label: "Partners", to: "/partners" },
             {
               label: "GitHub",
