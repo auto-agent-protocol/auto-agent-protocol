@@ -1,0 +1,57 @@
+{
+  "jsonrpc": "2.0",
+  "id": "req-3",
+  "error": {
+    "code": -32602,
+    "message": "Invalid params: filters.year_min must be an integer",
+    "data": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "SCHEMA_VALIDATION_FAILED",
+        "domain": "autoagentprotocol.org",
+        "metadata": {
+          "code": "SCHEMA_VALIDATION_FAILED",
+          "error_id": "err_01HZ9EXAMPLE",
+          "retryable": "false",
+          "created_at": "2026-04-30T10:15:30Z"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.BadRequest",
+        "fieldViolations": [
+          {
+            "field": "/filters/year_min",
+            "description": "type: must be an integer"
+          },
+          {
+            "field": "/filters/make",
+            "description": "additionalProperties: unknown filter key"
+          }
+        ]
+      },
+      {
+        "@type": "https://autoagentprotocol.org/extensions/aap/error",
+        "type": "aap.error",
+        "error_id": "err_01HZ9EXAMPLE",
+        "code": "SCHEMA_VALIDATION_FAILED",
+        "message": "request failed validation with 2 errors",
+        "retryable": false,
+        "details": {
+          "errors": [
+            {
+              "instanceLocation": "/filters/year_min",
+              "keyword": "type",
+              "error": "must be an integer"
+            },
+            {
+              "instanceLocation": "/filters/make",
+              "keyword": "additionalProperties",
+              "error": "unknown filter key"
+            }
+          ]
+        },
+        "created_at": "2026-04-30T10:15:30Z"
+      }
+    ]
+  }
+}

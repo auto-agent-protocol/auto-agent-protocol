@@ -1,0 +1,33 @@
+{
+  "jsonrpc": "2.0",
+  "id": "req-rate-limited",
+  "error": {
+    "code": -32000,
+    "message": "Per-key rate limit exceeded.",
+    "data": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "RATE_LIMITED",
+        "domain": "autoagentprotocol.org",
+        "metadata": {
+          "code": "RATE_LIMITED",
+          "error_id": "err_01HZ9RATE01",
+          "retryable": "true",
+          "created_at": "2026-04-30T10:16:00Z"
+        }
+      },
+      {
+        "@type": "https://autoagentprotocol.org/extensions/aap/error",
+        "type": "aap.error",
+        "error_id": "err_01HZ9RATE01",
+        "code": "RATE_LIMITED",
+        "message": "Per-key rate limit exceeded.",
+        "retryable": true,
+        "details": {
+          "retry_after_ms": 30000
+        },
+        "created_at": "2026-04-30T10:16:00Z"
+      }
+    ]
+  }
+}

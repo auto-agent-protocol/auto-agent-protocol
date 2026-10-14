@@ -1,8 +1,8 @@
 // Auto-generated from JSON Schema — do not edit
-// Auto Agent Protocol 1.3.0
+// Auto Agent Protocol 2.0.0
 
 /**
- * Abstract base shape for every typed Auto Agent Protocol payload that travels inside an A2A DataPart. Concrete request and response schemas restrict 'type' to a constant skill-id-shaped value (e.g. inventory.search.request, lead.submit.response). The AAP version is announced once via the agent-card extension URI ('https://autoagentprotocol.org/extensions/aap/v1.3') and reflected in schema $id URLs; it is NOT repeated on the wire. Responses additionally carry a 'data' object and an optional 'message' note. Errors use the Error schema instead.
+ * Abstract base shape for every typed Auto Agent Protocol payload that travels inside an A2A DataPart. Concrete request and response schemas restrict 'type' to a constant skill-id-shaped value (e.g. inventory.search.request, lead.submit.response). The AAP version is announced once via the agent-card extension URI ('https://autoagentprotocol.org/extensions/aap/v2.0') and reflected in schema $id URLs; it is NOT repeated on the wire. Responses additionally carry a 'data' object and an optional 'message' note. Errors use the Error schema instead.
  */
 export interface AapMessage {
   /**
@@ -67,7 +67,7 @@ export interface DealerFee {
 }
 
 /**
- * A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. A2A v1.0 declares every transport in 'supportedInterfaces[]' (it replaced the earlier top-level 'url'/'preferredTransport'/'additionalInterfaces' and top-level 'protocolVersion'). AAP v1.3 uses a single transport: JSON-RPC 2.0. A compliant AAP dealer agent advertises a JSONRPC interface in 'supportedInterfaces[]' and does not advertise any other transport for AAP. To be a compliant AAP dealer agent, 'capabilities.extensions' MUST include an entry whose 'uri' equals 'https://autoagentprotocol.org/extensions/aap/v1.3'.
+ * A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. AAP requires a JSONRPC interface in 'supportedInterfaces[]'. Additional bindings are outside AAP's conformance requirements, but all bindings on the same card MUST expose equivalent functionality, behavior, errors and authentication under A2A section 5.1. The card MUST declare exactly one AAP extension, whose 'uri' equals 'https://autoagentprotocol.org/extensions/aap/v2.0' and whose 'required' flag is true.
  */
 export interface AgentCard {
   /**
@@ -79,39 +79,47 @@ export interface AgentCard {
    */
   description: string;
   /**
-   * The A2A v1.0 service interfaces (transport + endpoint). AAP v1.3 uses a single transport: a JSONRPC interface is REQUIRED and is the only transport an AAP agent advertises (every AAP client can rely on it). The HTTP+JSON (REST) binding was removed in v1.1; gRPC is out of scope. The protocolBinding enum still lists 'HTTP+JSON' for raw A2A compatibility, but AAP v1.3 advertises only 'JSONRPC'.
+   * The A2A v1.0 service interfaces (transport + endpoint). A JSONRPC interface is REQUIRED. AAP defines no A2A HTTP+JSON or gRPC binding; its native Poppy OpenAPI API is advertised separately in poppy.json. A dealer may advertise additional bindings only when they expose equivalent functionality under A2A section 5.1; unrelated services belong on separate cards. This array is preference-ordered, so the JSONRPC entry SHOULD be first for AAP clients.
    *
    * @minItems 1
    */
   supportedInterfaces: [
     {
       /**
-       * Endpoint URL for this interface.
+       * A2A AgentInterface.url requires a valid absolute HTTPS URL in production, including for GRPC. Loopback HTTP is permitted only for local development and MUST NOT be published. A bare gRPC hostname:port is a channel target, not an AgentInterface URL.
        */
       url: string;
       /**
-       * The A2A transport binding available at this URL.
+       * The A2A transport binding available at this URL. A2A defines this as an open string so bindings can be added; the core values are 'JSONRPC', 'GRPC' and 'HTTP+JSON', and a custom binding uses a URI. Other bindings on this card MUST serve equivalent functionality under A2A section 5.1. AAP clients use 'JSONRPC'.
        */
-      protocolBinding: "JSONRPC" | "HTTP+JSON";
+      protocolBinding: string;
       /**
        * The A2A protocol version this interface exposes (Major.Minor), e.g. '1.0'.
        */
       protocolVersion: string;
+      /**
+       * Optional opaque routing value when several agents are served behind one endpoint. When present, a client MUST echo it in the 'tenant' field of every request to this interface.
+       */
+      tenant?: string;
       [k: string]: any;
     },
     ...{
       /**
-       * Endpoint URL for this interface.
+       * A2A AgentInterface.url requires a valid absolute HTTPS URL in production, including for GRPC. Loopback HTTP is permitted only for local development and MUST NOT be published. A bare gRPC hostname:port is a channel target, not an AgentInterface URL.
        */
       url: string;
       /**
-       * The A2A transport binding available at this URL.
+       * The A2A transport binding available at this URL. A2A defines this as an open string so bindings can be added; the core values are 'JSONRPC', 'GRPC' and 'HTTP+JSON', and a custom binding uses a URI. Other bindings on this card MUST serve equivalent functionality under A2A section 5.1. AAP clients use 'JSONRPC'.
        */
-      protocolBinding: "JSONRPC" | "HTTP+JSON";
+      protocolBinding: string;
       /**
        * The A2A protocol version this interface exposes (Major.Minor), e.g. '1.0'.
        */
       protocolVersion: string;
+      /**
+       * Optional opaque routing value when several agents are served behind one endpoint. When present, a client MUST echo it in the 'tenant' field of every request to this interface.
+       */
+      tenant?: string;
       [k: string]: any;
     }[]
   ];
@@ -138,33 +146,61 @@ export interface AgentCard {
     streaming?: boolean;
     pushNotifications?: boolean;
     /**
-     * Declared A2A extensions. MUST include the AAP automotive-retail v1.3 entry.
+     * Declared A2A extensions. MUST include exactly one AAP profile entry, marked required: true. Other, unrelated extensions may also be declared.
      */
-    extensions: Extension[];
+    extensions: {
+      [k: string]: any;
+    } & Extension[];
     [k: string]: any;
   };
   /**
    * Default media types accepted by this agent across all skills.
+   *
+   * @minItems 1
    */
-  defaultInputModes: string[];
+  defaultInputModes: [string, ...string[]];
   /**
    * Default media types produced by this agent across all skills.
+   *
+   * @minItems 1
    */
-  defaultOutputModes: string[];
+  defaultOutputModes: [string, ...string[]];
   /**
    * Skills the agent exposes. AAP defines 5 standard skill IDs (`dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`); a compliant agent declares the subset it implements. Buyer agents MUST inspect `skills[]` to discover what is supported.
+   *
+   * @minItems 1
    */
-  skills: Skill[];
+  skills: [Skill, ...Skill[]];
   /**
-   * A2A security scheme definitions. AAP agents are public by default (no scheme).
+   * Map of scheme name to an A2A v1.0 SecurityScheme (a oneof over apiKeySecurityScheme, httpAuthSecurityScheme, oauth2SecurityScheme, openIdConnectSecurityScheme, mtlsSecurityScheme). AAP agents are public by default (no scheme).
    */
   securitySchemes?: {
     [k: string]: any;
   };
   /**
-   * Required security schemes (alternatives, by name). Empty or absent means anonymous access is allowed.
+   * A2A v1.0 SecurityRequirement alternatives. The v0.3 name for this field was 'security'; A2A v1.0 parsers read only 'securityRequirements', so a card using the old name is treated as allowing anonymous access. Empty or absent means anonymous access is allowed.
    */
-  security?: {
+  securityRequirements?: {
+    [k: string]: any;
+  }[];
+  /**
+   * Optional A2A AgentCardSignature entries (JWS over the card). AAP does not require signing; a buyer agent that finds signatures SHOULD verify them before trusting the card.
+   */
+  signatures?: {
+    /**
+     * Required base64url-encoded protected JWS header JSON object.
+     */
+    protected: string;
+    /**
+     * Required base64url-encoded JWS signature.
+     */
+    signature: string;
+    /**
+     * Optional unprotected JWS header values.
+     */
+    header?: {
+      [k: string]: any;
+    };
     [k: string]: any;
   }[];
   iconUrl?: string;
@@ -180,7 +216,7 @@ export interface Extension {
   [k: string]: any;
 }
 /**
- * An A2A AgentSkill. AAP v1.3 cards do NOT carry per-skill natural-language `examples` — AAP is JSON-only, with no NL prompt examples. AAP publishes each skill's request/response JSON Schema URLs in the AAP extension's `params.skills` map as `params.skills["<id>"].request_schema` / `response_schema` (see capabilities.extensions[].params) — NOT as fields on the skill — because strict A2A AgentCard parsers reject unknown skill fields.
+ * An A2A AgentSkill. AAP cards do NOT carry per-skill natural-language `examples` — AAP is JSON-only, with no NL prompt examples. AAP publishes each skill's request/response JSON Schema URLs in the AAP extension's `params.skills` map as `params.skills["<id>"].request_schema` / `response_schema` (see capabilities.extensions[].params) — NOT as fields on the skill — because that is where A2A designates extension-specific configuration.
  */
 export interface Skill {
   /**
@@ -475,9 +511,13 @@ export interface WeeklyHours {
   sunday?: DayHours;
 }
 /**
- * Typed AAP error payload. Returned inside an A2A error envelope (JSON-RPC 'error' member or HTTP 'application/json' error body, per A2A spec sections 9.5 and 11.6). Buyer agents use 'code' and 'retryable' to drive client behavior; humans see 'message'.
+ * Typed AAP error payload. Returned as one entry of the 'error.data' array of a JSON-RPC error response, tagged with '@type', per A2A spec section 9.5. On the native Poppy API, returned directly as a skill-error response body with the documented HTTP status. Buyer agents use 'code' and 'retryable' to drive client behavior; humans see 'message'.
  */
 export interface Error {
+  /**
+   * ProtoJSON Any type tag. A2A section 9.5 requires every object in the 'error.data' array to carry an '@type' key. Version-free by design, like the AAP media types: the AAP version is announced once via the agent-card extension URI, so a buyer agent's discriminator does not churn each release.
+   */
+  "@type": "https://autoagentprotocol.org/extensions/aap/error";
   type: "aap.error";
   /**
    * Unique identifier for this error instance, suitable for support correlation (e.g. UUID).
@@ -520,7 +560,7 @@ export interface Error {
 }
 
 /**
- * Minimal AAP event envelope. Used for asynchronous status updates (e.g. lead status changes, appointment confirmations) delivered via A2A push notifications or task status update events.
+ * RESERVED. Minimal AAP event envelope, defined for forward compatibility only. AAP specifies no delivery mechanism for it: the profile uses SendMessage alone, and streaming, tasks and push notification configs are out of scope. A dealer agent MUST NOT emit this envelope and a buyer agent MUST NOT expect it until a future AAP version defines how it is delivered.
  */
 export type Event = {
   [k: string]: any;
@@ -1083,7 +1123,7 @@ export interface Vehicle {
  * - If `trade_in.condition` is set, it MUST be one of `excellent`, `good`, `fair`, `poor`.
  * - `consent.scope` MUST be `["lead_submission"]`.
  *
- * Carried inside an A2A `Message.parts[].data` DataPart via `SendMessage` (JSON-RPC 2.0 or HTTP+JSON binding).
+ * Carried inside an A2A `Message.parts[].data` DataPart via `SendMessage` (JSON-RPC 2.0), or directly as the native Poppy OpenAPI request body.
  */
 export type LeadSubmitRequest = {
   [k: string]: any;
@@ -1352,6 +1392,167 @@ export interface LeadSubmitResponse {
   message?: string;
 }
 
+export interface PoppyAapExtension {
+  version: "1";
+  agent_card: string;
+  mcp?: string;
+  openapi?: string;
+  api_catalog?: string;
+  documentation?: string;
+  [k: string]: any;
+}
+
+/**
+ * Forward-compatible structural validation of Poppy draft 0.1 discovery. Unknown fields and interface types are retained; clients skip unsupported types. This is an AAP-maintained schema, not an upstream certification. Cross-document identity and runtime security require separate checks.
+ */
+export type PoppyDocument = {
+  [k: string]: any;
+} & {
+  /**
+   * Poppy draft version, independent of the AAP release and extension version.
+   */
+  protocol_version: "0.1";
+  organization: {
+    name: string;
+    domain: string;
+    [k: string]: any;
+  };
+  auth?: {
+    issuer: string;
+    direct?: {
+      scopes: string[];
+      [k: string]: any;
+    };
+    device?: {
+      scopes: string[];
+      [k: string]: any;
+    };
+    mediated?: {
+      endpoint: string;
+      /**
+       * @minItems 1
+       */
+      fields: [
+        {
+          name: string;
+          label: string;
+          secret: boolean;
+          [k: string]: any;
+        },
+        ...{
+          name: string;
+          label: string;
+          secret: boolean;
+          [k: string]: any;
+        }[]
+      ];
+      scopes: string[];
+      [k: string]: any;
+    };
+    custom_scopes?: {
+      [k: string]: string;
+    };
+    [k: string]: any;
+  };
+  web?: {
+    browser_session_endpoint?: string;
+    [k: string]: any;
+  };
+  /**
+   * @minItems 1
+   */
+  apis?: [
+    {
+      type: string;
+      url: string;
+      description: string;
+      resource?: string;
+      [k: string]: any;
+    },
+    ...{
+      type: string;
+      url: string;
+      description: string;
+      resource?: string;
+      [k: string]: any;
+    }[]
+  ];
+  agent?: {
+    /**
+     * @minItems 1
+     */
+    protocols: [
+      {
+        type: string;
+        endpoint: string;
+        resource?: string;
+        [k: string]: any;
+      },
+      ...{
+        type: string;
+        endpoint: string;
+        resource?: string;
+        [k: string]: any;
+      }[]
+    ];
+    [k: string]: any;
+  };
+  extensions?: {
+    [k: string]: {
+      version: string;
+      [k: string]: any;
+    };
+  };
+  [k: string]: any;
+};
+
+export interface PoppyOAuthMetadata {
+  issuer: string;
+  token_endpoint: string;
+  revocation_endpoint: string;
+  authorization_endpoint?: string;
+  device_authorization_endpoint?: string;
+  /**
+   * @minItems 1
+   */
+  poppy_domains: [string, ...string[]];
+  grant_types_supported?: string[];
+  token_endpoint_auth_methods_supported?: string[];
+  dpop_signing_alg_values_supported?: string[];
+  [k: string]: any;
+}
+
+/**
+ * Poppy token endpoint response. Tokens are opaque to clients; JSON validation does not verify cryptography, ownership, scope enforcement or expiry.
+ */
+export type PoppySessionTokenResponse = {
+  access_token: string;
+  token_type: "DPoP" | "Bearer";
+  expires_in: number;
+  scope: string;
+  session_id: string;
+  signed_in: boolean;
+  refresh_token?: string;
+  [k: string]: any;
+} & {
+  [k: string]: any;
+};
+
+/**
+ * AAP 2.0 Poppy guest API profile. Both discovery documents, a guest OAuth issuer, an OpenAPI API, and the AAP extension linking the matching A2A Agent Card are required. The website-only Poppy profile is a migration stage, not AAP 2.0 conformance.
+ */
+export type AAPPoppyDiscovery = PoppyDocument & {
+  auth: {
+    issuer: string;
+    [k: string]: any;
+  };
+  apis: any[];
+  extensions: {
+    "autoagentprotocol.org/aap": PoppyAapExtension;
+    [k: string]: any;
+  };
+  [k: string]: any;
+};
 /**
  * Typed AAP request for the `inventory.vehicle` skill. The request MUST identify a specific listing via at least one of `vin`, `stock`, or `vehicle_id`. Carried inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.
  */
