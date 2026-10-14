@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v2.0/schemas/inventory-facets-response.schema.json",
+  "title": "InventoryFacetsResponse",
+  "description": "Typed AAP response for the `inventory.facets` skill. The `data` object is a Facets aggregation. Carried as a typed DataPart in the A2A response or directly as the native Poppy API response body.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "inventory.facets.response" },
+    "data": { "$ref": "./facets.schema.json" },
+    "message": {
+      "type": "string",
+      "description": "Optional contextual note. MAY be omitted.",
+      "maxLength": 2000
+    }
+  },
+  "required": ["type", "data"],
+  "additionalProperties": false
+}

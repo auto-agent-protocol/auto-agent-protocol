@@ -1,0 +1,5 @@
+{
+  "version": "1",
+  "agent_card": "https://demo-toyota.example.com/.well-known/agent-card.json",
+  "documentation": "https://autoagentprotocol.org/"
+}
