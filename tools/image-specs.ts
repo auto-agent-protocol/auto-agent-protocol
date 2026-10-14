@@ -260,7 +260,7 @@ export const imageSpecs: Record<string, DiagramSpec> = {
       tone: "navy",
     },
     right: {
-      label: "THIRD STANDARD DETAIL",
+      label: "AAP STRUCT DETAIL",
       title: "error.data[]",
       body: "Find the Struct whose value.type is aap.error; do not depend on its array position.",
       code: ["@type: type.googleapis.com/google.protobuf.Struct", "value.type: aap.error", "value.code: SCHEMA_VALIDATION_FAILED", "value.details.errors[]"],
