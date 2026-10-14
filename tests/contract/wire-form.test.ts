@@ -87,7 +87,7 @@ test("every documented or published server Message includes its context even wit
 
 test("both documented mapping tables preserve the reviewed numeric code for every AAP condition", () => {
   const mappings = {
-    UNSUPPORTED_SKILL: -32004, SCHEMA_VALIDATION_FAILED: -32602, MISSING_REQUIRED_FIELD: -32602,
+    UNSUPPORTED_SKILL: -32602, SCHEMA_VALIDATION_FAILED: -32602, MISSING_REQUIRED_FIELD: -32602,
     INVALID_CONDITION: -32602, VEHICLE_NOT_FOUND: -32000, VEHICLE_UNAVAILABLE: -32000,
     CONTACT_CONSENT_REQUIRED: -32000, INVALID_CONSENT: -32000, APPOINTMENT_TIME_UNAVAILABLE: -32000,
     IDEMPOTENCY_CONFLICT: -32000, RATE_LIMITED: -32000, INTERNAL_ERROR: -32603,
@@ -101,7 +101,7 @@ test("both documented mapping tables preserve the reviewed numeric code for ever
     }
   }
   for (const { file, value } of envelopes().filter(({ value }) => value.error)) {
-    const payload = value.error.data.find((detail: any) => detail.type === "aap.error");
+    const payload = value.error.data.find((detail: any) => detail["@type"] === "type.googleapis.com/google.protobuf.Struct" && detail.value?.type === "aap.error")?.value;
     if (payload) assert.equal(value.error.code, mappings[payload.code as keyof typeof mappings], file);
   }
 });
@@ -134,7 +134,9 @@ test("published and documented errors preserve A2A details and the AAP payload",
       assert.ok(value.error.message.includes(info.metadata.requiredHeader), `${file}: message-only SDKs need the header name`);
       continue;
     }
-    const payload = value.error.data.find((detail: Record<string, any>) => detail["@type"] === "https://autoagentprotocol.org/extensions/aap/error");
+    const struct = value.error.data.find((detail: Record<string, any>) => detail["@type"] === "type.googleapis.com/google.protobuf.Struct" && detail.value?.type === "aap.error");
+    assert.ok(struct, `${file}: missing typed AAP Struct detail`);
+    const payload = struct.value;
     assert.ok(validate(payload), `${file}: ${JSON.stringify(validate.errors)}`);
     assert.equal(info.domain, "autoagentprotocol.org", file);
     assert.equal(info.reason, payload.code, file);
@@ -166,6 +168,22 @@ test("generated OpenAPI accepts wire examples and rejects malformed error envelo
     { ...error, error: { code: -32000, message: "Throttled", data: { type: "aap.error" } } },
     { ...error, error: { code: -32000, message: "Throttled", data: [{}] } },
   ]) assert.equal(response(invalid), false, JSON.stringify(invalid));
+});
+
+test("every generated OpenAPI request example satisfies its typed AAP skill schema", async () => {
+  const doc = await openapi();
+  const manifest = parseYaml(readFileSync(resolve(ROOT, "spec/latest/skills.yaml"), "utf8"));
+  const ajv = new Ajv2020({ strict: false, allErrors: true });
+  addFormats(ajv);
+  ajv.addSchema(doc, "openapi");
+  const examples = doc.paths["/"].post.requestBody.content["application/json"].examples;
+  for (const skill of manifest.skills) {
+    const name = skill.request_schema.replace(".schema.json", "").split("-").map((part: string) => part[0].toUpperCase() + part.slice(1)).join("");
+    const validate = ajv.getSchema(`openapi#/components/schemas/${name}`);
+    assert.ok(validate, `${skill.id}: request schema missing from OpenAPI`);
+    const payload = examples[skill.id]?.value?.params?.message?.parts?.[0]?.data;
+    assert.ok(validate(payload), `${skill.id}: ${JSON.stringify(validate.errors)}`);
+  }
 });
 
 test("generated response schemas require contextId without requiring it on an initial request", async () => {
@@ -203,7 +221,7 @@ test("generated error details validate the reachable AAP component without swall
   ajv.addSchema(doc, "openapi");
   const response = ajv.getSchema("openapi#/components/schemas/JsonRpcResponse")!;
   const envelope = structuredClone(envelopes().find(({ value }) => value.error?.code === -32602)!.value);
-  const payload = envelope.error.data.find((detail: any) => detail.type === "aap.error");
+  const payload = envelope.error.data.find((detail: any) => detail["@type"] === "type.googleapis.com/google.protobuf.Struct" && detail.value?.type === "aap.error").value;
   assert.ok(response(envelope), JSON.stringify(response.errors));
   payload.retryable = "false";
   assert.equal(response(envelope), false, "known AAP type must not fall through the generic detail branch");
@@ -212,7 +230,17 @@ test("generated error details validate the reachable AAP component without swall
   delete payload.code;
   assert.equal(response(envelope), false);
   assert.ok(response.errors?.some(error => error.keyword === "required" && error.params.missingProperty === "code"));
-  envelope.error.data = [{ "@type": "https://example.com/future/detail", opaque: { value: true } }];
+  envelope.error.data = [{ "@type": "https://autoagentprotocol.org/extensions/aap/error", type: "aap.error" }];
+  assert.equal(response(envelope), false, "the old JSON-only pseudo-Any is invalid");
+  envelope.error.data = [{ "@type": "type.googleapis.com/google.protobuf.Struct", value: { type: "aap.error" } }];
+  assert.equal(response(envelope), false, "an incomplete AAP payload cannot hide in Struct");
+  envelope.error.data = [{ "@type": "type.googleapis.com/google.protobuf.Struct", type: "aap.error" }];
+  assert.equal(response(envelope), false, "Struct Any uses a value member");
+  envelope.error.data = [{ "@type": "type.googleapis.com/google.protobuf.Struct", value: { future: true }, unexpected: "outer" }];
+  assert.equal(response(envelope), false, "Struct Any cannot have extra outer fields");
+  envelope.error.data = [{ "@type": "type.googleapis.com/google.protobuf.Struct", value: { future: true } }];
+  assert.ok(response(envelope), "unrelated Struct details remain valid");
+  envelope.error.data = [{ "@type": "type.googleapis.com/example.FutureDetail", opaque: { value: true } }];
   assert.ok(response(envelope), "unknown non-AAP error details stay forward compatible");
 });
 
@@ -229,14 +257,16 @@ test("generated extension headers accept exact list members and reject lookalike
   }
 });
 
-test("the typed AAP error payload carries the ProtoJSON type tag its schema requires", () => {
+test("the standalone typed AAP error payload has no ProtoJSON Any tag", () => {
   const error = JSON.parse(readFileSync(resolve(examplesDir, "error.example.json"), "utf8")) as Record<string, unknown>;
-  assert.equal(error["@type"], "https://autoagentprotocol.org/extensions/aap/error");
+  assert.equal(error["@type"], undefined);
   assert.equal(error.type, "aap.error");
   const ajv = new Ajv2020({ strict: false, allErrors: true });
   addFormats(ajv);
   const validate = ajv.compile(JSON.parse(readFileSync(resolve(ROOT, "spec/latest/schemas/error.schema.json"), "utf8")));
-  for (const key of ["@type", "type", "error_id", "code", "message", "retryable", "created_at"]) {
+  assert.ok(validate(error), JSON.stringify(validate.errors));
+  assert.equal(validate({ ...error, "@type": "https://autoagentprotocol.org/extensions/aap/error" }), false);
+  for (const key of ["type", "error_id", "code", "message", "retryable", "created_at"]) {
     const missing = { ...error };
     delete missing[key];
     assert.equal(validate(missing), false, `${key} is required, not merely present in examples`);

@@ -32,7 +32,7 @@ An AAP 2.0 dealer deployment MUST:
 
 The baseline requires no customer account, sign-in, account scopes, MCP service, browser session bridge, Company Agent conversations or Operations extension. These are optional. If advertised, their complete upstream requirements become mandatory. A Session authenticates the personal agent and identifies a pseudonymous user; “guest” does **not** mean unauthenticated API access.
 
-A website-only Poppy document (`organization`, `web: {}` and an optional AAP extension) is valid Poppy discovery and a useful migration stage. It is **not** the complete AAP 2.0 profile: a core Poppy client ignoring the extension can only browse that website. `poppy-document.schema.json` validates this upstream shape; the stricter `poppy.schema.json` validates the AAP profile. Do not claim native Poppy API support based on links alone.
+A website-only Poppy document (`organization`, `web: {}` and an optional AAP extension) is valid Poppy discovery and a useful migration stage. It is **not** the complete AAP 2.0 profile: a core Poppy client ignoring the extension can only browse that website. `poppy-document.schema.json` validates this upstream shape for readers, accepting compatible newer `0.x` minor versions and ignoring unknown fields. The stricter `poppy.schema.json` validates AAP 2.0 publication against its pinned Poppy `0.1` target. A reader MUST NOT reject a compatible newer minor merely because the publisher schema pins `0.1`, and MUST NOT use an unsupported major version. Do not claim native Poppy API support based on links alone.
 
 ## 2. Paired discovery
 
@@ -96,7 +96,7 @@ Every URL MUST be absolute HTTPS without embedded credentials. Readers MUST igno
 
 ## 3. Issuer and agent identity
 
-The `auth.issuer` MUST be HTTPS without query or fragment. Resolve OAuth metadata using [RFC 8414](https://www.rfc-editor.org/rfc/rfc8414#section-3): insert `/.well-known/oauth-authorization-server` **before** an issuer path. For the example issuer, fetch:
+The `auth.issuer` MUST be HTTPS without query or fragment. Resolve OAuth metadata using [RFC 8414](https://www.rfc-editor.org/rfc/rfc8414#section-3): remove a terminating slash from an issuer path, then insert `/.well-known/oauth-authorization-server` **before** that path. This changes only the metadata location; the returned `issuer` MUST still match the original `auth.issuer` exactly, including any trailing slash. For the example issuer, fetch:
 
 ```http
 GET https://demo-toyota.example.com/.well-known/oauth-authorization-server/poppy
@@ -204,7 +204,7 @@ Transport authentication is checked before a skill executes. Poppy/OAuth errors 
 | Insufficient account scope, if accounts are offered | 403 | DPoP `insufficient_scope` challenge identifying needed scopes |
 | Rate limit on any endpoint | 429 | `Retry-After`; client MUST wait at least that long |
 
-For skill errors, return the standard standalone [`aap.error`](./errors.md) body, including its `@type`, with the following HTTP mapping. Do not wrap it in JSON-RPC `error.data` on this binding.
+For skill errors, return the standard standalone [`aap.error`](./errors.md) body with the following HTTP mapping. The standalone body has `type: "aap.error"`; the A2A-only `google.protobuf.Struct` wrapper and its `@type` are not part of this body. Do not wrap it in JSON-RPC `error.data` on this binding.
 
 | AAP code | HTTP status |
 |---|---|

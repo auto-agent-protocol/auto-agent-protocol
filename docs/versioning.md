@@ -33,7 +33,7 @@ The automated compatibility report is conservative and structural. A minor candi
 
 ## Stable identifiers
 
-Released schemas and extensions are version-pinned:
+Released schemas and extensions are version-pinned. For example, the historical 1.3.0 release uses:
 
 ```text
 https://autoagentprotocol.org/v1.3/schemas/vehicle.schema.json
@@ -48,7 +48,7 @@ A release freezes all material needed to reproduce and review it:
 
 - schemas, examples, and `skills.yaml`;
 - documentation and sidebar snapshots;
-- generated TypeScript, JSON-RPC OpenAPI, and MCP artifacts;
+- generated TypeScript, A2A and Poppy OpenAPI descriptions, and MCP artifacts;
 - release provenance, compatibility report, and SHA-256 integrity manifest;
 - version-specific documentation images referenced by the snapshot.
 
@@ -65,11 +65,11 @@ CI compares the entire pull request with its base commit and rejects additions, 
 | `/docs/latest/...` | Editable latest documentation, with an unreleased banner |
 | `/docs/v1.3/...` | Immutable documentation for release 1.3.0 |
 
-Production agents should pin `/v1.3/` (or another advertised contract), because `/latest/` advances when maintainers approve a new release.
+Production agents should pin the exact contract advertised by the dealer, because `/latest/` advances when maintainers approve a new release.
 
 ## Release process
 
-All normal changes edit `spec/latest/` and `docs/`. A maintainer then rehearses a release:
+All normal changes edit `spec/latest/` and `docs/`. A maintainer selects the next minor or major version after the stable registry entry and rehearses it. For example, when preparing 2.0.0 from a stable 1.3.0 registry:
 
 ```bash
 pnpm release:prepare 2.0.0 --dry-run
@@ -104,10 +104,10 @@ This matrix covers the 2.0.0 changes relative to v1.3.0. Schema validation alone
 |---|---|---|---|
 | Paired discovery and native Poppy API | Only the A2A Agent Card was required. | Both well-known files, Poppy guest Sessions and a native OpenAPI skill interface are required. | Follow the [Poppy migration](./personal-agent-protocol.md#7-migration-and-verification); website-only discovery is a transition stage. Keep Poppy `0.1`, bridge `1` and AAP `2.0.0` versions distinct. |
 | Server response `Message.contextId` | Published response examples omitted it. | Every server `Message` includes a non-empty `contextId`, as the normative A2A `Message.context_id` description requires. | Include it in every successful response; preserve a valid request context when continuing it, otherwise create a context. Update response validators and tests. No Task or Artifact is required by this message-only pattern. |
-| JSON-RPC `error.data` | A bare `aap.error` object. | An array of `@type`-tagged detail objects, leading with `google.rpc.ErrorInfo` and including the typed AAP payload. | Change server serialization and parse the form for the advertised contract; retain the raw envelope before a lossy SDK converts it. |
-| AAP error `@type` | Absent from the standalone payload schema. | A required constant: `https://autoagentprotocol.org/extensions/aap/error`. | Add the tag to every typed AAP error, including standalone fixtures. Find the payload by this tag, not array position, and ignore unrecognized detail types. |
+| JSON-RPC `error.data` | A bare `aap.error` object. | An array of `@type`-tagged detail objects, leading with `google.rpc.ErrorInfo` and carrying the typed AAP payload inside `google.protobuf.Struct.value`. | Change server serialization and parse the form for the advertised contract; retain the raw envelope before a lossy SDK converts it. |
+| AAP error detail encoding | The standalone JSON payload was also the JSON-RPC `error.data` object. | On A2A, a standard Any with `@type: "type.googleapis.com/google.protobuf.Struct"` and the AAP payload in `value`. Standalone Poppy errors have no Any wrapper. | Locate a Struct whose `value.type` is `aap.error`, never rely on its array position, and ignore unrelated details. Use real Protobuf Any types so strict ProtoJSON clients can decode the response. |
 | `RATE_LIMITED` mapping | JSON-RPC `-32002`. | JSON-RPC `-32000`; A2A reserves `-32002` for task cancellation failure. | Update emitters and mapping tests. Read AAP `code`, `retryable`, and retry hints from the payload; the Python reference SDK loses this unknown-code data without an adapter. |
-| `UNSUPPORTED_SKILL` mapping | JSON-RPC `-32601`. | JSON-RPC `-32004`; the existing `SendMessage` method is not missing. | Update emitters and dispatch on payload `code` to distinguish this error from A2A unsupported operations/capabilities sharing `-32004`. |
+| `UNSUPPORTED_SKILL` mapping | JSON-RPC `-32601`. | JSON-RPC `-32602`: unsupported AAP parameters to an existing `SendMessage` method. | Update emitters and dispatch on payload `code`. Reserve `-32004` and its required A2A ErrorInfo reason/domain for unsupported A2A operations. |
 | Card authentication declaration | `security` with the earlier map shape. | `securityRequirements` containing A2A `SecurityRequirement` objects, with non-empty requirements using `schemes` and scope `list` wrappers. | Rename and reshape the field; retain matching `securitySchemes`. Test that the intended authentication is requested and enforced. Unknown-field tolerance can let an old `security` property pass schema validation while an A2A v1.0 reader interprets the card as anonymous. |
 | Required AAP extension flag | The AAP extension could omit `required` or set it to `false`. | The exact contract entry MUST contain `required: true`; presence and value are schema-enforced. | Update every new-contract card and every buyer's explicit activation. A declaration signals claimed understanding/compliance, not proof that a buyer obeys every profile rule. |
 | Exactly one AAP version per card | The schema allowed multiple AAP profile URIs. | Exactly one AAP profile URI per card (`maxContains: 1`); unrelated extensions remain allowed. | Give simultaneous AAP versions separate cards and interface URLs, with explicit discovery as described below. Do not put alternative AAP versions into one required-extension list. |
@@ -133,6 +133,6 @@ Operators may choose either a coordinated hard cutover or coexistence; this spec
 - **Hard cutover:** publish the new contract first, communicate the replacement card and interface URL to consumers, and coordinate the switch. Retiring the old endpoint means old clients stop working; a new URI does not make that retirement backward-compatible.
 - **Coexistence:** keep each supported contract at its own card and interface URL. The origin's `/.well-known/agent-card.json` can identify one default card; distribute the other card URLs explicitly to clients or through a registry, or serve each version under a separate origin with its own well-known card. A2A's [discovery mechanisms](https://a2a-protocol.org/latest/specification/#82-discovery-mechanisms) include direct configuration and registries, not just the well-known path. State which card is the default and how consumers discover the older one before changing the default.
 
-Buyer-side dual parsing is useful during coexistence, but it does not keep an old server contract alive. Buyers select the exact contract from the discovered card and parse its version-specific envelope. For the legacy object form, verify `type === "aap.error"`; for the new array form, locate the AAP detail by `@type`. Handle A2A protocol errors separately because they need not contain an AAP detail. See [SDK error handling](./errors.md#sdk-error-handling).
+Buyer-side dual parsing is useful during coexistence, but it does not keep an old server contract alive. Buyers select the exact contract from the discovered card and parse its version-specific envelope. For the legacy object form, verify `type === "aap.error"`; for the new array form, locate `@type: "type.googleapis.com/google.protobuf.Struct"` with `value.type === "aap.error"` and validate its `value`. Handle A2A protocol errors separately because they need not contain an AAP detail. See [SDK error handling](./errors.md#sdk-error-handling).
 
 Pin the advertised extension and versioned schema URLs. Do not deploy repository draft identifiers, infer compatibility from a similar URI, or depend on `/latest/` remaining on one release.

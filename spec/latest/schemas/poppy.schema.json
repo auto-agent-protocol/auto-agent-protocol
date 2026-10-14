@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy.schema.json",
   "title": "AAPPoppyDiscovery",
-  "description": "AAP 2.0 Poppy guest API profile. Both discovery documents, a guest OAuth issuer, an OpenAPI API, and the AAP extension linking the matching A2A Agent Card are required. The website-only Poppy profile is a migration stage, not AAP 2.0 conformance.",
+  "description": "AAP 2.0 Poppy draft 0.1 publication profile. Both discovery documents, a guest OAuth issuer, an OpenAPI API, and the AAP extension linking the matching A2A Agent Card are required. The website-only Poppy profile is a migration stage, not AAP 2.0 conformance.",
   "allOf": [
     {
       "$ref": "./poppy-document.schema.json"
@@ -10,6 +10,9 @@
     {
       "type": "object",
       "properties": {
+        "protocol_version": {
+          "const": "0.1"
+        },
         "auth": {
           "type": "object",
           "properties": {

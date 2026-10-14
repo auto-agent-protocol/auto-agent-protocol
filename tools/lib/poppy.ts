@@ -4,7 +4,9 @@ export function oauthMetadataUrl(issuer: string): string {
   if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash) {
     throw new Error("OAuth issuer must be HTTPS without credentials, query or fragment");
   }
-  return `${url.origin}/.well-known/oauth-authorization-server${url.pathname === "/" ? "" : url.pathname}`;
+  // RFC 8414 section 3 removes a terminating slash before inserting the well-known suffix.
+  const issuerPath = url.pathname.replace(/\/+$/, "");
+  return `${url.origin}/.well-known/oauth-authorization-server${issuerPath}`;
 }
 
 export function checkPoppyIdentity(

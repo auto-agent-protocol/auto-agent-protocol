@@ -53,7 +53,7 @@ The MCP tool result is the AAP response payload (the same thing the dealer retur
 
 ## MCP manifest structure
 
-A complete MCP server descriptor that exposes all five AAP skills as tools, synchronized with [`spec/latest/examples/mcp-manifest.example.json`](https://github.com/auto-agent-protocol/auto-agent-protocol/blob/main/spec/latest/examples/mcp-manifest.example.json):
+A complete MCP server descriptor that exposes all five AAP skills as tools, synchronized with the [matching manifest example](https://draft.autoagentprotocol.invalid/latest/examples/mcp-manifest.example.json):
 
 ```json
 {
@@ -164,11 +164,11 @@ The MCP server forwards `arguments` as the AAP `DataPart.data` to the dealer's A
 
 ## Why this matters
 
-- LLM clients that already speak MCP gain instant access to every AAP-compliant dealer agent through a one-line server registration.
+- LLM clients that speak MCP can use an AAP wrapper through server registration, subject to the dealer's advertised authentication and the wrapper's supported AAP contract.
 - The MCP `inputSchema` `$ref` points at the AAP schema by URL, so an LLM with schema-following tool use can plan calls against the same source of truth as a hand-written A2A client.
 - The MCP server is stateless adapter glue; all business logic — auth, consent enforcement, inventory accuracy — stays in the dealer agent behind A2A.
 
-For more on MCP itself, see the [MCP specification](https://modelcontextprotocol.io). For the single A2A transport the MCP server forwards into, see the [JSON-RPC binding](../bindings/json-rpc.md) (the sole AAP transport, exposed by every AAP agent). The [REST binding](../bindings/rest.md) was removed in v1.1.0.
+For more on MCP itself, see the [MCP specification](https://modelcontextprotocol.io). For the single A2A transport the MCP server forwards into, see the [JSON-RPC binding](../bindings/json-rpc.md) (the required A2A interface on every AAP dealer). The [REST binding](../bindings/rest.md) was removed in v1.1.0.
 
 
 ## MCP and Poppy sessions

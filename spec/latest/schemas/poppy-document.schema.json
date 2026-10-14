@@ -5,8 +5,9 @@
   "type": "object",
   "properties": {
     "protocol_version": {
-      "const": "0.1",
-      "description": "Poppy draft version, independent of the AAP release and extension version."
+      "type": "string",
+      "pattern": "^0\\.[1-9][0-9]*$",
+      "description": "Consumer-compatible Poppy 0.x version. Readers accept newer minor versions and ignore unknown fields; the AAP 2.0 publication profile separately pins draft 0.1."
     },
     "organization": {
       "type": "object",

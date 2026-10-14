@@ -20,13 +20,13 @@ More and more car and motorcycle buyers start their search by asking an AI assis
 
 Listings carry an optional `vehicle_type` (`car`, `motorcycle`, `trailer`, `rv`, `other`; absent = `car`), so the same five skills serve both automotive and powersports retail — including electric models via a generic electric-powertrain field group.
 
-![Dealers go live in three steps: publish the Agent Card, serve the skills they choose, and receive consented leads in their CRM](docs/img/dealer-onboarding.svg)
+![Dealers go live in three steps: publish both discovery documents, serve the skills they choose, and receive consented leads in their CRM](docs/img/dealer-onboarding.svg)
 
 ![Why AAP: from a mesh of custom integrations to one open profile](docs/img/why-before-after.svg)
 
-**For engineers:** AAP is an open [A2A v1.0](https://a2a-protocol.org) profile. A compliant dealer agent is an A2A agent that publishes an `agent-card.json` with the AAP automotive extension URI (`https://autoagentprotocol.org/extensions/aap/v2.0`) and implements **one or more** of the five standard AAP automotive skills (a small used-car lot might only do `inventory.search` + `lead.submit`; a franchise dealership might do all five).
+**For engineers:** AAP 2.0 combines an open [A2A v1.0](https://a2a-protocol.org) profile with a native Personal Agent Protocol guest API. A compliant dealer publishes both discovery documents, advertises the AAP extension URI (`https://autoagentprotocol.org/extensions/aap/v2.0`) on its Agent Card, and implements **one or more** of the five standard AAP automotive skills on both interfaces (a small used-car lot might only do `inventory.search` + `lead.submit`; a franchise dealership might do all five).
 
-The transport surface is deliberately minimal: every AAP agent exposes the **JSON-RPC 2.0 binding** — the sole A2A transport (the optional HTTP+JSON binding was removed in v1.1.0); the only A2A operation AAP uses is **`SendMessage`** — request `Message` in, response `Message` out. The optional A2A surface (streaming, tasks, push notifications, extended cards) is out of scope: dealer agents do not need to implement it and buyer agents must not require it.
+The A2A interface is deliberately minimal: every AAP agent exposes the **JSON-RPC 2.0 binding** — the sole A2A transport (the optional HTTP+JSON binding was removed in v1.1.0); the only A2A operation AAP uses is **`SendMessage`** — request `Message` in, response `Message` out. The optional A2A surface (streaming, tasks, push notifications, extended cards) is out of scope: dealer agents do not need to implement it and buyer agents must not require it.
 
 ![The Agent Card advertises the A2A binding, AAP extension, supported skill subset, and per-skill schema URLs](docs/img/agent-card-passport.svg)
 
@@ -136,7 +136,7 @@ Released versions are immutable. Repository changes use `spec/latest/`; the publ
 
 | Layer | Protocol | Role for AAP |
 |---|---|---|
-| Transport / data model (BASE) | **[A2A v1.0](https://a2a-protocol.org)** | The base protocol AAP profiles. Every AAP message travels inside `Message.parts[].data` as a typed `DataPart`. AAP does not invent a wire format. |
+| Transport / data model (BASE) | **[A2A v1.0](https://a2a-protocol.org)** | The A2A interface carries AAP requests and responses inside `Message.parts[].data` as typed `DataParts` over JSON-RPC. |
 | Discovery / sessions / APIs | **[Personal Agent Protocol](https://personalagentprotocol.org/)** (Poppy draft 0.1) | Paired discovery and a native guest OpenAPI interface reuse the automotive payloads with Poppy authentication. |
 | Adjacent / complementary | **ACP** (Agentic Commerce), **MCP** (Model Context Protocol) | ACP covers commerce checkout (out of scope for AAP). MCP can expose AAP skills as LLM tools — AAP publishes an official MCP reference manifest (generated from `skills.yaml` at build time and served at `https://autoagentprotocol.org/v2.0/mcp.json`). |
 | Legacy / target system | **ADF/XML** | The 25-year-old dealer-CRM lead format. `lead.submit` is field-by-field mappable to ADF/XML so existing CRMs ingest AAP leads without code changes. |

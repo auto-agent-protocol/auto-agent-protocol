@@ -19,13 +19,15 @@ This major release adds Personal Agent Protocol (Poppy draft 0.1) support and th
 - Add forward-compatible discovery schemas, an AAP profile schema, OAuth/token schemas, examples, generated OpenAPI, types and validator exports.
 - Add negative discovery/identity tests, binding parity checks and official A2A JavaScript SDK wire tests; document runtime verification boundaries.
 - Regenerate affected blue/teal SVG diagrams and add paired-discovery and guest-session diagrams.
+- Handle trailing-slash OAuth issuers and compatible future Poppy minor versions in reader validation, while retaining the pinned publication target.
+- Generate valid A2A OpenAPI examples from skill fixtures and verify errors through the pinned SDK.
 - Correct the validator package to use Ajv's JSON Schema 2020-12 engine, matching the published schemas.
 
 ### Breaking migration scope
 
 The [old/new/action checklist](./docs/versioning.md#breaking-migration-checklist)
 covers every affected path: server `Message.contextId`, the `error.data` array,
-mandatory `@type`, both changed numeric error mappings, the
+standard Protobuf Any detail wrappers, both changed numeric error mappings, the
 `security` → `securityRequirements` rename and wrapper shape, schema-mandatory
 `required: true`, exactly one AAP profile per card, request headers and activation
 enforcement, non-empty card arrays, advertised AAP media types, HTTPS
@@ -43,7 +45,7 @@ separate origins, not multiple AAP versions on one card.
 
 ### Added
 
-- Documented the A2A service-parameter headers every AAP request carries:
+- Documented the A2A service-parameter headers every request on the A2A interface carries:
   `A2A-Version: 1.0`, required by A2A on every request, and `A2A-Extensions`
   naming the AAP extension URI, which activates the profile the agent card
   declares `required: true`. Request examples, the generated JSON-RPC OpenAPI
@@ -57,12 +59,11 @@ separate origins, not multiple AAP versions on one card.
   are AAP-defined metadata keys under the A2A error domain, not A2A-standard
   keys. Recovery requires an application that already supports that contract;
   stock SDKs do not automatically activate or retry it.
-- SDK handling is documented for pinned Python and JavaScript reference
-  revisions. JavaScript's recognized errors retain only the message and
-  collapse `-32602`/`-32603` into one class, while its unknown `-32000` error
-  retains the raw envelope. Python exposes only `ErrorInfo.metadata` for
-  recognized errors and loses data for `-32000`. Neither stock validation-error
-  path exposes `details.errors[]`; AAP-aware raw-envelope handling is required.
+- SDK handling is documented for pinned Python and JavaScript versions.
+  JavaScript SDK 1.3.0 preserves the numeric envelope code and structured
+  details; tests verify the AAP Struct payload survives. The reviewed Python
+  revision exposes only `ErrorInfo.metadata` for recognized errors and loses
+  data for -32000, so that integration requires raw-envelope handling.
   The reviewed Python v1 server also needs an explicit required-extension check.
 
 ### Changed
@@ -88,7 +89,10 @@ separate origins, not multiple AAP versions on one card.
 ### Fixed — A2A v1.0 conformance
 
 - `error.data` is an array of `@type`-tagged detail objects, per A2A 9.5 and
-  3.3.2, and leads with a `google.rpc.ErrorInfo`. AAP previously put a bare
+  3.3.2, and leads with a `google.rpc.ErrorInfo`. The typed AAP error is carried
+  in the `value` of a standard `google.protobuf.Struct` Any, which strict
+  ProtoJSON decoders can unpack without a custom protobuf definition. The
+  standalone Poppy error body has no Any wrapper. AAP previously put a bare
   object there; the reference `a2a-python` JSON-RPC transport reads details
   only from a list and only from an `ErrorInfo`, so it silently discarded
   AAP details. `ErrorInfo.metadata.code` now preserves the AAP code when a
@@ -105,9 +109,10 @@ separate origins, not multiple AAP versions on one card.
 - `RATE_LIMITED` moves from -32002 to -32000. A2A 5.4 assigns -32002 to
   `TaskNotCancelableError`, and both reference SDKs decode it that way, so a
   throttled client received a terminal task-lifecycle error. BREAKING.
-- `UNSUPPORTED_SKILL` moves from -32601 to -32004 `UnsupportedOperationError`.
-  The JSON-RPC method is always `SendMessage` and always exists, so -32601
-  told a generic A2A client the endpoint does not speak A2A. BREAKING.
+- `UNSUPPORTED_SKILL` moves from -32601 to -32602 `Invalid params`.
+  The `SendMessage` operation exists; the AAP skill parameter is unsupported.
+  Reserved -32004 remains an A2A protocol error with its own required
+  `UNSUPPORTED_OPERATION` reason and `a2a-protocol.org` domain. BREAKING.
 - The agent card's `security` is renamed `securityRequirements` with A2A's
   `SecurityRequirement{schemes}` shape. `security` is the v0.3 name, not the
   A2A v1.0 authentication field, so a v1.0 reader can interpret a protected

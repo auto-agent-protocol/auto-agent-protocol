@@ -29,6 +29,17 @@ test("website-only Poppy remains valid upstream discovery but does not claim ful
   assert.deepEqual(checkPoppyIdentity(website, discovery), []);
 });
 
+test("Poppy readers accept compatible minor versions while AAP publication stays on draft 0.1", () => {
+  for (const version of ["0.1", "0.2", "0.12"]) {
+    const document = { ...read("poppy"), protocol_version: version };
+    assert.equal(validate("poppy-document", document), true, version);
+    assert.equal(validate("poppy", document), version === "0.1", version);
+  }
+  for (const version of ["1.0", "0.0", "0.01", "0.2.0", "0.x", "0.2 "]) {
+    assert.equal(validate("poppy-document", { ...read("poppy"), protocol_version: version }), false, version);
+  }
+});
+
 test("Poppy native surfaces require auth, including empty advertised lists", () => {
   for (const patch of [
     { apis: [{ type: "openapi", url: "https://dealer.example/api.json", description: "Inventory" }] },
@@ -78,13 +89,19 @@ test("Poppy HTTPS publication rejects credential-bearing and insecure URLs", () 
 
 test("OAuth discovery uses RFC 8414 insertion before a tenant path", () => {
   assert.equal(oauthMetadataUrl("https://provider.example/tenant/42"), "https://provider.example/.well-known/oauth-authorization-server/tenant/42");
+  assert.equal(oauthMetadataUrl("https://provider.example/tenant/"), "https://provider.example/.well-known/oauth-authorization-server/tenant");
+  assert.equal(oauthMetadataUrl("https://provider.example/tenant//"), "https://provider.example/.well-known/oauth-authorization-server/tenant");
   assert.equal(oauthMetadataUrl("https://provider.example"), "https://provider.example/.well-known/oauth-authorization-server");
+  assert.equal(oauthMetadataUrl("https://provider.example/"), "https://provider.example/.well-known/oauth-authorization-server");
 });
 
 test("Poppy identity binds the original domain, exact issuer and authorized domain set", () => {
   assert.deepEqual(checkPoppyIdentity(read("poppy"), discovery.replace("https://", "https://www."), read("poppy-oauth-metadata")), []);
   assert.ok(checkPoppyIdentity(read("poppy"), "https://hosting.example/.well-known/poppy.json", read("poppy-oauth-metadata")).some(e => e.includes("originally")));
   assert.ok(checkPoppyIdentity(read("poppy"), discovery).some(e => e.includes("metadata")));
+  const slashDocument = read("poppy"); slashDocument.auth.issuer += "/";
+  const slashMetadata = read("poppy-oauth-metadata"); slashMetadata.issuer += "/";
+  assert.deepEqual(checkPoppyIdentity(slashDocument, discovery, slashMetadata), [], "metadata URL normalization must not change exact issuer identity");
   const metadata = read("poppy-oauth-metadata"); metadata.issuer += "/";
   assert.ok(checkPoppyIdentity(read("poppy"), discovery, metadata).some(e => e.includes("exactly")));
   metadata.issuer = read("poppy").auth.issuer; metadata.poppy_domains = ["different.example"];

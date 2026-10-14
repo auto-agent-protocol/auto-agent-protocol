@@ -53,7 +53,7 @@
         "agent_card_url": {
           "type": "string",
           "format": "uri",
-          "description": "Optional URL of the buyer agent's own A2A agent card, so the dealer can re-fetch and verify who submitted the lead (recommended for compliance).",
+          "description": "Optional URL of the buyer agent's A2A Agent Card for attribution and discovery. Fetching a public card does not authenticate the sender; verified transport identity remains separate.",
           "examples": ["https://shopper.example.com/.well-known/agent-card.json"]
         }
       },

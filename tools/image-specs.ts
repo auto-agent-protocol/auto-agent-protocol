@@ -30,7 +30,7 @@ export const imageSpecs: Record<string, DiagramSpec> = {
     kind: "network",
     eyebrow: "OPEN NETWORK",
     title: "Buyer agents meet dealer storefronts",
-    description: "One profile connects every compatible A2A client to every participating dealership.",
+    description: "One automotive contract connects A2A and Poppy agents to participating dealerships.",
     left: [
       { title: "AI assistant", body: "Conversational shopping" },
       { title: "Shopping agent", body: "Search and comparison" },
@@ -38,8 +38,8 @@ export const imageSpecs: Record<string, DiagramSpec> = {
     ],
     center: {
       title: "AAP",
-      body: "Typed automotive DataParts over A2A v1.0",
-      code: ["Agent Card discovery", "JSON-RPC 2.0", "SendMessage"],
+      body: "Shared automotive skills through two standard agent interfaces.",
+      code: ["Agent Card + poppy.json", "A2A: JSON-RPC", "Poppy: OpenAPI + DPoP"],
       tone: "primary",
     },
     right: [
@@ -149,7 +149,7 @@ export const imageSpecs: Record<string, DiagramSpec> = {
         label: "03",
         title: "Preserve error details",
         body: "Keep the raw error envelope before lossy SDK conversion. The application decides how to recover.",
-        code: ["Typed aap.error detail", "code · retryable · details"],
+        code: ["Struct value: aap.error", "code · retryable · details"],
         tone: "teal",
       },
     ],
@@ -167,9 +167,9 @@ export const imageSpecs: Record<string, DiagramSpec> = {
       { title: "Dealerships", body: "Dealer A · Dealer B · Dealer C" },
     ],
     after: [
-      { title: "Any A2A client", body: "One discovery and message model" },
-      { title: "AAP profile", body: "Five typed automotive skills", code: ["Agent Card", "SendMessage"], tone: "primary" },
-      { title: "Any AAP dealer", body: "One public contract on its domain" },
+      { title: "Compatible agents", body: "A2A and Poppy clients use standard discovery" },
+      { title: "AAP profile", body: "Five shared automotive skills", code: ["Agent Card + poppy.json", "SendMessage + OpenAPI"], tone: "primary" },
+      { title: "Any AAP dealer", body: "One skill contract on its domain" },
     ],
     footer: "Open interoperability replaces N×M custom integration work.",
     height: 1100,
@@ -178,8 +178,8 @@ export const imageSpecs: Record<string, DiagramSpec> = {
   "agent-card-passport": {
     kind: "split",
     eyebrow: "DISCOVERY CONTRACT",
-    title: "One Agent Card advertises the whole AAP surface",
-    description: "A buyer agent learns the binding, extension and supported skill subset from one well-known file.",
+    title: "The Agent Card advertises the A2A interface",
+    description: "A2A clients learn the binding, extension and supported skill subset from the Agent Card.",
     left: {
       label: "AGENT CARD",
       title: "/.well-known/agent-card.json",
@@ -194,21 +194,21 @@ export const imageSpecs: Record<string, DiagramSpec> = {
       code: ["dealer.information", "inventory.facets", "inventory.search", "inventory.vehicle", "lead.submit"],
     },
     bridge: "discovers",
-    footer: "Discovery is the only plain GET; every skill invocation uses JSON-RPC SendMessage.",
+    footer: "Poppy clients use separate poppy.json discovery and a native OpenAPI interface.",
   },
 
   "buyer-journey": {
     kind: "flow",
     eyebrow: "BUYER JOURNEY",
-    title: "One conversation from discovery to a consented lead",
-    description: "Each stage uses a typed AAP payload carried by A2A SendMessage.",
+    title: "From discovery to a consented lead",
+    description: "The same automotive payloads work through A2A SendMessage or the Poppy API.",
     items: [
-      { label: "01", title: "Discover", body: "Read the dealer's Agent Card and supported skill subset.", code: ["/.well-known/agent-card.json"] },
-      { label: "02", title: "Search", body: "Query real inventory with anonymous filters and pagination.", code: ["inventory.search"] },
+      { label: "01", title: "Discover", body: "Read the dealer's A2A or Poppy discovery document.", code: ["agent-card.json", "poppy.json"] },
+      { label: "02", title: "Search", body: "Query real inventory without buyer details; use filters and pagination.", code: ["inventory.search"] },
       { label: "03", title: "Inspect", body: "Retrieve one complete vehicle with authoritative price and optional fee itemization.", code: ["inventory.vehicle"], tone: "primary" },
       { label: "04", title: "Lead", body: "Send customer details only with an explicit ConsentGrant.", code: ["lead.submit"], tone: "teal" },
     ],
-    footer: "Five skills, one A2A conversation, zero invented transport layers.",
+    footer: "Five skills, two interfaces, one automotive contract.",
   },
 
   "aap-sdk-toolbox": {
@@ -260,14 +260,14 @@ export const imageSpecs: Record<string, DiagramSpec> = {
       tone: "navy",
     },
     right: {
-      label: "AAP LAYER",
+      label: "THIRD STANDARD DETAIL",
       title: "error.data[]",
-      body: "Find the typed AAP detail by @type. It carries the domain code, retry behavior and every validation problem.",
-      code: ["code: SCHEMA_VALIDATION_FAILED", "retryable: false", "errors[]: location · keyword · error"],
+      body: "Find the Struct whose value.type is aap.error; do not depend on its array position.",
+      code: ["@type: type.googleapis.com/google.protobuf.Struct", "value.type: aap.error", "value.code: SCHEMA_VALIDATION_FAILED", "value.details.errors[]"],
       tone: "primary",
     },
     bridge: "explains",
-    footer: "One response can report every schema failure; agents do not repair requests by guesswork.",
+    footer: "Poppy returns a standalone aap.error body without an Any @type wrapper.",
   },
 
   "discovery-flow": {
@@ -311,7 +311,7 @@ export const imageSpecs: Record<string, DiagramSpec> = {
 
   "jsonrpc-envelope": {
     kind: "split",
-    eyebrow: "SOLE AAP BINDING",
+    eyebrow: "AAP A2A BINDING",
     title: "JSON-RPC 2.0 carries one A2A operation",
     description: "The request Message goes in; the response Message comes back under the same JSON-RPC id.",
     left: {
@@ -324,11 +324,11 @@ export const imageSpecs: Record<string, DiagramSpec> = {
     right: {
       label: "RESPONSE",
       title: "result.message",
-      body: "The dealer returns an A2A Message with ROLE_AGENT and the corresponding typed response.",
+      body: "Dealer replies with a typed ROLE_AGENT Message.",
       code: ["jsonrpc: 2.0", "id: 7", "result.message.parts[].data"],
     },
     bridge: "same id",
-    footer: "No REST binding, streaming, tasks or push-notification surface is required by AAP.",
+    footer: "The A2A profile requires JSON-RPC SendMessage; Poppy has a separate OpenAPI interface.",
   },
 
   "versioning-timeline": {
@@ -348,10 +348,10 @@ export const imageSpecs: Record<string, DiagramSpec> = {
   "consent-gate": {
     kind: "compare",
     eyebrow: "PRIVACY BOUNDARY",
-    title: "Browse anonymously; identify the buyer only with consent",
+    title: "Browse without buyer data; identify only with consent",
     description: "Inventory access and lead submission have intentionally different privacy rules.",
     before: [
-      { label: "OPEN", title: "Anonymous browsing", body: "No personal data is needed to discover the dealer, facets, inventory or one vehicle." },
+      { label: "NO BUYER DATA", title: "Inventory browsing", body: "No buyer personal data is needed. Poppy still requires an authenticated guest Session." },
       { title: "Allowed skills", body: "dealer.information · inventory.facets · inventory.search · inventory.vehicle", tone: "primary" },
     ],
     after: [
@@ -405,14 +405,14 @@ export const imageSpecs: Record<string, DiagramSpec> = {
   "mcp-wrapper": {
     kind: "flow",
     eyebrow: "COMPATIBILITY",
-    title: "MCP tools on the outside; standard AAP on the wire",
+    title: "Reference MCP wrapper forwards through A2A",
     description: "The official reference manifest maps tool arguments to typed AAP requests without inventing another dealer API.",
     items: [
       { label: "01", title: "MCP host", body: "An assistant invokes one of five aap_* tools.", code: ["aap_inventory_search"] },
       { label: "02", title: "AAP MCP adapter", body: "The generated manifest validates tool arguments against the request schema.", code: ["mcp.json"], tone: "primary" },
       { label: "03", title: "A2A dealer agent", body: "The adapter sends the typed request through JSON-RPC SendMessage.", code: ["POST {base}/a2a"], tone: "teal" },
     ],
-    footer: "MCP is an adapter surface. A2A remains the dealer-facing wire protocol.",
+    footer: "This wrapper targets A2A; native Poppy MCP has separate session and resource rules.",
   },
 
   "multi-class-inventory": {
@@ -448,10 +448,10 @@ export const imageSpecs: Record<string, DiagramSpec> = {
     kind: "flow",
     eyebrow: "INVENTORY SEARCH",
     title: "One typed request returns one paginated result set",
-    description: "Flat filters and predictable paging keep anonymous inventory queries easy to implement.",
+    description: "Flat filters and predictable paging keep inventory queries easy to implement.",
     items: [
-      { label: "01", title: "Buyer request", body: "Send optional filters, pagination, sort and anonymous privacy preference.", code: ["inventory.search.request"] },
-      { label: "02", title: "A2A SendMessage", body: "Carry the request in a typed DataPart over the sole JSON-RPC binding.", code: ["POST {base}/a2a"], tone: "primary" },
+      { label: "01", title: "Buyer request", body: "Send optional filters, pagination, sort and a no-buyer-data preference.", code: ["inventory.search.request"] },
+      { label: "02", title: "Invoke the skill", body: "Use an A2A DataPart or the Poppy guest API with the same request payload.", code: ["A2A SendMessage", "Poppy OpenAPI + DPoP"], tone: "primary" },
       { label: "03", title: "Dealer response", body: "Return total, page coordinates and the matching Vehicle records.", code: ["inventory.search.response"] },
       { label: "04", title: "Price safely", body: "Use price as authoritative; an optional fees array explains charges already included.", code: ["price · optional fees[]"], tone: "teal" },
     ],
@@ -506,7 +506,7 @@ export const imageSpecs: Record<string, DiagramSpec> = {
     columns: 4,
     items: [
       { label: "01", title: "Identify honestly", body: "Send a real source_agent on every lead; never spoof the caller." },
-      { label: "02", title: "Browse anonymously", body: "Keep personal data behind an explicit and valid ConsentGrant." },
+      { label: "02", title: "Browse without buyer data", body: "For Poppy, use a guest Session; share customer details only with consent." },
       { label: "03", title: "Respect the lot", body: "Cache facets, paginate searches and honor typed rate-limit errors." },
       { label: "04", title: "Quote safely", body: "Use authoritative price; never infer a total from list context or auto-apply rebates.", tone: "primary" },
     ],

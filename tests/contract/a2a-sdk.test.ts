@@ -23,6 +23,12 @@ test("official A2A JS SDK discovers the card and round-trips all five typed skil
     for await (const chunk of req) body += chunk;
     const request = JSON.parse(body);
     calls.push({ request, headers: req.headers });
+    if (request.params?.message?.messageId === "request-error") {
+      const failure = read("error-validation.jsonrpc.example.json");
+      failure.id = request.id;
+      res.end(JSON.stringify(failure));
+      return;
+    }
     const type = request.params?.message?.parts?.[0]?.data?.type;
     const skill = manifest.skills.find((s: any) => s.request_type === type);
     if (!skill) { res.statusCode = 400; res.end("{}"); return; }
@@ -62,5 +68,16 @@ test("official A2A JS SDK discovers the card and round-trips all five typed skil
       assert.equal(headers["a2a-version"], "1.0");
       assert.equal(headers["a2a-extensions"], manifest.extension_uri);
     }
+    const skill = manifest.skills.find((item: any) => item.id === "inventory.search");
+    await assert.rejects(client.sendMessage(SendMessageRequest.fromJSON({
+      message: { messageId: "request-error", role: "ROLE_USER", parts: [{ data: { type: skill.request_type }, mediaType: skill.media_type_request }] },
+      configuration: { acceptedOutputModes: [skill.media_type_response] },
+    }), { signal: AbortSignal.timeout(5000), serviceParameters: ServiceParameters.create(withA2AExtensions(manifest.extension_uri)) }), (error: any) => {
+      assert.equal(error.envelopeCode, -32602);
+      const detail = error.data?.find((item: any) => item["@type"] === "type.googleapis.com/google.protobuf.Struct" && item.value?.type === "aap.error");
+      assert.equal(detail?.value.code, "SCHEMA_VALIDATION_FAILED");
+      assert.equal(detail?.value.details.errors.length, 2);
+      return true;
+    });
   } finally { server.closeAllConnections(); await new Promise<void>(resolve => server.close(() => resolve())); }
 });

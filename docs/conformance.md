@@ -28,14 +28,23 @@ pnpm check:branding --build
 pnpm freeze-check --base origin/main
 ```
 
+The CI interoperability check also uses the official Python Protobuf decoder, independently of the AAP schemas and JavaScript SDK. With Python 3.10+ and an activated virtual environment:
+
+```bash
+python -m pip install -r tools/protojson-requirements.txt
+python tools/validate-protojson-errors.py
+python tools/validate-protojson-errors.py --spec-dir spec/v2.0
+```
+
 | Check | Evidence and scope |
 |---|---|
 | JSON Schema 2020-12 validation | Registers every schema and resolves references; validates all typed examples, including both discovery documents, OAuth metadata and token response |
-| Poppy discovery contract cases | Required native auth, OpenAPI and AAP bridge; upstream-valid website-only migration example; unknown field/type tolerance; HTTPS, issuer URL and resource URI constraints |
-| Cross-document identity | Original domain versus redirect host, exact issuer equality, authorized domains, RFC 8414 path insertion and advertised sign-in dependencies |
+| Poppy discovery contract cases | Required native auth, OpenAPI and AAP bridge; upstream-valid website-only migration example; compatible minor-version and unknown field/type tolerance; HTTPS, issuer URL and resource URI constraints |
+| Cross-document identity | Original domain versus redirect host, exact issuer equality, authorized domains, RFC 8414 path insertion including trailing-slash issuers, and advertised sign-in dependencies |
 | Generated OpenAPI parity | All five native Poppy operations reuse the A2A automotive schemas; validates real request/response examples through their generated component references; requires DPoP and error/challenge headers |
-| Official A2A SDK wire test | Pinned `@a2a-js/sdk` 1.3.0 performs actual loopback HTTP discovery and exchanges every skill with a protocol fixture; checks service-parameter headers, tenant propagation and ProtoJSON serialization |
-| A2A negative contract tests | Required extension flag and activation examples, one AAP version, HTTPS, modes, signatures, response context and typed error arrays |
+| Official A2A SDK wire test | Pinned `@a2a-js/sdk` 1.3.0 performs actual loopback HTTP discovery and exchanges every skill with a protocol fixture; checks service-parameter headers, tenant propagation, ProtoJSON serialization and preservation of standard Struct error details |
+| A2A negative contract tests | Required extension flag and activation examples, one AAP version, HTTPS, modes, signatures, response context, valid generated examples, and standard Any error arrays with typed AAP payloads |
+| Independent ProtoJSON decoding | Official Protobuf parser decodes and round-trips every error fixture's Any details; standard Struct payloads unpack without a custom message descriptor |
 | Release checks | Snapshot integrity, pinned URLs, release rehearsal/rollback, stable packages, frozen historical versions and published site assembly |
 | Image checks | Deterministic SVG generation, existing blue/teal palette, image references and frozen documentation copies |
 
@@ -57,7 +66,7 @@ Operators MUST run these against the implementation before advertising AAP 2.0. 
 | Token separation | DPoP accepted at native OpenAPI; optional MCP Bearer restricted to its resource | Bearer accepted at OpenAPI, account token accepted as API credential, token in URL, token leaked to a linked legacy endpoint |
 | Skill parity | Same five documented request/response types, or the same declared subset | Wrong path/type combination, unsupported skill, invalid schema, hidden inventory exposed by one binding |
 | Consent and leads | Explicit allowed contact channels, original payload and idempotency key preserved on retry | No consent, expired consent, unauthorized channel, spoofed `source_agent` used for auth, renewal creating a second lead, changed payload accepted under the same key |
-| Errors | Correct HTTP status/challenge on Poppy; A2A numeric mapping and tagged error details on A2A | Auth errors treated as successful skill results, lost validation details, unbounded automatic retries, ignored `Retry-After` |
+| Errors | Correct HTTP status/challenge on Poppy; A2A numeric mapping and standard Struct error details on A2A | Auth errors treated as successful skill results, lost validation details, unbounded automatic retries, ignored `Retry-After` |
 | Optional capabilities | Every advertised sign-in, MCP, browser or conversation feature works under its upstream rules | A2A mislabeled as Poppy conversations, anonymous MCP advertised as session-aware, missing sign-in endpoints, unauthorized conversation ownership |
 
 Schema acceptance is necessary but not sufficient: it cannot verify live TLS, domain control, cryptographic proofs, replay stores, scope enforcement or CRM delivery. A release PR verifies this specification and its artifacts; each operator remains responsible for passing runtime acceptance before switching its discovery documents.

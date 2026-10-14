@@ -14,13 +14,13 @@ This page describes the editable next-major contract, not the frozen v1.3 releas
 
 {/* aap-draft-only:end */}
 
-![Three-layer stack: HTTPS, A2A v1.0, and the AAP automotive payload profile](./img/architecture-stack.svg)
+![Shared automotive payloads over the A2A and Poppy interfaces on HTTPS](./img/architecture-stack.svg)
 
-The Auto Agent Protocol is a strict profile of [A2A v1.0](https://a2a-protocol.org). It does not redefine discovery, message envelopes, the task model, or transport. It only constrains the shape of one specific A2A construct: typed `DataParts` carried inside `Message.parts[]`.
+The A2A interface of Auto Agent Protocol is a strict profile of [A2A v1.0](https://a2a-protocol.org). It does not redefine discovery, message envelopes, the task model, or transport. It only constrains the shape of one specific A2A construct: typed `DataParts` carried inside `Message.parts[]`.
 
-The AAP profile targets the A2A **v1.0.x** line, **including A2A v1.0.1** — a non-breaking patch that changed no AgentCard, AgentSkill, or message field. Per A2A §3.6 the agent card advertises the `Major.Minor` version only, so AAP cards keep `protocolVersion: "1.0"` (patch numbers SHOULD NOT be sent and MUST NOT affect version negotiation). A2A v1.0.1's one transport nudge — preferring `application/a2a+json` on the HTTP+JSON binding — does not apply to AAP, which uses JSON-RPC 2.0 exclusively. AAP publishes each skill's request/response JSON Schema URLs in `capabilities.extensions[].params` (a free-form A2A `Struct`) rather than on the `AgentSkill` object, because A2A's `AgentSkill` has no schema field in v1.0 or v1.0.1, and `capabilities.extensions[].params` is the place A2A designates for extension-specific configuration.
+The AAP profile targets the A2A **v1.0.x** line, **including A2A v1.0.1** — a non-breaking patch that changed no AgentCard, AgentSkill, or message field. Per A2A §3.6 the agent card advertises the `Major.Minor` version only, so AAP cards keep `protocolVersion: "1.0"` (patch numbers SHOULD NOT be sent and MUST NOT affect version negotiation). A2A v1.0.1's preference for `application/a2a+json` on the HTTP+JSON binding does not apply to AAP's A2A interface, which uses JSON-RPC 2.0. AAP publishes each skill's request/response JSON Schema URLs in `capabilities.extensions[].params` (a free-form A2A `Struct`) rather than on the `AgentSkill` object, because A2A's `AgentSkill` has no schema field in v1.0 or v1.0.1, and `capabilities.extensions[].params` is the place A2A designates for extension-specific configuration.
 
-The error-envelope and required-extension corrections described here require a major release after v1.3.0. They do not amend the frozen v1.3 contract; see [migration guidance](./versioning.md#for-implementers).
+The error-envelope and required-extension corrections described here are part of AAP 2.0.0. They do not amend the frozen v1.3 contract; see [migration guidance](./versioning.md#for-implementers).
 
 ## The three layers of A2A
 
@@ -44,7 +44,7 @@ flowchart TB
   Layer2 --> Layer3
 ```
 
-A2A defines several bindings; AAP rides on exactly one — JSON-RPC 2.0 — with the same data model on every call.
+A2A defines several bindings; this profile specifies one for AAP's A2A interface — JSON-RPC 2.0 — with the same data model on every call.
 
 ## Where AAP fits
 
@@ -58,7 +58,7 @@ AAP is a layer 1 profile. It defines:
 
 AAP does NOT redefine layer 2 (abstract operations) or layer 3 (protocol bindings) — it deliberately uses a minimal slice of each. AAP uses exactly **one** A2A operation: `SendMessage` (the message-only pattern — request `Message` in, response `Message` out).
 
-The message-only pattern is sanctioned by A2A, not a departure from it. A2A §3.1.1 lists both outputs for `SendMessage` — a `Task`, "OR ... a direct response message (for simple interactions that don't require task tracking)" — and its Behavior clause says the agent "MAY return a direct `Message` response for simple interactions". §3.7's "Messages SHOULD NOT be used to deliver task outputs" governs the output of a **Task**; an AAP dealer creates no tasks, so no Artifact is owed. This is why a buyer agent never has to implement the tasks surface to read an AAP result. The optional A2A surface (`SendStreamingMessage`, the tasks Get/List/Cancel/Subscribe operations, push notification configs, `GetExtendedAgentCard`) is out of scope for AAP — dealer agents do not need to implement it, and buyer agents MUST NOT require it. On bindings: JSON-RPC 2.0 is the **sole** binding AAP defines — a JSON-RPC interface is REQUIRED on every AAP agent card. The HTTP+JSON (REST) binding was removed in v1.1.0, and gRPC is out of scope.
+The message-only pattern is sanctioned by A2A, not a departure from it. A2A §3.1.1 lists both outputs for `SendMessage` — a `Task`, "OR ... a direct response message (for simple interactions that don't require task tracking)" — and its Behavior clause says the agent "MAY return a direct `Message` response for simple interactions". §3.7's "Messages SHOULD NOT be used to deliver task outputs" governs the output of a **Task**; an AAP dealer creates no tasks, so no Artifact is owed. This is why a buyer agent never has to implement the tasks surface to read an AAP result. The optional A2A surface (`SendStreamingMessage`, the tasks Get/List/Cancel/Subscribe operations, push notification configs, `GetExtendedAgentCard`) is out of scope for AAP — dealer agents do not need to implement it, and buyer agents MUST NOT require it. On bindings: JSON-RPC 2.0 is the A2A binding this profile defines — a JSON-RPC interface is REQUIRED on every AAP agent card. The HTTP+JSON (REST) binding was removed in v1.1.0, and gRPC is out of scope.
 
 ## The typed `DataPart` pattern
 
@@ -177,7 +177,7 @@ AAP layers one more piece on top of the base A2A surface:
 | Piece | Where it lives | Purpose |
 |---|---|---|
 | Agent card with AAP extension | `/.well-known/agent-card.json` | A2A discovery; declares the AAP extension URI and lists the subset of AAP skills the agent implements. |
-| Binding section | A2A Section 9 | How AAP DataParts ride inside JSON-RPC 2.0 envelopes — the sole AAP binding, REQUIRED on every AAP agent card. |
+| Binding section | A2A Section 9 | How AAP DataParts ride inside JSON-RPC 2.0 envelopes — the A2A binding required on every AAP Agent Card. |
 
 See:
 

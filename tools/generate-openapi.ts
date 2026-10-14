@@ -173,7 +173,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
                               role: "ROLE_USER",
                               parts: [
                                 {
-                                  data: { type: skill.request_type },
+                                  data: JSON.parse(readFileSync(resolve(specDir, "examples", skill.request_schema.replace(".schema.json", ".example.json")), "utf8")),
                                   mediaType: skill.media_type_request,
                                 },
                               ],
@@ -269,19 +269,37 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
               message: { type: "string" },
               data: {
                 type: "array",
-                description: "A2A error details. Locate an entry by its `@type`, never by position.",
+                description: "A2A ProtoJSON Any details. Locate the AAP payload in a google.protobuf.Struct detail whose value.type is aap.error.",
                 items: {
-                  oneOf: [
-                    { $ref: "#/components/schemas/Error" },
+                  type: "object",
+                  properties: {
+                    "@type": { type: "string", not: { const: "https://autoagentprotocol.org/extensions/aap/error" } },
+                  },
+                  required: ["@type"],
+                  allOf: [
                     {
-                      type: "object",
-                      properties: {
-                        "@type": { type: "string", not: { const: components.Error.properties["@type"].const } },
+                      if: { properties: { "@type": { const: "type.googleapis.com/google.protobuf.Struct" } }, required: ["@type"] },
+                      then: {
+                        properties: {
+                          "@type": { const: "type.googleapis.com/google.protobuf.Struct" },
+                          value: { type: "object" },
+                        },
+                        required: ["value"],
+                        additionalProperties: false,
                       },
-                      required: ["@type"],
-                      additionalProperties: true,
+                    },
+                    {
+                      if: {
+                        properties: {
+                          "@type": { const: "type.googleapis.com/google.protobuf.Struct" },
+                          value: { type: "object", properties: { type: { const: "aap.error" } }, required: ["type"] },
+                        },
+                        required: ["@type", "value"],
+                      },
+                      then: { properties: { value: { $ref: "#/components/schemas/Error" } } },
                     },
                   ],
+                  additionalProperties: true,
                 },
               },
             },

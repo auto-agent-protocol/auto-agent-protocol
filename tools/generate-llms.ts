@@ -159,7 +159,7 @@ function buildLlmsFull(): string {
     "Discovery: GET https://{dealer-domain}/.well-known/agent-card.json and /.well-known/poppy.json",
     "Built on: A2A v1.0 (Agent2Agent, https://a2a-protocol.org)",
     "License: Specification & schemas Apache-2.0; documentation prose CC-BY-4.0",
-    `Generated from the ${LATEST} documentation — do not edit by hand. The machine-readable artifacts linked at the end are authoritative over the prose below.`,
+    `Generated from the ${LATEST} documentation — do not edit by hand. Schemas define payload validation; the normative prose defines behavior and security obligations that schemas cannot express.`,
     "",
   ];
   for (const id of allDocIds) out.push(cleanBody(readDoc(id).body), "");
@@ -174,6 +174,8 @@ function buildLlmsFull(): string {
     "## Machine-readable artifacts",
     "",
     `- OpenAPI (JSON-RPC, 3.1): ${VER_BASE}/openapi-jsonrpc.yaml`,
+    `- OpenAPI (Poppy, 3.1):    ${VER_BASE}/openapi-poppy.yaml`,
+    `- Poppy discovery:        ${VER_BASE}/examples/poppy.example.json`,
     `- MCP manifest:            ${VER_BASE}/mcp.json`,
     `- JSON Schemas (2020-12):  ${VER_BASE}/schemas/<name>.schema.json`,
     `- Agent Card example:      ${VER_BASE}/examples/agent-card.example.json`,
