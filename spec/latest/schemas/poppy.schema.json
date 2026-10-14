@@ -10,7 +10,21 @@
     {
       "type": "object",
       "properties": {
+        "auth": {
+          "type": "object",
+          "properties": {
+            "issuer": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "issuer"
+          ],
+          "additionalProperties": true
+        },
         "apis": {
+          "type": "array",
+          "items": {},
           "contains": {
             "type": "object",
             "properties": {
