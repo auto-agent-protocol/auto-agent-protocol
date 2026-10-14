@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-session-token.schema.json",
+  "title": "PoppySessionTokenResponse",
+  "description": "Poppy token endpoint response. Tokens are opaque to clients; JSON validation does not verify cryptography, ownership, scope enforcement or expiry.",
+  "allOf": [
+    {
+      "type": "object",
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "minLength": 1
+        },
+        "token_type": {
+          "enum": [
+            "DPoP",
+            "Bearer"
+          ]
+        },
+        "expires_in": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "scope": {
+          "type": "string"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "signed_in": {
+          "type": "boolean"
+        },
+        "refresh_token": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "access_token",
+        "token_type",
+        "expires_in",
+        "scope",
+        "session_id",
+        "signed_in"
+      ],
+      "additionalProperties": true
+    },
+    {
+      "if": {
+        "properties": {
+          "signed_in": {
+            "const": false
+          }
+        },
+        "required": [
+          "signed_in"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scope": {
+            "const": ""
+          }
+        },
+        "not": {
+          "required": [
+            "refresh_token"
+          ]
+        }
+      }
+    }
+  ]
+}

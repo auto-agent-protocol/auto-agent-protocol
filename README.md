@@ -5,7 +5,7 @@
 
 # Auto Agent Protocol (AAP)
 
-[![Spec version](https://img.shields.io/badge/spec-v1.3.0-2874d7)](https://autoagentprotocol.org/docs/v1.3/intro)
+[![Spec version](https://img.shields.io/badge/spec-v2.0.0-2874d7)](https://autoagentprotocol.org/docs/v2.0/intro)
 [![A2A](https://img.shields.io/badge/A2A-v1.0-2874d7)](https://a2a-protocol.org)
 [![License](https://img.shields.io/badge/license-Apache--2.0-52657c)](LICENSE)
 [![Validate](https://github.com/auto-agent-protocol/auto-agent-protocol/actions/workflows/validate.yml/badge.svg)](https://github.com/auto-agent-protocol/auto-agent-protocol/actions/workflows/validate.yml)
@@ -16,7 +16,7 @@ Brand assets: [symbol, wordmark, and usage guidance](tools/branding/README.md).
 
 New to the protocol? Read the [AAP FAQ](https://autoagentprotocol.org/faq) for its purpose, supported capabilities, assistant compatibility, and how to get started.
 
-More and more car and motorcycle buyers start their search by asking an AI assistant. AAP is the free, open standard that lets any AI assistant **find your dealership, browse your real inventory, and send you a sales lead with the customer's permission** — straight into the systems you already use. You publish one small file on your own website, answer a few well-defined kinds of questions, and any AAP-capable agent can do business with you. No app store. No middleman. No per-partner integration projects.
+More and more car and motorcycle buyers start their search by asking an AI assistant. AAP is the free, open standard that lets any AI assistant **find your dealership, browse your real inventory, and send you a sales lead with the customer's permission** — straight into the systems you already use. You publish two discovery files on your own website, answer a few well-defined kinds of questions, and any AAP-capable agent can do business with you. No app store. No middleman. No per-partner integration projects.
 
 Listings carry an optional `vehicle_type` (`car`, `motorcycle`, `trailer`, `rv`, `other`; absent = `car`), so the same five skills serve both automotive and powersports retail — including electric models via a generic electric-powertrain field group.
 
@@ -24,35 +24,39 @@ Listings carry an optional `vehicle_type` (`car`, `motorcycle`, `trailer`, `rv`,
 
 ![Why AAP: from a mesh of custom integrations to one open profile](docs/img/why-before-after.svg)
 
-**For engineers:** AAP is an open [A2A v1.0](https://a2a-protocol.org) profile. A compliant dealer agent is an A2A agent that publishes an `agent-card.json` with the AAP automotive extension URI (`https://autoagentprotocol.org/extensions/aap/v1.3`) and implements **one or more** of the five standard AAP automotive skills (a small used-car lot might only do `inventory.search` + `lead.submit`; a franchise dealership might do all five).
+**For engineers:** AAP is an open [A2A v1.0](https://a2a-protocol.org) profile. A compliant dealer agent is an A2A agent that publishes an `agent-card.json` with the AAP automotive extension URI (`https://autoagentprotocol.org/extensions/aap/v2.0`) and implements **one or more** of the five standard AAP automotive skills (a small used-car lot might only do `inventory.search` + `lead.submit`; a franchise dealership might do all five).
 
-The transport surface is deliberately minimal: every AAP agent exposes the **JSON-RPC 2.0 binding** — the sole transport (the optional HTTP+JSON binding was removed in v1.1.0); the only A2A operation AAP uses is **`SendMessage`** — request `Message` in, response `Message` out. The optional A2A surface (streaming, tasks, push notifications, extended cards) is out of scope: dealer agents do not need to implement it and buyer agents must not require it.
+The transport surface is deliberately minimal: every AAP agent exposes the **JSON-RPC 2.0 binding** — the sole A2A transport (the optional HTTP+JSON binding was removed in v1.1.0); the only A2A operation AAP uses is **`SendMessage`** — request `Message` in, response `Message` out. The optional A2A surface (streaming, tasks, push notifications, extended cards) is out of scope: dealer agents do not need to implement it and buyer agents must not require it.
 
 ![The Agent Card advertises the A2A binding, AAP extension, supported skill subset, and per-skill schema URLs](docs/img/agent-card-passport.svg)
 
-## v1.3.0 Scope
+## v2.0.0 Scope
 
-v1.3.0 is the **current release**. It is fully additive over v1.2.0 and introduces interoperable dealer-fee disclosure. `price` remains the authoritative advertised vehicle price and includes every mandatory non-government dealer charge and required add-on. Optional `{ name, amount }` `fees` arrays expose the complete itemized breakdown at vehicle level and default schedules at rooftop level. A truthful all-in `price` may stand alone; `list_price` and `fees` without `price` are informational and never become a consumer-facing price through client-side arithmetic. The five-skill vocabulary, A2A v1.0 wire, and JSON-RPC-only transport remain unchanged. v0.1.0 through v1.2.0 remain published and frozen for consumers pinned to them.
+v2.0.0 adds native Personal Agent Protocol (Poppy draft 0.1) support and incorporates the A2A v1.0 conformance corrections prepared after v1.3. It is a **major upgrade**: dealers publish both discovery documents, implement guest sessions and a DPoP-protected OpenAPI skill interface, and migrate A2A headers, cards and error envelopes. The same five automotive payloads, pricing rules and consent semantics apply to both interfaces. All earlier releases remain frozen. See the [migration guide](docs/versioning.md) and [full Poppy specification](docs/personal-agent-protocol.md).
 
-- **Discovery** via `/.well-known/agent-card.json` only (A2A-compatible) — no second well-known file
+- **Paired discovery** via `/.well-known/agent-card.json` (A2A) and `/.well-known/poppy.json` (Poppy)
+- **Native Poppy API** with verified OAuth issuer discovery, signed-out sessions, DPoP and OpenAPI 3.1; no customer account required
 - **Inventory**: facets, search, vehicle detail — across **cars and motorcycles** via an optional `vehicle_type` discriminator, with motorcycle body/segment carried in `body`, displacement in `displacement_cc`, niche specs in a free-form `other_attributes` map, and a generic electric-powertrain group (range, battery kWh, motor hp, DC fast charge, charge port) for BEV/PHEV cars and motorcycles alike
 - **Transparent pricing**: one authoritative all-in `price`, optional complete vehicle fee itemization, optional rooftop fee defaults for publishers, and explicit handling for list-only and conditional-rebate data
 - **Dealership information**: group name, welcome message, and one or more rooftops (locations) with address, geo, contacts, hours, timezone, capabilities, and optional default fee schedules
 - **Leads**: a single unified `lead.submit` accepting a consented customer plus any combination of vehicle of interest, trade-in, and appointment
 - **ADF/XML mapping** documented for legacy CRM compatibility
-- **Interoperability proven** against the official A2A v1.0 client SDKs (`@a2a-js/sdk` and `a2a-sdk` for Python) — a standard A2A client can discover an AAP dealer and invoke every skill with no AAP-specific code
+- **Verified contract interoperability**: official A2A JavaScript SDK HTTP round-trips for every skill, Poppy discovery/identity checks and generated OpenAPI schema parity; see [verification scope](docs/conformance.md)
 
-v1.3.0 does **not** cover: authentication (agents are public by default; auth is left to A2A's native `securitySchemes`), payments, financing approval, RFQ/quote flows, trade-in valuations, buyer-specific out-the-door calculations, or reservations.
+v2.0.0 does **not** cover: payments, financing approval, RFQ/quote flows, trade-in valuations, buyer-specific out-the-door calculations, or reservations.
 
 ![How an AI agent shops: discover the dealer, search inventory, inspect one complete vehicle, and submit a consented lead](docs/img/buyer-journey.svg)
 
 ## Quick links
 
 - **Specification**: [autoagentprotocol.org](https://autoagentprotocol.org)
-- **Stable v1.3.0 agent card**: [`spec/v1.3/examples/agent-card.example.json`](spec/v1.3/examples/agent-card.example.json)
+- **Stable v2.0.0 agent card**: [`spec/v2.0/examples/agent-card.example.json`](spec/v2.0/examples/agent-card.example.json)
 - **Editable JSON Schemas**: [`spec/latest/schemas/`](spec/latest/schemas/)
 - **Editable examples**: [`spec/latest/examples/`](spec/latest/examples/)
-- **OpenAPI 3.1** (built at deploy time): `https://autoagentprotocol.org/v1.3/openapi-jsonrpc.yaml`
+- **OpenAPI 3.1** (built at deploy time): `https://autoagentprotocol.org/v2.0/openapi-jsonrpc.yaml`
+- **Poppy OpenAPI**: `https://autoagentprotocol.org/v2.0/openapi-poppy.yaml`
+- **Poppy example**: [`spec/v2.0/examples/poppy.example.json`](spec/v2.0/examples/poppy.example.json)
+- **Conformance and limits**: [verification guide](docs/conformance.md)
 - **Changelog**: [CHANGELOG.md](CHANGELOG.md)
 
 ## The five skills
@@ -133,7 +137,8 @@ Released versions are immutable. Repository changes use `spec/latest/`; the publ
 | Layer | Protocol | Role for AAP |
 |---|---|---|
 | Transport / data model (BASE) | **[A2A v1.0](https://a2a-protocol.org)** | The base protocol AAP profiles. Every AAP message travels inside `Message.parts[].data` as a typed `DataPart`. AAP does not invent a wire format. |
-| Adjacent / complementary | **ACP** (Agentic Commerce), **MCP** (Model Context Protocol) | ACP covers commerce checkout (out of scope for AAP). MCP can expose AAP skills as LLM tools — AAP publishes an official MCP reference manifest (generated from `skills.yaml` at build time and served at `https://autoagentprotocol.org/v1.3/mcp.json`). |
+| Discovery / sessions / APIs | **[Personal Agent Protocol](https://personalagentprotocol.org/)** (Poppy draft 0.1) | Paired discovery and a native guest OpenAPI interface reuse the automotive payloads with Poppy authentication. |
+| Adjacent / complementary | **ACP** (Agentic Commerce), **MCP** (Model Context Protocol) | ACP covers commerce checkout (out of scope for AAP). MCP can expose AAP skills as LLM tools — AAP publishes an official MCP reference manifest (generated from `skills.yaml` at build time and served at `https://autoagentprotocol.org/v2.0/mcp.json`). |
 | Legacy / target system | **ADF/XML** | The 25-year-old dealer-CRM lead format. `lead.submit` is field-by-field mappable to ADF/XML so existing CRMs ingest AAP leads without code changes. |
 
 ## License

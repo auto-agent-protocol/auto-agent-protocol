@@ -1,7 +1,7 @@
 ---
 sidebar_position: 4
 title: Discovery
-description: A2A agent-card.json with the AAP extension. How a buyer agent discovers a dealer agent and confirms AAP compliance.
+description: Paired A2A agent-card.json and Poppy discovery for an AAP dealer.
 ---
 
 # Discovery
@@ -16,13 +16,15 @@ This page describes the editable next-major contract, not the frozen v1.3 releas
 
 ![A buyer agent discovers the binding, AAP extension, and supported skill schemas from one Agent Card](./img/discovery-flow.svg)
 
-An AAP-compliant dealer agent publishes its default A2A v1.0 agent card at the well-known URL on its domain:
+An AAP-compliant dealer publishes **both** `/.well-known/agent-card.json` and `/.well-known/poppy.json`. The [Personal Agent Protocol specification](./personal-agent-protocol.md) defines Poppy discovery, guest sessions and the native automotive API. The two interfaces share the same AAP contract and skill subset.
+
+The dealer publishes its default A2A v1.0 agent card at the well-known URL on its domain:
 
 ```
 GET https://{dealer-domain}/.well-known/agent-card.json
 ```
 
-The card MUST declare the AAP extension and list the AAP skills the agent implements (one or more from the vocabulary of five). The buyer agent uses the card to confirm AAP compliance and discover which skills are actually available before calling any skill. AAP uses a single transport — JSON-RPC 2.0.
+The card MUST declare the AAP extension and list the AAP skills the agent implements (one or more from the vocabulary of five). The buyer agent uses the card to confirm AAP compliance and discover which skills are actually available before calling any skill. The A2A interface uses JSON-RPC 2.0. The native Poppy API has its own OpenAPI binding.
 
 ## Required AAP additions to the A2A agent card
 
@@ -58,7 +60,7 @@ Public does not mean plaintext. `lead.submit` carries a customer's name, email, 
 
 ## Authentication
 
-AAP agents are **public by default** — the simplest setup needs no authentication. AAP defines no auth of its own. A dealer that wants to protect its endpoint uses A2A's native `securitySchemes` / `securityRequirements` on the agent card (e.g. HTTP bearer), and buyer agents obtain credentials out of band, exactly as A2A specifies. Auth is therefore an A2A/transport concern, out of scope for this profile beyond what A2A already provides.
+AAP A2A interfaces are **public by default** — the simplest setup needs no authentication. AAP defines no auth of its own. A dealer that wants to protect its endpoint uses A2A's native `securitySchemes` / `securityRequirements` on the agent card (e.g. HTTP bearer), and buyer agents obtain credentials out of band, exactly as A2A specifies. The separate native Poppy API MUST enforce Poppy Sessions and DPoP, even for signed-out users; see [Poppy authentication](./personal-agent-protocol.md#4-guest-sessions-and-proof-of-possession). A public A2A interface does not make the Poppy API public.
 
 ## Full example agent card
 

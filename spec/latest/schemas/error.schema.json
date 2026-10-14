@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/error.schema.json",
   "title": "Error",
-  "description": "Typed AAP error payload. Returned as one entry of the 'error.data' array of a JSON-RPC error response, tagged with '@type', per A2A spec section 9.5. Buyer agents use 'code' and 'retryable' to drive client behavior; humans see 'message'.",
+  "description": "Typed AAP error payload. Returned as one entry of the 'error.data' array of a JSON-RPC error response, tagged with '@type', per A2A spec section 9.5. On the native Poppy API, returned directly as a skill-error response body with the documented HTTP status. Buyer agents use 'code' and 'retryable' to drive client behavior; humans see 'message'.",
   "type": "object",
   "properties": {
     "@type": {

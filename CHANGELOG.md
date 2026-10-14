@@ -7,14 +7,19 @@ versioning policy is described in the
 
 ## [Unreleased]
 
-> **This set is planned for 2.0.0 and requires a MAJOR release.**
-> `pnpm release:prepare` refuses it as a minor: the compatibility report detects
-> breaking schema changes.
-> The new error envelope and extension activation rules must not be deployed
-> under the frozen v1.3 contract. `tests/release` now
-> rehearses the next *major* rather than the next minor, which is the release
-> the branch's own content requires; the compatibility gate itself is
-> unchanged and still refuses a breaking minor.
+## [2.0.0] — 2026-10-14
+
+This major release adds Personal Agent Protocol (Poppy draft 0.1) support and the A2A conformance corrections below. It requires a runtime migration; publishing discovery alone is insufficient. Earlier releases remain immutable.
+
+### Personal Agent Protocol
+
+- Require paired `agent-card.json` and `poppy.json` discovery, with the existing version-1 `autoagentprotocol.org/aap` bridge.
+- Define a native OpenAPI guest API for the same automotive skill subset, with verified OAuth discovery, signed assertions, Poppy Sessions and DPoP.
+- Specify identity, hosted domains, consent, idempotency, error mapping and all obligations for optional sign-in, browser, MCP and conversation surfaces.
+- Add forward-compatible discovery schemas, an AAP profile schema, OAuth/token schemas, examples, generated OpenAPI, types and validator exports.
+- Add negative discovery/identity tests, binding parity checks and official A2A JavaScript SDK wire tests; document runtime verification boundaries.
+- Regenerate affected blue/teal SVG diagrams and add paired-discovery and guest-session diagrams.
+- Correct the validator package to use Ajv's JSON Schema 2020-12 engine, matching the published schemas.
 
 ### Breaking migration scope
 

@@ -328,6 +328,52 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
   const jsonRpcOut = resolve(outDir, "openapi-jsonrpc.yaml");
   writeFileSync(jsonRpcOut, stringifyYaml(jsonRpc, { lineWidth: 120 }));
   console.log(`Generated ${jsonRpcOut}`);
+
+  // Historical releases predate Poppy; regenerating a draft must not invent
+  // this binding for a spec that does not declare the new discovery contract.
+  if (components.Poppy) {
+    const paths = Object.fromEntries(manifest.skills.map(skill => {
+      const response = (description: string, schema: string) => ({
+        description, content: { "application/json": { schema: { $ref: `#/components/schemas/${schema}` } } },
+      });
+      const challenge = { schema: { type: "string" }, description: "RFC 9449 DPoP challenge, including nonce handling." };
+      return [`/skills/${skill.id}`, { post: {
+        operationId: skill.id.replaceAll(".", "_"),
+        "x-aap-skill": skill.id,
+        summary: skill.name,
+        description: `${skill.description} Uses the unchanged AAP payload with a Poppy signed-out session; no customer account sign-in is required. lead.submit still requires explicit contact consent.`,
+        security: [{ poppySession: [] }],
+        parameters: [{ name: "DPoP", in: "header", required: true, description: "Fresh RFC 9449 proof bound to the access token, request method and URL; never a static API key.", schema: { type: "string", minLength: 1 } }],
+        requestBody: { required: true, content: { "application/json": { schema: { $ref: `#/components/schemas/${toComponentName(skill.request_schema.split("/").pop()!)}` } } } },
+        responses: {
+          "200": response("Typed AAP response; a lead acknowledgment is not a confirmed appointment or sale.", toComponentName(skill.response_schema.split("/").pop()!)),
+          "400": response("Malformed JSON or a request that cannot be processed.", "Error"),
+          "401": { description: "Missing, expired or invalid token/proof. No skill execution.", headers: { "WWW-Authenticate": challenge, "DPoP-Nonce": { schema: { type: "string" } } } },
+          "403": { description: "Insufficient authorization, or an AAP consent error. No skill execution.", headers: { "WWW-Authenticate": challenge }, content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          "404": response("Vehicle or implemented skill not found.", "Error"),
+          "409": response("Vehicle/appointment unavailable or idempotency conflict.", "Error"),
+          "422": response("AAP schema validation failed, including a mismatched request type.", "Error"),
+          "429": { ...response("Rate limited. Honor Retry-After before retrying.", "Error"), headers: { "Retry-After": { schema: { type: "string" } } } },
+          "500": response("Internal skill failure.", "Error"),
+        },
+      } }];
+    }));
+    const poppy = {
+      openapi: "3.1.0",
+      info: { ...jsonRpc.info, title: "Auto Agent Protocol — Poppy guest API", description: `AAP ${version} automotive payloads over Personal Agent Protocol draft 0.1 OpenAPI APIs. This is a Poppy API, not the removed A2A HTTP+JSON binding. Operators MUST publish a deployment-specific copy with real servers and only implemented skills. OAuth endpoints are discovered using RFC 8414, not inferred from this reference server.` },
+      "x-aap-extension": manifest.extension_uri,
+      "x-poppy-protocol-version": "0.1",
+      servers: [{ url: "https://demo-toyota.example.com/poppy", description: "Illustrative dealer API base; replace before publication" }],
+      paths,
+      components: {
+        securitySchemes: { poppySession: { type: "http", scheme: "DPoP", description: "Poppy Session Token acquired from the verified OAuth issuer using private_key_jwt and a JWT bearer session assertion. The DPoP proof header is also mandatory. Account tokens are never API credentials." } },
+        schemas: components,
+      },
+    };
+    const poppyOut = resolve(outDir, "openapi-poppy.yaml");
+    writeFileSync(poppyOut, stringifyYaml(poppy, { lineWidth: 120 }));
+    console.log(`Generated ${poppyOut}`);
+  }
 }
 
 if (isMain(import.meta.url)) {

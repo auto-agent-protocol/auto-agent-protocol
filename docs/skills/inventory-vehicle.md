@@ -8,8 +8,8 @@ description: Detail view of a single vehicle by VIN, stock, or vehicle_id, retur
 
 ![A vehicle lookup accepts VIN, stock, or vehicle_id and returns one complete vehicle with current status, price, fees, and updated_at](../img/vehicle-detail-lookup.svg)
 
-:::info A2A invocation
-This skill is invoked through A2A's `SendMessage` operation — the single A2A operation AAP v1.3.0 uses — not a dedicated REST URL. It travels as the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md). (The HTTP+JSON binding was [removed in v1.1.0](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
+:::info Invocation
+On the A2A interface, this skill uses `SendMessage` over the [JSON-RPC binding](../bindings/json-rpc.md), with its typed payload in `Message.parts[].data`. The native [Poppy OpenAPI binding](../personal-agent-protocol.md#5-automotive-openapi-binding) carries the same request and response payloads directly, using guest Sessions and DPoP. The removed A2A HTTP+JSON binding remains out of scope.
 :::
 
 The `inventory.vehicle` skill returns the full detail of a single vehicle. The buyer agent identifies the vehicle by VIN, stock number, or dealer-internal `vehicle_id`.

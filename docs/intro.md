@@ -16,11 +16,11 @@ This page describes the editable next-major contract, not the frozen v1.3 releas
 
 ![Buyer agents and dealer storefronts connected through typed AAP messages over A2A](./img/network-overview.svg)
 
-**The Auto Agent Protocol (AAP) lets AI assistants shop at car and motorcycle dealerships.** People increasingly ask an AI assistant to find their next car or motorcycle. AAP is the free, open standard that lets any of those assistants find a dealership, browse its real inventory, and — with the customer's clear permission — send the dealership a sales lead. Inventory listings carry an optional `vehicle_type` (`car`, `motorcycle`, `trailer`, `rv`, `other`; absent = `car`) so a single vocabulary covers both automotive and powersports retail, including electric models via a generic electric-powertrain field group. For a dealership, joining in means publishing **one small file on your own website** and answering a few well-defined questions; no app store, no middleman, no per-partner integration work.
+**The Auto Agent Protocol (AAP) lets AI assistants shop at car and motorcycle dealerships.** People increasingly ask an AI assistant to find their next car or motorcycle. AAP is the free, open standard that lets any of those assistants find a dealership, browse its real inventory, and — with the customer's clear permission — send the dealership a sales lead. Inventory listings carry an optional `vehicle_type` (`car`, `motorcycle`, `trailer`, `rv`, `other`; absent = `car`) so a single vocabulary covers both automotive and powersports retail, including electric models via a generic electric-powertrain field group. For a dealership, joining in means publishing **two discovery files on your own website** and answering a few well-defined questions; no app store, no middleman, no per-partner integration work.
 
 ![Dealers go live in three steps: publish the Agent Card, serve selected skills, and receive consented leads](./img/dealer-onboarding.svg)
 
-In technical terms: AAP is a strict [A2A v1.0](https://a2a-protocol.org) (Agent2Agent) profile that defines the typed automotive data shapes AI agents and dealer agents exchange when they discover, browse, and submit leads. AAP does not invent a new wire protocol — every AAP message travels inside an A2A `Message.parts[].data` value as a typed `DataPart`. JSON-RPC 2.0 is the sole binding: a JSON-RPC 2.0 interface is REQUIRED on every AAP agent card. The HTTP+JSON (REST) binding was removed in v1.1.0, and gRPC is out of scope.
+In technical terms: AAP is a strict [A2A v1.0](https://a2a-protocol.org) (Agent2Agent) profile that defines the typed automotive data shapes AI agents and dealer agents exchange when they discover, browse, and submit leads. AAP does not invent a new wire protocol — every AAP message travels inside an A2A `Message.parts[].data` value as a typed `DataPart`. JSON-RPC 2.0 is the sole A2A binding: a JSON-RPC 2.0 interface is REQUIRED on every AAP agent card. The HTTP+JSON (REST) binding was removed in v1.1.0, and gRPC is out of scope.
 
 The extension is identified by a single URI:
 
@@ -44,13 +44,13 @@ The AAP profile defines a **vocabulary** of five standard skill IDs that cover t
 | `inventory.vehicle` | Detail view of one specific vehicle or motorcycle (by VIN, stock, or vehicle_id) |
 | `lead.submit` | Unified consented lead carrying customer info plus optional vehicle of interest, trade-in, and appointment |
 
-It does NOT define authentication (agents are public by default; auth is left to A2A), payments, financing approval, RFQ/quote workflows, trade-in valuations, or reservations. Future versions MAY extend this surface; the profile is intentionally minimal.
+AAP 2.0 also defines [Personal Agent Protocol support](./personal-agent-protocol.md): paired discovery, signed-out sessions and an OpenAPI interface for the same skills. A2A authentication follows the Agent Card; native Poppy API authentication follows Poppy Sessions and DPoP. It does NOT define payments, financing approval, RFQ/quote workflows, trade-in valuations, or reservations. Future versions MAY extend this surface; the profile is intentionally minimal.
 
 ## Layered architecture
 
 ![AAP typed automotive payloads profile A2A v1.0, which is carried over HTTPS](./img/architecture-stack.svg)
 
-AAP sits as a profile on top of A2A, which itself sits on top of HTTP. AAP never touches the wire format directly — it defines the shape of typed `DataParts` that A2A bindings carry.
+AAP defines shared automotive payloads. The A2A interface carries them in typed `DataParts`; the native Poppy OpenAPI interface carries the same payloads directly over HTTPS with Poppy authentication.
 
 ```mermaid
 flowchart TB
@@ -91,7 +91,7 @@ Confirm the card lists the AAP extension URI under `capabilities.extensions[].ur
 
 ### 2. The binding
 
-Every AAP agent exposes the JSON-RPC 2.0 binding — AAP's sole transport. gRPC is out of scope, and the HTTP+JSON (REST) binding was removed in v1.1.0.
+Every AAP agent exposes the JSON-RPC 2.0 binding — AAP's A2A transport. gRPC is out of scope, and the HTTP+JSON (REST) binding was removed in v1.1.0.
 
 | Binding | Status | A2A spec | AAP page |
 |---|---|---|---|
@@ -194,6 +194,8 @@ AAP uses the standard A2A `SendMessage` operation. An SDK integration must also 
 
 - [Why automotive needs AAP](./why.md) — the gap AAP fills against A2A, ACP, MCP, and ADF.
 - [A2A profile](./a2a-profile.md) — how AAP slots into A2A's three-layer architecture.
-- [Discovery](./discovery.md) — full agent card example.
+- [Discovery](./discovery.md) — paired well-known files and full agent card example.
+- [Personal Agent Protocol](./personal-agent-protocol.md) — full Poppy guest API specification.
+- [Conformance](./conformance.md) — compatibility evidence and implementation checks.
 - [Pricing and fee disclosure](./pricing-and-ftc.md) — authoritative price semantics, optional vehicle fee itemization, provider mapping, and current FTC context.
 - [Skills reference](./skills/dealer-information.md) — one page per skill with full request/response examples.

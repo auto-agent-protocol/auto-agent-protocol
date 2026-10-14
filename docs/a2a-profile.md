@@ -157,7 +157,7 @@ The dealer agent replies with an A2A `Message` containing the AAP response:
 }
 ```
 
-The outer envelope around this `Message` is the JSON-RPC 2.0 binding — AAP's sole transport. See [JSON-RPC binding](./bindings/json-rpc.md) for full envelope examples.
+The outer envelope around this `Message` is the JSON-RPC 2.0 binding — AAP's A2A transport. See [JSON-RPC binding](./bindings/json-rpc.md) for full envelope examples.
 
 ## Why typed `DataParts` instead of natural-language parts
 

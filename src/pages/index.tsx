@@ -51,7 +51,7 @@ function Hero() {
         <div className={styles.protocolProof} aria-label="Core protocol choices">
           <span>A2A v1.0 profile</span>
           <span>JSON-RPC 2.0</span>
-          <span>Five typed skills</span>
+          <span>Poppy guest API</span>
         </div>
         <Link className={styles.profileLink} to="/docs/latest/a2a-profile">See how AAP profiles A2A <span aria-hidden="true">↗</span></Link>
       </div>
@@ -63,7 +63,7 @@ const features = [
   {
     title: "An A2A Profile",
     description:
-      "AAP is a strict A2A v1.0 profile: typed automotive messages ride on top of A2A's data layer. JSON-RPC 2.0 is the single transport — one SendMessage operation carries every skill.",
+      "AAP is a strict A2A v1.0 profile: typed automotive messages ride on top of A2A's data layer. JSON-RPC 2.0 is the A2A transport — one SendMessage operation carries every skill.",
   },
   {
     title: "Five Skills",
@@ -76,9 +76,9 @@ const features = [
       "The authoritative price includes mandatory dealer charges. An optional fee breakdown makes those included charges visible; government charges remain outside price and conditional rebates never reduce it.",
   },
   {
-    title: "Anonymous First",
+    title: "Personal Agent Protocol",
     description:
-      "Inventory operations are anonymous by default. Personal data only travels with leads, and only with an explicit ConsentGrant attached.",
+      "Poppy discovery, guest sessions and a native OpenAPI interface reuse the same automotive skills. Shoppers need no dealer account; leads still require explicit consent.",
   },
   {
     title: "ADF-Mappable Leads",

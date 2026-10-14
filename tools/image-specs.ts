@@ -59,15 +59,15 @@ export const imageSpecs: Record<string, DiagramSpec> = {
     items: [
       {
         label: "01",
-        title: "Publish the Agent Card",
-        body: "Host one discovery document on the dealership domain.",
-        code: ["/.well-known/agent-card.json"],
+        title: "Publish discovery",
+        body: "A2A and Poppy discover the same dealership and automotive skill set.",
+        code: ["/.well-known/agent-card.json", "/.well-known/poppy.json"],
       },
       {
         label: "02",
-        title: "Serve the skills you choose",
-        body: "One JSON-RPC endpoint handles the supported AAP skill subset.",
-        code: ["POST {base}/a2a", "SendMessage"],
+        title: "Serve shared skills",
+        body: "Serve shared payloads through A2A and the Poppy guest API.",
+        code: ["A2A SendMessage", "Poppy OpenAPI + DPoP"],
       },
       {
         label: "03",
@@ -99,7 +99,7 @@ export const imageSpecs: Record<string, DiagramSpec> = {
   "architecture-stack": {
     kind: "stack",
     eyebrow: "LAYERED ARCHITECTURE",
-    title: "AAP profiles A2A; it does not replace it",
+    title: "One automotive contract, two agent interfaces",
     description: "The automotive contract stays separate from the agent protocol and transport beneath it.",
     items: [
       {
@@ -111,9 +111,9 @@ export const imageSpecs: Record<string, DiagramSpec> = {
       },
       {
         label: "AGENT PROTOCOL",
-        title: "A2A v1.0",
-        body: "Agent Card, Message and DataPart data model; AAP uses the SendMessage operation.",
-        code: ["JSON-RPC 2.0 · sole binding", "POST {base}/a2a"],
+        title: "A2A v1.0 + Poppy 0.1",
+        body: "A2A carries typed DataParts. Poppy exposes the same payloads through its native OpenAPI interface.",
+        code: ["A2A: JSON-RPC SendMessage", "Poppy: guest sessions + DPoP"],
       },
       {
         label: "TRANSPORT",
@@ -122,7 +122,7 @@ export const imageSpecs: Record<string, DiagramSpec> = {
         tone: "navy",
       },
     ],
-    footer: "AAP defines the DataPart.data shape. A2A carries it on the wire.",
+    footer: "Separate discovery and authentication; shared skills, pricing and consent.",
     height: 900,
   },
 
@@ -273,15 +273,40 @@ export const imageSpecs: Record<string, DiagramSpec> = {
   "discovery-flow": {
     kind: "flow",
     eyebrow: "DISCOVERY",
-    title: "One GET returns the complete capability map",
+    title: "Two standard discovery paths, one dealership",
     description: "Discovery is separate from invocation and stays on the dealership's own domain.",
     items: [
       { label: "01", title: "Buyer agent", body: "Begins with the dealership domain; no private registry is required." },
-      { label: "02", title: "Fetch the Agent Card", body: "Read the standard A2A well-known location.", code: ["GET /.well-known/agent-card.json"], tone: "primary" },
-      { label: "03", title: "Confirm the binding", body: "AAP requires a supported interface with the JSONRPC binding.", code: ["supportedInterfaces[]"] },
-      { label: "04", title: "Read AAP skills", body: "Use the extension URI, supported skill IDs and their schema URLs.", code: ["capabilities.extensions[]"], tone: "teal" },
+      { label: "02", title: "A2A discovery", body: "Read the Agent Card, select the AAP contract and activate it.", code: ["agent-card.json", "A2A-Extensions"], tone: "primary" },
+      { label: "03", title: "Poppy discovery", body: "Read company identity, verify the issuer and start a guest session.", code: ["poppy.json", "auth.issuer"] },
+      { label: "04", title: "Invoke shared skills", body: "A2A messages or Poppy API calls carry identical automotive payloads.", code: ["Same schemas and consent"], tone: "teal" },
     ],
-    footer: "After discovery, every skill call uses JSON-RPC 2.0 SendMessage.",
+    footer: "Poppy OpenAPI is a separate interface, not the removed A2A HTTP+JSON binding.",
+  },
+
+  "poppy-discovery": {
+    kind: "split",
+    eyebrow: "AAP 2.0 DISCOVERY",
+    title: "A2A and Poppy meet the same dealer",
+    description: "Two standard documents announce real capabilities without inventing protocol fields.",
+    left: { title: "A2A Agent Card", body: "Activate the required automotive extension and send typed DataParts over JSON-RPC.", code: ["/.well-known/agent-card.json", "SendMessage"], tone: "primary" },
+    right: { title: "Poppy discovery", body: "Verify the issuer, create a guest session and invoke the same skills through OpenAPI.", code: ["/.well-known/poppy.json", "Authorization: DPoP"], tone: "teal" },
+    bridge: "shared skills",
+    footer: "The autoagentprotocol.org/aap extension links the matching card. A core Poppy client uses OpenAPI.",
+  },
+
+  "poppy-session": {
+    kind: "flow",
+    eyebrow: "POPPY GUEST API",
+    title: "Guest sessions still prove identity",
+    description: "The personal agent proves its identity and key ownership; the shopper needs no dealer account.",
+    items: [
+      { label: "01", title: "Verify discovery", body: "Match the original domain, exact issuer and authorized poppy_domains." },
+      { label: "02", title: "Create a session", body: "Verify client and user assertions; issue a short-lived proof-bound token.", code: ["private_key_jwt", "JWT bearer grant"], tone: "primary" },
+      { label: "03", title: "Call a skill", body: "Check token, audience, method, URL, key and replay protection.", code: ["Authorization: DPoP", "Fresh DPoP proof"] },
+      { label: "04", title: "Enforce consent", body: "Only an explicit ConsentGrant permits a lead; retries keep their key.", code: ["lead.submit"], tone: "teal" },
+    ],
+    footer: "The native Poppy OpenAPI interface carries the same automotive skill payloads.",
   },
 
   "jsonrpc-envelope": {
