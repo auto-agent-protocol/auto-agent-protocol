@@ -51,7 +51,7 @@ function Hero() {
         <div className={styles.protocolProof} aria-label="Core protocol choices">
           <span>A2A v1.0 profile</span>
           <span>JSON-RPC 2.0</span>
-          <span>Five typed skills</span>
+          <span>Poppy guest API</span>
         </div>
         <Link className={styles.profileLink} to="/docs/latest/a2a-profile">See how AAP profiles A2A <span aria-hidden="true">↗</span></Link>
       </div>
@@ -63,7 +63,7 @@ const features = [
   {
     title: "An A2A Profile",
     description:
-      "AAP is a strict A2A v1.0 profile: typed automotive messages ride on top of A2A's data layer. JSON-RPC 2.0 is the single transport — one SendMessage operation carries every skill.",
+      "AAP is a strict A2A v1.0 profile: typed automotive messages ride on top of A2A's data layer. JSON-RPC 2.0 is the A2A transport — one SendMessage operation carries every skill.",
   },
   {
     title: "Five Skills",
@@ -76,9 +76,9 @@ const features = [
       "The authoritative price includes mandatory dealer charges. An optional fee breakdown makes those included charges visible; government charges remain outside price and conditional rebates never reduce it.",
   },
   {
-    title: "Anonymous First",
+    title: "Personal Agent Protocol",
     description:
-      "Inventory operations are anonymous by default. Personal data only travels with leads, and only with an explicit ConsentGrant attached.",
+      "Poppy discovery, guest sessions and a native OpenAPI interface reuse the same automotive skills. Shoppers need no dealer account; leads still require explicit consent.",
   },
   {
     title: "ADF-Mappable Leads",
@@ -224,8 +224,15 @@ function Protocols() {
           <article>
             <h3>A2A</h3>
             <p>
-              <strong>The base.</strong> AAP is a strict A2A v1.0 profile.
-              Every AAP message rides inside an A2A <code>DataPart</code>.
+              AAP's A2A v1.0 interface carries typed automotive payloads in
+              <code> DataParts</code> through JSON-RPC <code>SendMessage</code>.
+            </p>
+          </article>
+          <article>
+            <h3>Personal Agent Protocol</h3>
+            <p>
+              Poppy discovery, guest sessions and DPoP give personal agents
+              a native OpenAPI interface to the same automotive skills.
             </p>
           </article>
           <article>
@@ -264,18 +271,18 @@ const specStructuredData = {
   "@id": "https://autoagentprotocol.org/#spec",
   name: `Auto Agent Protocol (AAP) v${stableVersion} Specification`,
   headline:
-    "Auto Agent Protocol — an open A2A v1.0 profile for automotive retail",
+    "Auto Agent Protocol — automotive skills for A2A and Personal Agent Protocol",
   url: "https://autoagentprotocol.org/docs/latest/intro",
   description:
-    "AAP defines five A2A skills — dealer.information, inventory.facets, inventory.search, inventory.vehicle, lead.submit — carried over A2A SendMessage on JSON-RPC 2.0, with discovery via /.well-known/agent-card.json.",
+    "AAP defines five automotive skills over A2A SendMessage and a native Poppy OpenAPI guest interface, discovered through /.well-known/agent-card.json and /.well-known/poppy.json.",
   abstract:
     "Open standard letting AI buyer-agents discover a dealership, browse real inventory, and submit consented leads.",
   articleSection: "Specification",
   inLanguage: "en",
   version: stableVersion,
   keywords:
-    "Auto Agent Protocol, AAP, A2A, Agent2Agent, JSON-RPC, agent card, automotive inventory, dealership AI, consented leads, agentic commerce",
-  isBasedOn: "https://a2a-protocol.org/latest/specification/",
+    "Auto Agent Protocol, AAP, A2A, Agent2Agent, Personal Agent Protocol, Poppy, DPoP, OpenAPI, JSON-RPC, automotive inventory, dealership AI, consented leads",
+  isBasedOn: ["https://a2a-protocol.org/v1.0.0/specification/", "https://personalagentprotocol.org/"],
   isPartOf: { "@id": "https://autoagentprotocol.org/#website" },
   author: { "@id": "https://autoagentprotocol.org/#organization" },
   publisher: { "@id": "https://autoagentprotocol.org/#organization" },
@@ -292,6 +299,12 @@ const specStructuredData = {
     },
     {
       "@type": "SoftwareSourceCode",
+      name: "AAP Poppy OpenAPI",
+      url: `https://autoagentprotocol.org/${stableContract}/openapi-poppy.yaml`,
+      programmingLanguage: "OpenAPI",
+    },
+    {
+      "@type": "SoftwareSourceCode",
       name: "AAP MCP manifest",
       url: `https://autoagentprotocol.org/${stableContract}/mcp.json`,
       programmingLanguage: "JSON",
@@ -303,7 +316,7 @@ export default function Home(): JSX.Element {
   return (
     <Layout
       title="Auto Agent Protocol"
-      description="The A2A v1.0 Automotive Retail Profile — typed messages for dealer agents"
+      description="Shared automotive skills for A2A and Personal Agent Protocol, with paired discovery and consented leads"
     >
       <Head>
         <script type="application/ld+json">

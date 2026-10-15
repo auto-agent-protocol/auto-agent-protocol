@@ -55,6 +55,16 @@ jobs:
       - name: Verify contract semantics
         run: pnpm run test:contract
 
+      - name: Setup Python for independent ProtoJSON validation
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify error interoperability with Protobuf
+        run: |
+          python -m pip install -r tools/protojson-requirements.txt
+          python tools/validate-protojson-errors.py
+
       - name: Verify immutable release registry and artifacts
         run: pnpm run check:releases
 

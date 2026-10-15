@@ -4,6 +4,7 @@ import { glob } from "glob";
 import { readFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { ROOT, isMain } from "./lib/releases.js";
+import { checkPoppyIdentity } from "./lib/poppy.js";
 
 const SKIP = [/\.jsonrpc\.example\.json$/, /\.rest\.example\.json$/, /^mcp-manifest\./];
 export async function validateExamples(specDir: string, label: string): Promise<{total: number; validated: number}> {
@@ -30,6 +31,12 @@ export async function validateExamples(specDir: string, label: string): Promise<
     validated++;
   }
   console.log(`Validated ${validated}/${files.length} examples for ${label}`);
+  if (files.includes("poppy.example.json")) {
+    const read = (name: string) => JSON.parse(readFileSync(resolve(examplesDir, `${name}.example.json`), "utf8"));
+    const document = read("poppy");
+    const errors = checkPoppyIdentity(document, `https://${document.organization.domain}/.well-known/poppy.json`, read("poppy-oauth-metadata"));
+    if (errors.length) throw new Error(`${label}/poppy.example.json: ${errors.join("; ")}`);
+  }
   return {total: files.length, validated};
 }
 if (isMain(import.meta.url)) {

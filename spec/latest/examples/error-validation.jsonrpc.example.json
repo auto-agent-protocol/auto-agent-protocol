@@ -30,27 +30,29 @@
         ]
       },
       {
-        "@type": "https://autoagentprotocol.org/extensions/aap/error",
-        "type": "aap.error",
-        "error_id": "err_01HZ9EXAMPLE",
-        "code": "SCHEMA_VALIDATION_FAILED",
-        "message": "request failed validation with 2 errors",
-        "retryable": false,
-        "details": {
-          "errors": [
-            {
-              "instanceLocation": "/filters/year_min",
-              "keyword": "type",
-              "error": "must be an integer"
-            },
-            {
-              "instanceLocation": "/filters/make",
-              "keyword": "additionalProperties",
-              "error": "unknown filter key"
-            }
-          ]
-        },
-        "created_at": "2026-04-30T10:15:30Z"
+        "@type": "type.googleapis.com/google.protobuf.Struct",
+        "value": {
+          "type": "aap.error",
+          "error_id": "err_01HZ9EXAMPLE",
+          "code": "SCHEMA_VALIDATION_FAILED",
+          "message": "request failed validation with 2 errors",
+          "retryable": false,
+          "details": {
+            "errors": [
+              {
+                "instanceLocation": "/filters/year_min",
+                "keyword": "type",
+                "error": "must be an integer"
+              },
+              {
+                "instanceLocation": "/filters/make",
+                "keyword": "additionalProperties",
+                "error": "unknown filter key"
+              }
+            ]
+          },
+          "created_at": "2026-04-30T10:15:30Z"
+        }
       }
     ]
   }

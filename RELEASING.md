@@ -23,11 +23,15 @@ This repository has one editable source and immutable release snapshots.
    pnpm build
    ```
 
+The independent Protobuf error check also runs in CI. Install the pinned Python dependencies and run it as described in [Conformance](docs/conformance.md#specification-checks-in-this-repository).
+
 4. Choose the next `MAJOR.MINOR.0` version. Use a minor release only for additive changes; use a major release for validation-affecting or semantic breaks.
 
 Patch releases are not cut because public contract URLs identify major/minor only. Existing public URLs are never replaced.
 
 ## Rehearse first
+
+The examples below prepare 2.0.0 from stable 1.3.0. Select the next eligible version from the current registry; never reuse an existing release label.
 
 ```bash
 pnpm release:prepare 2.0.0 --dry-run
@@ -49,7 +53,7 @@ The command:
 - replaces non-routable draft identifiers with public release identifiers, preserving explicitly version-pinned historical URLs;
 - removes documentation sections enclosed by standalone `{/* aap-draft-only:start */}` and `{/* aap-draft-only:end */}` lines from the release copy only; use these markers for draft-only notices, never contract requirements;
 - validates JSON Schema 2020-12 registration, references, and examples;
-- creates TypeScript, JSON-RPC OpenAPI, and MCP artifact snapshots;
+- creates TypeScript, A2A and Poppy OpenAPI descriptions, and MCP artifact snapshots;
 - records the source commit, input hashes, compatibility report, and integrity manifest;
 - updates `releases.json`, `versions.json`, stable package versions, and stable generated types;
 - leaves the editable `spec/latest/` and `docs/` sources unchanged.
@@ -70,4 +74,4 @@ The command never commits, tags, pushes, publishes npm packages, changes GitHub 
 
 ## Recovery
 
-Never edit a release snapshot to repair a failed release. If preparation fails, confirm `git status` and rerun after fixing the editable source or tooling. If a prepared but uncommitted snapshot is rejected during review, remove only that new version's generated paths and restore the metadata changes with normal Git operations. Once a release is merged or published, corrections require a new contract version.
+Never edit a release snapshot to repair a failed release. If preparation fails, confirm `git status` and rerun after fixing the editable source or tooling. If a prepared snapshot is rejected before merge or publication, remove only that new version's generated paths and restore the metadata changes with normal Git operations. Once a release is merged or published, corrections require a new contract version.

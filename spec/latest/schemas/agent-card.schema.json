@@ -10,7 +10,7 @@
     "supportedInterfaces": {
       "type": "array",
       "minItems": 1,
-      "description": "The A2A v1.0 service interfaces (transport + endpoint). A JSONRPC interface is REQUIRED. AAP defines no REST or gRPC binding. A dealer may advertise additional bindings only when they expose equivalent functionality under A2A section 5.1; unrelated services belong on separate cards. This array is preference-ordered, so the JSONRPC entry SHOULD be first for AAP clients.",
+      "description": "The A2A v1.0 service interfaces (transport + endpoint). A JSONRPC interface is REQUIRED. AAP defines no A2A HTTP+JSON or gRPC binding; its native Poppy OpenAPI API is advertised separately in poppy.json. A dealer may advertise additional bindings only when they expose equivalent functionality under A2A section 5.1; unrelated services belong on separate cards. This array is preference-ordered, so the JSONRPC entry SHOULD be first for AAP clients.",
       "items": {
         "type": "object",
         "properties": {

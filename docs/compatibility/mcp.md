@@ -44,7 +44,7 @@ The MCP tool's `inputSchema` is the AAP request schema (referenced by URL). The 
 
 1. Validating `arguments` against the request schema (best practice but optional).
 2. Wrapping `arguments` as `Message.parts[].data` (a Part carrying the `data` member).
-3. Sending it to the dealer's A2A endpoint as a `SendMessage` call over AAP's single transport, [JSON-RPC 2.0](../bindings/json-rpc.md), which every AAP agent exposes. (The [HTTP+JSON (REST) binding](../bindings/rest.md) was removed in v1.1.0.) The adapter is the A2A client here, so it MUST send the [request headers](../bindings/json-rpc.md#request-headers) — `A2A-Version` and `A2A-Extensions` — on that call; the MCP host never sees them.
+3. Sending it to the dealer's A2A endpoint as a `SendMessage` call over AAP's A2A transport, [JSON-RPC 2.0](../bindings/json-rpc.md), which every AAP agent exposes. (The [HTTP+JSON (REST) binding](../bindings/rest.md) was removed in v1.1.0.) The adapter is the A2A client here, so it MUST send the [request headers](../bindings/json-rpc.md#request-headers) — `A2A-Version` and `A2A-Extensions` — on that call; the MCP host never sees them.
 4. Unwrapping the dealer's A2A `Message` response and returning the AAP `data` payload as the MCP tool result.
 
 The wrapper must preserve AAP error details and distinguish protocol errors from skill errors. A stock A2A SDK may discard validation or retry details before the wrapper sees them; use the [SDK-specific error handling guidance](../errors.md#sdk-error-handling) when choosing or adapting that transport. Header activation and error recovery are the wrapper's responsibilities, not capabilities automatically supplied by MCP.
@@ -53,7 +53,7 @@ The MCP tool result is the AAP response payload (the same thing the dealer retur
 
 ## MCP manifest structure
 
-A complete MCP server descriptor that exposes all five AAP skills as tools, synchronized with [`spec/latest/examples/mcp-manifest.example.json`](https://github.com/auto-agent-protocol/auto-agent-protocol/blob/main/spec/latest/examples/mcp-manifest.example.json):
+A complete MCP server descriptor that exposes all five AAP skills as tools, synchronized with the [matching manifest example](https://draft.autoagentprotocol.invalid/latest/examples/mcp-manifest.example.json):
 
 ```json
 {
@@ -164,8 +164,13 @@ The MCP server forwards `arguments` as the AAP `DataPart.data` to the dealer's A
 
 ## Why this matters
 
-- LLM clients that already speak MCP gain instant access to every AAP-compliant dealer agent through a one-line server registration.
+- LLM clients that speak MCP can use an AAP wrapper through server registration, subject to the dealer's advertised authentication and the wrapper's supported AAP contract.
 - The MCP `inputSchema` `$ref` points at the AAP schema by URL, so an LLM with schema-following tool use can plan calls against the same source of truth as a hand-written A2A client.
 - The MCP server is stateless adapter glue; all business logic — auth, consent enforcement, inventory accuracy — stays in the dealer agent behind A2A.
 
-For more on MCP itself, see the [MCP specification](https://modelcontextprotocol.io). For the single A2A transport the MCP server forwards into, see the [JSON-RPC binding](../bindings/json-rpc.md) (the sole AAP transport, exposed by every AAP agent). The [REST binding](../bindings/rest.md) was removed in v1.1.0.
+For more on MCP itself, see the [MCP specification](https://modelcontextprotocol.io). For the single A2A transport the MCP server forwards into, see the [JSON-RPC binding](../bindings/json-rpc.md) (the required A2A interface on every AAP dealer). The [REST binding](../bindings/rest.md) was removed in v1.1.0.
+
+
+## MCP and Poppy sessions
+
+An existing public MCP wrapper may be linked from the AAP extension in `poppy.json`. To list it as a native Poppy `apis` entry, implement Poppy's resource-bound Bearer Session Tokens, scope enforcement and protected-resource metadata. Never send a Poppy token to an unrelated public wrapper. See [optional Poppy surfaces](../personal-agent-protocol.md#6-optional-poppy-surfaces).

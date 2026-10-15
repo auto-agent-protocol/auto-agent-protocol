@@ -48,10 +48,10 @@ function fixture(): {root: string; cleanup: () => void; base: string} {
     },
   });
   git(root, ["init", "-q"]);
-  git(root, ["config", "user.email", "release-test@autoagentprotocol.invalid"]);
-  git(root, ["config", "user.name", "AAP release test"]);
+  git(root, ["config", "user.email", "alex.yankouski@gmail.com"]);
+  git(root, ["config", "user.name", "Alex Yankouski"]);
   git(root, ["add", "."]);
-  git(root, ["commit", "-qm", "fixture baseline"]);
+  git(root, ["commit", "-qm", "feat: create release test fixture"]);
   return {root, base: git(root, ["rev-parse", "HEAD"]), cleanup: () => rmSync(temporary, {recursive: true, force: true})};
 }
 
@@ -70,7 +70,7 @@ test("draft generation is isolated from frozen releases and stable package types
     await generateTypes(join(ROOT, "spec/latest/schemas"), temporary, "0.0.0-dev");
     await generateOpenapi(join(ROOT, "spec/latest"), temporary, "0.0.0-dev");
     generateMcp(join(ROOT, "spec/latest"), temporary, "0.0.0-dev");
-    assert.deepEqual(filesIn(temporary).map(file => relative(temporary, file)).sort(), ["mcp.json", "openapi-jsonrpc.yaml", "types.d.ts"]);
+    assert.deepEqual(filesIn(temporary).map(file => relative(temporary, file)).sort(), ["mcp.json", "openapi-jsonrpc.yaml", "openapi-poppy.yaml", "types.d.ts"]);
     assert.equal(snapshot(join(ROOT, "releases")), releasesBefore);
     assert.equal(hash(readFileSync(join(ROOT, "packages/types/src/index.d.ts"))), typesBefore);
   } finally {
@@ -134,7 +134,7 @@ test("release preparation snapshots latest once and refuses overwrite", async ()
     assert.equal(snapshot(join(context.root, "docs")), docsBefore, "release transformation must leave editable notices intact");
     assert.equal(readJson<{version: string}>(join(context.root, "package.json")).version, candidate.version);
     const releaseRoot = join(context.root, "releases", candidate.contract);
-    assert.deepEqual(filesIn(join(releaseRoot, "artifacts")).map(file => relative(join(releaseRoot, "artifacts"), file)).sort(), ["mcp.json", "openapi-jsonrpc.yaml", "types.d.ts"]);
+    assert.deepEqual(filesIn(join(releaseRoot, "artifacts")).map(file => relative(join(releaseRoot, "artifacts"), file)).sort(), ["mcp.json", "openapi-jsonrpc.yaml", "openapi-poppy.yaml", "types.d.ts"]);
     const latestDiagram = join(context.root, "docs/img/pricing-ladder.svg");
     const releasedDiagram = join(context.root, "versioned_docs", `version-${candidate.contract}`, "img/pricing-ladder.svg");
     assert.equal(hash(readFileSync(releasedDiagram)), hash(readFileSync(latestDiagram)), "release must freeze the reviewed latest diagrams with its docs");
@@ -177,7 +177,7 @@ test("a late release failure restores metadata and removes partial targets", asy
     const docs = join(context.root, "docs/intro.md");
     writeFileSync(docs, `${readFileSync(docs, "utf8")}\n![missing release asset](/img/missing-release-asset.png)\n`);
     git(context.root, ["add", "docs/intro.md"]);
-    git(context.root, ["commit", "-qm", "introduce a late integrity failure"]);
+    git(context.root, ["commit", "-qm", "fix: simulate release integrity failure"]);
     const before = releaseState(context.root);
     await assert.rejects(() => prepareRelease(context.root, candidate.version, false), /Missing or unsafe released image/);
     assert.equal(releaseState(context.root), before);

@@ -13,6 +13,8 @@ import { validateManifest } from "./validate-manifest.js";
 
 interface Change {kind: "additive" | "breaking"; file: string; path: string; detail: string}
 const JSON_SCHEMA_ANNOTATIONS = new Set(["$comment", "$id", "default", "deprecated", "description", "examples", "readOnly", "title", "writeOnly"]);
+const SCHEMA_MAPS = new Set(["properties", "patternProperties", "$defs", "definitions", "dependentSchemas"]);
+const SINGLE_SCHEMAS = new Set(["additionalProperties", "unevaluatedProperties", "propertyNames", "items", "additionalItems", "unevaluatedItems", "contains", "not", "if", "then", "else"]);
 function normalizeReleaseIdentifiers(value: unknown): unknown {
   if (typeof value === "string") return value
     .replaceAll(/https:\/\/autoagentprotocol\.org\/v\d+\.\d+\//g, `${SITE}/v{release}/`)
@@ -21,19 +23,21 @@ function normalizeReleaseIdentifiers(value: unknown): unknown {
   if (value && typeof value === "object") return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, item]) => [key, normalizeReleaseIdentifiers(item)]));
   return value;
 }
-function structuralDiff(previous: unknown, candidate: unknown, file: string, path = "$"): Change[] {
+function structuralDiff(previous: unknown, candidate: unknown, file: string, path = "$", context: "schema" | "map" | "value" = "schema"): Change[] {
   if (JSON.stringify(previous) === JSON.stringify(candidate)) return [];
-  const keyword = path.slice(path.lastIndexOf(".") + 1);
-  if (JSON_SCHEMA_ANNOTATIONS.has(keyword)) return [];
   if (previous && candidate && typeof previous === "object" && typeof candidate === "object" && !Array.isArray(previous) && !Array.isArray(candidate)) {
     const before = previous as Record<string, unknown>, after = candidate as Record<string, unknown>, changes: Change[] = [];
     for (const key of Object.keys(before)) {
-      if (!(key in after) && !JSON_SCHEMA_ANNOTATIONS.has(key)) changes.push({kind: "breaking", file, path: `${path}.${key}`, detail: "removed"});
-      else changes.push(...structuralDiff(before[key], after[key], file, `${path}.${key}`));
+      if (context === "schema" && JSON_SCHEMA_ANNOTATIONS.has(key)) continue;
+      if (!(key in after)) changes.push({kind: "breaking", file, path: `${path}.${key}`, detail: "removed"});
+      else {
+        const childContext = context === "map" ? "schema" : context !== "schema" ? "value" : SCHEMA_MAPS.has(key) ? "map" : SINGLE_SCHEMAS.has(key) ? "schema" : "value";
+        changes.push(...structuralDiff(before[key], after[key], file, `${path}.${key}`, childContext));
+      }
     }
     for (const key of Object.keys(after)) if (!(key in before)) {
-      if (JSON_SCHEMA_ANNOTATIONS.has(key)) continue;
-      const additive = path.endsWith(".properties") || path.endsWith(".$defs");
+      if (context === "schema" && JSON_SCHEMA_ANNOTATIONS.has(key)) continue;
+      const additive = context === "map" && (path.endsWith(".properties") || path.endsWith(".$defs"));
       changes.push({kind: additive ? "additive" : "breaking", file, path: `${path}.${key}`, detail: additive ? "optional definition/property added" : "value added outside an optional property map"});
     }
     return changes;

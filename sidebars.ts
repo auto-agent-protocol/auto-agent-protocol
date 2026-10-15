@@ -6,6 +6,8 @@ const sidebars: SidebarsConfig = {
     "why",
     "a2a-profile",
     "discovery",
+    "personal-agent-protocol",
+    "conformance",
     "pricing-and-ftc",
     {
       type: "category",

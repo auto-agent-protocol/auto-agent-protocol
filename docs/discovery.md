@@ -1,7 +1,7 @@
 ---
 sidebar_position: 4
 title: Discovery
-description: A2A agent-card.json with the AAP extension. How a buyer agent discovers a dealer agent and confirms AAP compliance.
+description: Paired A2A agent-card.json and Poppy discovery for an AAP dealer.
 ---
 
 # Discovery
@@ -16,13 +16,15 @@ This page describes the editable next-major contract, not the frozen v1.3 releas
 
 ![A buyer agent discovers the binding, AAP extension, and supported skill schemas from one Agent Card](./img/discovery-flow.svg)
 
-An AAP-compliant dealer agent publishes its default A2A v1.0 agent card at the well-known URL on its domain:
+An AAP-compliant dealer publishes **both** `/.well-known/agent-card.json` and `/.well-known/poppy.json`. The [Personal Agent Protocol specification](./personal-agent-protocol.md) defines Poppy discovery, guest sessions and the native automotive API. The two interfaces share the same AAP contract and skill subset.
+
+The dealer publishes its default A2A v1.0 agent card at the well-known URL on its domain:
 
 ```
 GET https://{dealer-domain}/.well-known/agent-card.json
 ```
 
-The card MUST declare the AAP extension and list the AAP skills the agent implements (one or more from the vocabulary of five). The buyer agent uses the card to confirm AAP compliance and discover which skills are actually available before calling any skill. AAP uses a single transport — JSON-RPC 2.0.
+The card MUST declare the AAP extension and list the AAP skills the agent implements (one or more from the vocabulary of five). The buyer agent uses the card to confirm AAP compliance and discover which skills are actually available before calling any skill. The A2A interface uses JSON-RPC 2.0. The native Poppy API has its own OpenAPI binding.
 
 ## Required AAP additions to the A2A agent card
 
@@ -42,7 +44,7 @@ The AgentCard structure itself is defined by [A2A](https://a2a-protocol.org/late
 
 2. `skills[]` contains one entry per AAP skill the agent implements (one or more). Buyer agents discover capability from `skills[]`, not from the AAP extension URI alone. AAP RECOMMENDS that an agent expose at least `inventory.search` + `lead.submit` for a meaningful shopping experience, but no single skill is individually required.
 
-3. `supportedInterfaces[]` includes an entry whose `protocolBinding` is `JSONRPC` (REQUIRED on every AAP agent card). JSON-RPC 2.0 is the sole AAP binding; the HTTP+JSON (REST) binding was [removed in v1.1.0](./bindings/rest.md), and gRPC is out of scope for AAP.
+3. `supportedInterfaces[]` includes an entry whose `protocolBinding` is `JSONRPC` (REQUIRED on every AAP agent card). JSON-RPC 2.0 is the A2A binding this profile specifies; the HTTP+JSON (REST) binding was [removed in v1.1.0](./bindings/rest.md), and gRPC is out of scope for AAP.
 
    A2A §8.3.2 treats `supportedInterfaces[]` as preference-ordered, so the JSONRPC entry SHOULD come first for AAP clients. Additional bindings are outside AAP's conformance requirements, but [A2A §5.1](https://a2a-protocol.org/v1.0.0/specification/#51-functional-equivalence-requirements) requires all bindings on the same card to expose equivalent functionality, behavior, errors and authentication. An unrelated service belongs on a separate card. If an interface sets `tenant`, a client **MUST** echo that opaque value in the `tenant` field of every request to it.
 
@@ -58,11 +60,11 @@ Public does not mean plaintext. `lead.submit` carries a customer's name, email, 
 
 ## Authentication
 
-AAP agents are **public by default** — the simplest setup needs no authentication. AAP defines no auth of its own. A dealer that wants to protect its endpoint uses A2A's native `securitySchemes` / `securityRequirements` on the agent card (e.g. HTTP bearer), and buyer agents obtain credentials out of band, exactly as A2A specifies. Auth is therefore an A2A/transport concern, out of scope for this profile beyond what A2A already provides.
+AAP A2A interfaces are **public by default** — the simplest setup needs no authentication. AAP defines no auth of its own. A dealer that wants to protect its endpoint uses A2A's native `securitySchemes` / `securityRequirements` on the agent card (e.g. HTTP bearer), and buyer agents obtain credentials out of band, exactly as A2A specifies. The separate native Poppy API MUST enforce Poppy Sessions and DPoP, even for signed-out users; see [Poppy authentication](./personal-agent-protocol.md#4-guest-sessions-and-proof-of-possession). A public A2A interface does not make the Poppy API public.
 
 ## Full example agent card
 
-This is the **smallest** card that satisfies the three requirements above — a public dealer agent on the JSON-RPC binding. Copy it, change the `name`, the `supportedInterfaces[].url`, and `params.id`, and keep only the skills you actually implement — pruning both `skills[]` and `params.skills` to match. The matching editable example is in [`spec/latest/examples/agent-card.example.json`](https://github.com/auto-agent-protocol/auto-agent-protocol/blob/main/spec/latest/examples/agent-card.example.json). The frozen v1.3 example remains a different contract.
+This is the **smallest** card that satisfies the three requirements above — a public dealer agent on the JSON-RPC binding. Copy it, change the `name`, the `supportedInterfaces[].url`, and `params.id`, and keep only the skills you actually implement — pruning both `skills[]` and `params.skills` to match. Use the [matching Agent Card example](https://draft.autoagentprotocol.invalid/latest/examples/agent-card.example.json) for this contract. The frozen v1.3 example remains a different contract.
 
 ```json
 {
@@ -251,4 +253,4 @@ Once the card is fetched and validated:
 
 1. Read `skills[]` from the card to learn which AAP skills the agent implements. The request/response JSON Schema for each skill is defined by the AAP spec itself (this docs site), version-pinned by the extension URI, and the card publishes the schemas inline under `capabilities.extensions[].params.skills["<id>"].request_schema` / `response_schema`.
 2. Send the required [request headers](./bindings/json-rpc.md#request-headers) on every call: `A2A-Version: 1.0` (A2A requires it on every request) and `A2A-Extensions: https://draft.autoagentprotocol.invalid/extensions/aap/latest` (activates the AAP profile the card declares `required`).
-3. Invoke skills via standard A2A `SendMessage` over the [JSON-RPC binding](./bindings/json-rpc.md) — JSON-RPC 2.0 is the only AAP transport (the [REST binding was removed in v1.1.0](./bindings/rest.md)). `SendMessage` is the only A2A operation AAP uses: request `Message` in, response `Message` out. If the card declares A2A `securitySchemes`, obtain credentials out of band first.
+3. Invoke skills via standard A2A `SendMessage` over the [JSON-RPC binding](./bindings/json-rpc.md) — JSON-RPC 2.0 is the A2A transport required by AAP (the [REST binding was removed in v1.1.0](./bindings/rest.md)). `SendMessage` is the only A2A operation AAP uses: request `Message` in, response `Message` out. If the card declares A2A `securitySchemes`, obtain credentials out of band first.

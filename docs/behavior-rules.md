@@ -86,7 +86,9 @@ When optional context fields are omitted, AAP defines deterministic fallbacks so
 
 ## Authentication
 
-AAP v1.3.0 defines **no authentication of its own** — agents are public by default. A dealer that needs to protect its endpoint uses A2A's native `securitySchemes` / `securityRequirements` on its agent card; obtaining and presenting credentials then follows A2A (a transport concern), not AAP. See [Discovery](./discovery.md#authentication).
+AAP A2A interfaces are public by default. A dealer that needs to protect its endpoint uses A2A's native `securitySchemes` / `securityRequirements` on its agent card; obtaining and presenting credentials then follows A2A (a transport concern), not AAP. See [Discovery](./discovery.md#authentication).
+
+The native [Poppy API](./personal-agent-protocol.md) requires authenticated guest Sessions and DPoP. Authentication never substitutes for customer consent.
 
 ## Rate limits
 

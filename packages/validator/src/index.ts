@@ -1,4 +1,4 @@
-import Ajv, { type ValidateFunction, type ErrorObject } from "ajv";
+import Ajv2020, { type ValidateFunction, type ErrorObject } from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 import { readdirSync, readFileSync, statSync } from "fs";
 import { basename, join, sep } from "path";
@@ -16,11 +16,11 @@ interface SchemaEntry {
 }
 
 export class AAPValidator {
-  private ajv: Ajv;
+  private ajv: Ajv2020;
   private validators: Map<string, ValidateFunction> = new Map();
 
   constructor() {
-    this.ajv = new Ajv({ strict: false, allErrors: true });
+    this.ajv = new Ajv2020({ strict: false, allErrors: true });
     addFormats(this.ajv);
   }
 

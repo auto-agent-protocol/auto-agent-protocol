@@ -657,7 +657,7 @@ The unified lead carries customer info plus any combination of `vehicle_of_inter
 
 ## Error mapping (A2A Section 9.5)
 
-When a skill cannot be fulfilled, the dealer agent MUST return a JSON-RPC error envelope. AAP defines a typed error payload (`aap.error`) carried in `error.data`. The mapping uses the standard JSON-RPC `code` for transport errors and AAP's own `code` for business errors.
+When a skill cannot be fulfilled, the dealer agent MUST return a JSON-RPC error envelope. AAP defines a typed error payload (`aap.error`) carried as `error.data[]` entry `{"@type":"type.googleapis.com/google.protobuf.Struct","value":{...}}`. The mapping uses the standard JSON-RPC `code` for transport errors and AAP's own `code` for business errors. Clients locate the Struct detail with `value.type: "aap.error"`.
 
 Validation errors (`SCHEMA_VALIDATION_FAILED`, `MISSING_REQUIRED_FIELD`, `INVALID_CONDITION`) MUST list **every** failing field at once in `details.errors[]` — each entry carrying `instanceLocation`, `keyword`, and `error` — so the buyer agent can fix the whole payload in a single retry instead of one round-trip per error. See [Errors](../errors.md) for the full shape.
 
@@ -683,24 +683,40 @@ Validation errors (`SCHEMA_VALIDATION_FAILED`, `MISSING_REQUIRED_FIELD`, `INVALI
       {
         "@type": "type.googleapis.com/google.rpc.BadRequest",
         "fieldViolations": [
-          { "field": "/filters/year_min", "description": "type: must be integer" },
-          { "field": "/filters/condition/0", "description": "enum: must be one of: new, used, cpo" }
+          {
+            "field": "/filters/year_min",
+            "description": "type: must be integer"
+          },
+          {
+            "field": "/filters/condition/0",
+            "description": "enum: must be one of: new, used, cpo"
+          }
         ]
       },
       {
-        "@type": "https://autoagentprotocol.org/extensions/aap/error",
-        "type": "aap.error",
-        "error_id": "err_01HZ9EXAMPLE",
-        "code": "SCHEMA_VALIDATION_FAILED",
-        "message": "Request failed validation with 2 errors; see details.errors[].",
-        "retryable": false,
-        "details": {
-          "errors": [
-            { "instanceLocation": "/filters/year_min", "keyword": "type", "error": "must be integer" },
-            { "instanceLocation": "/filters/condition/0", "keyword": "enum", "error": "must be one of: new, used, cpo" }
-          ]
-        },
-        "created_at": "2026-04-30T10:15:30Z"
+        "@type": "type.googleapis.com/google.protobuf.Struct",
+        "value": {
+          "type": "aap.error",
+          "error_id": "err_01HZ9EXAMPLE",
+          "code": "SCHEMA_VALIDATION_FAILED",
+          "message": "Request failed validation with 2 errors; see details.errors[].",
+          "retryable": false,
+          "details": {
+            "errors": [
+              {
+                "instanceLocation": "/filters/year_min",
+                "keyword": "type",
+                "error": "must be integer"
+              },
+              {
+                "instanceLocation": "/filters/condition/0",
+                "keyword": "enum",
+                "error": "must be one of: new, used, cpo"
+              }
+            ]
+          },
+          "created_at": "2026-04-30T10:15:30Z"
+        }
       }
     ]
   }
@@ -714,7 +730,7 @@ Recommended JSON-RPC code mapping:
 | `SCHEMA_VALIDATION_FAILED` | -32602 | JSON-RPC "Invalid params". |
 | `MISSING_REQUIRED_FIELD` | -32602 | "Invalid params". |
 | `INVALID_CONDITION` | -32602 | "Invalid params" — a `condition` value is in the wrong vocabulary. |
-| `UNSUPPORTED_SKILL` | -32004 | A2A `UnsupportedOperationError` — the dealer does not implement this AAP skill. Dispatch AAP behavior from the typed payload’s `code`, not -32004 alone; protocol-level capability and task-operation errors also use -32004. NOT -32601: the JSON-RPC method is always `SendMessage` and it always exists, so "Method not found" would tell a generic A2A client the endpoint does not speak A2A. |
+| `UNSUPPORTED_SKILL` | -32602 | Invalid AAP request parameter: the dealer does not implement the skill identified by the typed payload. The JSON-RPC method is still `SendMessage`. Reserve -32004 for A2A `UnsupportedOperationError` with A2A's required ErrorInfo reason and domain. |
 | `VEHICLE_NOT_FOUND` | -32000 | Application error. |
 | `VEHICLE_UNAVAILABLE` | -32000 | Application error. |
 | `CONTACT_CONSENT_REQUIRED` | -32000 | Application error. |

@@ -8,8 +8,8 @@ description: Search vehicle inventory with a flat filter block, pagination, sort
 
 ![An inventory.search request carried by A2A SendMessage and returned as a paginated set of vehicles with authoritative prices and optional fee itemization](../img/inventory-search-flow.svg)
 
-:::info A2A invocation
-This skill is invoked through A2A's `SendMessage` operation — the single A2A operation AAP v1.3.0 uses — not a dedicated REST URL. It travels as the `SendMessage` JSON-RPC method on AAP's sole transport, the [JSON-RPC binding](../bindings/json-rpc.md). (The HTTP+JSON binding was [removed in v1.1.0](../bindings/rest.md).) AAP only defines what goes inside `Message.parts[].data`.
+:::info Invocation
+On the A2A interface, this skill uses `SendMessage` over the [JSON-RPC binding](../bindings/json-rpc.md), with its typed payload in `Message.parts[].data`. The native [Poppy OpenAPI binding](../personal-agent-protocol.md#5-automotive-openapi-binding) carries the same request and response payloads directly, using guest Sessions and DPoP. The removed A2A HTTP+JSON binding remains out of scope.
 :::
 
 The `inventory.search` skill is the primary inventory discovery surface. A buyer agent submits a flat filter block, optional pagination, optional sort, and optional privacy hints; the dealer agent returns matching `Vehicle` listings together with a total count and OPTIONAL aggregated facets.

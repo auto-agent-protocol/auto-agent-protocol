@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { relative, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { checkReleases, filesIn, hash, isMain, loadRegistry, readJson, ROOT, SITE } from "./lib/releases.js";
@@ -34,15 +34,18 @@ export async function checkAllReleases(root = ROOT): Promise<void> {
     const extensionPrefix = `${SITE}/extensions/`;
     if (normalizedVersion !== release.version || !manifest.extension_uri?.startsWith(extensionPrefix) || !manifest.extension_uri.endsWith(`/${release.contract}`) || manifest.schema_base_url !== `${SITE}/${release.contract}/schemas/`) throw new Error(`${release.contract}: manifest identifiers are not pinned to this release`);
     const artifactDir = resolve(root, "releases", release.contract, "artifacts");
-    for (const name of ["openapi-jsonrpc.yaml", "mcp.json"]) {
+    const openapis = ["openapi-jsonrpc.yaml", ...(existsSync(resolve(schemaDir, "poppy.schema.json")) ? ["openapi-poppy.yaml"] : [])];
+    for (const name of [...openapis, "mcp.json"]) {
       const text = readFileSync(resolve(artifactDir, name), "utf8");
       if (text.includes("autoagentprotocol.invalid") || text.includes("/latest/")) throw new Error(`${release.contract}/${name}: draft identifier leaked into release`);
     }
-    const openapi = parseYaml(readFileSync(resolve(artifactDir, "openapi-jsonrpc.yaml"), "utf8")) as {components?: {schemas?: Record<string, unknown>}};
-    const components = openapi.components?.schemas ?? {};
-    for (const ref of refs(openapi).filter(value => value.startsWith("#/components/schemas/"))) {
-      const component = ref.slice("#/components/schemas/".length).split("/")[0].replaceAll("~1", "/").replaceAll("~0", "~");
-      if (!(component in components)) throw new Error(`${release.contract}/openapi-jsonrpc.yaml: unresolved component reference ${ref}`);
+    for (const name of openapis) {
+      const openapi = parseYaml(readFileSync(resolve(artifactDir, name), "utf8")) as {components?: {schemas?: Record<string, unknown>}};
+      const components = openapi.components?.schemas ?? {};
+      for (const ref of refs(openapi).filter(value => value.startsWith("#/components/schemas/"))) {
+        const component = ref.slice("#/components/schemas/".length).split("/")[0].replaceAll("~1", "/").replaceAll("~0", "~");
+        if (!(component in components)) throw new Error(`${release.contract}/${name}: unresolved component reference ${ref}`);
+      }
     }
     const mcp = readJson<{tools?: Array<{inputSchema?: {$ref?: string}; annotations?: {aap_response_schema?: string}}> }>(resolve(artifactDir, "mcp.json"));
     for (const ref of (mcp.tools ?? []).flatMap(tool => [tool.inputSchema?.$ref, tool.annotations?.aap_response_schema]).filter((value): value is string => !!value)) {

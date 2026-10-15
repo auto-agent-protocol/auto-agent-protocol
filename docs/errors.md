@@ -14,11 +14,11 @@ This editable page describes the planned **2.0.0** contract, not the frozen v1.3
 
 ![A JSON-RPC protocol error paired with a typed AAP domain error and validation details](./img/error-anatomy.svg)
 
-AAP defines a single typed error payload (`aap.error`) that every dealer agent MUST use when a skill cannot be fulfilled. It rides as one entry of the `error.data` **array** that A2A §9.5 and §3.3.2 require, tagged with `@type` ([Section 9.5](./bindings/json-rpc.md#error-mapping-a2a-section-95)).
+AAP defines a single typed error payload (`aap.error`) that every dealer agent MUST use when a skill cannot be fulfilled. On A2A, it rides in the `value` field of a `google.protobuf.Struct` detail in the `error.data` **array** required by A2A §9.5. That detail uses the valid ProtoJSON Any tag `"@type": "type.googleapis.com/google.protobuf.Struct"`. On the native Poppy API, the same payload is the direct error body. See [Section 9.5](./bindings/json-rpc.md#error-mapping-a2a-section-95).
 
 The array MUST lead with a `google.rpc.ErrorInfo` carrying `reason` = the AAP code, `domain` = `autoagentprotocol.org`, and string-valued `metadata` for `code`, `error_id`, `retryable` and `created_at`. Duplicate the AAP code into `metadata.code`: an SDK may expose only the metadata and discard `reason`. `ErrorInfo.metadata` is a `map<string,string>`, so every value is a JSON string (`"false"`, not `false`).
 
-Dealer agents MAY append further well-known A2A detail objects as additional entries. Buyer agents MUST locate the AAP payload by its `@type`, never by array position, and MUST ignore entries whose `@type` they do not recognize. AAP defines a single transport — JSON-RPC 2.0; the HTTP+JSON (REST) binding was [removed in v1.1.0](./bindings/rest.md).
+Dealer agents MAY append further well-known A2A detail objects as additional entries. Buyer agents MUST find a `google.protobuf.Struct` detail whose `value.type` is `aap.error`, never rely on array position, and MUST ignore details they do not recognize. The A2A interface uses JSON-RPC 2.0; the HTTP+JSON (REST) binding was [removed in v1.1.0](./bindings/rest.md).
 
 ## SDK error handling
 
@@ -27,15 +27,14 @@ The array envelope fixes the wire contract; it does not guarantee that a stock S
 | Reference implementation | Recognized codes, including `-32008` | Unrecognized `-32000`, including AAP `RATE_LIMITED` |
 |---|---|---|
 | [a2a-python `b264a6f`](https://github.com/a2aproject/a2a-python/blob/b264a6ffafe156f684828edeaa3e526b9fcbe7b0/src/a2a/client/transports/jsonrpc.py#L318) (also observed at [the earlier `2d4d304`](https://github.com/a2aproject/a2a-python/blob/2d4d3048b245d2af854bad804f0e722ea9febc08/src/a2a/client/transports/jsonrpc.py#L318)) | Exposes only the first `ErrorInfo.metadata`; drops `reason`, the typed AAP detail, and `BadRequest`. | Raises a generic exception without structured data, losing the retry signal. |
-| [a2a-js `314d9e3`](https://github.com/a2aproject/a2a-js/blob/314d9e36946d52c3c20c8f55fac77a2a715fb4fb/src/errors.ts#L327) | Constructs typed exceptions from `message` alone, dropping all details and metadata. `-32602` and `-32603` both become `RequestMalformedError`. | Its `JSONRPCTransportError.errorResponse` retains the raw envelope. |
+| `@a2a-js/sdk` 1.3.0 (pinned development dependency; exercised by `tests/contract/a2a-sdk.test.ts`) | Preserves `error.data` on its JSON-RPC exception, including the AAP Struct detail; callers still need to inspect `value.type` and validate the AAP payload. | Preserves `error.data` on its generic transport exception as well. |
 
-Neither reviewed stock client exposes AAP `details.errors[]` through its ordinary validation-error exception, whether the server sends the old object or the new array. The array helps a client that preserves and parses the raw envelope. Buyer agents using a lossy SDK MUST add an AAP-aware transport adapter before SDK error conversion to retain the numeric code, locate the typed AAP detail, and recover all validation and retry information. Where the SDK already retains the raw envelope, that envelope can be parsed directly. Do not infer retry behavior from an SDK exception class: `code` and `retryable` in the AAP payload remain authoritative.
+The reviewed Python client loses AAP `details.errors[]` through its ordinary exception, so its buyer integrations need an AAP-aware transport adapter before SDK error conversion. The pinned JavaScript SDK 1.3.0 preserves `error.data`, but buyer agents must locate and validate the Struct detail themselves. Do not infer retry behavior from an SDK exception class: `code` and `retryable` in the AAP payload remain authoritative.
 
 ## Error payload shape
 
 ```json
 {
-  "@type": "https://autoagentprotocol.org/extensions/aap/error",
   "type": "aap.error",
   "error_id": "err_01HZ9EXAMPLE",
   "code": "SCHEMA_VALIDATION_FAILED",
@@ -53,7 +52,6 @@ Neither reviewed stock client exposes AAP `details.errors[]` through its ordinar
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `@type` | const | yes | Always `https://autoagentprotocol.org/extensions/aap/error`; identifies the AAP detail inside the A2A array. |
 | `type` | const | yes | Always `aap.error`. |
 | `error_id` | string | yes | Unique identifier for this error instance (UUID recommended), suitable for support correlation. |
 | `code` | enum | yes | One of the 12 AAP error codes below. |
@@ -80,7 +78,7 @@ The 12 codes, their meaning, recommended JSON-RPC code, and `retryable` default.
 
 | `code` | Meaning | JSON-RPC | `retryable` default |
 |---|---|---|---|
-| `UNSUPPORTED_SKILL` | The agent does not implement this skill. Dispatch on the typed AAP payload's `code`: `-32004` also represents A2A operations and capabilities that are unsupported. | -32004 (A2A `UnsupportedOperationError`) | `false` |
+| `UNSUPPORTED_SKILL` | The agent does not implement the skill identified by the typed request payload; the `SendMessage` method itself is supported. | -32602 (Invalid params) | `false` |
 | `SCHEMA_VALIDATION_FAILED` | Request body fails JSON Schema validation. | -32602 (Invalid params) | `false` |
 | `MISSING_REQUIRED_FIELD` | A specifically required field is absent. | -32602 (Invalid params) | `false` |
 | `INVALID_CONDITION` | `vehicle_of_interest.condition` is in the trade-in vocabulary, or `trade_in.condition` is in the sale-condition vocabulary. | -32602 (Invalid params) | `false` |
@@ -147,7 +145,7 @@ The server MUST check activation before invoking AAP skill logic and reject a re
 
 ### `UNSUPPORTED_SKILL`
 
-Returned when a buyer agent calls a skill id the dealer agent does not implement. Agents declare the subset of AAP skills they implement (at least one) on their agent card, so buyer agents SHOULD check the declared skills before calling. This code also covers forward-compatibility scenarios where a later AAP contract adds skills. Distinguish it from A2A protocol-level `-32004` errors by the typed AAP payload's `code`, not the numeric code alone.
+Returned when a buyer agent calls a skill id the dealer agent does not implement. Agents declare the subset of AAP skills they implement (at least one) on their agent card, so buyer agents SHOULD check the declared skills before calling. This code also covers forward-compatibility scenarios where a later AAP contract adds skills. The JSON-RPC method remains `SendMessage`, so this is an invalid AAP parameter (`-32602`); reserve `-32004` for A2A `UnsupportedOperationError` with the required A2A `ErrorInfo` reason and domain.
 
 ### `SCHEMA_VALIDATION_FAILED`
 
@@ -219,24 +217,40 @@ A catch-all for unexpected dealer-side failures. `retryable: true` is the defaul
       {
         "@type": "type.googleapis.com/google.rpc.BadRequest",
         "fieldViolations": [
-          { "field": "/filters/year_min", "description": "type: must be an integer" },
-          { "field": "/filters/make", "description": "additionalProperties: unknown filter key" }
+          {
+            "field": "/filters/year_min",
+            "description": "type: must be an integer"
+          },
+          {
+            "field": "/filters/make",
+            "description": "additionalProperties: unknown filter key"
+          }
         ]
       },
       {
-        "@type": "https://autoagentprotocol.org/extensions/aap/error",
-        "type": "aap.error",
-        "error_id": "err_01HZ9EXAMPLE",
-        "code": "SCHEMA_VALIDATION_FAILED",
-        "message": "request failed validation with 2 errors",
-        "retryable": false,
-        "details": {
-          "errors": [
-            { "instanceLocation": "/filters/year_min", "keyword": "type", "error": "must be an integer" },
-            { "instanceLocation": "/filters/make", "keyword": "additionalProperties", "error": "unknown filter key" }
-          ]
-        },
-        "created_at": "2026-04-30T10:15:30Z"
+        "@type": "type.googleapis.com/google.protobuf.Struct",
+        "value": {
+          "type": "aap.error",
+          "error_id": "err_01HZ9EXAMPLE",
+          "code": "SCHEMA_VALIDATION_FAILED",
+          "message": "request failed validation with 2 errors",
+          "retryable": false,
+          "details": {
+            "errors": [
+              {
+                "instanceLocation": "/filters/year_min",
+                "keyword": "type",
+                "error": "must be an integer"
+              },
+              {
+                "instanceLocation": "/filters/make",
+                "keyword": "additionalProperties",
+                "error": "unknown filter key"
+              }
+            ]
+          },
+          "created_at": "2026-04-30T10:15:30Z"
+        }
       }
     ]
   }
@@ -249,7 +263,6 @@ A `lead.submit` request with `customer` but no `consent`:
 
 ```json
 {
-  "@type": "https://autoagentprotocol.org/extensions/aap/error",
   "type": "aap.error",
   "error_id": "err_01HZ9CONSENT01",
   "code": "CONTACT_CONSENT_REQUIRED",
@@ -267,7 +280,6 @@ A `lead.submit` request with `customer` but no `consent`:
 
 ```json
 {
-  "@type": "https://autoagentprotocol.org/extensions/aap/error",
   "type": "aap.error",
   "error_id": "err_01HZ9RATE01",
   "code": "RATE_LIMITED",
