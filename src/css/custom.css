@@ -47,6 +47,11 @@ body {
   backdrop-filter: saturate(160%) blur(18px);
 }
 
+/* A backdrop filter would confine the fixed mobile drawer to the navbar. */
+.navbar.navbar-sidebar--show {
+  backdrop-filter: none;
+}
+
 .navbar__item.dropdown > .navbar__link {
   padding: 0.45rem 0.8rem;
   border: 1px solid var(--aap-line);
@@ -137,6 +142,36 @@ body {
 .navbar__logo img {
   width: 238px;
   height: 40px;
+}
+
+.navbar__brand {
+  flex-shrink: 0;
+}
+
+/* Keep both upstream specs visible above Docusaurus's mobile breakpoint. */
+@media (min-width: 997px) and (max-width: 1279px) {
+  .navbar {
+    --ifm-navbar-item-padding-horizontal: 0.4rem;
+    font-size: 0.875rem;
+  }
+
+  .navbar__brand {
+    margin-right: 0.5rem;
+  }
+
+  .navbar__logo,
+  .navbar__logo img {
+    width: 190.4px;
+    height: 32px;
+  }
+
+  .navbar__search {
+    margin-left: 0.5rem;
+  }
+
+  .navbar__search-input {
+    width: 150px;
+  }
 }
 
 .footer--dark {

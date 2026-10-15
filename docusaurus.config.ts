@@ -236,8 +236,15 @@ const config: Config = {
           position: "right",
         },
         {
-          href: "https://a2a-protocol.org",
+          href: "https://a2a-protocol.org/v1.0.0/specification/",
           label: "A2A spec",
+          position: "right",
+        },
+        {
+          href: "https://personalagentprotocol.org/docs/spec",
+          label: "PAP spec",
+          title: "Personal Agent Protocol (Poppy) specification — draft 0.1",
+          "aria-label": "PAP spec: Personal Agent Protocol (Poppy), draft 0.1",
           position: "right",
         },
         {
