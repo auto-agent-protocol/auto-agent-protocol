@@ -7,6 +7,10 @@ versioning policy is described in the
 
 ## [Unreleased]
 
+### Added
+
+- Documented `parts` department schedules alongside `sales` and `service` in the `dealer.information` schema and documentation, with separate weekly hours in the sample response. Schedule names remain free text and schedules remain optional; payload validation is unchanged.
+
 ## [2.0.0] — 2026-10-14
 
 This major release adds Personal Agent Protocol (Poppy draft 0.1) support and the A2A conformance corrections below. It requires a runtime migration; publishing discovery alone is insufficient. Earlier releases remain immutable.
