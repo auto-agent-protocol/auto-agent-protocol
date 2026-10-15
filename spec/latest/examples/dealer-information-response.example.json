@@ -49,6 +49,18 @@
               "saturday": { "open": "08:00", "close": "16:00" },
               "sunday": null
             }
+          },
+          {
+            "name": "parts",
+            "value": {
+              "monday": { "open": "08:00", "close": "17:00" },
+              "tuesday": { "open": "08:00", "close": "17:00" },
+              "wednesday": { "open": "08:00", "close": "17:00" },
+              "thursday": { "open": "08:00", "close": "17:00" },
+              "friday": { "open": "08:00", "close": "17:00" },
+              "saturday": { "open": "08:00", "close": "12:00" },
+              "sunday": null
+            }
           }
         ],
         "timezone": "America/Los_Angeles",
