@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v2.1/schemas/poppy.schema.json",
+  "title": "AAPPoppyDiscovery",
+  "description": "AAP 2.1 PAP draft 0.2 publication profile. Paired discovery, a guest OAuth issuer, an OpenAPI API, and the AAP extension linking the matching A2A Agent Card are required. Website-only discovery is a migration stage.",
+  "allOf": [
+    {
+      "$ref": "./poppy-document.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "protocol_version": {
+          "const": "0.2"
+        },
+        "auth": {
+          "type": "object",
+          "properties": {
+            "issuer": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "issuer"
+          ],
+          "additionalProperties": true
+        },
+        "apis": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "enum": [
+                  "openapi",
+                  "mcp"
+                ]
+              }
+            }
+          },
+          "contains": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "openapi"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "extensions": {
+          "type": "object",
+          "properties": {
+            "autoagentprotocol.org/aap": {
+              "$ref": "./poppy-aap-extension.schema.json"
+            }
+          },
+          "required": [
+            "autoagentprotocol.org/aap"
+          ],
+          "additionalProperties": true
+        },
+        "agent": {
+          "type": "object",
+          "properties": {
+            "protocols": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "poppy"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "auth",
+        "apis",
+        "extensions"
+      ],
+      "additionalProperties": true
+    }
+  ]
+}
