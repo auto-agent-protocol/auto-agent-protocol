@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stable": "v3.0",
+  "stable": "v2.0",
   "releases": [
     {
       "contract": "v0.1",
@@ -36,11 +36,6 @@
       "contract": "v2.0",
       "version": "2.0.0",
       "sourceCommit": "ecb712df47c40835621bdf5dbd07086564eaded5"
-    },
-    {
-      "contract": "v3.0",
-      "version": "3.0.0",
-      "sourceCommit": "731edfaac9d6decb67be806da349b2b197329761"
     }
   ]
 }

@@ -1,8 +1,8 @@
 // Auto-generated from JSON Schema — do not edit
-// Auto Agent Protocol 3.0.0
+// Auto Agent Protocol 2.0.0
 
 /**
- * Abstract base shape for every typed Auto Agent Protocol payload that travels inside an A2A DataPart. Concrete request and response schemas restrict 'type' to a constant skill-id-shaped value (e.g. inventory.search.request, lead.submit.response). The AAP version is announced once via the agent-card extension URI ('https://autoagentprotocol.org/extensions/aap/v3.0') and reflected in schema $id URLs; it is NOT repeated on the wire. Responses additionally carry a 'data' object and an optional 'message' note. Errors use the Error schema instead.
+ * Abstract base shape for every typed Auto Agent Protocol payload that travels inside an A2A DataPart. Concrete request and response schemas restrict 'type' to a constant skill-id-shaped value (e.g. inventory.search.request, lead.submit.response). The AAP version is announced once via the agent-card extension URI ('https://autoagentprotocol.org/extensions/aap/v2.0') and reflected in schema $id URLs; it is NOT repeated on the wire. Responses additionally carry a 'data' object and an optional 'message' note. Errors use the Error schema instead.
  */
 export interface AapMessage {
   /**
@@ -67,7 +67,7 @@ export interface DealerFee {
 }
 
 /**
- * A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. AAP requires a JSONRPC interface in 'supportedInterfaces[]'. Additional bindings are outside AAP's conformance requirements, but all bindings on the same card MUST expose equivalent functionality, behavior, errors and authentication under A2A section 5.1. The card MUST declare exactly one AAP extension, whose 'uri' equals 'https://autoagentprotocol.org/extensions/aap/v3.0' and whose 'required' flag is true.
+ * A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. AAP requires a JSONRPC interface in 'supportedInterfaces[]'. Additional bindings are outside AAP's conformance requirements, but all bindings on the same card MUST expose equivalent functionality, behavior, errors and authentication under A2A section 5.1. The card MUST declare exactly one AAP extension, whose 'uri' equals 'https://autoagentprotocol.org/extensions/aap/v2.0' and whose 'required' flag is true.
  */
 export interface AgentCard {
   /**
@@ -1399,77 +1399,15 @@ export interface PoppyAapExtension {
 }
 
 /**
- * Decoded private_key_jwt client authentication claims for PAP 0.2. Both iss and sub equal client_id; aud equals auth.issuer. Sign separately from the session assertion with the published identity key and a different jti.
- */
-export type PoppyClientAssertion = PoppySessionAssertion & {
-  /**
-   * The same client_id as iss; verify equality separately.
-   */
-  sub?: string;
-  [k: string]: any;
-};
-
-/**
- * Decoded PAP 0.2 session JWT claims, not a token or proof of authentication. Verify signature, issuer audience, expiry, a lifetime of at most 300 seconds and per-client replay prevention before accepting it.
- */
-export interface PoppySessionAssertion {
-  /**
-   * Authenticated personal-agent client_id.
-   */
-  iss: string;
-  /**
-   * Opaque User ID scoped to the Company issuer, never derived from personal information.
-   */
-  sub: string;
-  /**
-   * Exact auth.issuer as a single string. The token endpoint URL and arrays are invalid.
-   */
-  aud: string;
-  /**
-   * JWT NumericDate: seconds since the Unix epoch, including fractional seconds (RFC 7519 section 2).
-   */
-  iat: number;
-  /**
-   * JWT NumericDate: seconds since the Unix epoch, including fractional seconds (RFC 7519 section 2).
-   */
-  exp: number;
-  /**
-   * Unique assertion ID generated with at least 128 random bits; reject reuse by the same client until expiry.
-   */
-  jti: string;
-  [k: string]: any;
-}
-
-/**
- * PAP 0.2 personal-agent identity. Verify client_id against the fetched URL and JWKS/redirect domains separately. The JWKS must contain only public identity keys; DPoP keys are separate.
- */
-export interface PoppyClientMetadata {
-  client_id: string;
-  client_name: string;
-  logo_uri?: string;
-  jwks_uri: string;
-  redirect_uris: string[];
-  token_endpoint_auth_method: "private_key_jwt";
-  extensions?: Extensions;
-  [k: string]: any;
-}
-export interface Extensions {
-  [k: string]: {
-    version: string;
-    [k: string]: any;
-  };
-}
-
-/**
- * Structural validation of Personal Agent Protocol draft 0.2 discovery. Readers ignore unknown fields and skip unsupported interface types. Cross-document identity and runtime security require separate checks.
+ * Forward-compatible structural validation of Poppy draft 0.1 discovery. Unknown fields and interface types are retained; clients skip unsupported types. This is an AAP-maintained schema, not an upstream certification. Cross-document identity and runtime security require separate checks.
  */
 export type PoppyDocument = {
   [k: string]: any;
 } & {
   /**
-   * Supported PAP draft. Pre-1.0 major.minor versions are not implicitly compatible; unknown fields within this version remain allowed.
+   * Consumer-compatible Poppy 0.x version. Readers accept newer minor versions and ignore unknown fields; the AAP 2.0 publication profile separately pins draft 0.1.
    */
-  protocol_version: "0.2";
+  protocol_version: string;
   organization: {
     name: string;
     domain: string;
@@ -1516,16 +1454,25 @@ export type PoppyDocument = {
     browser_session_endpoint?: string;
     [k: string]: any;
   };
-  apis?: {
-    type: string;
-    url: string;
-    description: string;
-    /**
-     * HTTPS resource identifier without a fragment, as required by PAP 0.2 and RFC 8707.
-     */
-    resource?: string;
-    [k: string]: any;
-  }[];
+  /**
+   * @minItems 1
+   */
+  apis?: [
+    {
+      type: string;
+      url: string;
+      description: string;
+      resource?: string;
+      [k: string]: any;
+    },
+    ...{
+      type: string;
+      url: string;
+      description: string;
+      resource?: string;
+      [k: string]: any;
+    }[]
+  ];
   agent?: {
     /**
      * @minItems 1
@@ -1534,18 +1481,12 @@ export type PoppyDocument = {
       {
         type: string;
         endpoint: string;
-        /**
-         * HTTPS resource identifier without a fragment, as required by PAP 0.2 and RFC 8707.
-         */
         resource?: string;
         [k: string]: any;
       },
       ...{
         type: string;
         endpoint: string;
-        /**
-         * HTTPS resource identifier without a fragment, as required by PAP 0.2 and RFC 8707.
-         */
         resource?: string;
         [k: string]: any;
       }[]
@@ -1558,25 +1499,8 @@ export type PoppyDocument = {
       [k: string]: any;
     };
   };
-  feedback?: {
-    endpoint: string;
-    [k: string]: any;
-  };
   [k: string]: any;
 };
-
-/**
- * PAP 0.2 feedback report. Personal agents send kind=missing; receiving Companies must also accept unknown kinds. Send with a Session Token and DPoP, without account scopes, identifiers or secrets. Acceptance returns HTTP 202 with no body.
- */
-export interface PoppyFeedbackRequest {
-  /**
-   * PAP 0.2 senders use missing. Receivers accept unknown future kinds.
-   */
-  kind: string;
-  task: string;
-  description: string;
-  [k: string]: any;
-}
 
 export interface PoppyOAuthMetadata {
   issuer: string;
@@ -1590,31 +1514,7 @@ export interface PoppyOAuthMetadata {
   poppy_domains: [string, ...string[]];
   grant_types_supported?: string[];
   token_endpoint_auth_methods_supported?: string[];
-  /**
-   * Optional advertisement; when present it must include ES256. ES256 proof verification is mandatory even when this field is omitted.
-   */
   dpop_signing_alg_values_supported?: string[];
-  [k: string]: any;
-}
-
-/**
- * Form fields for the PAP 0.2 JWT bearer guest grant, encoded as application/x-www-form-urlencoded. Send a fresh DPoP header separately. The only proof exception is a resource-bound token for an MCP server without DPoP support.
- */
-export interface PoppySessionRequest {
-  grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer";
-  client_id: string;
-  client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
-  /**
-   * Compact signed JWS. Structural validation is not signature verification.
-   */
-  client_assertion: string;
-  /**
-   * Compact signed JWS. Structural validation is not signature verification.
-   */
-  assertion: string;
-  session_id?: string;
-  resource?: string;
-  scope?: "";
   [k: string]: any;
 }
 
@@ -1635,27 +1535,17 @@ export type PoppySessionTokenResponse = {
 };
 
 /**
- * AAP 3.0 PAP draft 0.2 publication profile. Paired discovery, a guest OAuth issuer, an OpenAPI API, and the AAP extension linking the matching A2A Agent Card are required. Website-only discovery is a migration stage.
+ * AAP 2.0 Poppy draft 0.1 publication profile. Both discovery documents, a guest OAuth issuer, an OpenAPI API, and the AAP extension linking the matching A2A Agent Card are required. The website-only Poppy profile is a migration stage, not AAP 2.0 conformance.
  */
 export type AAPPoppyDiscovery = PoppyDocument & {
-  protocol_version?: "0.2";
+  protocol_version?: "0.1";
   auth: {
     issuer: string;
     [k: string]: any;
   };
-  apis: {
-    type?: "openapi" | "mcp";
-    [k: string]: any;
-  }[];
+  apis: any[];
   extensions: {
     "autoagentprotocol.org/aap": PoppyAapExtension;
-    [k: string]: any;
-  };
-  agent?: {
-    protocols?: {
-      type?: "poppy";
-      [k: string]: any;
-    }[];
     [k: string]: any;
   };
   [k: string]: any;
