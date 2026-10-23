@@ -10,7 +10,7 @@ import { freezeCheck } from "../../tools/freeze-check.js";
 import { generateMcp } from "../../tools/generate-mcp-manifest.js";
 import { generateOpenapi } from "../../tools/generate-openapi.js";
 import { generateTypes } from "../../tools/generate-types.js";
-import { contractFor, filesIn, hash, loadRegistry, parseVersion, ROOT, readJson } from "../../tools/lib/releases.js";
+import { contractFor, DRAFT_SITE, DRAFT_VERSION, filesIn, hash, loadRegistry, parseVersion, releasePrefixes, ROOT, readJson, SITE, writeJson } from "../../tools/lib/releases.js";
 import { prepareRelease } from "../../tools/release-prepare.js";
 
 function snapshot(directory: string): string {
@@ -115,6 +115,63 @@ test("rehearsing a major release does not bypass rejection of a breaking minor",
     const before = releaseState(context.root);
     await assert.rejects(() => prepareRelease(context.root, `${major}.${minor + 1}.0`, true), /breaking schema changes; a minor release is not permitted/);
     assert.equal(releaseState(context.root), before);
+  } finally {
+    context.cleanup();
+  }
+});
+
+test("the PAP 0.2 exception permits only the reviewed 2.0.0 to 2.1.0 specification", async () => {
+  const context = fixture();
+  try {
+    const registry = loadRegistry(context.root);
+    const baseline = registry.releases.findIndex(release => release.contract === "v2.0");
+    assert.ok(baseline >= 0);
+    const approvedSpec = join(context.root, "spec/v2.1"), draftSpec = join(context.root, "spec/latest");
+    if (existsSync(approvedSpec)) {
+      rmSync(draftSpec, {recursive: true});
+      cpSync(approvedSpec, draftSpec, {recursive: true});
+      for (const file of filesIn(draftSpec)) writeFileSync(file, readFileSync(file, "utf8")
+        .replaceAll(`${SITE}/v2.1/`, `${DRAFT_SITE}/latest/`)
+        .replaceAll(`${SITE}/extensions/aap/v2.1`, `${DRAFT_SITE}/extensions/aap/latest`)
+        .replaceAll("2.1.0", DRAFT_VERSION));
+    }
+    for (const release of registry.releases.slice(baseline + 1)) {
+      for (const path of releasePrefixes(release.contract)) rmSync(join(context.root, path), {recursive: true, force: true});
+    }
+    registry.releases = registry.releases.slice(0, baseline + 1);
+    registry.stable = "v2.0";
+    writeJson(join(context.root, "releases.json"), registry);
+    writeJson(join(context.root, "versions.json"), registry.releases.map(release => release.contract).reverse());
+    for (const file of ["package.json", "packages/types/package.json", "packages/schemas/package.json", "packages/validator/package.json"]) {
+      const value = readJson<Record<string, unknown>>(join(context.root, file));
+      writeJson(join(context.root, file), {...value, version: "2.0.0"});
+    }
+    cpSync(join(context.root, "releases/v2.0/artifacts/types.d.ts"), join(context.root, "packages/types/src/index.d.ts"));
+    git(context.root, ["add", "-A"]);
+    git(context.root, ["commit", "--allow-empty", "-qm", "feat: restore the PAP transition baseline"]);
+    const frozenBefore = snapshot(join(context.root, "spec/v2.0"));
+    for (const [name, property] of [["poppy-oauth-metadata", "issuer"], ["agent-card", "description"]]) {
+      const file = join(context.root, `spec/latest/schemas/${name}.schema.json`);
+      const original = readFileSync(file, "utf8");
+      const schema = JSON.parse(original);
+      schema.properties[property].maxLength = 100000;
+      writeJson(file, schema);
+      const before = releaseState(context.root);
+      await assert.rejects(() => prepareRelease(context.root, "2.1.0", true), /breaking schema changes; a minor release is not permitted/);
+      assert.equal(releaseState(context.root), before);
+      writeFileSync(file, original);
+    }
+    await prepareRelease(context.root, "2.1.0", false);
+    const report = readJson<{summary: {breaking: number}; compatibilityException: {workingSpecSha256: string}}>(join(context.root, "releases/v2.1/change-report.json"));
+    const provenance = readJson<{workingSpecSha256: string}>(join(context.root, "releases/v2.1/provenance.json"));
+    assert.ok(report.summary.breaking > 0, "the exception must retain the breaking-change report");
+    assert.equal(report.compatibilityException.workingSpecSha256, provenance.workingSpecSha256);
+    assert.equal(snapshot(join(context.root, "spec/v2.0")), frozenBefore);
+    const file = join(context.root, "spec/latest/schemas/poppy-oauth-metadata.schema.json");
+    const schema = JSON.parse(readFileSync(file, "utf8"));
+    schema.properties.issuer.maxLength = 100000;
+    writeJson(file, schema);
+    await assert.rejects(() => prepareRelease(context.root, "2.2.0", true), /breaking schema changes; a minor release is not permitted/);
   } finally {
     context.cleanup();
   }

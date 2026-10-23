@@ -6,8 +6,8 @@
   "properties": {
     "protocol_version": {
       "type": "string",
-      "pattern": "^0\\.[1-9][0-9]*$",
-      "description": "Consumer-compatible Poppy 0.x version. Readers accept newer minor versions and ignore unknown fields; the AAP 2.0 publication profile separately pins draft 0.1."
+      "const": "0.2",
+      "description": "Supported PAP draft. Pre-1.0 major.minor versions are not implicitly compatible; unknown fields within this version remain allowed."
     },
     "organization": {
       "type": "object",
@@ -149,7 +149,6 @@
     },
     "apis": {
       "type": "array",
-      "minItems": 1,
       "items": {
         "type": "object",
         "properties": {
@@ -169,7 +168,8 @@
           "resource": {
             "type": "string",
             "format": "uri",
-            "pattern": "^[^#]+$"
+            "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?][^#\\s]*)?$",
+            "description": "HTTPS resource identifier without a fragment, as required by PAP 0.2 and RFC 8707."
           }
         },
         "required": [
@@ -201,7 +201,8 @@
               "resource": {
                 "type": "string",
                 "format": "uri",
-                "pattern": "^[^#]+$"
+                "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?][^#\\s]*)?$",
+                "description": "HTTPS resource identifier without a fragment, as required by PAP 0.2 and RFC 8707."
               }
             },
             "required": [
@@ -232,6 +233,20 @@
         ],
         "additionalProperties": true
       }
+    },
+    "feedback": {
+      "type": "object",
+      "properties": {
+        "endpoint": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+        }
+      },
+      "required": [
+        "endpoint"
+      ],
+      "additionalProperties": true
     }
   },
   "required": [
@@ -239,7 +254,7 @@
     "organization"
   ],
   "additionalProperties": true,
-  "description": "Forward-compatible structural validation of Poppy draft 0.1 discovery. Unknown fields and interface types are retained; clients skip unsupported types. This is an AAP-maintained schema, not an upstream certification. Cross-document identity and runtime security require separate checks.",
+  "description": "Structural validation of Personal Agent Protocol draft 0.2 discovery. Readers ignore unknown fields and skip unsupported interface types. Cross-document identity and runtime security require separate checks.",
   "anyOf": [
     {
       "required": [
@@ -269,6 +284,11 @@
           {
             "required": [
               "apis"
+            ]
+          },
+          {
+            "required": [
+              "feedback"
             ]
           },
           {

@@ -25,7 +25,7 @@ This repository has one editable source and immutable release snapshots.
 
 The independent Protobuf error check also runs in CI. Install the pinned Python dependencies and run it as described in [Conformance](docs/conformance.md#specification-checks-in-this-repository).
 
-4. Choose the next `MAJOR.MINOR.0` version. Use a minor release only for additive changes; use a major release for validation-affecting or semantic breaks.
+4. Choose the next `MAJOR.MINOR.0` version. Use a minor release only for additive changes; use a major release for validation-affecting or semantic breaks. The sole approved exception is the 2.0.0 → 2.1.0 PAP 0.2 transition described below.
 
 Patch releases are not cut because public contract URLs identify major/minor only. Existing public URLs are never replaced.
 
@@ -58,9 +58,15 @@ The command:
 - updates `releases.json`, `versions.json`, stable package versions, and stable generated types;
 - leaves the editable `spec/latest/` and `docs/` sources unchanged.
 
-It refuses dirty input, an existing target, a skipped version, a patch contract, and a breaking minor candidate. If applying the snapshot fails, it restores every mutable metadata and package file and removes only the newly created target directories.
+It refuses dirty input, an existing target, a skipped version, a patch contract, and a breaking minor candidate outside the approved PAP transition. If applying the snapshot fails, it restores every mutable metadata and package file and removes only the newly created target directories.
 
 The command never commits, tags, pushes, publishes npm packages, changes GitHub releases, or deploys the website.
+
+## Approved PAP 0.2 transition
+
+AAP 2.1.0 retains the AAP 2.0 automotive payloads, A2A v1.0 behavior and bridge version `1`, while upgrading the PAP profile from 0.1 to 0.2. The maintainer selected 2.1.0 as an explicit exception to the normal major-release policy. This does not make PAP 0.1 clients compatible: discovery and authentication require the [documented migration](docs/versioning.md#pap-02-migration).
+
+`tools/release-prepare.ts` pins this exception to the exact reviewed specification SHA-256 and the 2.0.0 → 2.1.0 version pair. It cannot permit other specification changes or future breaking minor releases. The generated compatibility report records the exception and retains every detected breaking change. Rehearse with `pnpm release:prepare 2.1.0 --dry-run`, then prepare the committed source with `pnpm release:prepare 2.1.0`.
 
 ## Review and publish explicitly
 

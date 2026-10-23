@@ -5,7 +5,7 @@
 
 # Auto Agent Protocol (AAP)
 
-[![Spec version](https://img.shields.io/badge/spec-v2.0.0-2874d7)](https://autoagentprotocol.org/docs/v2.0/intro)
+[![Spec version](https://img.shields.io/badge/spec-v2.1.0-2874d7)](https://autoagentprotocol.org/docs/v2.1/intro)
 [![A2A](https://img.shields.io/badge/A2A-v1.0-2874d7)](https://a2a-protocol.org)
 [![License](https://img.shields.io/badge/license-Apache--2.0-52657c)](LICENSE)
 [![Validate](https://github.com/auto-agent-protocol/auto-agent-protocol/actions/workflows/validate.yml/badge.svg)](https://github.com/auto-agent-protocol/auto-agent-protocol/actions/workflows/validate.yml)
@@ -24,15 +24,15 @@ Listings carry an optional `vehicle_type` (`car`, `motorcycle`, `trailer`, `rv`,
 
 ![Why AAP: from a mesh of custom integrations to one open profile](docs/img/why-before-after.svg)
 
-**For engineers:** AAP 2.0 combines an open [A2A v1.0](https://a2a-protocol.org) profile with a native Personal Agent Protocol guest API. A compliant dealer publishes both discovery documents, advertises the AAP extension URI (`https://autoagentprotocol.org/extensions/aap/v2.0`) on its Agent Card, and implements **one or more** of the five standard AAP automotive skills on both interfaces (a small used-car lot might only do `inventory.search` + `lead.submit`; a franchise dealership might do all five).
+**For engineers:** AAP 2.1 combines an open [A2A v1.0](https://a2a-protocol.org) profile with a native Personal Agent Protocol guest API. A compliant dealer publishes both discovery documents, advertises the AAP extension URI (`https://autoagentprotocol.org/extensions/aap/v2.1`) on its Agent Card, and implements **one or more** of the five standard AAP automotive skills on both interfaces (a small used-car lot might only do `inventory.search` + `lead.submit`; a franchise dealership might do all five).
 
 The A2A interface is deliberately minimal: every AAP agent exposes the **JSON-RPC 2.0 binding** — the sole A2A transport (the optional HTTP+JSON binding was removed in v1.1.0); the only A2A operation AAP uses is **`SendMessage`** — request `Message` in, response `Message` out. The optional A2A surface (streaming, tasks, push notifications, extended cards) is out of scope: dealer agents do not need to implement it and buyer agents must not require it.
 
 ![The Agent Card advertises the A2A binding, AAP extension, supported skill subset, and per-skill schema URLs](docs/img/agent-card-passport.svg)
 
-## v2.0.0 Scope
+## v2.1.0 Scope
 
-v2.0.0 adds native Personal Agent Protocol (Poppy draft 0.1) support and incorporates the A2A v1.0 conformance corrections prepared after v1.3. It is a **major upgrade**: dealers publish both discovery documents, implement guest sessions and a DPoP-protected OpenAPI skill interface, and migrate A2A headers, cards and error envelopes. The same five automotive payloads, pricing rules and consent semantics apply to both interfaces. All earlier releases remain frozen. See the [migration guide](docs/versioning.md) and [full Poppy specification](docs/personal-agent-protocol.md).
+v2.1.0 upgrades the Personal Agent Protocol profile to draft 0.2. It requires exact issuer audiences for both assertions, final-host discovery identity, explicit pre-1.0 version support and capability-based MCP token selection. Guest sessions still authenticate the personal agent; shoppers need no dealer account. Automotive payloads, A2A v1.0 behavior, bridge version `1`, pricing and consent are unchanged from AAP 2.0. The 2.1.0 release uses an explicit PAP-only versioning exception; PAP 0.1 clients still require migration. Earlier releases remain frozen. See the [migration guide](docs/versioning.md#pap-02-migration), [PAP profile](docs/personal-agent-protocol.md) and [client walkthrough](docs/pap-client-guide.md).
 
 - **Paired discovery** via `/.well-known/agent-card.json` (A2A) and `/.well-known/poppy.json` (Poppy)
 - **Native Poppy API** with verified OAuth issuer discovery, signed-out sessions, DPoP and OpenAPI 3.1; no customer account required
@@ -43,19 +43,20 @@ v2.0.0 adds native Personal Agent Protocol (Poppy draft 0.1) support and incorpo
 - **ADF/XML mapping** documented for legacy CRM compatibility
 - **Verified contract interoperability**: official A2A JavaScript SDK HTTP round-trips for every skill, Poppy discovery/identity checks and generated OpenAPI schema parity; see [verification scope](docs/conformance.md)
 
-v2.0.0 does **not** cover: payments, financing approval, RFQ/quote flows, trade-in valuations, buyer-specific out-the-door calculations, or reservations.
+v2.1.0 does **not** cover: payments, financing approval, RFQ/quote flows, trade-in valuations, buyer-specific out-the-door calculations, or reservations.
 
 ![How an AI agent shops: discover the dealer, search inventory, inspect one complete vehicle, and submit a consented lead](docs/img/buyer-journey.svg)
 
 ## Quick links
 
 - **Specification**: [autoagentprotocol.org](https://autoagentprotocol.org)
-- **Stable v2.0.0 agent card**: [`spec/v2.0/examples/agent-card.example.json`](spec/v2.0/examples/agent-card.example.json)
+- **Stable v2.1.0 agent card**: [`spec/v2.1/examples/agent-card.example.json`](spec/v2.1/examples/agent-card.example.json)
 - **Editable JSON Schemas**: [`spec/latest/schemas/`](spec/latest/schemas/)
 - **Editable examples**: [`spec/latest/examples/`](spec/latest/examples/)
-- **OpenAPI 3.1** (built at deploy time): `https://autoagentprotocol.org/v2.0/openapi-jsonrpc.yaml`
-- **Poppy OpenAPI**: `https://autoagentprotocol.org/v2.0/openapi-poppy.yaml`
-- **Poppy example**: [`spec/v2.0/examples/poppy.example.json`](spec/v2.0/examples/poppy.example.json)
+- **OpenAPI 3.1** (built at deploy time): `https://autoagentprotocol.org/v2.1/openapi-jsonrpc.yaml`
+- **Poppy OpenAPI**: `https://autoagentprotocol.org/v2.1/openapi-poppy.yaml`
+- **Poppy example**: [`spec/v2.1/examples/poppy.example.json`](spec/v2.1/examples/poppy.example.json)
+- **PAP client handshake and diagnostics**: [client walkthrough](docs/pap-client-guide.md)
 - **Conformance and limits**: [verification guide](docs/conformance.md)
 - **Changelog**: [CHANGELOG.md](CHANGELOG.md)
 
@@ -137,8 +138,8 @@ Released versions are immutable. Repository changes use `spec/latest/`; the publ
 | Layer | Protocol | Role for AAP |
 |---|---|---|
 | Transport / data model (BASE) | **[A2A v1.0](https://a2a-protocol.org)** | The A2A interface carries AAP requests and responses inside `Message.parts[].data` as typed `DataParts` over JSON-RPC. |
-| Discovery / sessions / APIs | **[Personal Agent Protocol](https://personalagentprotocol.org/)** (Poppy draft 0.1) | Paired discovery and a native guest OpenAPI interface reuse the automotive payloads with Poppy authentication. |
-| Adjacent / complementary | **ACP** (Agentic Commerce), **MCP** (Model Context Protocol) | ACP covers commerce checkout (out of scope for AAP). MCP can expose AAP skills as LLM tools — AAP publishes an official MCP reference manifest (generated from `skills.yaml` at build time and served at `https://autoagentprotocol.org/v2.0/mcp.json`). |
+| Discovery / sessions / APIs | **[Personal Agent Protocol](https://personalagentprotocol.org/)** (PAP draft 0.2) | Paired discovery and a native guest OpenAPI interface reuse the automotive payloads with Poppy authentication. |
+| Adjacent / complementary | **ACP** (Agentic Commerce), **MCP** (Model Context Protocol) | ACP covers commerce checkout (out of scope for AAP). MCP can expose AAP skills as LLM tools — AAP publishes an official MCP reference manifest (generated from `skills.yaml` at build time and served at `https://autoagentprotocol.org/v2.1/mcp.json`). |
 | Legacy / target system | **ADF/XML** | The 25-year-old dealer-CRM lead format. `lead.submit` is field-by-field mappable to ADF/XML so existing CRMs ingest AAP leads without code changes. |
 
 ## License

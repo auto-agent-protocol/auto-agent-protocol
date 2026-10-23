@@ -4,7 +4,7 @@ import { filesIn, hash, loadRegistry, readJson, ROOT, stableRelease } from "./li
 import { loadPartners } from "./check-partners.js";
 
 interface DocsGlobalData {
-  versions?: Array<{name?: string; label?: string; path?: string; isLast?: boolean}>;
+  versions?: Array<{name?: string; label?: string; path?: string; isLast?: boolean; mainDocId?: string; docs?: Array<{id: string; path: string}>}>;
 }
 
 function tree(directory: string): Record<string, string> {
@@ -40,13 +40,30 @@ if (suggestedVersion?.name !== stable.contract) {
 }
 
 const build = resolve(ROOT, "build");
+const poppyVersion = readJson<{protocol_version: string}>(join(build, stable.contract, "examples/poppy.example.json")).protocol_version;
+for (const file of ["llms.txt", "llms-full.txt"]) {
+  const header = readFileSync(join(build, file), "utf8").split("\n").find(line => line.startsWith(file === "llms.txt" ? "> " : "Interfaces: "));
+  if (!header?.includes(`Poppy draft ${poppyVersion} guest OpenAPI`)) {
+    throw new Error(`${file} must describe the stable PAP version ${poppyVersion}`);
+  }
+}
+const faq = readFileSync(join(build, "faq.html"), "utf8").match(/<article\b[^>]*>([\s\S]*?)<\/article>/)?.[1];
+if (!faq?.includes(`Poppy draft ${poppyVersion}`)) throw new Error("FAQ must describe the stable PAP version");
+for (const [, contract] of faq.matchAll(/href="\/docs\/(v\d+\.\d+)\//g)) {
+  if (contract !== stable.contract) throw new Error(`FAQ must link the stable contract ${stable.contract}, not ${contract}`);
+}
 if (!readdirSync(join(build, "docs")).includes("latest")) throw new Error("Production docs/latest alias is missing");
 if (!readdirSync(join(build, "docs")).includes(stable.contract)) throw new Error(`Published docs/${stable.contract} is missing`);
 const latestDocsRoot = join(build, "docs", "latest");
 const latestPages = filesIn(latestDocsRoot).filter(file => file.endsWith(".html"));
+const currentVersion = renderedVersions.find(version => version.name === "current");
+const stableIntro = suggestedVersion.docs?.find(doc => doc.id === suggestedVersion.mainDocId);
+if (!stableIntro) throw new Error("Published documentation entry page is missing");
 for (const file of latestPages) {
   const documentPath = relative(latestDocsRoot, file).split("\\").join("/").replace(/\.html$/, "");
-  const expectedTarget = `/docs/${stable.contract}/${documentPath}`;
+  const currentDoc = currentVersion?.docs?.find(doc => doc.path === `/docs/latest/${documentPath}`);
+  if (!currentDoc) throw new Error(`Draft documentation metadata is missing for ${documentPath}`);
+  const expectedTarget = suggestedVersion.docs?.find(doc => doc.id === currentDoc.id)?.path ?? stableIntro.path;
   const html = readFileSync(file, "utf8");
   const target = html.match(/<a href="([^"]+)">latest version<\/a>/)?.[1];
   if (target !== expectedTarget) {

@@ -8,8 +8,8 @@ description: How AAP skills map to Model Context Protocol tools so an LLM client
 
 {/* aap-draft-only:start */}
 
-:::info Unreleased contract — planned 2.0.0
-This page describes the editable next-major contract, not the frozen v1.3 release. Example extension and schema URLs use the non-routable `draft.autoagentprotocol.invalid` namespace; release preparation replaces them with approved version-pinned URLs. Do not send draft identifiers to a production agent. See [migration guidance](../versioning.md#for-implementers).
+:::info Unreleased contract — planned 2.1.0
+This page describes the editable AAP 2.1 contract. The frozen v2.0 and earlier releases remain available. Example extension and schema URLs use the non-routable `draft.autoagentprotocol.invalid` namespace; release preparation replaces them with approved version-pinned URLs. Do not send draft identifiers to a production agent. See [migration guidance](../versioning.md#for-implementers).
 :::
 
 {/* aap-draft-only:end */}
@@ -173,4 +173,4 @@ For more on MCP itself, see the [MCP specification](https://modelcontextprotocol
 
 ## MCP and Poppy sessions
 
-An existing public MCP wrapper may be linked from the AAP extension in `poppy.json`. To list it as a native Poppy `apis` entry, implement Poppy's resource-bound Bearer Session Tokens, scope enforcement and protected-resource metadata. Never send a Poppy token to an unrelated public wrapper. See [optional Poppy surfaces](../personal-agent-protocol.md#6-optional-poppy-surfaces).
+An existing public MCP wrapper may be linked from the AAP extension in `poppy.json`. To list it as a native Poppy `apis` entry, implement PAP 0.2 Session Tokens bound to the exact MCP resource URL, scope enforcement and protected-resource metadata. Advertise DPoP with `dpop_signing_alg_values_supported` (including `ES256`) when implemented; PAP clients must then receive DPoP tokens. Only servers without that field receive resource-bound Bearer tokens, even when the token request supplied a proof. Bearer tokens are valid solely at that MCP URL, never at another endpoint. Never send a Poppy token to an unrelated public wrapper. See [optional Poppy surfaces](../personal-agent-protocol.md#6-optional-poppy-surfaces).
