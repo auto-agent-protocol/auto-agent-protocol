@@ -12,6 +12,12 @@ import { generateMcp } from "./generate-mcp-manifest.js";
 import { validateManifest } from "./validate-manifest.js";
 
 interface Change {kind: "additive" | "breaking"; file: string; path: string; detail: string}
+const PAP_02_TRANSITION = {
+  previous: "2.0.0",
+  candidate: "2.1.0",
+  workingSpecSha256: "ce1568df11f6620bcf8cb18235829fadbd9d00a5708f89768c9fbe08cf803358",
+  reason: "Maintainer-approved PAP 0.2 transition. Automotive payloads, A2A behavior and bridge version 1 are unchanged; PAP 0.1 clients require migration. See docs/versioning.md#pap-02-migration.",
+};
 const JSON_SCHEMA_ANNOTATIONS = new Set(["$comment", "$id", "default", "deprecated", "description", "examples", "readOnly", "title", "writeOnly"]);
 const SCHEMA_MAPS = new Set(["properties", "patternProperties", "$defs", "definitions", "dependentSchemas"]);
 const SINGLE_SCHEMAS = new Set(["additionalProperties", "unevaluatedProperties", "propertyNames", "items", "additionalItems", "unevaluatedItems", "contains", "not", "if", "then", "else"]);
@@ -110,10 +116,12 @@ export async function prepareRelease(root: string, version: string, dryRun: bool
     await generateTypes(join(candidateSpec, "schemas"), artifacts, version); await generateOpenapi(candidateSpec, artifacts, version); generateMcp(candidateSpec, artifacts, version);
     const changes = compatibility(root, stable.contract, candidateSpec);
     const breaking = changes.filter(change => change.kind === "breaking");
-    if (breaking.length > 0 && major === oldMajor) {
+    const compatibilityException = stable.version === PAP_02_TRANSITION.previous && version === PAP_02_TRANSITION.candidate && draftHash === PAP_02_TRANSITION.workingSpecSha256
+      ? PAP_02_TRANSITION : undefined;
+    if (breaking.length > 0 && major === oldMajor && !compatibilityException) {
       throw new Error(`Compatibility report found breaking schema changes; a minor release is not permitted:\n${JSON.stringify(breaking, null, 2)}`);
     }
-    const report = {schemaVersion: 1, previous: stable.version, candidate: version, summary: {additive: changes.filter(c => c.kind === "additive").length, breaking: changes.filter(c => c.kind === "breaking").length}, changes, note: "Structural schema check only. Maintainers must review normative behavior and documentation."};
+    const report = {schemaVersion: 1, previous: stable.version, candidate: version, summary: {additive: changes.filter(c => c.kind === "additive").length, breaking: breaking.length}, changes, compatibilityException, note: "Structural schema check only. Maintainers must review normative behavior and documentation."};
     if (dryRun) { console.log(JSON.stringify(report, null, 2)); return {contract, changes}; }
     const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], {cwd: root, encoding: "utf8"}).trim();
     const release: Release = {contract, version, sourceCommit};

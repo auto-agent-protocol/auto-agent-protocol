@@ -8,8 +8,8 @@ description: What the Auto Agent Protocol is, what it standardizes, and how to c
 
 {/* aap-draft-only:start */}
 
-:::info Unreleased contract — planned 3.0.0
-This page describes the editable AAP 3.0 contract. The frozen v2.0 and earlier releases remain available. Example extension and schema URLs use the non-routable `draft.autoagentprotocol.invalid` namespace; release preparation replaces them with approved version-pinned URLs. Do not send draft identifiers to a production agent. See [migration guidance](./versioning.md#for-implementers).
+:::info Unreleased contract — planned 2.1.0
+This page describes the editable AAP 2.1 contract. The frozen v2.0 and earlier releases remain available. Example extension and schema URLs use the non-routable `draft.autoagentprotocol.invalid` namespace; release preparation replaces them with approved version-pinned URLs. Do not send draft identifiers to a production agent. See [migration guidance](./versioning.md#for-implementers).
 :::
 
 {/* aap-draft-only:end */}
@@ -20,7 +20,7 @@ This page describes the editable AAP 3.0 contract. The frozen v2.0 and earlier r
 
 ![Dealers publish paired discovery, serve selected skills, and receive consented leads](./img/dealer-onboarding.svg)
 
-In technical terms, AAP defines shared automotive payloads for an [A2A v1.0](https://a2a-protocol.org) (Agent2Agent) profile and a [Personal Agent Protocol](./personal-agent-protocol.md) guest API. On the A2A interface, requests and responses travel in `Message.parts[].data` as typed `DataParts`, using JSON-RPC 2.0. On the Poppy OpenAPI interface, the same payloads are JSON request and response bodies authenticated with Poppy Sessions and DPoP. Both interfaces are REQUIRED for AAP 3.0. The removed A2A HTTP+JSON binding and gRPC are outside this profile.
+In technical terms, AAP defines shared automotive payloads for an [A2A v1.0](https://a2a-protocol.org) (Agent2Agent) profile and a [Personal Agent Protocol](./personal-agent-protocol.md) guest API. On the A2A interface, requests and responses travel in `Message.parts[].data` as typed `DataParts`, using JSON-RPC 2.0. On the Poppy OpenAPI interface, the same payloads are JSON request and response bodies authenticated with Poppy Sessions and DPoP. Both interfaces are REQUIRED for AAP 2.1. The removed A2A HTTP+JSON binding and gRPC are outside this profile.
 
 The extension is identified by a single URI:
 
@@ -44,7 +44,7 @@ The AAP profile defines a **vocabulary** of five standard skill IDs that cover t
 | `inventory.vehicle` | Detail view of one specific vehicle or motorcycle (by VIN, stock, or vehicle_id) |
 | `lead.submit` | Unified consented lead carrying customer info plus optional vehicle of interest, trade-in, and appointment |
 
-AAP 3.0 also defines [Personal Agent Protocol support](./personal-agent-protocol.md): paired discovery, signed-out sessions and an OpenAPI interface for the same skills. A2A authentication follows the Agent Card; native Poppy API authentication follows Poppy Sessions and DPoP. It does NOT define payments, financing approval, RFQ/quote workflows, trade-in valuations, or reservations. Future versions MAY extend this surface; the profile is intentionally minimal.
+AAP 2.1 also defines [Personal Agent Protocol support](./personal-agent-protocol.md): paired discovery, signed-out sessions and an OpenAPI interface for the same skills. A2A authentication follows the Agent Card; native Poppy API authentication follows Poppy Sessions and DPoP. It does NOT define payments, financing approval, RFQ/quote workflows, trade-in valuations, or reservations. Future versions MAY extend this surface; the profile is intentionally minimal.
 
 ## Layered architecture
 

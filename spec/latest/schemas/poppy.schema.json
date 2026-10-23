@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy.schema.json",
   "title": "AAPPoppyDiscovery",
-  "description": "AAP 3.0 PAP draft 0.2 publication profile. Paired discovery, a guest OAuth issuer, an OpenAPI API, and the AAP extension linking the matching A2A Agent Card are required. Website-only discovery is a migration stage.",
+  "description": "AAP 2.1 PAP draft 0.2 publication profile. Paired discovery, a guest OAuth issuer, an OpenAPI API, and the AAP extension linking the matching A2A Agent Card are required. Website-only discovery is a migration stage.",
   "allOf": [
     {
       "$ref": "./poppy-document.schema.json"

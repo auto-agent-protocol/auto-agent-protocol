@@ -1,12 +1,12 @@
 ---
 sidebar_position: 6
 title: Conformance and verification
-description: What AAP 3.0 validates automatically and what operators must verify for A2A and Poppy interoperability.
+description: What AAP 2.1 validates automatically and what operators must verify for A2A and Poppy interoperability.
 ---
 
 # Conformance and verification
 
-AAP 3.0 targets A2A v1.0 and Personal Agent Protocol (Poppy) draft 0.2 at the [pinned upstream baseline](./personal-agent-protocol.md). Conformance means satisfying every mandatory rule and every conditional rule for features a deployment advertises. It does not mean implementing every optional feature of either upstream protocol.
+AAP 2.1 targets A2A v1.0 and Personal Agent Protocol (Poppy) draft 0.2 at the [pinned upstream baseline](./personal-agent-protocol.md). Conformance means satisfying every mandatory rule and every conditional rule for features a deployment advertises. It does not mean implementing every optional feature of either upstream protocol.
 
 ## Specification checks in this repository
 
@@ -33,7 +33,7 @@ The CI interoperability check also uses the official Python Protobuf decoder, in
 ```bash
 python -m pip install -r tools/protojson-requirements.txt
 python tools/validate-protojson-errors.py
-python tools/validate-protojson-errors.py --spec-dir spec/v3.0
+python tools/validate-protojson-errors.py --spec-dir spec/v2.1
 ```
 
 | Check | Evidence and scope |
@@ -55,7 +55,7 @@ PAP's [upstream Company implementation kit](https://github.com/personal-agent-pr
 
 ## Required deployment acceptance cases
 
-Operators MUST run these against the implementation before advertising AAP 3.0. Testing read requests alone cannot establish lead, privacy or authorization correctness. Use isolated test inventory and a non-delivering lead sink for mutation cases.
+Operators MUST run these against the implementation before advertising AAP 2.1. Testing read requests alone cannot establish lead, privacy or authorization correctness. Use isolated test inventory and a non-delivering lead sink for mutation cases.
 
 | Area | Positive case | Negative / isolation cases |
 |---|---|---|
@@ -75,7 +75,7 @@ Schema acceptance is necessary but not sufficient: it cannot verify live TLS, do
 
 ## Version and release boundaries
 
-- AAP `3.0.0` is an automotive protocol release; Poppy remains draft `0.2` and the AAP Poppy discovery bridge remains version `1`.
+- AAP `2.1.0` is an automotive protocol release; Poppy remains draft `0.2` and the AAP Poppy discovery bridge remains version `1`.
 - Old AAP contracts remain immutable. Publish the new specification before a runtime advertises its URI.
 - Re-review the Poppy baseline when upstream changes. A moving `latest` URL is not evidence that a previously verified implementation still conforms.
 - Optional features omitted from discovery do not reduce conformance to this guest API profile. Advertising a feature without implementing its requirements does.

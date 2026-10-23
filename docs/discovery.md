@@ -8,8 +8,8 @@ description: Paired A2A agent-card.json and Poppy discovery for an AAP dealer.
 
 {/* aap-draft-only:start */}
 
-:::info Unreleased contract — planned 3.0.0
-This page describes the editable AAP 3.0 contract. The frozen v2.0 and earlier releases remain available. Example extension and schema URLs use the non-routable `draft.autoagentprotocol.invalid` namespace; release preparation replaces them with approved version-pinned URLs. Do not send draft identifiers to a production agent. See [migration guidance](./versioning.md#for-implementers).
+:::info Unreleased contract — planned 2.1.0
+This page describes the editable AAP 2.1 contract. The frozen v2.0 and earlier releases remain available. Example extension and schema URLs use the non-routable `draft.autoagentprotocol.invalid` namespace; release preparation replaces them with approved version-pinned URLs. Do not send draft identifiers to a production agent. See [migration guidance](./versioning.md#for-implementers).
 :::
 
 {/* aap-draft-only:end */}

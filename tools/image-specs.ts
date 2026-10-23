@@ -286,7 +286,7 @@ export const imageSpecs: Record<string, DiagramSpec> = {
 
   "poppy-discovery": {
     kind: "split",
-    eyebrow: "AAP 3.0 DISCOVERY",
+    eyebrow: "AAP 2.1 DISCOVERY",
     title: "A2A and Poppy meet the same dealer",
     description: "Two standard documents announce real capabilities without inventing protocol fields.",
     left: { title: "A2A Agent Card", body: "Activate the required automotive extension and send typed DataParts over JSON-RPC.", code: ["/.well-known/agent-card.json", "SendMessage"], tone: "primary" },

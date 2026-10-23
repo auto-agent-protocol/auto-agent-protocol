@@ -1,20 +1,20 @@
 ---
 sidebar_position: 5
 title: Personal Agent Protocol
-description: Normative AAP 3.0 profile of Poppy draft 0.2, with paired discovery, guest sessions, DPoP, automotive APIs and migration.
+description: Normative AAP 2.1 profile of Poppy draft 0.2, with paired discovery, guest sessions, DPoP, automotive APIs and migration.
 ---
 
 # Personal Agent Protocol
 
 {/* aap-draft-only:start */}
 
-:::info Unreleased contract — planned 3.0.0
-These requirements describe the editable AAP 3.0.0 candidate. Draft identifiers are not production identifiers. Release preparation pins them to the approved contract. Existing v2.0 and earlier deployments retain their frozen contracts until migrated.
+:::info Unreleased contract — planned 2.1.0
+These requirements describe the editable AAP 2.1.0 candidate. Draft identifiers are not production identifiers. Release preparation pins them to the approved contract. Existing v2.0 and earlier deployments retain their frozen contracts until migrated.
 :::
 
 {/* aap-draft-only:end */}
 
-AAP 3.0 combines the [A2A v1.0 profile](./a2a-profile.md) with a native [Personal Agent Protocol](https://personalagentprotocol.org/docs/0.2/spec) (PAP, “Poppy”) **draft 0.2** guest API. The automotive payloads, pricing rules, supported skills, consent and lead semantics are the same on both interfaces. A personal agent that understands Poppy and OpenAPI can use the automotive API without understanding A2A or the AAP discovery extension.
+AAP 2.1 combines the [A2A v1.0 profile](./a2a-profile.md) with a native [Personal Agent Protocol](https://personalagentprotocol.org/docs/0.2/spec) (PAP, “Poppy”) **draft 0.2** guest API. The automotive payloads, pricing rules, supported skills, consent and lead semantics are the same on both interfaces. A personal agent that understands Poppy and OpenAPI can use the automotive API without understanding A2A or the AAP discovery extension.
 
 Poppy is a draft. Compatibility here means this specific upstream revision, not a promise about future drafts, every vendor's client, or optional features that a deployment does not advertise. The baseline is [upstream commit 39b35bd](https://github.com/personal-agent-protocol/personal-agent-protocol/blob/39b35bdf240fc07f157d6ca4e29b5a41d4b36b5d/content/versions/0.2/spec.mdx), reviewed 2026-10-23. The normative A2A baseline is [v1.0.0](https://github.com/a2aproject/A2A/blob/v1.0.0/specification/a2a.proto). These upstream requirements apply in addition to this profile. AAP does not weaken their authentication or authorization rules.
 
@@ -22,7 +22,7 @@ Poppy is a draft. Compatibility here means this specific upstream revision, not 
 
 ## 1. Conformance and scope
 
-An AAP 3.0 dealer deployment MUST:
+An AAP 2.1 dealer deployment MUST:
 
 1. Publish `/.well-known/agent-card.json` and `/.well-known/poppy.json` on its dealership domain over HTTPS. The spelling is **`.well-known`**, and both filenames include `.json`.
 2. Implement the A2A JSON-RPC `SendMessage` profile, including required extension activation and A2A v1.0 wire semantics.
@@ -32,7 +32,7 @@ An AAP 3.0 dealer deployment MUST:
 
 The baseline requires no customer account, sign-in, account scopes, MCP service, browser session bridge, feedback endpoint, Company Agent conversations or Operations extension. These are optional. If advertised, their complete upstream requirements become mandatory. A Session authenticates the personal agent and identifies a pseudonymous user; “guest” does **not** mean unauthenticated API access.
 
-A website-only Poppy document (`organization`, `web: {}` and an optional AAP extension) is valid discovery and a useful migration stage. It is **not** the complete AAP 3.0 profile: a core Poppy client ignoring the extension can only browse that website. `poppy-document.schema.json` validates PAP `0.2` reader input, retaining unknown fields and interface types. `poppy.schema.json` adds AAP publication requirements and permits only upstream-defined API and conversation types. Before PAP 1.0, a client MUST NOT use an unsupported **major.minor** version. Support for `0.1` does not imply support for `0.2`, or vice versa. Legacy clients use the frozen version-specific contract.
+A website-only Poppy document (`organization`, `web: {}` and an optional AAP extension) is valid discovery and a useful migration stage. It is **not** the complete AAP 2.1 profile: a core Poppy client ignoring the extension can only browse that website. `poppy-document.schema.json` validates PAP `0.2` reader input, retaining unknown fields and interface types. `poppy.schema.json` adds AAP publication requirements and permits only upstream-defined API and conversation types. Before PAP 1.0, a client MUST NOT use an unsupported **major.minor** version. Support for `0.1` does not imply support for `0.2`, or vice versa. Legacy clients use the frozen version-specific contract.
 
 ## 2. Paired discovery
 
@@ -246,7 +246,7 @@ Feedback describes an unavailable task, not failed authentication or other retur
 
 ## 7. Migration and verification
 
-1. Preserve frozen v2.0/PAP 0.1 behavior while preparing AAP 3.0/PAP 0.2. Change validation and runtime behavior before advertising the new version. See the [breaking migration matrix](./versioning.md#pap-02-migration).
+1. Preserve frozen v2.0/PAP 0.1 behavior while preparing AAP 2.1/PAP 0.2. Change validation and runtime behavior before advertising the new version. See the [breaking migration matrix](./versioning.md#pap-02-migration).
 2. Change both assertion audiences to the exact issuer and explicitly reject endpoint audiences. Keep DPoP `htu` bound to the actual request endpoint. Support assertion lifetimes up to five minutes, with fresh IDs and expiry/replay checks.
 3. Audit every redirect and alias: final-host organization identity, case-only domain comparison, complete `poppy_domains`, consistent `auth` for aliases, and one issuer per independent Company.
 4. Verify ES256, separate per-User-ID DPoP keys, nonce handling, proof replay rules and optional MCP token selection. Do not weaken guest authentication to accommodate a client without signing capability.
