@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.0/schemas/dealer-information-response.schema.json",
+  "title": "DealerInformationResponse",
+  "description": "Typed AAP response for the `dealer.information` skill. Wraps a DealerInformation object inside the standard AAP response envelope (`{ type, data, message? }`). Carried as a typed DataPart in the A2A response or directly as the native Poppy API response body.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "dealer.information.response" },
+    "data": { "$ref": "./dealer-information.schema.json" },
+    "message": {
+      "type": "string",
+      "description": "Optional contextual note from the dealer or LLM. MAY be omitted.",
+      "maxLength": 2000
+    }
+  },
+  "required": ["type", "data"],
+  "additionalProperties": false
+}

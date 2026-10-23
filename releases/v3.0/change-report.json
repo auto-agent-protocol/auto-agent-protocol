@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "previous": "2.0.0",
+  "candidate": "3.0.0",
+  "summary": {
+    "additive": 6,
+    "breaking": 11
+  },
+  "changes": [
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.protocol_version.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.protocol_version.const",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.apis.minItems",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.apis.items.properties.resource.pattern",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.agent.properties.protocols.items.properties.resource.pattern",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.feedback",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.allOf",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.grant_types_supported.contains",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.token_endpoint_auth_methods_supported.contains",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.dpop_signing_alg_values_supported.contains",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.dpop_signing_alg_values_supported.uniqueItems",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy.schema.json",
+      "path": "$.allOf",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-client-assertion.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-feedback-request.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-session-assertion.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-session-request.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    }
+  ],
+  "note": "Structural schema check only. Maintainers must review normative behavior and documentation."
+}
