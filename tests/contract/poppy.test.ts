@@ -128,6 +128,9 @@ test("Poppy 0.2 validates optional feedback and ES256 metadata", () => {
   assert.equal(validate("poppy-oauth-metadata", metadata), false);
   delete metadata.dpop_signing_alg_values_supported;
   assert.equal(validate("poppy-oauth-metadata", metadata), true);
+  for (const patch of [{ grant_types_supported: ["client_credentials"] }, { token_endpoint_auth_methods_supported: ["none"] }]) {
+    assert.equal(validate("poppy-oauth-metadata", { ...metadata, ...patch }), false, "advertised metadata must support the PAP guest handshake");
+  }
 });
 
 test("advertised sign-in methods need matching metadata endpoints", () => {

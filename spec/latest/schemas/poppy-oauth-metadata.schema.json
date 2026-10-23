@@ -43,6 +43,9 @@
       "items": {
         "type": "string",
         "minLength": 1
+      },
+      "contains": {
+        "const": "urn:ietf:params:oauth:grant-type:jwt-bearer"
       }
     },
     "token_endpoint_auth_methods_supported": {
@@ -50,6 +53,9 @@
       "items": {
         "type": "string",
         "minLength": 1
+      },
+      "contains": {
+        "const": "private_key_jwt"
       }
     },
     "dpop_signing_alg_values_supported": {
