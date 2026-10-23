@@ -350,11 +350,16 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
   // Historical releases predate Poppy; regenerating a draft must not invent
   // this binding for a spec that does not declare the new discovery contract.
   if (components.Poppy) {
+    const protocolVersion: string = components.Poppy.allOf[1].properties.protocol_version.const;
+    const assertionAudience = protocolVersion === "0.1" ? "token_endpoint" : "auth.issuer";
+    const nonce = { schema: { type: "string" }, description: "Use the latest server nonce in a fresh DPoP proof on the next request to this server." };
     const paths = Object.fromEntries(manifest.skills.map(skill => {
-      const response = (description: string, schema: string) => ({
-        description, content: { "application/json": { schema: { $ref: `#/components/schemas/${schema}` } } },
+      const example = (schema: string) => JSON.parse(readFileSync(resolve(specDir, "examples", schema.replace(".schema.json", ".example.json")), "utf8"));
+      const response = (description: string, schema: string, value?: unknown) => ({
+        description, headers: { "DPoP-Nonce": nonce },
+        content: { "application/json": { schema: { $ref: `#/components/schemas/${schema}` }, ...(value === undefined ? {} : { example: value }) } },
       });
-      const challenge = { schema: { type: "string" }, description: "RFC 9449 DPoP challenge, including nonce handling." };
+      const challenge = { schema: { type: "string" }, description: "PAP/RFC 9449 DPoP challenge. Read error, scope or extension attributes before interpreting a skill error body." };
       return [`/skills/${skill.id}`, { post: {
         operationId: skill.id.replaceAll(".", "_"),
         "x-aap-skill": skill.id,
@@ -362,29 +367,30 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
         description: `${skill.description} Uses the unchanged AAP payload with a Poppy signed-out session; no customer account sign-in is required. lead.submit still requires explicit contact consent.`,
         security: [{ poppySession: [] }],
         parameters: [{ name: "DPoP", in: "header", required: true, description: "Fresh RFC 9449 proof bound to the access token, request method and URL; never a static API key.", schema: { type: "string", minLength: 1 } }],
-        requestBody: { required: true, content: { "application/json": { schema: { $ref: `#/components/schemas/${toComponentName(skill.request_schema.split("/").pop()!)}` } } } },
+        requestBody: { required: true, content: { "application/json": { schema: { $ref: `#/components/schemas/${toComponentName(skill.request_schema.split("/").pop()!)}` }, example: example(skill.request_schema) } } },
         responses: {
-          "200": response("Typed AAP response; a lead acknowledgment is not a confirmed appointment or sale.", toComponentName(skill.response_schema.split("/").pop()!)),
+          "200": response("Typed AAP response; a lead acknowledgment is not a confirmed appointment or sale.", toComponentName(skill.response_schema.split("/").pop()!), example(skill.response_schema)),
           "400": response("Malformed JSON or a request that cannot be processed.", "Error"),
-          "401": { description: "Missing, expired or invalid token/proof. No skill execution.", headers: { "WWW-Authenticate": challenge, "DPoP-Nonce": { schema: { type: "string" } } } },
-          "403": { description: "Insufficient authorization, or an AAP consent error. No skill execution.", headers: { "WWW-Authenticate": challenge }, content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          "401": { description: "Missing, expired or invalid token/proof. For use_dpop_nonce, retry with the DPoP-Nonce value and a fresh proof. No skill execution.", headers: { "WWW-Authenticate": challenge, "DPoP-Nonce": nonce } },
+          "403": { description: "PAP authorization or extension_required challenge, or an AAP consent error. Authentication errors need no AAP body. No skill execution.", headers: { "WWW-Authenticate": challenge, "DPoP-Nonce": nonce }, content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
           "404": response("Vehicle or implemented skill not found.", "Error"),
           "409": response("Vehicle/appointment unavailable or idempotency conflict.", "Error"),
           "422": response("AAP schema validation failed, including a mismatched request type.", "Error"),
-          "429": { ...response("Rate limited. Honor Retry-After before retrying.", "Error"), headers: { "Retry-After": { schema: { type: "string" } } } },
+          "429": { ...response("Rate limited. Honor Retry-After before retrying.", "Error"), headers: { "Retry-After": { schema: { type: "string" } }, "DPoP-Nonce": nonce } },
           "500": response("Internal skill failure.", "Error"),
         },
       } }];
     }));
     const poppy = {
       openapi: "3.1.0",
-      info: { ...jsonRpc.info, title: "Auto Agent Protocol — Poppy guest API", description: `AAP ${version} automotive payloads over Personal Agent Protocol draft 0.1 OpenAPI APIs. This is a Poppy API, not the removed A2A HTTP+JSON binding. Operators MUST publish a deployment-specific copy with real servers and only implemented skills. OAuth endpoints are discovered using RFC 8414, not inferred from this reference server.` },
+      info: { ...jsonRpc.info, title: "Auto Agent Protocol — Poppy guest API", description: `AAP ${version} automotive payloads over Personal Agent Protocol draft ${protocolVersion} OpenAPI APIs. Operators MUST publish a deployment-specific copy with real servers and only implemented skills. Verify poppy.json and RFC 8414 issuer metadata, then obtain a guest Session Token using two signed assertions and a DPoP proof. Both assertion audiences must exactly equal ${assertionAudience}; the proof htu is the token endpoint. Client identity keys are required; customer sign-in is not. OAuth endpoints are discovered from the issuer, not inferred from this reference server.` },
       "x-aap-extension": manifest.extension_uri,
-      "x-poppy-protocol-version": "0.1",
+      "x-poppy-protocol-version": protocolVersion,
+      externalDocs: { url: `https://personalagentprotocol.org/docs/${protocolVersion}/spec`, description: "Normative PAP discovery, client identity and session authorization" },
       servers: [{ url: "https://demo-toyota.example.com/poppy", description: "Illustrative dealer API base; replace before publication" }],
       paths,
       components: {
-        securitySchemes: { poppySession: { type: "http", scheme: "DPoP", description: "Poppy Session Token acquired from the verified OAuth issuer using private_key_jwt and a JWT bearer session assertion. The DPoP proof header is also mandatory. Account tokens are never API credentials." } },
+        securitySchemes: { poppySession: { type: "http", scheme: "DPoP", description: `PAP Session Token from the verified OAuth issuer. Authenticate with private_key_jwt and a separate JWT bearer session assertion, both with aud=${assertionAudience}, plus a token-endpoint DPoP proof. API requests require Authorization: DPoP and a fresh proof with ath bound to the token. Bearer and account tokens are not accepted by this OpenAPI interface.` } },
         schemas: components,
       },
     };
