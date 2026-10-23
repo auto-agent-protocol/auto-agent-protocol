@@ -41,6 +41,9 @@ interface SkillsManifest {
 const skillsManifest = parseYaml(
   readFileSync(resolve(ROOT, "spec", LATEST, "skills.yaml"), "utf-8")
 ) as SkillsManifest;
+const poppyVersion = readJson<{protocol_version: string}>(
+  resolve(ROOT, "spec", LATEST, "examples/poppy.example.json")
+).protocol_version;
 
 // --- sidebar traversal (doc structure is the single source of order) ---
 type SidebarItem = string | { type: string; label: string; items?: SidebarItem[] };
@@ -105,7 +108,7 @@ function buildLlmsTxt(): string {
   const out: string[] = [
     `# ${TITLE}`,
     "",
-    `> ${TITLE} (AAP) is an open A2A v1.0 profile: AI buyer-agents discover a car dealership, browse its real inventory, and submit consented sales leads. ${skillsManifest.skills.length} skills: ${skillIds}. Current release ${STABLE_RELEASE.version} (contract ${LATEST}); A2A SendMessage over JSON-RPC 2.0 and a Poppy guest OpenAPI interface; discovery via /.well-known/agent-card.json and /.well-known/poppy.json; extension URI ${skillsManifest.extension_uri}.`,
+    `> ${TITLE} (AAP) is an open A2A v1.0 profile: AI buyer-agents discover a car dealership, browse its real inventory, and submit consented sales leads. ${skillsManifest.skills.length} skills: ${skillIds}. Current release ${STABLE_RELEASE.version} (contract ${LATEST}); A2A SendMessage over JSON-RPC 2.0 and a Poppy draft ${poppyVersion} guest OpenAPI interface; discovery via /.well-known/agent-card.json and /.well-known/poppy.json; extension URI ${skillsManifest.extension_uri}.`,
     "",
     `The entire specification is also available as a single self-contained file at ${SITE}/llms-full.txt.`,
     "",
@@ -155,7 +158,7 @@ function buildLlmsFull(): string {
     "",
     `Canonical URL: ${SITE}`,
     `Version: ${skillsManifest.version}  |  Extension URI: ${skillsManifest.extension_uri}`,
-    "Interfaces: A2A `SendMessage` over JSON-RPC 2.0; Poppy draft 0.1 guest OpenAPI API with DPoP",
+    `Interfaces: A2A \`SendMessage\` over JSON-RPC 2.0; Poppy draft ${poppyVersion} guest OpenAPI API with DPoP`,
     "Discovery: GET https://{dealer-domain}/.well-known/agent-card.json and /.well-known/poppy.json",
     "Built on: A2A v1.0 (Agent2Agent, https://a2a-protocol.org)",
     "License: Specification & schemas Apache-2.0; documentation prose CC-BY-4.0",

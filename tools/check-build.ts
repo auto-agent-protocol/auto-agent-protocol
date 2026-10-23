@@ -40,6 +40,18 @@ if (suggestedVersion?.name !== stable.contract) {
 }
 
 const build = resolve(ROOT, "build");
+const poppyVersion = readJson<{protocol_version: string}>(join(build, stable.contract, "examples/poppy.example.json")).protocol_version;
+for (const file of ["llms.txt", "llms-full.txt"]) {
+  const header = readFileSync(join(build, file), "utf8").split("\n").find(line => line.startsWith(file === "llms.txt" ? "> " : "Interfaces: "));
+  if (!header?.includes(`Poppy draft ${poppyVersion} guest OpenAPI`)) {
+    throw new Error(`${file} must describe the stable PAP version ${poppyVersion}`);
+  }
+}
+const faq = readFileSync(join(build, "faq.html"), "utf8").match(/<article\b[^>]*>([\s\S]*?)<\/article>/)?.[1];
+if (!faq?.includes(`Poppy draft ${poppyVersion}`)) throw new Error("FAQ must describe the stable PAP version");
+for (const [, contract] of faq.matchAll(/href="\/docs\/(v\d+\.\d+)\//g)) {
+  if (contract !== stable.contract) throw new Error(`FAQ must link the stable contract ${stable.contract}, not ${contract}`);
+}
 if (!readdirSync(join(build, "docs")).includes("latest")) throw new Error("Production docs/latest alias is missing");
 if (!readdirSync(join(build, "docs")).includes(stable.contract)) throw new Error(`Published docs/${stable.contract} is missing`);
 const latestDocsRoot = join(build, "docs", "latest");
