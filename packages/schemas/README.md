@@ -11,12 +11,13 @@ npm install @autoagentprotocol/schemas
 ## Usage
 
 ```ts
-import Ajv from "ajv";
+import Ajv2020 from "ajv/dist/2020";
 import addFormats from "ajv-formats";
-import { inventorySearchRequestSchema } from "@autoagentprotocol/schemas";
+import { allSchemas, inventorySearchRequestSchema } from "@autoagentprotocol/schemas";
 
-const ajv = new Ajv({ strict: false });
+const ajv = new Ajv2020({ strict: false });
 addFormats(ajv);
+ajv.addSchema(allSchemas);
 const validate = ajv.compile(inventorySearchRequestSchema);
 
 if (!validate(payload)) {
@@ -24,9 +25,9 @@ if (!validate(payload)) {
 }
 ```
 
-Each schema is exported by its camelCased name (`agentCardSchema`, `vehicleSchema`, `inventorySearchRequestSchema`, …) for the current AAP version. The same schemas are hosted at [autoagentprotocol.org/v1.3/schemas/](https://autoagentprotocol.org/v1.3/schemas/) and documented on the [spec site](https://autoagentprotocol.org).
+Each schema is exported by its camelCased name (`agentCardSchema`, `vehicleSchema`, `inventorySearchRequestSchema`, …) for AAP 2.1.0. The same schemas are hosted at [autoagentprotocol.org/v2.1/schemas/](https://autoagentprotocol.org/v2.1/schemas/) and documented on the [spec site](https://autoagentprotocol.org). `allSchemas` includes the shared definitions needed to resolve references.
 
-- Ready-made validator (library + `aap-validate` CLI): [`@autoagentprotocol/validator`](https://www.npmjs.com/package/@autoagentprotocol/validator)
+- Ready-made validator library: [`@autoagentprotocol/validator`](https://www.npmjs.com/package/@autoagentprotocol/validator)
 - TypeScript types: [`@autoagentprotocol/types`](https://www.npmjs.com/package/@autoagentprotocol/types)
 
 ## License
