@@ -4,7 +4,7 @@ import { filesIn, hash, loadRegistry, readJson, ROOT, stableRelease } from "./li
 import { loadPartners } from "./check-partners.js";
 
 interface DocsGlobalData {
-  versions?: Array<{name?: string; label?: string; path?: string; isLast?: boolean}>;
+  versions?: Array<{name?: string; label?: string; path?: string; isLast?: boolean; mainDocId?: string; docs?: Array<{id: string; path: string}>}>;
 }
 
 function tree(directory: string): Record<string, string> {
@@ -44,9 +44,14 @@ if (!readdirSync(join(build, "docs")).includes("latest")) throw new Error("Produ
 if (!readdirSync(join(build, "docs")).includes(stable.contract)) throw new Error(`Published docs/${stable.contract} is missing`);
 const latestDocsRoot = join(build, "docs", "latest");
 const latestPages = filesIn(latestDocsRoot).filter(file => file.endsWith(".html"));
+const currentVersion = renderedVersions.find(version => version.name === "current");
+const stableIntro = suggestedVersion.docs?.find(doc => doc.id === suggestedVersion.mainDocId);
+if (!stableIntro) throw new Error("Published documentation entry page is missing");
 for (const file of latestPages) {
   const documentPath = relative(latestDocsRoot, file).split("\\").join("/").replace(/\.html$/, "");
-  const expectedTarget = `/docs/${stable.contract}/${documentPath}`;
+  const currentDoc = currentVersion?.docs?.find(doc => doc.path === `/docs/latest/${documentPath}`);
+  if (!currentDoc) throw new Error(`Draft documentation metadata is missing for ${documentPath}`);
+  const expectedTarget = suggestedVersion.docs?.find(doc => doc.id === currentDoc.id)?.path ?? stableIntro.path;
   const html = readFileSync(file, "utf8");
   const target = html.match(/<a href="([^"]+)">latest version<\/a>/)?.[1];
   if (target !== expectedTarget) {
