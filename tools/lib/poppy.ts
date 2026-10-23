@@ -48,3 +48,34 @@ export function checkPoppyIdentity(
   }
   return errors;
 }
+
+export function checkPoppyClientIdentity(
+  metadata: { client_id: string; jwks_uri: string; redirect_uris: string[] },
+  metadataUrl: string,
+): string[] {
+  const errors: string[] = [];
+  const client = new URL(metadataUrl);
+  if (client.protocol !== "https:" || client.username || client.password) errors.push("Client metadata URL must use HTTPS without credentials");
+  if (metadata.client_id !== metadataUrl) errors.push("client_id must exactly match the fetched metadata URL");
+  for (const endpoint of [metadata.jwks_uri, ...metadata.redirect_uris]) {
+    const url = new URL(endpoint);
+    if (url.protocol !== "https:" || url.username || url.password || url.hostname !== client.hostname) {
+      errors.push("jwks_uri and redirect_uris must use HTTPS on the client_id domain");
+    }
+  }
+  return errors;
+}
+
+export function checkPoppyAssertion(
+  claims: { iss: string; sub: string; aud: string; iat: number; exp: number },
+  clientId: string,
+  issuer: string,
+  kind: "client" | "session",
+): string[] {
+  const errors: string[] = [];
+  if (claims.iss !== clientId) errors.push("Assertion iss must equal the authenticated client_id");
+  if (kind === "client" && claims.sub !== clientId) errors.push("Client assertion sub must equal client_id");
+  if (claims.aud !== issuer) errors.push("PAP 0.2 assertion aud must exactly equal auth.issuer as a single string");
+  if (claims.exp <= claims.iat || claims.exp - claims.iat > 300) errors.push("Assertion lifetime must be positive and at most 300 seconds");
+  return errors;
+}

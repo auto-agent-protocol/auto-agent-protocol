@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-session-assertion.schema.json",
+  "title": "PoppySessionAssertion",
+  "description": "Decoded PAP 0.2 session JWT claims, not a token or proof of authentication. Verify signature, issuer audience, expiry, a lifetime of at most 300 seconds and per-client replay prevention before accepting it.",
+  "type": "object",
+  "properties": {
+    "iss": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$",
+      "description": "Authenticated personal-agent client_id."
+    },
+    "sub": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque User ID scoped to the Company issuer, never derived from personal information."
+    },
+    "aud": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:/[^?#\\s]*)?$",
+      "description": "Exact auth.issuer as a single string. The token endpoint URL and arrays are invalid."
+    },
+    "iat": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "exp": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "jti": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique assertion ID generated with at least 128 random bits; reject reuse by the same client until expiry."
+    }
+  },
+  "required": [
+    "iss",
+    "sub",
+    "aud",
+    "iat",
+    "exp",
+    "jti"
+  ],
+  "additionalProperties": true
+}

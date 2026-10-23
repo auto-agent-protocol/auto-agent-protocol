@@ -6,7 +6,7 @@ import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { globSync } from "glob";
 import { ROOT } from "../../tools/lib/releases.js";
-import { checkPoppyIdentity, oauthMetadataUrl } from "../../tools/lib/poppy.js";
+import { checkPoppyAssertion, checkPoppyClientIdentity, checkPoppyIdentity, oauthMetadataUrl } from "../../tools/lib/poppy.js";
 
 const ajv = new Ajv2020({ strict: false, allErrors: true });
 addFormats(ajv);
@@ -145,4 +145,34 @@ test("guest session responses cannot grant account scopes or account credentials
     assert.equal(validate("poppy-session-token", { ...token, ...patch }), false);
   }
   assert.equal(validate("poppy-session-token", { ...token, signed_in: true, scope: "poppy:read", refresh_token: "example-account-token" }), true);
+});
+
+test("PAP 0.2 handshake binds both assertions to the verified client and issuer", () => {
+  const client = read("poppy-client-metadata");
+  const { issuer, token_endpoint } = read("poppy-oauth-metadata");
+  assert.deepEqual(checkPoppyClientIdentity(client, client.client_id), []);
+  assert.ok(checkPoppyClientIdentity({ ...client, jwks_uri: "https://other.example/jwks.json" }, client.client_id).length);
+  assert.ok(checkPoppyClientIdentity(client, `${client.client_id}?different`).length);
+  for (const kind of ["client", "session"] as const) {
+    const claims = read(`poppy-${kind}-assertion`);
+    assert.equal(validate(`poppy-${kind}-assertion`, claims), true);
+    assert.deepEqual(checkPoppyAssertion(claims, client.client_id, issuer, kind), []);
+    assert.deepEqual(checkPoppyAssertion({ ...claims, exp: claims.iat + 300 }, client.client_id, issuer, kind), []);
+    for (const patch of [{ aud: token_endpoint }, { aud: [issuer] }, { iss: "https://other.example/client.json" }, { exp: claims.iat }, { exp: claims.iat + 301 }]) {
+      assert.ok(checkPoppyAssertion({ ...claims, ...patch }, client.client_id, issuer, kind).length, JSON.stringify(patch));
+    }
+    assert.equal(validate(`poppy-${kind}-assertion`, { ...claims, aud: [issuer] }), false);
+  }
+  assert.ok(checkPoppyAssertion(read("poppy-session-assertion"), client.client_id, issuer, "client").length);
+  const request = read("poppy-session-request");
+  assert.equal(validate("poppy-session-request", request), true);
+  delete request.client_assertion;
+  assert.equal(validate("poppy-session-request", request), false);
+});
+
+test("feedback receivers accept future kinds and enforce PAP report limits", () => {
+  const report = read("poppy-feedback-request");
+  assert.equal(validate("poppy-feedback-request", { ...report, kind: "future" }), true);
+  assert.equal(validate("poppy-feedback-request", { ...report, task: "x".repeat(201) }), false);
+  assert.equal(validate("poppy-feedback-request", { ...report, description: "x".repeat(2001) }), false);
 });

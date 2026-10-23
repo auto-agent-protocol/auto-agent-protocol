@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-feedback-request.schema.json",
+  "title": "PoppyFeedbackRequest",
+  "description": "PAP 0.2 feedback report. Personal agents send kind=missing; receiving Companies must also accept unknown kinds. Send with a Session Token and DPoP, without account scopes, identifiers or secrets. Acceptance returns HTTP 202 with no body.",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "minLength": 1,
+      "description": "PAP 0.2 senders use missing. Receivers accept unknown future kinds."
+    },
+    "task": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2000
+    }
+  },
+  "required": [
+    "kind",
+    "task",
+    "description"
+  ],
+  "additionalProperties": true
+}
