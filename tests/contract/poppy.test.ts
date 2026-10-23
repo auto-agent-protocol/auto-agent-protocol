@@ -27,6 +27,10 @@ test("website-only Poppy remains valid upstream discovery but does not claim ful
   assert.equal(validate("poppy-document", website), true);
   assert.equal(validate("poppy", website), false);
   assert.deepEqual(checkPoppyIdentity(website, discovery), []);
+  website.apis = [];
+  website.auth = read("poppy").auth;
+  assert.equal(validate("poppy-document", website), true, "a website may advertise no API entries");
+  assert.equal(validate("poppy", website), false, "AAP publication still needs an OpenAPI entry");
 });
 
 test("Poppy 0.2 readers reject unsupported pre-1.0 minor versions", () => {
@@ -159,6 +163,7 @@ test("PAP 0.2 handshake binds both assertions to the verified client and issuer"
   for (const kind of ["client", "session"] as const) {
     const claims = read(`poppy-${kind}-assertion`);
     assert.equal(validate(`poppy-${kind}-assertion`, claims), true);
+    assert.equal(validate(`poppy-${kind}-assertion`, { ...claims, iat: claims.iat + 0.25, exp: claims.exp + 0.25 }), true, "JWT NumericDates may be fractional");
     assert.deepEqual(checkPoppyAssertion(claims, client.client_id, issuer, kind), []);
     assert.deepEqual(checkPoppyAssertion({ ...claims, exp: claims.iat + 300 }, client.client_id, issuer, kind), []);
     for (const patch of [{ aud: token_endpoint }, { aud: [issuer] }, { iss: "https://other.example/client.json" }, { exp: claims.iat }, { exp: claims.iat + 301 }]) {

@@ -23,12 +23,14 @@
       "description": "Exact auth.issuer as a single string. The token endpoint URL and arrays are invalid."
     },
     "iat": {
-      "type": "integer",
-      "minimum": 0
+      "type": "number",
+      "minimum": 0,
+      "description": "JWT NumericDate: seconds since the Unix epoch, including fractional seconds (RFC 7519 section 2)."
     },
     "exp": {
-      "type": "integer",
-      "minimum": 0
+      "type": "number",
+      "minimum": 0,
+      "description": "JWT NumericDate: seconds since the Unix epoch, including fractional seconds (RFC 7519 section 2)."
     },
     "jti": {
       "type": "string",
