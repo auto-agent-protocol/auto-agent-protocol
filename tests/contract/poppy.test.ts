@@ -22,21 +22,18 @@ test("Poppy guest API and extension examples conform without inventing a convers
   assert.deepEqual(checkPoppyIdentity(read("poppy"), discovery, read("poppy-oauth-metadata")), []);
 });
 
-test("website-only Poppy remains valid upstream discovery but does not claim full AAP 2.0", () => {
+test("website-only Poppy remains valid upstream discovery but does not claim full AAP 3.0", () => {
   const website = read("poppy-document");
   assert.equal(validate("poppy-document", website), true);
   assert.equal(validate("poppy", website), false);
   assert.deepEqual(checkPoppyIdentity(website, discovery), []);
 });
 
-test("Poppy readers accept compatible minor versions while AAP publication stays on draft 0.1", () => {
-  for (const version of ["0.1", "0.2", "0.12"]) {
-    const document = { ...read("poppy"), protocol_version: version };
-    assert.equal(validate("poppy-document", document), true, version);
-    assert.equal(validate("poppy", document), version === "0.1", version);
-  }
-  for (const version of ["1.0", "0.0", "0.01", "0.2.0", "0.x", "0.2 "]) {
+test("Poppy 0.2 readers reject unsupported pre-1.0 minor versions", () => {
+  assert.equal(validate("poppy-document", read("poppy")), true);
+  for (const version of ["0.1", "0.3", "0.12", "1.0", "0.0", "0.01", "0.2.0", "0.x", "0.2 "]) {
     assert.equal(validate("poppy-document", { ...read("poppy"), protocol_version: version }), false, version);
+    assert.equal(validate("poppy", { ...read("poppy"), protocol_version: version }), false, version);
   }
 });
 
@@ -45,6 +42,7 @@ test("Poppy native surfaces require auth, including empty advertised lists", () 
     { apis: [{ type: "openapi", url: "https://dealer.example/api.json", description: "Inventory" }] },
     { apis: [] }, { agent: { protocols: [{ type: "poppy", endpoint: "https://dealer.example/conversations" }] } },
     { web: { browser_session_endpoint: "https://dealer.example/browser-session" } },
+    { feedback: { endpoint: "https://dealer.example/feedback" } },
   ]) assert.equal(validate("poppy-document", { ...read("poppy-document"), ...patch }), false);
 });
 
@@ -67,8 +65,10 @@ test("Poppy discovery consumers tolerate unknown fields, extensions and interfac
   document.organization.future = "allowed";
   document.extensions["example.com/feature"] = { version: "1", future: true };
   document.extensions["autoagentprotocol.org/aap"].future = true;
-  document.apis.push({ type: "future-api", url: "https://example.com/api", description: "Skip if unsupported" });
   assert.equal(validate("poppy", document), true, JSON.stringify(ajv.errors));
+  document.apis.push({ type: "future-api", url: "https://example.com/api", description: "Skip if unsupported" });
+  assert.equal(validate("poppy-document", document), true, JSON.stringify(ajv.errors));
+  assert.equal(validate("poppy", document), false, "publishers advertise only defined PAP API types");
 });
 
 test("Poppy HTTPS publication rejects credential-bearing and insecure URLs", () => {
@@ -81,10 +81,10 @@ test("Poppy HTTPS publication rejects credential-bearing and insecure URLs", () 
     assert.equal(validate("poppy", document), false);
     assert.throws(() => oauthMetadataUrl(issuer));
   }
-  const document = read("poppy"); document.apis[0].resource = "urn:example:dealer";
-  assert.equal(validate("poppy", document), true, "RFC 8707 permits non-HTTPS absolute resource URIs");
-  document.apis[0].resource += "#fragment";
-  assert.equal(validate("poppy", document), false);
+  for (const resource of ["urn:example:dealer", "http://dealer.example/api", "https://dealer.example/api#fragment"]) {
+    const document = read("poppy"); document.apis[0].resource = resource;
+    assert.equal(validate("poppy", document), false, "PAP 0.2 requires HTTPS resource URLs without fragments");
+  }
 });
 
 test("OAuth discovery uses RFC 8414 insertion before a tenant path", () => {
@@ -95,9 +95,12 @@ test("OAuth discovery uses RFC 8414 insertion before a tenant path", () => {
   assert.equal(oauthMetadataUrl("https://provider.example/"), "https://provider.example/.well-known/oauth-authorization-server");
 });
 
-test("Poppy identity binds the original domain, exact issuer and authorized domain set", () => {
-  assert.deepEqual(checkPoppyIdentity(read("poppy"), discovery.replace("https://", "https://www."), read("poppy-oauth-metadata")), []);
-  assert.ok(checkPoppyIdentity(read("poppy"), "https://hosting.example/.well-known/poppy.json", read("poppy-oauth-metadata")).some(e => e.includes("originally")));
+test("Poppy 0.2 identity binds the final host, exact issuer and case-insensitive authorized domains", () => {
+  const www = discovery.replace("https://", "https://www.");
+  assert.ok(checkPoppyIdentity(read("poppy"), www, read("poppy-oauth-metadata")).some(e => e.includes("final discovery host")));
+  assert.deepEqual(checkPoppyIdentity(read("poppy"), www, read("poppy-oauth-metadata"), discovery), []);
+  assert.ok(checkPoppyIdentity(read("poppy"), discovery, read("poppy-oauth-metadata"), www).some(e => e.includes("final discovery host")));
+  assert.ok(checkPoppyIdentity(read("poppy"), discovery, read("poppy-oauth-metadata"), discovery.replace("https:", "http:")).some(e => e.includes("HTTPS")));
   assert.ok(checkPoppyIdentity(read("poppy"), discovery).some(e => e.includes("metadata")));
   const slashDocument = read("poppy"); slashDocument.auth.issuer += "/";
   const slashMetadata = read("poppy-oauth-metadata"); slashMetadata.issuer += "/";
@@ -106,6 +109,25 @@ test("Poppy identity binds the original domain, exact issuer and authorized doma
   assert.ok(checkPoppyIdentity(read("poppy"), discovery, metadata).some(e => e.includes("exactly")));
   metadata.issuer = read("poppy").auth.issuer; metadata.poppy_domains = ["different.example"];
   assert.ok(checkPoppyIdentity(read("poppy"), discovery, metadata).some(e => e.includes("poppy_domains")));
+  metadata.poppy_domains = [read("poppy").organization.domain.toUpperCase()];
+  assert.deepEqual(checkPoppyIdentity(read("poppy"), discovery, metadata), []);
+  const legacy = JSON.parse(readFileSync(resolve(ROOT, "spec/v2.0/examples/poppy.example.json"), "utf8"));
+  assert.deepEqual(checkPoppyIdentity(legacy, www, read("poppy-oauth-metadata")), [], "frozen PAP 0.1 retains its original identity rules");
+});
+
+test("Poppy 0.2 validates optional feedback and ES256 metadata", () => {
+  const document = read("poppy");
+  document.feedback = { endpoint: "https://dealer.example/feedback", future: true };
+  assert.equal(validate("poppy", document), true);
+  document.feedback.endpoint = "http://dealer.example/feedback";
+  assert.equal(validate("poppy", document), false);
+  delete document.feedback.endpoint;
+  assert.equal(validate("poppy", document), false);
+  const metadata = read("poppy-oauth-metadata");
+  metadata.dpop_signing_alg_values_supported = ["RS256"];
+  assert.equal(validate("poppy-oauth-metadata", metadata), false);
+  delete metadata.dpop_signing_alg_values_supported;
+  assert.equal(validate("poppy-oauth-metadata", metadata), true);
 });
 
 test("advertised sign-in methods need matching metadata endpoints", () => {

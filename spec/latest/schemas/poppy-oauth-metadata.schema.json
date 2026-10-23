@@ -57,7 +57,12 @@
       "items": {
         "type": "string",
         "minLength": 1
-      }
+      },
+      "contains": {
+        "const": "ES256"
+      },
+      "uniqueItems": true,
+      "description": "Optional advertisement; when present it must include ES256. ES256 proof verification is mandatory even when this field is omitted."
     }
   },
   "required": [

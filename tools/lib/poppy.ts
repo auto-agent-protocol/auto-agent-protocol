@@ -13,23 +13,35 @@ export function checkPoppyIdentity(
   document: Record<string, any>,
   discoveryUrl: string,
   metadata?: Record<string, any>,
+  finalDiscoveryUrl: string = discoveryUrl,
 ): string[] {
   const errors: string[] = [];
   const requested = new URL(discoveryUrl);
-  const host = (value: string) => value.toLowerCase().replace(/^www\./, "");
+  const final = new URL(finalDiscoveryUrl);
+  const legacy = document.protocol_version === "0.1";
+  if (!legacy && document.protocol_version !== "0.2") errors.push("Unsupported PAP major.minor version");
+  const host = (value: string) => legacy ? value.toLowerCase().replace(/^www\./, "") : value.toLowerCase();
   if (requested.protocol !== "https:" || requested.username || requested.password ||
       requested.pathname !== "/.well-known/poppy.json" || requested.search || requested.hash) {
     errors.push("Discovery must start at the HTTPS well-known URL");
   }
-  if (host(document.organization.domain) !== host(requested.hostname)) {
-    errors.push("organization.domain must match the originally requested host, not a redirect host");
+  if (final.protocol !== "https:" || final.username || final.password) {
+    errors.push("Discovery redirects must use HTTPS without credentials");
+  }
+  if (host(document.organization.domain) !== host(legacy ? requested.hostname : final.hostname)) {
+    errors.push(legacy
+      ? "PAP 0.1 organization.domain must match the originally requested host"
+      : "PAP 0.2 organization.domain must match the final discovery host, ignoring case only");
   }
   if (document.auth) {
     oauthMetadataUrl(document.auth.issuer);
     if (!metadata) errors.push("OAuth metadata is required when auth is advertised");
     else {
       if (metadata.issuer !== document.auth.issuer) errors.push("OAuth issuer must match auth.issuer exactly");
-      if (!metadata.poppy_domains?.includes(document.organization.domain)) errors.push("OAuth poppy_domains must include organization.domain");
+      const domains: string[] = metadata.poppy_domains ?? [];
+      if (!domains.some(domain => legacy ? domain === document.organization.domain : domain.toLowerCase() === document.organization.domain.toLowerCase())) {
+        errors.push("OAuth poppy_domains must include organization.domain");
+      }
       if (document.auth.direct && !metadata.authorization_endpoint) errors.push("Direct Sign-In requires authorization_endpoint");
       if (document.auth.device && !metadata.device_authorization_endpoint) errors.push("Device Sign-In requires device_authorization_endpoint");
     }
