@@ -8,8 +8,8 @@ description: How to invoke each AAP skill over A2A's JSON-RPC 2.0 binding (Secti
 
 {/* aap-draft-only:start */}
 
-:::info Unreleased contract — planned 2.0.0
-This page describes the editable next-major contract, not the frozen v1.3 release. Example extension and schema URLs use the non-routable `draft.autoagentprotocol.invalid` namespace; release preparation replaces them with approved version-pinned URLs. Do not send draft identifiers to a production agent. See [migration guidance](../versioning.md#for-implementers).
+:::info Unreleased contract — planned 3.0.0
+This page describes the editable AAP 3.0 contract. The frozen v2.0 and earlier releases remain available. Example extension and schema URLs use the non-routable `draft.autoagentprotocol.invalid` namespace; release preparation replaces them with approved version-pinned URLs. Do not send draft identifiers to a production agent. See [migration guidance](../versioning.md#for-implementers).
 :::
 
 {/* aap-draft-only:end */}
@@ -19,7 +19,7 @@ A2A defines a JSON-RPC 2.0 binding in [Section 9](https://a2a-protocol.org/speci
 ![JSON-RPC request and response envelopes: SendMessage carries params.message in and result.message out](../img/jsonrpc-envelope.svg)
 
 :::note JSON-RPC is the SOLE binding
-A JSON-RPC interface is **REQUIRED** on every AAP agent card: `supportedInterfaces[]` MUST include at least one entry with `protocolBinding: "JSONRPC"`. JSON-RPC 2.0 is the **only** transport AAP defines — the HTTP+JSON (REST) binding was [removed in v1.1.0](rest.md), and gRPC is out of scope.
+A JSON-RPC interface is **REQUIRED** on every AAP agent card: `supportedInterfaces[]` MUST include at least one entry with `protocolBinding: "JSONRPC"`. JSON-RPC 2.0 is the **only A2A transport** in this profile — the HTTP+JSON (REST) binding was [removed in v1.1.0](rest.md), and gRPC is out of scope.
 :::
 
 :::info A2A v1.0 wire format — the ProtoJSON form

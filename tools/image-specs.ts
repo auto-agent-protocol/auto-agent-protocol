@@ -111,7 +111,7 @@ export const imageSpecs: Record<string, DiagramSpec> = {
       },
       {
         label: "AGENT PROTOCOL",
-        title: "A2A v1.0 + Poppy 0.1",
+        title: "A2A v1.0 + PAP 0.2",
         body: "A2A carries typed DataParts. Poppy exposes the same payloads through its native OpenAPI interface.",
         code: ["A2A: JSON-RPC SendMessage", "Poppy: guest sessions + DPoP"],
       },
@@ -286,7 +286,7 @@ export const imageSpecs: Record<string, DiagramSpec> = {
 
   "poppy-discovery": {
     kind: "split",
-    eyebrow: "AAP 2.0 DISCOVERY",
+    eyebrow: "AAP 3.0 DISCOVERY",
     title: "A2A and Poppy meet the same dealer",
     description: "Two standard documents announce real capabilities without inventing protocol fields.",
     left: { title: "A2A Agent Card", body: "Activate the required automotive extension and send typed DataParts over JSON-RPC.", code: ["/.well-known/agent-card.json", "SendMessage"], tone: "primary" },
@@ -301,9 +301,9 @@ export const imageSpecs: Record<string, DiagramSpec> = {
     title: "Guest sessions still prove identity",
     description: "The personal agent proves its identity and key ownership; the shopper needs no dealer account.",
     items: [
-      { label: "01", title: "Verify discovery", body: "Match the original domain, exact issuer and authorized poppy_domains." },
-      { label: "02", title: "Create a session", body: "Verify client and user assertions; issue a short-lived proof-bound token.", code: ["private_key_jwt", "JWT bearer grant"], tone: "primary" },
-      { label: "03", title: "Call a skill", body: "Check token, audience, method, URL, key and replay protection.", code: ["Authorization: DPoP", "Fresh DPoP proof"] },
+      { label: "01", title: "Verify discovery", body: "Match the final host, exact issuer and authorized poppy_domains." },
+      { label: "02", title: "Create a session", body: "Verify both issuer-audience assertions and the DPoP proof.", code: ["private_key_jwt", "JWT bearer grant"], tone: "primary" },
+      { label: "03", title: "Call a skill", body: "Check token, resource, method, URL, key and token hash.", code: ["Authorization: DPoP", "Fresh DPoP proof"] },
       { label: "04", title: "Enforce consent", body: "Only an explicit ConsentGrant permits a lead; retries keep their key.", code: ["lead.submit"], tone: "teal" },
     ],
     footer: "The native Poppy OpenAPI interface carries the same automotive skill payloads.",
