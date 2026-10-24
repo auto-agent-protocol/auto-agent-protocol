@@ -40,6 +40,9 @@ if (suggestedVersion?.name !== stable.contract) {
 }
 
 const build = resolve(ROOT, "build");
+if (!readFileSync(join(build, "search.html")).equals(readFileSync(join(build, "search/index.html")))) {
+  throw new Error("Search links and refreshed /search/ URLs must serve the same search page");
+}
 const poppyVersion = readJson<{protocol_version: string}>(join(build, stable.contract, "examples/poppy.example.json")).protocol_version;
 for (const file of ["llms.txt", "llms-full.txt"]) {
   const header = readFileSync(join(build, file), "utf8").split("\n").find(line => line.startsWith(file === "llms.txt" ? "> " : "Interfaces: "));
