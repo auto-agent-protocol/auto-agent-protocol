@@ -14,7 +14,7 @@ export default function DiagramImage(
         rel="noopener"
         aria-label={`Open full-size diagram: ${props.alt ?? "AAP diagram"}`}
       >
-        <OriginalImage {...props} />
+        <OriginalImage {...props} loading={props.loading ?? "eager"} />
         <span className={styles.expand}>
           Open full-size diagram <span aria-hidden="true">↗</span>
         </span>
