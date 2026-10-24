@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.0/schemas/inventory-capabilities.schema.json",
+  "title": "InventoryCapabilities",
+  "description": "Actual search behavior of one deployment. Publish in the A2A AAP extension params.skills.inventory.search.capabilities and the MCP search tool metadata. The same scope, supported filters, sort fields and limits apply to every binding.",
+  "type": "object",
+  "properties": {
+    "scope": {
+      "type": "string",
+      "enum": [
+        "dealer",
+        "aggregate"
+      ],
+      "description": "dealer searches the named dealership or dealer group; aggregate searches multiple independently identified dealers. Aggregate endpoints do not accept ambiguous rooftop-name filters."
+    },
+    "filters": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "make",
+          "model",
+          "trim",
+          "condition",
+          "vehicle_type",
+          "transmission",
+          "fuel",
+          "electric_range_mi_min",
+          "electric_range_mi_max",
+          "dc_fast_charge",
+          "charge_port",
+          "driveline",
+          "body",
+          "displacement_cc_min",
+          "displacement_cc_max",
+          "exterior_color",
+          "interior_color",
+          "rooftops",
+          "status",
+          "features_all",
+          "features_any",
+          "near",
+          "year_min",
+          "year_max",
+          "price_min",
+          "price_max",
+          "mileage_max",
+          "vin",
+          "stock",
+          "query"
+        ]
+      },
+      "description": "Supported filter keys. Every omitted key returns UNSUPPORTED_FILTER if supplied. Unknown keys remain schema errors."
+    },
+    "sort_fields": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "price",
+          "list_price",
+          "msrp",
+          "mileage",
+          "year",
+          "make",
+          "model",
+          "stock",
+          "updated_at",
+          "distance_mi"
+        ]
+      }
+    },
+    "default_sort": {
+      "allOf": [
+        {
+          "$ref": "./inventory-search-request.schema.json#/properties/sort",
+          "description": "Effective ordering when omitted by the caller. Must use a supported field other than distance_mi because an unfiltered request has no geographic origin."
+        },
+        {
+          "properties": {
+            "field": {
+              "type": "string",
+              "enum": [
+                "price",
+                "list_price",
+                "msrp",
+                "mileage",
+                "year",
+                "make",
+                "model",
+                "stock",
+                "updated_at"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "default_limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "description": "Default page size; must not exceed max_limit."
+    },
+    "max_limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "description": "Maximum accepted page size. Larger values return SCHEMA_VALIDATION_FAILED; never silently truncate the matching set."
+    },
+    "offset": {
+      "type": "boolean",
+      "description": "Whether pagination.skip is accepted as an entry point. If false, supplying skip returns SCHEMA_VALIDATION_FAILED at /pagination/skip. Cursor continuation is required for every inventory.search implementation."
+    }
+  },
+  "required": [
+    "scope",
+    "filters",
+    "sort_fields",
+    "default_sort",
+    "default_limit",
+    "max_limit",
+    "offset"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "scope": {
+            "const": "aggregate"
+          }
+        },
+        "required": [
+          "scope"
+        ]
+      },
+      "then": {
+        "properties": {
+          "filters": {
+            "not": {
+              "contains": {
+                "const": "rooftops"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "sort_fields": {
+            "contains": {
+              "const": "distance_mi"
+            }
+          }
+        },
+        "required": [
+          "sort_fields"
+        ]
+      },
+      "then": {
+        "properties": {
+          "filters": {
+            "contains": {
+              "const": "near"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

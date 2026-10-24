@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.0/schemas/poppy-oauth-metadata.schema.json",
+  "title": "PoppyOAuthMetadata",
+  "type": "object",
+  "properties": {
+    "issuer": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:/[^?#\\s]*)?$"
+    },
+    "token_endpoint": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+    },
+    "revocation_endpoint": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+    },
+    "authorization_endpoint": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+    },
+    "device_authorization_endpoint": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+    },
+    "poppy_domains": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "format": "hostname"
+      }
+    },
+    "grant_types_supported": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "contains": {
+        "const": "urn:ietf:params:oauth:grant-type:jwt-bearer"
+      }
+    },
+    "token_endpoint_auth_methods_supported": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "contains": {
+        "const": "private_key_jwt"
+      }
+    },
+    "dpop_signing_alg_values_supported": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "contains": {
+        "const": "ES256"
+      },
+      "uniqueItems": true,
+      "description": "Optional advertisement; when present it must include ES256. ES256 proof verification is mandatory even when this field is omitted."
+    }
+  },
+  "required": [
+    "issuer",
+    "token_endpoint",
+    "revocation_endpoint",
+    "poppy_domains"
+  ],
+  "additionalProperties": true
+}
