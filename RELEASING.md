@@ -9,6 +9,15 @@ This repository has one editable source and immutable release snapshots.
 
 ## Before preparing a release
 
+For future major releases, use three separate pull requests, in review order:
+
+1. Specification, schemas, examples and binding behavior.
+2. Website, README and visual assets.
+3. Generated release snapshots, artifacts and package versions.
+
+Use stacked pull requests when one depends on another. Coordinate merging and
+publication so the live website does not advertise an unavailable contract.
+
 1. Merge and pull all approved contract, example, and documentation changes.
 2. Confirm the working tree is clean.
 3. Run:
