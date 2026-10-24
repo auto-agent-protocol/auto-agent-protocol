@@ -26,7 +26,7 @@
     },
     "vehicle_id": {
       "type": "string",
-      "description": "Dealer-internal vehicle identifier.",
+      "description": "Stable listing identifier returned by this endpoint. Use it for an aggregate result so the owning dealer and listing resolve unambiguously.",
       "examples": ["veh_8f3c1a"],
       "minLength": 1
     }

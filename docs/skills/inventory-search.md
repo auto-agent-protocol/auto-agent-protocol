@@ -52,7 +52,7 @@ Filter fields combine with **AND**. Values in an array combine with **OR**, exce
 
 Read `params.skills["inventory.search"].capabilities` on the AAP Agent Card extension, or `tools/list` → the search tool's `_meta["autoagentprotocol.org/aap"].capabilities`. Both follow `inventory-capabilities.schema.json` and MUST agree. PAP clients can follow their discovery document's Agent Card link.
 
-The capabilities name the endpoint's `scope` (`dealer` or `aggregate`), supported `filters`, `sort_fields`, `default_sort`, `default_limit`, `max_limit`, and support for an offset entry point. An aggregate endpoint MUST reject `rooftops`: names are not globally unique. Aggregate results MUST identify their owning `dealer_id` and a stable vehicle identifier.
+The capabilities name the endpoint's `scope` (`dealer` or `aggregate`), supported `filters`, `sort_fields`, `default_sort`, `default_limit`, `max_limit`, and support for an offset entry point. An aggregate endpoint MUST reject `rooftops`: names are not globally unique. Aggregate results MUST include the owning `dealer_id` and a stable `vehicle_id` unique within that endpoint. That ID must resolve the same listing through `inventory.vehicle`; a dealer-local stock number alone is insufficient.
 
 A deployment advertising feature filters MUST also expose [`inventory.facets`](./inventory-facets.md). Its `features` facet supplies the feature codes, labels and counts; include supported codes with zero matches when necessary to preserve the vocabulary. An unknown code produces `UNSUPPORTED_FILTER` with its request path and a recovery hint.
 

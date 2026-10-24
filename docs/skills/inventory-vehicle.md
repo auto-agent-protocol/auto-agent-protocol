@@ -22,7 +22,9 @@ Use the same payload through MCP, A2A or PAP. No customer information or contact
 { "type": "inventory.vehicle.request", "vehicle_id": "vehicle_1042" }
 ```
 
-Supply at least one of `vin`, `stock` or `vehicle_id`; prefer VIN when known. Identifiers are scoped to the selected endpoint. If several are supplied, they MUST identify the same listing. Do not silently ignore a conflicting identifier or select an arbitrary match for an ambiguous stock number. Return a safe validation error requesting an unambiguous identifier.
+Supply at least one of `vin`, `stock` or `vehicle_id`. Prefer VIN on a dealer-scoped endpoint when it is known. Identifiers are scoped to the selected endpoint. If several are supplied, they MUST identify the same listing. Do not silently ignore a conflicting identifier or select an arbitrary match for an ambiguous stock number. Return a safe validation error requesting an unambiguous identifier.
+
+For an aggregate search result, use its returned `vehicle_id`, which is unique within the aggregate endpoint. The detail response MUST retain the owning `dealer_id`. Do not substitute another dealer's listing for the same VIN or stock number.
 
 ## Return what is actually known
 

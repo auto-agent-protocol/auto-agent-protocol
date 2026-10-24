@@ -2476,7 +2476,7 @@
               },
               "dealer_id": {
                 "type": "string",
-                "description": "Stable identifier of the dealer that owns this listing. Inventory context.",
+                "description": "Stable identifier of the dealer that owns this listing. Required on aggregate inventory results; it identifies the actual seller, not merely the aggregation platform. It is attribution, not authorization.",
                 "examples": [
                   "demo-toyota-sf"
                 ],
@@ -2484,7 +2484,7 @@
               },
               "vehicle_id": {
                 "type": "string",
-                "description": "Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).",
+                "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
                 "examples": [
                   "veh_8f3c1a"
                 ],
@@ -2493,7 +2493,7 @@
               "mileage": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Odometer reading in miles. Required for trade-ins; typical on used inventory.",
+                "description": "Known odometer reading in miles. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.",
                 "examples": [
                   12,
                   38450
@@ -2906,7 +2906,7 @@
           },
           "vehicle_properties_vehicle_id": {
             "type": "string",
-            "description": "Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).",
+            "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
             "examples": [
               "veh_8f3c1a"
             ],
@@ -3742,7 +3742,7 @@
           },
           "vehicle_id": {
             "type": "string",
-            "description": "Dealer-internal vehicle identifier.",
+            "description": "Stable listing identifier returned by this endpoint. Use it for an aggregate result so the owning dealer and listing resolve unambiguously.",
             "examples": [
               "veh_8f3c1a"
             ],
@@ -4086,7 +4086,7 @@
               },
               "dealer_id": {
                 "type": "string",
-                "description": "Stable identifier of the dealer that owns this listing. Inventory context.",
+                "description": "Stable identifier of the dealer that owns this listing. Required on aggregate inventory results; it identifies the actual seller, not merely the aggregation platform. It is attribution, not authorization.",
                 "examples": [
                   "demo-toyota-sf"
                 ],
@@ -4094,7 +4094,7 @@
               },
               "vehicle_id": {
                 "type": "string",
-                "description": "Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).",
+                "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
                 "examples": [
                   "veh_8f3c1a"
                 ],
@@ -4103,7 +4103,7 @@
               "mileage": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Odometer reading in miles. Required for trade-ins; typical on used inventory.",
+                "description": "Known odometer reading in miles. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.",
                 "examples": [
                   12,
                   38450
@@ -4516,7 +4516,7 @@
           },
           "vehicle_properties_vehicle_id": {
             "type": "string",
-            "description": "Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).",
+            "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
             "examples": [
               "veh_8f3c1a"
             ],
@@ -5444,7 +5444,7 @@
               },
               "dealer_id": {
                 "type": "string",
-                "description": "Stable identifier of the dealer that owns this listing. Inventory context.",
+                "description": "Stable identifier of the dealer that owns this listing. Required on aggregate inventory results; it identifies the actual seller, not merely the aggregation platform. It is attribution, not authorization.",
                 "examples": [
                   "demo-toyota-sf"
                 ],
@@ -5452,7 +5452,7 @@
               },
               "vehicle_id": {
                 "type": "string",
-                "description": "Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).",
+                "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
                 "examples": [
                   "veh_8f3c1a"
                 ],
@@ -5461,7 +5461,7 @@
               "mileage": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Odometer reading in miles. Required for trade-ins; typical on used inventory.",
+                "description": "Known odometer reading in miles. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.",
                 "examples": [
                   12,
                   38450
