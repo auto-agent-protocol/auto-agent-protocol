@@ -71,8 +71,10 @@ const config: Config = {
       {
         docs: {
           sidebarPath: "./sidebars.ts",
-          editUrl:
-            "https://github.com/auto-agent-protocol/auto-agent-protocol/tree/main/",
+          editUrl: ({ version, docPath }) =>
+            version === "current" || version === stableContract
+              ? `https://github.com/auto-agent-protocol/auto-agent-protocol/edit/main/docs/${docPath}`
+              : undefined,
           // The editable documentation always owns /docs/latest. Every frozen
           // release remains separately addressable and selectable by full
           // SemVer, including the newest approved release.

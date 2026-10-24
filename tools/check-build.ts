@@ -62,6 +62,12 @@ for (const version of renderedVersions) {
     const markdownPath = `${doc.path}.md`;
     if (!existsSync(join(build, markdownPath))) throw new Error(`Missing readable page ${markdownPath}`);
     const html = readFileSync(join(build, `${doc.path}.html`), "utf8");
+    const editAnchor = html.match(/<a\b[^>]*class="[^"]*\btheme-edit-this-page\b[^"]*"[^>]*>/)?.[0];
+    const editUrl = editAnchor?.match(/\bhref="([^"]+)"/)?.[1];
+    const expectedEditUrl = version.name === "current" || version.name === stable.contract
+      ? `https://github.com/auto-agent-protocol/auto-agent-protocol/edit/main/docs/${doc.id}.md`
+      : undefined;
+    if (editUrl !== expectedEditUrl) throw new Error(`Documentation edits must target editable sources, not frozen snapshots: ${doc.path}`);
     const robots = (html.match(/<meta\b[^>]*>/g) ?? []).find(tag => /\bname="robots"/.test(tag))?.match(/\bcontent="([^"]+)"/)?.[1] ?? "";
     if (/\bnoindex\b/.test(robots) !== (version.name !== stable.contract)) throw new Error(`Only the stable contract should be publicly indexed: ${doc.path}`);
     const alternate = html.match(/<link\b[^>]*rel="alternate"[^>]*type="text\/markdown"[^>]*>/)?.[0];
