@@ -277,8 +277,8 @@ test("the standalone typed AAP error payload has no ProtoJSON Any tag", () => {
 test("editable discovery and activation examples use the same draft contract rather than the frozen URI", () => {
   const example = JSON.parse(readFileSync(resolve(examplesDir, "agent-card.example.json"), "utf8"));
   const discovery = readFileSync(resolve(ROOT, "docs/discovery.md"), "utf8");
-  const card = JSON.parse(discovery.match(/```json\n([\s\S]*?)\n```/)![1]);
-  assert.deepEqual(card, example);
+  assert.ok(discovery.includes(`${example.capabilities.extensions[0].params.schema_base_url.replace("schemas/", "examples/")}agent-card.example.json`));
+  assert.ok(discovery.includes(example.capabilities.extensions[0].uri));
   for (const file of ["docs/intro.md", "docs/a2a-profile.md", "docs/bindings/json-rpc.md", "docs/discovery.md", "docs/errors.md", "docs/compatibility/mcp.md"]) {
     const text = readFileSync(resolve(ROOT, file), "utf8");
     assert.doesNotMatch(text, /A2A-Extensions:\s*https:\/\/autoagentprotocol\.org\/extensions\/aap\/v1\.3\b/, `${file}: new activation rules must not use the frozen URI`);

@@ -31,6 +31,16 @@
       "type": "string",
       "format": "uri",
       "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+    },
+    "aap_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "AAP contract release, distinct from this discovery extension version and the PAP draft version."
+    },
+    "llms_txt": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:/[^?#\\s]*)?$"
     }
   },
   "required": [

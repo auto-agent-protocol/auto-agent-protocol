@@ -73,9 +73,12 @@
             "type": "object",
             "properties": {
               "uri": { "const": "https://draft.autoagentprotocol.invalid/extensions/aap/latest" },
-              "required": { "const": true }
+              "required": { "const": true },
+              "params": {
+                "$ref": "./aap-extension-params.schema.json"
+              }
             },
-            "required": ["uri", "required"]
+            "required": ["uri", "required", "params"]
           },
           "allOf": [{
             "contains": {

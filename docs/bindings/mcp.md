@@ -31,7 +31,7 @@ The current binding follows the [2026-07-28 specification](https://modelcontextp
 
 ## Publish a reachable endpoint
 
-Publish a public HTTPS MCP URL on the dealership's own discovery surfaces. It may point to a platform-hosted tenant endpoint, for example `https://api.provider.example/aap/v3.0/demo-dealer/mcp`.
+Publish a public HTTPS MCP URL on the dealership's own discovery surfaces. It may point to a platform-hosted tenant endpoint, for example `https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp`.
 
 - Agent Card: `capabilities.extensions[]` → the AAP entry's `params.mcp`.
 - Poppy: `extensions["autoagentprotocol.org/aap"].mcp` for a public link; a native `apis` entry only when PAP session support is implemented.
@@ -46,7 +46,7 @@ The endpoint MUST accept POST. Each request uses `Content-Type: application/json
 For the current revision:
 
 ```http
-POST /aap/v3.0/demo-dealer/mcp HTTP/1.1
+POST /aap/0.0.0-dev/demo-toyota/mcp HTTP/1.1
 Host: api.provider.example
 Content-Type: application/json
 Accept: application/json, text/event-stream

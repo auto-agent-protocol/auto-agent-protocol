@@ -1,6 +1,6 @@
 {
   "name": "Demo Toyota",
-  "description": "Auto Agent Protocol dealer agent for Demo Toyota \u2014 browse inventory and submit consented leads over A2A.",
+  "description": "Demo Toyota automotive agent: the same inventory and consented contact contract through MCP, A2A and PAP.",
   "supportedInterfaces": [
     {
       "url": "https://demo-toyota.example.com/a2a",
@@ -9,8 +9,8 @@
     }
   ],
   "provider": {
-    "organization": "Lumika AI",
-    "url": "https://lumika.ai"
+    "organization": "Example Platform",
+    "url": "https://provider.example"
   },
   "version": "1.0.0",
   "documentationUrl": "https://autoagentprotocol.org/",
@@ -18,7 +18,7 @@
     "extensions": [
       {
         "uri": "https://draft.autoagentprotocol.invalid/extensions/aap/latest",
-        "description": "Auto Agent Protocol v0.0.0-dev \u2014 A2A Automotive Retail Profile.",
+        "description": "Auto Agent Protocol v0.0.0-dev — shared automotive contract.",
         "required": true,
         "params": {
           "id": "0192f3c0-1a2b-7c3d-8e4f-5a6b7c8d9e0f",
@@ -35,7 +35,61 @@
             },
             "inventory.search": {
               "request_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/inventory-search-request.schema.json",
-              "response_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/inventory-search-response.schema.json"
+              "response_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/inventory-search-response.schema.json",
+              "capabilities": {
+                "scope": "dealer",
+                "filters": [
+                  "make",
+                  "model",
+                  "trim",
+                  "condition",
+                  "vehicle_type",
+                  "transmission",
+                  "fuel",
+                  "electric_range_mi_min",
+                  "electric_range_mi_max",
+                  "dc_fast_charge",
+                  "charge_port",
+                  "driveline",
+                  "body",
+                  "displacement_cc_min",
+                  "displacement_cc_max",
+                  "exterior_color",
+                  "interior_color",
+                  "rooftops",
+                  "status",
+                  "features_all",
+                  "features_any",
+                  "near",
+                  "year_min",
+                  "year_max",
+                  "price_min",
+                  "price_max",
+                  "mileage_max",
+                  "vin",
+                  "stock",
+                  "query"
+                ],
+                "sort_fields": [
+                  "price",
+                  "list_price",
+                  "msrp",
+                  "mileage",
+                  "year",
+                  "make",
+                  "model",
+                  "stock",
+                  "updated_at",
+                  "distance_mi"
+                ],
+                "default_sort": {
+                  "field": "price",
+                  "order": "asc"
+                },
+                "default_limit": 20,
+                "max_limit": 100,
+                "offset": true
+              }
             },
             "inventory.vehicle": {
               "request_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/vehicle-detail-request.schema.json",
@@ -45,7 +99,18 @@
               "request_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-request.schema.json",
               "response_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-response.schema.json"
             }
-          }
+          },
+          "mcp": {
+            "url": "https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp",
+            "transport": "streamable-http",
+            "protocol_versions": [
+              "2026-07-28",
+              "2025-11-25"
+            ],
+            "public_read": true
+          },
+          "poppy": "https://demo-toyota.example.com/.well-known/poppy.json",
+          "llms_txt": "https://demo-toyota.example.com/llms.txt"
         }
       }
     ]

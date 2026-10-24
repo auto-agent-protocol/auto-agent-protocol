@@ -5,6 +5,8 @@ import { readFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { ROOT, isMain } from "./lib/releases.js";
 import { checkPoppyAssertion, checkPoppyClientIdentity, checkPoppyIdentity } from "./lib/poppy.js";
+import { checkDiscovery } from "./lib/discovery.js";
+import { validateManifest } from "./validate-manifest.js";
 
 const SKIP = [/\.jsonrpc\.example\.json$/, /\.rest\.example\.json$/, /^mcp-manifest\./];
 export async function validateExamples(specDir: string, label: string): Promise<{total: number; validated: number}> {
@@ -36,6 +38,10 @@ export async function validateExamples(specDir: string, label: string): Promise<
     const document = read("poppy");
     const errors = checkPoppyIdentity(document, `https://${document.organization.domain}/.well-known/poppy.json`, read("poppy-oauth-metadata"));
     if (errors.length) throw new Error(`${label}/poppy.example.json: ${errors.join("; ")}`);
+    if (schemas.has("aap-extension-params")) {
+      const discoveryErrors = checkDiscovery(read("agent-card"), document, validateManifest(specDir, label), document.extensions["autoagentprotocol.org/aap"].agent_card);
+      if (discoveryErrors.length) throw new Error(`${label}/discovery: ${discoveryErrors.join("; ")}`);
+    }
     if (files.includes("poppy-client-metadata.example.json")) {
       const client = read("poppy-client-metadata");
       const request = read("poppy-session-request");

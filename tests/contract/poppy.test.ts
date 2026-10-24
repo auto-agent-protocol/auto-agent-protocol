@@ -22,7 +22,7 @@ test("Poppy guest API and extension examples conform without inventing a convers
   assert.deepEqual(checkPoppyIdentity(read("poppy"), discovery, read("poppy-oauth-metadata")), []);
 });
 
-test("website-only Poppy remains valid upstream discovery but does not claim full AAP 2.1", () => {
+test("website-only Poppy remains valid upstream discovery but does not claim full AAP 3.0", () => {
   const website = read("poppy-document");
   assert.equal(validate("poppy-document", website), true);
   assert.equal(validate("poppy", website), false);

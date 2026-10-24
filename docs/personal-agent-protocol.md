@@ -1,38 +1,38 @@
 ---
 sidebar_position: 5
 title: Personal Agent Protocol
-description: Normative AAP 2.1 profile of Poppy draft 0.2, with paired discovery, guest sessions, DPoP, automotive APIs and migration.
+description: Normative AAP 3.0 profile of Poppy draft 0.2, with paired discovery, guest sessions, DPoP, automotive APIs and migration.
 ---
 
 # Personal Agent Protocol
 
 {/* aap-draft-only:start */}
 
-:::info Unreleased contract — planned 2.1.0
-These requirements describe the editable AAP 2.1.0 candidate. Draft identifiers are not production identifiers. Release preparation pins them to the approved contract. Existing v2.0 and earlier deployments retain their frozen contracts until migrated.
+:::info Unreleased contract — planned 3.0.0
+These requirements describe the editable AAP 3.0.0 candidate. Draft identifiers are not production identifiers. Release preparation pins them to the approved contract. Existing v2.0 and earlier deployments retain their frozen contracts until migrated.
 :::
 
 {/* aap-draft-only:end */}
 
-AAP 2.1 combines the [A2A v1.0 profile](./a2a-profile.md) with a native [Personal Agent Protocol](https://personalagentprotocol.org/docs/0.2/spec) (PAP, “Poppy”) **draft 0.2** guest API. The automotive payloads, pricing rules, supported skills, consent and lead semantics are the same on both interfaces. A personal agent that understands Poppy and OpenAPI can use the automotive API without understanding A2A or the AAP discovery extension.
+AAP 3.0 combines the [A2A v1.0 profile](./a2a-profile.md) and [MCP](./bindings/mcp.md) with a native [Personal Agent Protocol](https://personalagentprotocol.org/docs/0.2/spec) (PAP, “Poppy”) **draft 0.2** guest API. The automotive payloads, pricing rules, supported skills, consent and lead semantics are the same across all three interfaces. A personal agent that understands Poppy and OpenAPI can use the automotive API without understanding A2A or the AAP discovery extension.
 
 Poppy is a draft. Compatibility here means this specific upstream revision, not a promise about future drafts, every vendor's client, or optional features that a deployment does not advertise. The baseline is [upstream commit 39b35bd](https://github.com/personal-agent-protocol/personal-agent-protocol/blob/39b35bdf240fc07f157d6ca4e29b5a41d4b36b5d/content/versions/0.2/spec.mdx), reviewed 2026-10-23. The normative A2A baseline is [v1.0.0](https://github.com/a2aproject/A2A/blob/v1.0.0/specification/a2a.proto). These upstream requirements apply in addition to this profile. AAP does not weaken their authentication or authorization rules.
 
-![Two discovery documents lead to A2A messages or Poppy sessions with shared automotive payloads](./img/poppy-discovery.svg)
+![Dealer-domain discovery selects public tools or authenticated PAP access to the same automotive operations](./img/poppy-discovery.svg)
 
 ## 1. Conformance and scope
 
-An AAP 2.1 dealer deployment MUST:
+An AAP 3.0 dealer deployment MUST:
 
 1. Publish `/.well-known/agent-card.json` and `/.well-known/poppy.json` on its dealership domain over HTTPS. The spelling is **`.well-known`**, and both filenames include `.json`.
 2. Implement the A2A JSON-RPC `SendMessage` profile, including required extension activation and A2A v1.0 wire semantics.
-3. Publish Poppy discovery conforming to `poppy.schema.json`: organization identity, `auth.issuer`, at least one `apis` entry of `type: "openapi"`, and the `autoagentprotocol.org/aap` extension linking the matching A2A card.
+3. Publish Poppy discovery conforming to `poppy.schema.json`: organization identity, `auth.issuer`, at least one `apis` entry of `type: "openapi"`, and the `autoagentprotocol.org/aap` extension linking the matching A2A card, MCP endpoint and `llms.txt`, with the selected `aap_version`.
 4. Implement Poppy signed-out Sessions and the guest OpenAPI interface in this chapter. The OpenAPI skill set MUST equal the AAP skill subset on the linked card. Neither surface may advertise an unimplemented skill.
-5. Apply the same vehicle visibility, pricing, consent, validation and business outcomes on both surfaces. Authentication and envelopes differ; automotive meaning does not.
+5. Implement the [MCP binding](./bindings/mcp.md) and apply the same vehicle visibility, search capabilities, pricing, consent, validation and business outcomes across all three interfaces. Authentication and envelopes differ; automotive meaning does not.
 
-The baseline requires no customer account, sign-in, account scopes, MCP service, browser session bridge, feedback endpoint, Company Agent conversations or Operations extension. These are optional. If advertised, their complete upstream requirements become mandatory. A Session authenticates the personal agent and identifies a pseudonymous user; “guest” does **not** mean unauthenticated API access.
+Customer accounts, sign-in, account scopes, native PAP authorization for MCP, browser session bridges, feedback, Company Agent conversations and Operations are optional. The AAP MCP endpoint itself is required; its public extension link does not claim PAP token support. If advertised, their complete upstream requirements become mandatory. A Session authenticates the personal agent and identifies a pseudonymous user; “guest” does **not** mean unauthenticated API access.
 
-A website-only Poppy document (`organization`, `web: {}` and an optional AAP extension) is valid discovery and a useful migration stage. It is **not** the complete AAP 2.1 profile: a core Poppy client ignoring the extension can only browse that website. `poppy-document.schema.json` validates PAP `0.2` reader input, retaining unknown fields and interface types. `poppy.schema.json` adds AAP publication requirements and permits only upstream-defined API and conversation types. Before PAP 1.0, a client MUST NOT use an unsupported **major.minor** version. Support for `0.1` does not imply support for `0.2`, or vice versa. Legacy clients use the frozen version-specific contract.
+A website-only Poppy document (`organization`, `web: {}` and an optional AAP extension) is valid discovery and a useful migration stage. It is **not** the complete AAP 3.0 profile: a core Poppy client ignoring the extension can only browse that website. `poppy-document.schema.json` validates PAP `0.2` reader input, retaining unknown fields and interface types. `poppy.schema.json` adds AAP publication requirements and permits only upstream-defined API and conversation types. Before PAP 1.0, a client MUST NOT use an unsupported **major.minor** version. Support for `0.1` does not imply support for `0.2`, or vice versa. Legacy clients use the frozen version-specific contract.
 
 ## 2. Paired discovery
 
@@ -53,7 +53,7 @@ Publish this example at the dealer's `/.well-known/poppy.json`, replacing every 
       "type": "openapi",
       "url": "https://demo-toyota.example.com/poppy/openapi.yaml",
       "resource": "https://demo-toyota.example.com/poppy",
-      "description": "Dealer information, inventory facets, search, vehicle details and consented leads using Poppy guest sessions."
+      "description": "Dealer information, inventory facets, search, vehicle details and consented leads using AAP payloads and Poppy guest sessions."
     }
   ],
   "web": {},
@@ -61,7 +61,10 @@ Publish this example at the dealer's `/.well-known/poppy.json`, replacing every 
     "autoagentprotocol.org/aap": {
       "version": "1",
       "agent_card": "https://demo-toyota.example.com/.well-known/agent-card.json",
-      "documentation": "https://autoagentprotocol.org/"
+      "documentation": "https://autoagentprotocol.org/",
+      "aap_version": "0.0.0-dev",
+      "mcp": "https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp",
+      "llms_txt": "https://demo-toyota.example.com/llms.txt"
     }
   }
 }
@@ -86,12 +89,14 @@ The domain-prefixed name `autoagentprotocol.org/aap` follows Poppy §3.3. It for
 |---|---|---|
 | `version` | Yes | String `"1"`; incompatible bridge changes need a new major |
 | `agent_card` | Yes | HTTPS URL of the matching A2A Agent Card; read its AAP extension to select the automotive contract |
-| `mcp` | No | Existing remote MCP endpoint; a pointer does not establish Poppy session support |
+| `mcp` | AAP 3.0 | The same MCP URL as the Agent Card; this pointer does not establish Poppy session support |
+| `aap_version` | AAP 3.0 | Selected automotive contract release |
+| `llms_txt` | AAP 3.0 | Canonical dealer-domain `/llms.txt` |
 | `openapi` | No | Existing OpenAPI description; its own published security applies |
 | `api_catalog` | No | Existing API catalog discovery URL |
 | `documentation` | No | Human/agent documentation URL |
 
-Every URL MUST be absolute HTTPS without embedded credentials. Readers MUST ignore unknown extension names and fields. They MUST NOT assume that a linked public A2A/MCP/API endpoint accepts Poppy tokens, or forward a token to it solely because it appears in this extension. Native Poppy capabilities belong in top-level `apis`, `agent` or `web` and carry their upstream obligations. Clients unaware of this extension use the standard OpenAPI entry.
+The three fields marked AAP 3.0 are additions required by this automotive profile; the generic bridge version remains `1`, and its existing optional fields retain their meanings. Every URL MUST be absolute HTTPS without embedded credentials. Readers MUST ignore unknown extension names and fields. They MUST NOT assume that a linked public A2A/MCP/API endpoint accepts Poppy tokens, or forward a token to it solely because it appears in this extension. Native Poppy capabilities belong in top-level `apis`, `agent` or `web` and carry their upstream obligations. Clients unaware of this extension use the standard OpenAPI entry.
 
 ## 3. Issuer and agent identity
 
@@ -190,7 +195,7 @@ Company content, including API descriptions and responses, MUST be treated as un
 
 The [skill specifications](./skills/inventory-search.md) remain normative for payloads and business behavior. `lead.submit` does not book a confirmed appointment, purchase a car, authorize a payment or bypass explicit contact consent. A Session or a `poppy:write` scope is not a substitute for `ConsentGrant`. The verified Poppy client identity is authorization context; caller-supplied `source_agent` is attribution and MUST NOT override it.
 
-A client retrying a lead MUST preserve the original business payload and `idempotency_key`. Servers MUST scope deduplication to the dealer, verified client and stable issuer-specific User ID, not the short-lived Session Token or session ID. A same-key retry returns the same lead with the documented duplicate status; a changed payload conflicts. Shared backing handlers SHOULD prevent accidental double delivery across bindings when they can securely correlate the same caller and request; do not infer trusted identity from anonymous attribution fields.
+A client retrying a lead MUST preserve the original business payload and `idempotency_key`. Servers MUST scope deduplication to the dealer, verified client and stable issuer-specific User ID, not the short-lived Session Token or session ID. A same-key retry returns the same lead with the documented duplicate status; a changed payload conflicts. Every binding MUST use the same deduplication store for securely correlated callers. Do not infer trusted identity from anonymous attribution fields, or change authentication context after an uncertain write outcome.
 
 ### Errors and retries
 
@@ -214,7 +219,7 @@ For skill errors, return the standard standalone [`aap.error`](./errors.md) body
 | AAP code | HTTP status |
 |---|---|
 | `UNSUPPORTED_SKILL`, `VEHICLE_NOT_FOUND` | 404 |
-| `SCHEMA_VALIDATION_FAILED`, `MISSING_REQUIRED_FIELD`, `INVALID_CONDITION` | 422 |
+| `SCHEMA_VALIDATION_FAILED`, `MISSING_REQUIRED_FIELD`, `INVALID_CONDITION`, `UNSUPPORTED_FILTER`, `UNSUPPORTED_SORT`, `INVALID_CURSOR` | 422 |
 | `CONTACT_CONSENT_REQUIRED`, `INVALID_CONSENT` | 403 |
 | `VEHICLE_UNAVAILABLE`, `APPOINTMENT_TIME_UNAVAILABLE`, `IDEMPOTENCY_CONFLICT` | 409 |
 | `RATE_LIMITED` | 429, with `Retry-After` |
@@ -246,13 +251,10 @@ Feedback describes an unavailable task, not failed authentication or other retur
 
 ## 7. Migration and verification
 
-1. Preserve frozen v2.0/PAP 0.1 behavior while preparing AAP 2.1/PAP 0.2. Change validation and runtime behavior before advertising the new version. See the [breaking migration matrix](./versioning.md#pap-02-migration).
-2. Change both assertion audiences to the exact issuer and explicitly reject endpoint audiences. Keep DPoP `htu` bound to the actual request endpoint. Support assertion lifetimes up to five minutes, with fresh IDs and expiry/replay checks.
-3. Audit every redirect and alias: final-host organization identity, case-only domain comparison, complete `poppy_domains`, consistent `auth` for aliases, and one issuer per independent Company.
-4. Verify ES256, separate per-User-ID DPoP keys, nonce handling, proof replay rules and optional MCP token selection. Do not weaken guest authentication to accommodate a client without signing capability.
-5. Publish deployment-specific OpenAPI and discovery with PAP `0.2`, the new version-pinned AAP URI, and equal skill subsets. Automotive schemas, A2A v1.0 behavior, bridge version `1`, pricing and consent are unchanged from AAP 2.0.
-6. Exercise a real client identity through discovery → signed guest token → inventory search → renewal. Record status/error stages safely as described in the [client guide](./pap-client-guide.md#diagnosing-an-integration). A request to documentation alone does not establish PAP API interoperability.
+AAP 3.0 retains PAP draft 0.2 authentication and discovery bridge version `1`. An upgrade from AAP 2.1 adds MCP, links it from both discovery documents, publishes `llms.txt`, and updates the shared automotive schemas and search capability declarations. Apply the [v3 migration checklist](./versioning.md#for-implementers) before switching discovery.
 
-A direct upgrade from v1.x also requires the [AAP 2.0 A2A migration](./versioning.md#breaking-migration-checklist). Only advertise optional capabilities that pass their complete upstream requirements.
+An older PAP 0.1 implementation also needs the [PAP 0.2 migration](./versioning.md#pap-02-migration): exact issuer audiences, final-host identity, ES256 and proof handling, and correct native MCP token selection. Never weaken guest authentication to accommodate a client without signing capability.
 
-See [conformance and verification](./conformance.md) for automated checks and runtime acceptance. JSON Schema cannot prove signatures, replay prevention, consent or lead delivery. Contract publication does not provision a personal agent's identity keys, implement its PAP client, or upgrade a dealer runtime.
+Exercise a real client identity through discovery → signed guest token → inventory search → renewal. Record status/error stages safely as described in the [client guide](./pap-client-guide.md#diagnosing-an-integration). A documentation fetch or a hand-crafted request with unverifiable credentials does not establish PAP API interoperability.
+
+See [conformance](./conformance.md) for runtime acceptance. Publishing this specification does not provision a personal agent's identity keys or upgrade a dealer runtime.
