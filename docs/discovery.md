@@ -36,7 +36,7 @@ Use the [complete Agent Card example](https://draft.autoagentprotocol.invalid/la
 
 ![An Agent Card separates dealer identity, A2A transport, the AAP contract and actual search capabilities](./img/agent-card-passport.svg)
 
-The card remains an ordinary [A2A 1.0 Agent Card](https://a2a-protocol.org/latest/specification/). AAP requires:
+The card remains an ordinary [A2A 1.0 Agent Card](https://a2a-protocol.org/v1.0.0/specification/). AAP requires:
 
 1. Exactly one AAP entry in `capabilities.extensions[]`, with `required: true` and this contract's URI:
 

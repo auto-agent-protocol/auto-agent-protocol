@@ -31,9 +31,12 @@ export function checkDiscovery(
     if (!capabilities.sort_fields.includes(capabilities.default_sort.field)) errors.push("Search default_sort must use a supported sort field");
     if (capabilities.default_limit > capabilities.max_limit) errors.push("Search default_limit must not exceed max_limit");
   }
-  const origin = `https://${poppy.organization.domain}`;
-  if (params.poppy !== `${origin}/.well-known/poppy.json`) errors.push("AAP Poppy link must name the final dealer-domain discovery document");
-  if (params.llms_txt !== `${origin}/llms.txt` || bridge.llms_txt !== params.llms_txt) errors.push("Both discovery documents must link the same dealer-domain llms.txt");
+  const poppyUrl = new URL(params.poppy);
+  if (poppyUrl.protocol !== "https:" || poppyUrl.hostname !== poppy.organization.domain.toLowerCase() ||
+      poppyUrl.pathname !== "/.well-known/poppy.json" || poppyUrl.username || poppyUrl.password || poppyUrl.search || poppyUrl.hash) {
+    errors.push("AAP Poppy link must name the final dealer-domain discovery document");
+  }
+  if (new URL(params.llms_txt).href !== `${poppyUrl.origin}/llms.txt` || bridge.llms_txt !== params.llms_txt) errors.push("Both discovery documents must link the same dealer-domain llms.txt");
   if (bridge.agent_card !== cardUrl) errors.push("Poppy bridge must link the paired Agent Card");
   if (bridge.mcp !== params.mcp.url) errors.push("Both discovery documents must link the same MCP endpoint");
   for (const api of poppy.apis.filter((entry: any) => entry.type === "mcp")) {

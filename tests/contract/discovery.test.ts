@@ -29,6 +29,8 @@ test("paired discovery and deployed MCP metadata agree on contract, skills and c
   const card = read("agent-card"), poppy = read("poppy");
   assert.equal(validateCard(card), true, JSON.stringify(validateCard.errors));
   assert.deepEqual(checkDiscovery(card, poppy, manifest, cardUrl, deployedTools(card)), []);
+  poppy.organization.domain = poppy.organization.domain.toUpperCase();
+  assert.deepEqual(checkDiscovery(card, poppy, manifest, cardUrl), [], "DNS case does not change dealer identity");
   const nativeMcp = { type: "mcp", url: params(card).mcp.url, resource: params(card).mcp.url };
   poppy.apis.push(nativeMcp);
   assert.deepEqual(checkDiscovery(card, poppy, manifest, cardUrl), []);
@@ -58,6 +60,7 @@ test("cross-document checks catch declarations that JSON Schema cannot compare",
     (card: any) => Object.assign(params(card).skills["inventory.search"].capabilities, { default_limit: 60, max_limit: 50 }),
     (card: any) => params(card).skills["inventory.search"].capabilities.sort_fields = ["year"],
     (card: any) => params(card).llms_txt = "https://another-dealer.example/llms.txt",
+    (card: any) => params(card).poppy = "https://another-dealer.example/.well-known/poppy.json",
     (card: any, poppy: any) => poppy.extensions["autoagentprotocol.org/aap"].aap_version = "2.1.0",
   ]) {
     const card = read("agent-card"), poppy = read("poppy");
