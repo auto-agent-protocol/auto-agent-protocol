@@ -87,7 +87,6 @@ export function generateMcp(specDir: string, outDir: string, version: string): v
     const readOnly = ["dealer.information", "inventory.facets", "inventory.search", "inventory.vehicle"].includes(skill.id);
     if (!readOnly && skill.id !== "lead.submit") throw new Error(`MCP behavior annotations are not defined for ${skill.id}`);
     const inputSchema = bundleSchemas(schemasDir, [skill.request_schema]);
-    const idempotent = readOnly || (inputSchema.required as string[]).includes("idempotency_key");
     return {
       name: `aap_${skill.id.replaceAll(".", "_")}`,
       title: skill.name,
@@ -97,7 +96,7 @@ export function generateMcp(specDir: string, outDir: string, version: string): v
       annotations: {
         readOnlyHint: readOnly,
         destructiveHint: false,
-        idempotentHint: idempotent,
+        idempotentHint: readOnly,
         openWorldHint: true,
       },
       _meta: {

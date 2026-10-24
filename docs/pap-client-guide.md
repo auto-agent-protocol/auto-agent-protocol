@@ -93,15 +93,15 @@ Content-Type: application/json
     "condition": ["used"],
     "body": ["suv"],
     "price_max": 25000,
-    "query": "Apple CarPlay leather seats"
+    "features_all": ["apple_carplay", "leather_seats"]
   },
-  "pagination": { "skip": 0, "limit": 5 },
+  "pagination": { "limit": 5 },
   "sort": { "field": "price", "order": "asc" },
   "privacy": { "anonymous": true }
 }
 ```
 
-Use only the [documented search filters](./skills/inventory-search.md). For location constraints, inspect `dealer.information` and select returned rooftop names when that skill is available; do not invent radius or ZIP filter fields. Free-text matches do not establish that every requested feature is present: verify listings with `inventory.vehicle` before promising equipment. Report unsupported constraints or missing information to the user.
+Read the deployment's advertised [search capabilities](./skills/inventory-search.md#know-what-this-endpoint-supports) before composing filters. This example assumes its `inventory.facets` response advertises `apple_carplay` and `leather_seats`. Require matching source evidence; these are exact feature filters, not a natural-language query. When supported, use `near` with resolved coordinates and `radius_mi`; dealer-scoped searches may use exact rooftop names. Do not invent ZIP or natural-language filter fields. Report unsupported constraints and unknown equipment instead of guessing. To continue, send the returned `next_cursor` with the same filters, sort and limit; a null cursor ends the result set.
 
 HTTP 200 with a valid `inventory.search.response` from this authenticated operation is evidence of a PAP search. The A2A endpoint is a separate interface and requires its own headers and security; do not forward this token to it or silently present its results as PAP results. AAP lead submission still requires explicit contact consent.
 

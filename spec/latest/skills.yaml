@@ -48,7 +48,7 @@ skills:
 
   - id: lead.submit
     name: Submit Lead
-    description: Submit one explicitly consented inquiry with optional vehicle, trade-in and appointment details. Require an idempotency key and report lead and booking outcomes separately.
+    description: Submit one explicitly consented inquiry with optional vehicle, trade-in and appointment details. Require an idempotency key; duplicate suppression lasts at least 24 hours. Reconcile uncertain outcomes before retrying after that window. Report lead and booking outcomes separately.
     tags: [lead, contact, consent, sales, appointment, automotive, motorcycles, powersports]
     request_schema: lead-submit-request.schema.json
     response_schema: lead-submit-response.schema.json

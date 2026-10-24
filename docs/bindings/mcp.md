@@ -93,7 +93,7 @@ Every tool MUST expose:
 - Standard `annotations` for read-only, destructive, idempotent and open-world behavior. AAP metadata belongs in namespaced `_meta`, not custom annotation keys.
 - A meaningful description and AAP metadata containing the release version, skill ID, request/response types and canonical schema URLs.
 
-Read tools use `readOnlyHint: true`. `lead.submit` uses `readOnlyHint: false`, `destructiveHint: false`, and `idempotentHint: true` because its key is mandatory. Every tool uses `openWorldHint: true`. These are descriptive hints; authorization and consent remain enforced by the server.
+Read tools use `readOnlyHint: true`. `lead.submit` uses `readOnlyHint: false`, `destructiveHint: false`, and conservatively `idempotentHint: false`: its required key protects retries for at least 24 hours, not indefinitely. Include the actual retention window in the tool description. Every tool uses `openWorldHint: true`. These are descriptive hints; authorization and consent remain enforced by the server.
 
 ## Call the shared contract
 

@@ -48,7 +48,7 @@ Declare one or more implemented skills. Search with feature filters also require
 
 - **Search:** explicit capabilities, verified features, radius/distance semantics and complete cursor pagination.
 - **Truthful listings:** availability, freshness, identifiers and evidence; missing data remains unknown.
-- **Clear pricing:** one authoritative advertised `price`; mandatory dealer charges are included, government charges are separate.
+- **Clear pricing:** one authoritative advertised `price`; mandatory dealer charges are included, only government-required consumer charges are separate.
 - **Controlled contact:** explicit channel consent, mandatory retry keys and truthful appointment outcomes.
 
 AAP covers discovery, research and dealer contact. Payments, financing approval, transaction quotes, reservations and trade-in valuations are outside this release.

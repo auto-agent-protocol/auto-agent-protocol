@@ -53,7 +53,7 @@
         "field": {
           "type": "string",
           "enum": ["price", "list_price", "msrp", "mileage", "year", "make", "model", "stock", "updated_at", "distance_mi"],
-          "description": "Primary sort field. Missing values sort last in either direction. price includes mandatory dealer charges and excludes government charges. distance_mi requires filters.near and is straight-line distance to the vehicle's rooftop. Break ties with a stable listing identifier so cursor pages do not repeat listings.",
+          "description": "Primary sort field. Missing values sort last in either direction. price includes mandatory dealer charges and excludes only government-required consumer charges. distance_mi requires filters.near and is straight-line distance to the vehicle's rooftop. Break ties with a stable listing identifier so cursor pages do not repeat listings.",
           "examples": ["price", "year"]
         },
         "order": { "type": "string", "enum": ["asc", "desc"], "examples": ["asc"] }

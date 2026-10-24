@@ -46,7 +46,7 @@ The coordinates above are an illustrative San Francisco origin. A client resolve
 | Appearance | `exterior_color`, `interior_color` | Arrays of accepted color values. |
 | Keywords | `query` | Explicit keyword matching, described below. |
 
-Filter fields combine with **AND**. Values in an array combine with **OR**, except `features_all`, which requires every value. Empty arrays are invalid. Missing listing values never satisfy a constraint. Text-valued arrays match facet values without case sensitivity; feature codes and rooftop names are exact. Providers MUST reject unsupported filters with `UNSUPPORTED_FILTER`, unsupported ordering with `UNSUPPORTED_SORT`, and unknown keys or invalid values with `SCHEMA_VALIDATION_FAILED`. They MUST NOT silently remove, broaden or reinterpret constraints.
+Filter fields combine with **AND**. Values in an array combine with **OR**, except `features_all`, which requires every value. Empty arrays are invalid. Missing listing values never satisfy a constraint. Free-text array values match facet values without case sensitivity; schema enums, feature codes and rooftop names are exact. Providers MUST reject unsupported filters with `UNSUPPORTED_FILTER`, unsupported ordering with `UNSUPPORTED_SORT`, and unknown keys or invalid values with `SCHEMA_VALIDATION_FAILED`. They MUST NOT silently remove, broaden or reinterpret constraints.
 
 ### Know what this endpoint supports
 
@@ -68,7 +68,7 @@ A trim name or a model-year default is insufficient. Missing or `unknown` eviden
 
 ![A geographic radius includes rooftops inside the boundary and reports actual distance to each matching listing](../img/geo-search.svg)
 
-`near` contains `latitude`, `longitude` and `radius_mi`. Use straight-line distance on a sphere with mean Earth radius **3958.7613 miles** and the haversine formula. Coordinates are WGS84 latitude/longitude. Apply the inclusive radius using the unrounded distance; report `distance_mi` to at least three decimal places. This is not driving distance or a delivery promise.
+`near` contains `latitude`, `longitude` and `radius_mi`. Use straight-line distance on a sphere with mean Earth radius **3958.7613 miles** and the haversine formula. Coordinates are WGS84 latitude/longitude. Apply the inclusive radius using the unrounded distance; report `distance_mi` with precision of 0.001 miles or better. JSON numbers need no trailing zeros. This is not driving distance or a delivery promise.
 
 Each result MUST include `distance_mi` when `near` is present. Listings without known physical rooftop coordinates do not match. `sort.field: "distance_mi"` requires `near`; a deployment default sort cannot depend on a missing origin.
 
@@ -124,9 +124,9 @@ This compact response illustrates a price-only request. The complete [feature-an
 
 ![Keep query, filters, sort and page size fixed while following opaque cursors until next_cursor is null](../img/cursor-pagination.svg)
 
-For the first page, omit `cursor` and `skip`. Pass the returned `next_cursor` in `pagination.cursor` for the next page, keeping filters, sort and limit unchanged. Stop only when `next_cursor` is `null`. A page-size limit MUST NOT become a limit on the entire traversable matching set.
+For the first page, omit `cursor` and `skip`. Pass the returned `next_cursor` in `pagination.cursor` for the next page, keeping effective filters, sort and limit unchanged. If the first request omitted defaults, carry the returned `applied_filters`, `sort` and `limit` forward explicitly. Stop only when `next_cursor` is `null`. A page-size limit MUST NOT become a limit on the entire traversable matching set.
 
-- Cursor and `skip` are mutually exclusive. A deployment may accept `skip` as an advertised entry point; its response still supplies cursor continuation.
+- Cursor and `skip` are mutually exclusive. A deployment may accept `skip` as an advertised entry point; its response still supplies cursor continuation. If `offset` is false, a supplied `skip` returns `SCHEMA_VALIDATION_FAILED` at `/pagination/skip`, with a hint to start without an offset. A limit above the advertised `max_limit` also returns `SCHEMA_VALIDATION_FAILED`; it is never silently clamped.
 - Bind cursors to the endpoint tenant, authorization scope, normalized filters, sort and page size. Do not put customer information in a cursor. Verify scope on every request; a cursor is not authorization.
 - Use a stable identifier (dealer + vehicle for aggregate scope) to break sort ties, and preserve ordering for the cursor's lifetime. Document cursor expiry. An expired, altered or mismatched cursor returns `INVALID_CURSOR` with a hint to restart the search.
 - Concurrent changes may remove listings. Do not return stale or unavailable vehicles merely to fill a snapshot page. An empty page with a non-null cursor can occur; clients may continue. Clients SHOULD detect repeated cursors and bound retries.

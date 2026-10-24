@@ -57,7 +57,7 @@ test("bundled MCP schemas validate every typed example without external schema r
   delete request.idempotency_key;
   assert.equal(lead.input(request), false);
   assert.equal(lead.annotations.readOnlyHint, false);
-  assert.equal(lead.annotations.idempotentHint, true);
+  assert.equal(lead.annotations.idempotentHint, false);
 });
 
 for (const modern of [true, false]) {

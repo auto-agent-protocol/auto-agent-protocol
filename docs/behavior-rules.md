@@ -26,7 +26,7 @@ Read skills MUST accept requests without customer information or contact consent
 
 | Field | Required interpretation |
 |---|---|
-| `price` | Authoritative advertised amount, including all mandatory dealer charges and required add-ons; government charges excluded. |
+| `price` | Authoritative advertised amount, including all mandatory dealer charges and required add-ons; only government-required consumer charges excluded. |
 | `fees` | Optional complete itemization of mandatory charges already included in `price`. `[]` means none; omission means no breakdown supplied. |
 | `list_price` | Informational base/list amount. It cannot replace or reconstruct `price`. |
 | `msrp` | Manufacturer reference amount. |

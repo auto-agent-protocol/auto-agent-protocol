@@ -104,7 +104,7 @@
     },
     "offset": {
       "type": "boolean",
-      "description": "Whether pagination.skip is accepted as an entry point. Cursor continuation is required for every inventory.search implementation."
+      "description": "Whether pagination.skip is accepted as an entry point. If false, supplying skip returns SCHEMA_VALIDATION_FAILED at /pagination/skip. Cursor continuation is required for every inventory.search implementation."
     }
   },
   "required": [
