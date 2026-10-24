@@ -1536,10 +1536,15 @@
     margin: 0 -10px;
   }
   .discoveryNote {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    gap: 12px 14px;
     font-size: 0.7rem;
-    align-items: flex-start;
+    align-items: start;
   }
   .discoveryNote a {
+    grid-column: 2;
+    margin-left: 0;
     font-size: 0.74rem;
   }
   .scope {
