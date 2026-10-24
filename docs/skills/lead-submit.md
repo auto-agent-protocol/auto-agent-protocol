@@ -1,280 +1,107 @@
 ---
 sidebar_position: 5
 title: lead.submit
-description: Unified consented lead. Carries customer info plus any combination of vehicle of interest, trade-in, and appointment in a single request.
+description: One consented inquiry, an explicit appointment outcome, and safe retries across all three bindings.
 ---
 
 # `lead.submit`
 
-:::info Invocation
-On the A2A interface, this skill uses `SendMessage` over the [JSON-RPC binding](../bindings/json-rpc.md), with its typed payload in `Message.parts[].data`. The native [Poppy OpenAPI binding](../personal-agent-protocol.md#5-automotive-openapi-binding) carries the same request and response payloads directly, using guest Sessions and DPoP. The removed A2A HTTP+JSON binding remains out of scope.
-:::
+**Send one inquiry with the buyer's permission.** Include a vehicle of interest, a trade-in, an appointment request, or any combination. Customer contact is a side effect; browsing is not permission to submit.
 
-![A consented lead from ConsentGrant through dealer validation and acknowledgement](../img/lead-lifecycle.svg)
+![A buyer approves the payload and channels, the dealer validates and deduplicates it, and the response states the actual outcome](../img/lead-lifecycle.svg)
 
-![Consent gate separating anonymous browsing from consented lead submission](../img/consent-gate.svg)
-
-The `lead.submit` skill is the **single, unified** lead-capture entry point in AAP. A buyer agent submits one request containing the consented `customer` plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment`. This matches how dealerships actually take leads: a shopper test-driving a new car often wants their old car appraised in the same visit.
-
-`lead.submit` replaced the early-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment` with a single contract, with the same automotive payload on every binding. AAP 3.0 additionally requires a retry key.
-
-| Property | Value |
+| Interface | Invocation |
 |---|---|
-| Skill id | `lead.submit` |
-| Request type | `lead.submit.request` |
-| Response type | `lead.submit.response` |
-| Anonymous allowed | no |
-| Consent required | yes |
-| ADF compatible | **yes** |
+| MCP | `aap_lead_submit` with the typed request as `arguments` |
+| A2A | `SendMessage` with the typed request in `DataPart.data` |
+| PAP | `POST /skills/lead.submit` with the typed request body and Session/DPoP authentication |
 
-For the field-by-field ADF/XML mapping, see [ADF mapping](../compatibility/adf-mapping.md).
+All three use the same [request schema](https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-request.schema.json), [response schema](https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-response.schema.json), consent rules and deduplication store. A transport may allow an anonymous caller; a lead still contains identified customer information and explicit consent.
 
-## Request shape
-
-```json
-{
-  "type": "lead.submit.request",
-  "customer":  { "...Customer..." },
-  "consent":   { "...ConsentGrant... (scope MUST be ['lead_submission'])" },
-  "vehicle_of_interest": { "...Vehicle (condition: new|used|cpo)..." },
-  "trade_in":            { "...Vehicle (condition: excellent|good|fair|poor)..." },
-  "appointment":         { "...Appointment..." },
-  "message":      "Free-text message from the user (max 4000 chars).",
-  "source_agent": {
-    "name": "chatgpt-shopping",
-    "url": "https://chatgpt.com",
-    "agent_card_url": "https://chatgpt.com/.well-known/agent-card.json"
-  },
-  "submitted_at": "ISO-8601",
-  "idempotency_key": "client-generated-unique-key"
-}
-```
-
-| Field | Type | Required | Notes |
-|---|---|---|---|
-| `type` | const | yes | `lead.submit.request`. |
-| `customer` | `Customer` | **yes** | Buyer contact info. Always required. |
-| `consent` | `ConsentGrant` | **yes** | Always required. `scope` MUST be `["lead_submission"]`. As of v1.1.0, `consent` no longer carries `source_agent`; the buyer agent is identified once by the top-level `source_agent` object below. |
-| `vehicle_of_interest` | `Vehicle` | no | Optional. When present, `condition` (if set) MUST be `new` \| `used` \| `cpo`; vehicle MUST be identifiable via `vin`, `stock`, or `year`+`make`+`model`. |
-| `trade_in` | `Vehicle` | no | Optional. When present, `condition` (if set) MUST be `excellent` \| `good` \| `fair` \| `poor`; MUST carry at least `year`+`make`+`model`. `mileage` is strongly recommended. |
-| `appointment` | `Appointment` | no | Optional. `appointment_type` is one of `sales` \| `service` \| `test_drive` \| `trade_in`; `appointment_at` is the requested start time (ISO 8601). The vehicle is implicit: `vehicle_of_interest` for a test drive, `trade_in` for a trade-in appraisal. |
-| `message` | string | no | Free-text user note (max 4000 chars). |
-| `source_agent` | object | yes | The single buyer-agent identity for this lead. `name` is REQUIRED (e.g. `chatgpt-shopping`, `gemini-assistant`); `url` and `agent_card_url` are OPTIONAL. This is the one and only `source_agent` in v1.1.0 — it was removed from `consent`. |
-| `source_agent.name` | string | **yes** | Buyer agent identifier. |
-| `source_agent.url` | string (uri) | no | Buyer agent's site or product URL. |
-| `source_agent.agent_card_url` | string (uri) | no | URL of the buyer agent's A2A agent card. |
-| `submitted_at` | date-time | no | Buyer-agent timestamp at submission. |
-| `idempotency_key` | string | **yes** | Stable key for this consented request; preserve it on retries. |
-
-The unified `Vehicle` interface is the same shape used by `inventory.search` results — see the [Vehicle schema source](https://draft.autoagentprotocol.invalid/latest/schemas/vehicle.schema.json). Both `vehicle_of_interest` and `trade_in` use this shape; only the valid `condition` enum subset differs. Either may be a motorcycle: set `vehicle_type: "motorcycle"` and include the powersports fields (`body`/segment, `displacement_cc`, plus niche specs such as `final_drive` or `wheel_count` in `other_attributes`). For a motorcycle, an `appointment_type` of `test_drive` denotes a demo ride.
-
-:::note Self-discovery
-A buyer agent does not have to hard-code or guess this shape. The dealer's [agent card](../discovery.md) publishes each skill's request/response JSON Schema URLs in the **AAP extension params** — `capabilities.extensions[].params.skills["lead.submit"].request_schema` points at the canonical schema (e.g. `https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-request.schema.json`). The URLs live in the extension params, not as fields on the A2A `skill` object, because that is where A2A designates extension-specific configuration. Buyer agents SHOULD fetch that schema and validate against it, rather than relying on the prose here. The top-level `source_agent` object — and the removal of `consent.source_agent` in v1.1.0 — are both reflected in that published schema.
-:::
-
-## Response shape
-
-```json
-{
-  "type": "lead.submit.response",
-  "data": {
-    "lead_id": "string",
-    "status":  "received | duplicate | rejected",
-    "appointment": {
-      "appointment_id": "string",
-      "status":         "requested | proposed | confirmed | rejected",
-      "confirmed_at":   "ISO-8601",
-      "proposed_times": ["ISO-8601"]
-    },
-    "dealer": { "name": "string", "phone": "+1XXXXXXXXXX" }
-  },
-  "message": "Optional contextual note."
-}
-```
-
-| Field | Type | Required | Notes |
-|---|---|---|---|
-| `data.lead_id` | string | yes | Dealer-assigned lead identifier. |
-| `data.status` | enum | yes | `received`, `duplicate`, or `rejected`. `duplicate` indicates the dealer recognized the same buyer/vehicle from a recent submission. |
-| `data.appointment` | object | conditional | Present iff request had `appointment` AND the dealer is acknowledging it. |
-| `data.appointment.status` | enum | (when present) | `requested` (manual review), `proposed` (alternatives in `proposed_times`), `confirmed` (booked at `confirmed_at`), or `rejected`. |
-| `data.dealer` | object | no | Convenience contact summary the buyer agent can show the user. |
-| `message` | string | no | Optional dealer note. |
-
-## Full example: vehicle + trade-in + test-drive in one lead
-
-A user wants to test-drive a 2024 Honda CR-V, trade in their 2020 Passat, and book Sunday afternoon. One request.
-
-### Request
+## A complete, small request
 
 ```json
 {
   "type": "lead.submit.request",
   "customer": {
-    "first_name": "Piotr",
-    "last_name": "Nowak",
-    "email": "piotr.nowak@example.com",
-    "phone": "+14155555678",
-    "preferred_contact": "phone",
-    "address": {
-      "address_line_1": "320 Brannan Street",
-      "address_line_2": "Apt 412",
-      "city": "San Francisco",
-      "state": "CA",
-      "zip": "94107"
-    }
-  },
-  "consent": {
-    "granted_at": "2026-04-30T11:05:00Z",
-    "allowed_channels": ["email", "phone"],
-    "consent_text": "I authorize Demo Toyota to contact me by phone or email about VIN 1HGCY2F57RA000001, my requested test drive on May 3, and a possible trade-in of my 2020 Volkswagen Passat. I understand I can withdraw consent at any time.",
-    "scope": ["lead_submission"]
-  },
-  "vehicle_of_interest": {
-    "vin": "1HGCY2F57RA000001",
-    "year": 2024, "make": "Honda", "model": "CR-V", "trim": "EX-L",
-    "condition": "used",
-    "stock": "DT-2611",
-    "body": "suv",
-    "transmission": "automatic",
-    "mileage": 14820,
-    "price": 32995,
-    "fees": [
-      { "name": "Documentation fee", "amount": 500 },
-      { "name": "Pre-installed theft protection", "amount": 1000 }
-    ]
-  },
-  "trade_in": {
-    "year": 2020, "make": "Volkswagen", "model": "Passat", "trim": "SE",
-    "condition": "good",
-    "mileage": 62000,
-    "body": "sedan",
-    "transmission": "automatic"
-  },
-  "appointment": {
-    "appointment_type": "test_drive",
-    "appointment_at": "2026-05-03T18:00:00Z",
-    "duration_minutes": 60,
-    "notes": "I'd like to test the CR-V and have my Passat appraised in the same visit."
-  },
-  "message": "I'm interested in the 2024 Honda CR-V EX-L (VIN 1HGCY2F57RA000001). I plan to pay cash and would like to trade in my 2020 Volkswagen Passat with 62,000 miles.",
-  "source_agent": {
-    "name": "gemini-assistant",
-    "url": "https://gemini.google.com",
-    "agent_card_url": "https://gemini.google.com/.well-known/agent-card.json"
-  },
-  "submitted_at": "2026-04-30T11:05:08Z",
-  "idempotency_key": "demo-consented-lead-1042"
-}
-```
-
-### Response (lead received, appointment confirmed)
-
-```json
-{
-  "type": "lead.submit.response",
-  "data": {
-    "lead_id": "lead_2026_04_30_00842",
-    "status": "received",
-    "appointment": {
-      "appointment_id": "appt_2026_04_30_00128",
-      "status": "confirmed",
-      "confirmed_at": "2026-05-03T18:00:00Z"
-    },
-    "dealer": {
-      "name": "Demo Toyota",
-      "phone": "+14155550100"
-    }
-  },
-  "message": "Thanks, Piotr. Test drive confirmed for Sunday May 3 at 11:00 AM Pacific. We've queued your 2020 Passat for an in-person appraisal at the same visit."
-}
-```
-
-## Variant: customer-only general inquiry (no vehicle, no appointment)
-
-```json
-{
-  "type": "lead.submit.request",
-  "customer": {
-    "first_name": "Anna",
-    "last_name": "Kowalska",
-    "email": "anna.kowalska@example.com",
-    "phone": "+14155551234",
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "email": "ada@example.com",
     "preferred_contact": "email"
   },
   "consent": {
-    "granted_at": "2026-04-30T10:42:00Z",
+    "granted_at": "2026-10-24T15:00:00Z",
     "allowed_channels": ["email"],
-    "consent_text": "I agree to share my name, email, and phone number with Demo Toyota so a sales representative can answer my financing question by email.",
-    "scope": ["lead_submission"]
+    "scope": ["lead_submission"],
+    "consent_text": "Please send my inquiry and email address to Demo Toyota so they can reply by email."
   },
-  "message": "What APR is Demo Toyota offering this month for buyers with 740+ credit?",
-  "source_agent": {
-    "name": "chatgpt-shopping-agent",
-    "url": "https://chatgpt.com",
-    "agent_card_url": "https://chatgpt.com/.well-known/agent-card.json"
-  },
-  "submitted_at": "2026-04-30T10:42:05Z",
-  "idempotency_key": "demo-consented-lead-1042"
+  "source_agent": { "name": "example-buyer", "url": "https://buyer.example" },
+  "message": "Could you email me about your available hybrid SUVs?",
+  "idempotency_key": "82ac790c-1926-4e64-944d-5cc0eaebf27f"
 }
 ```
 
-## Variant: appointment with proposed alternatives
+The consent text and timestamp record the actual user's decision; this fictional example is not a reusable grant. Names, email/phone and the permitted channels must come from the user.
 
-When the dealer cannot honor the requested time:
+## Add only what the buyer provided
+
+| Optional field | Meaning |
+|---|---|
+| `vehicle_of_interest` | Partial vehicle information; a known VIN, stock or `vehicle_id` helps identify a listing. Sale condition is `new`, `used` or `cpo`. |
+| `trade_in` | Partial trade-in description. Wear condition is `excellent`, `good`, `fair` or `poor`. No valuation is promised. |
+| `appointment` | Requires `appointment_type`: `sales`, `service`, `test_drive` or `trade_in`. Time, duration and notes are optional. |
+| `message` | The buyer's note, up to 4,000 characters. |
+| `submitted_at` | Submission timestamp; preserve it on a retry. |
+
+Vehicle blocks need no invented identifiers or specifications. An incomplete vehicle or appointment may need staff follow-up; do not pretend it is a confirmed booking. Motorcycle demo rides use `test_drive` with `vehicle_type: "motorcycle"`.
+
+See the [vehicle + trade-in example](https://draft.autoagentprotocol.invalid/latest/examples/lead-submit-request.example.json) and [ADF mapping](../compatibility/adf-mapping.md) for CRM delivery.
+
+## Consent is a separate gate
+
+![Public reads remain before the consent gate; only an explicitly approved payload reaches dealer contact](../img/consent-gate.svg)
+
+Before submission, the buyer agent MUST obtain permission to send the selected customer information, inquiry and contact channels to this dealer. It MUST preserve the disclosure in `consent_text` and record `granted_at`. `scope` is exactly `["lead_submission"]`; `allowed_channels` contains at least one of `email`, `phone`, `sms`.
+
+Each permitted channel needs its contact value: `email` requires `customer.email`; `phone` and `sms` require `customer.phone`. A specific `preferred_contact` must be permitted by the grant. `any` means any **permitted** channel. Do not include unrelated customer information.
+
+The dealer MUST validate the grant before delivering contact data, reject a future grant timestamp or an expired/inapplicable grant, and use only permitted channels. `expires_at`, when supplied, must follow `granted_at`. Missing consent returns `CONTACT_CONSENT_REQUIRED`; an unusable grant returns `INVALID_CONSENT`. If the dealer cannot honor the allowed channels, it must reject the submission rather than expand consent.
+
+OAuth authorization, a PAP Session, an MCP tool hint and caller-supplied `source_agent` are not customer consent. `source_agent` is attribution; verified transport identity controls authorization.
+
+## Read the outcome literally
 
 ```json
 {
   "type": "lead.submit.response",
-  "data": {
-    "lead_id": "lead_2026_04_30_00843",
-    "status": "received",
-    "appointment": {
-      "appointment_id": "appt_2026_04_30_00129",
-      "status": "proposed",
-      "proposed_times": [
-        "2026-05-03T20:00:00Z",
-        "2026-05-04T16:00:00Z"
-      ]
-    },
-    "dealer": { "name": "Demo Toyota", "phone": "+14155550100" }
-  },
-  "message": "We're booked solid Sunday afternoon. The times above are open Sunday evening and Monday afternoon (Pacific). Reply with the time you prefer or call to confirm."
+  "data": { "lead_id": "lead_example_001", "status": "received" },
+  "message": "Your inquiry was received. The dealer will reply by email."
 }
 ```
 
-The buyer agent SHOULD present the alternatives to the user and re-submit a fresh `lead.submit.request` with one of the proposed times in `appointment.appointment_at`.
+| Lead status | Meaning |
+|---|---|
+| `received` | Accepted for dealer follow-up; not a sale or a guaranteed response time. |
+| `duplicate` | Same key and payload; the original `lead_id` is returned without another delivery. |
+| `rejected` | No accepted lead or booking. Explain the reason safely. |
 
-## Why one skill instead of three?
+An appointment has its own outcome:
 
-Real shopping flows naturally bundle the inquiry, the trade-in, and the appointment. Forcing buyer agents to make 3 separate calls (with 3 separate consent records) creates:
+| Appointment status | Required interpretation |
+|---|---|
+| `requested` | Awaiting scheduling or staff review. |
+| `proposed` | Nonempty `proposed_times` offers alternatives; the buyer chooses before a new request. |
+| `confirmed` | Booked at the required `confirmed_at` timestamp. |
+| `rejected` | This appointment was declined; the lead may still be accepted. |
 
-- **Brittle correlation** — dealer CRMs have to re-stitch what was always one customer intent.
-- **Consent friction** — users sign off 3 disclosures for one decision.
-- **Race conditions** — the appointment may be booked before the lead arrives, or vice-versa.
-
-A single `lead.submit` lets the dealer transactionally accept the lead, queue the trade-in for appraisal, and confirm or propose the appointment in one round trip. AAP keeps the contract tight by NOT supporting multi-vehicle leads (one `vehicle_of_interest` per submission); send N requests for N vehicles.
-
-## Consent and channel rules
-
-- `consent.allowed_channels[]` lists the channels (`email`, `phone`, `sms`) the user authorized for THIS submission.
-- `consent.scope[]` MUST be `["lead_submission"]`.
-- The dealer MUST reject the lead with `CONTACT_CONSENT_REQUIRED` if it intends to follow up via a channel not in `allowed_channels`.
-- The buyer agent MUST NOT include phone or email without explicit user authorization. See [Behavior rules](../behavior-rules.md).
-
-## Errors
-
-- `CONTACT_CONSENT_REQUIRED` — `consent` missing, `scope` not `['lead_submission']`, or follow-up channel not in `allowed_channels`.
-- `VEHICLE_NOT_FOUND` / `VEHICLE_UNAVAILABLE` — `vehicle_of_interest` reference cannot be located, or no longer available, when a `test_drive` appointment is requested.
-- `APPOINTMENT_TIME_UNAVAILABLE` — the requested `appointment_at` cannot be honored AND the dealer has no proposals to make. The lead may still be `received` even when the appointment portion fails.
-- `INVALID_CONDITION` — `vehicle_of_interest.condition` is in the trade-in vocabulary, or `trade_in.condition` is in the sale-condition vocabulary.
-
-See [Errors](../errors.md) for the full vocabulary.
-
-## What `lead.submit` does NOT guarantee
-
-A successful `lead.submit.response` does not guarantee booking unless `data.appointment.status` is `confirmed`. `requested` and `proposed` mean the customer has expressed interest but has not been booked. Buyer agents MUST communicate this to the user clearly. See [Behavior rules](../behavior-rules.md).
+The dealer MUST NOT report `confirmed` without a real booking. A rejected lead cannot contain a confirmed appointment. If the lead was accepted but the appointment failed, return the accepted lead with the appointment's actual status; do not hide acceptance inside an `aap.error`. `APPOINTMENT_TIME_UNAVAILABLE` means the entire submission was rejected because no requested or alternative time could be accepted.
 
 ## Safe retries
 
-Every request MUST include `idempotency_key`. Preserve it and the full consented payload after a timeout. Dealers retain duplicate detection for at least 24 hours, scoped to the dealer and verified caller (including the stable PAP User ID); anonymous calls use dealer and key. The same caller and request share duplicate detection across bindings and session renewals. A same-key retry returns the original `lead_id`; changed content returns `IDEMPOTENCY_CONFLICT`. Authorization and consent checks still apply. Do not switch authorization context and blindly resubmit after an uncertain outcome.
+Every request MUST include a client-generated `idempotency_key` (UUID recommended). Preserve the complete payload and key after a timeout, transport error or PAP Session renewal. A corrected or newly authorized inquiry is a new request; first resolve any uncertain outcome of the original.
+
+Dealers MUST retain duplicate detection for at least **24 hours**, scoped to the dealer and verified caller, including the stable PAP User ID when applicable. Anonymous callers use dealer + key. Securely correlated calls across bindings share the same store. The same key and payload returns the original `lead_id`; changed content returns `IDEMPOTENCY_CONFLICT`. Authorization and consent checks still apply.
+
+Use atomic duplicate detection before delivery, including concurrent requests. Do not send twice when the CRM acknowledgement is delayed. Do not switch authentication context or blindly retry after the retention window; first reconcile the earlier outcome. AAP has no lead-status lookup operation.
+
+For error details and retry timing, see [errors](../errors.md). Contact delivery and appointment confirmation remain separate outcomes.

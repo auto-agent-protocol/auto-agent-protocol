@@ -4518,7 +4518,7 @@
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "title": "LeadSubmitRequest",
-        "description": "Unified lead submission for the `lead.submit` AAP skill. A single request carries the consented customer plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment` — matching how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).\n\nDesign principle: capture whatever the customer actually provided. `vehicle_of_interest`, `trade_in`, and `appointment` are entirely optional, and within them no individual field is required at the schema level — the buyer agent should pass through whatever pieces of information the user shared (a VIN, a make+model, just a year, mileage only — anything is welcome). The dealer is responsible for handling partial input gracefully.\n\nValidation rules:\n- `customer` and `consent` are always required (lead is never anonymous; consent is always required).\n- If `vehicle_of_interest.condition` is set, it MUST be one of `new`, `used`, `cpo`.\n- If `trade_in.condition` is set, it MUST be one of `excellent`, `good`, `fair`, `poor`.\n- `consent.scope` MUST be `[\"lead_submission\"]`.\n\nCarried inside an A2A `Message.parts[].data` DataPart via `SendMessage` (JSON-RPC 2.0), or directly as the native Poppy OpenAPI request body.",
+        "description": "Submit one consented automotive inquiry through MCP, A2A or PAP. Customer, consent, source_agent and idempotency_key are required. Vehicle interest and trade-in may contain partial user-provided information. An optional appointment requires appointment_type; requesting a visit does not itself confirm a booking.",
         "type": "object",
         "properties": {
           "type": {
@@ -4539,7 +4539,7 @@
           },
           "trade_in": {
             "$ref": "#/$defs/vehicle",
-            "description": "The vehicle the buyer wants to trade in. Optional. Pass through whatever the customer provided (just a make+model and a mileage is a perfectly valid trade-in lead). When `condition` is set it MUST be one of `excellent` | `good` | `fair` | `poor`. Pricing fields are typically absent on the request side and are populated by the dealer's appraisal response."
+            "description": "Optional partial description of the buyer’s trade-in. Pass through known information without inventing fields. When condition is present, use excellent, good, fair or poor. This skill does not return an appraisal or valuation."
           },
           "appointment": {
             "$ref": "#/$defs/appointment",
@@ -4552,16 +4552,14 @@
           },
           "source_agent": {
             "type": "object",
-            "description": "The buyer agent that originated this lead — a structured identity for analytics and the TCPA/consent audit trail (who submitted it, and where their public agent card lives). In v1.1 this replaces the v1.0 string form AND the duplicate `consent.source_agent`: there is now exactly ONE source_agent, here at the top level.",
+            "description": "Buyer-agent attribution. This caller-supplied label is not authentication and must not override verified transport identity.",
             "properties": {
               "name": {
                 "type": "string",
                 "minLength": 1,
                 "description": "Stable identifier of the buyer agent.",
                 "examples": [
-                  "chatgpt-shopping",
-                  "claude-auto-shopper",
-                  "lumika-bdc"
+                  "example-buyer"
                 ]
               },
               "url": {
@@ -4569,7 +4567,7 @@
                 "format": "uri",
                 "description": "Optional homepage / operator URL for the buyer agent.",
                 "examples": [
-                  "https://chat.openai.com"
+                  "https://buyer.example"
                 ]
               },
               "agent_card_url": {
@@ -4587,8 +4585,8 @@
             "additionalProperties": false,
             "examples": [
               {
-                "name": "claude-auto-shopper",
-                "agent_card_url": "https://shopper.example.com/.well-known/agent-card.json"
+                "name": "example-buyer",
+                "url": "https://buyer.example"
               }
             ]
           },
@@ -4677,12 +4675,198 @@
                 }
               }
             }
+          },
+          {
+            "if": {
+              "properties": {
+                "consent": {
+                  "properties": {
+                    "allowed_channels": {
+                      "contains": {
+                        "const": "email"
+                      }
+                    }
+                  },
+                  "required": [
+                    "allowed_channels"
+                  ]
+                }
+              },
+              "required": [
+                "consent"
+              ]
+            },
+            "then": {
+              "properties": {
+                "customer": {
+                  "required": [
+                    "email"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "customer": {
+                  "properties": {
+                    "preferred_contact": {
+                      "const": "email"
+                    }
+                  },
+                  "required": [
+                    "preferred_contact"
+                  ]
+                }
+              },
+              "required": [
+                "customer"
+              ]
+            },
+            "then": {
+              "properties": {
+                "consent": {
+                  "properties": {
+                    "allowed_channels": {
+                      "contains": {
+                        "const": "email"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "consent": {
+                  "properties": {
+                    "allowed_channels": {
+                      "contains": {
+                        "const": "phone"
+                      }
+                    }
+                  },
+                  "required": [
+                    "allowed_channels"
+                  ]
+                }
+              },
+              "required": [
+                "consent"
+              ]
+            },
+            "then": {
+              "properties": {
+                "customer": {
+                  "required": [
+                    "phone"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "customer": {
+                  "properties": {
+                    "preferred_contact": {
+                      "const": "phone"
+                    }
+                  },
+                  "required": [
+                    "preferred_contact"
+                  ]
+                }
+              },
+              "required": [
+                "customer"
+              ]
+            },
+            "then": {
+              "properties": {
+                "consent": {
+                  "properties": {
+                    "allowed_channels": {
+                      "contains": {
+                        "const": "phone"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "consent": {
+                  "properties": {
+                    "allowed_channels": {
+                      "contains": {
+                        "const": "sms"
+                      }
+                    }
+                  },
+                  "required": [
+                    "allowed_channels"
+                  ]
+                }
+              },
+              "required": [
+                "consent"
+              ]
+            },
+            "then": {
+              "properties": {
+                "customer": {
+                  "required": [
+                    "phone"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "customer": {
+                  "properties": {
+                    "preferred_contact": {
+                      "const": "sms"
+                    }
+                  },
+                  "required": [
+                    "preferred_contact"
+                  ]
+                }
+              },
+              "required": [
+                "customer"
+              ]
+            },
+            "then": {
+              "properties": {
+                "consent": {
+                  "properties": {
+                    "allowed_channels": {
+                      "contains": {
+                        "const": "sms"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         ],
         "$defs": {
           "customer": {
             "title": "Customer",
-            "description": "Buyer/customer contact info attached to a `lead.submit.request` (shared by the A2A and native Poppy interfaces). At least one of email or phone MUST be present. When customer is present a ConsentGrant MUST also be present.",
+            "description": "Customer contact information for a consented lead, shared by MCP, A2A and PAP. First and last names and at least one email or E.164 phone number are required. Include only contact information authorized for this submission.",
             "type": "object",
             "examples": [
               {
@@ -4831,7 +5015,7 @@
           },
           "consent_grant": {
             "title": "ConsentGrant",
-            "description": "Explicit consent record for a single `lead.submit` submission. Required whenever a `lead.submit.request` includes customer contact info (which is always — `customer` is required on the unified lead). Provides an auditable record of what the user authorized, when, through which channels, and via which buyer agent.\n\nError-code mapping: a dealer agent MUST reject lead submissions with `CONTACT_CONSENT_REQUIRED` if `consent` is missing entirely; with `INVALID_CONSENT` if the grant is malformed, `expires_at` has passed at the time the dealer would use the contact data, or the dealer intends to use a contact channel not present in `allowed_channels`.",
+            "description": "Explicit, auditable permission for one lead.submit payload and its selected contact channels. A missing grant returns CONTACT_CONSENT_REQUIRED. A malformed, expired or inapplicable grant returns INVALID_CONSENT. A session, tool selection or OAuth authorization is not customer contact consent.",
             "type": "object",
             "properties": {
               "granted_at": {
@@ -4856,7 +5040,8 @@
               "consent_text": {
                 "type": "string",
                 "minLength": 1,
-                "description": "Verbatim text the user agreed to (e.g. the disclosure shown by the buyer agent). MUST be non-empty — this is the audit trail of what the user actually saw."
+                "description": "Verbatim text the user agreed to (e.g. the disclosure shown by the buyer agent). MUST be non-empty — this is the audit trail of what the user actually saw.",
+                "pattern": "\\S"
               },
               "scope": {
                 "type": "array",
@@ -4874,7 +5059,7 @@
               "expires_at": {
                 "type": "string",
                 "format": "date-time",
-                "description": "Optional ISO 8601 / RFC 3339 timestamp after which this consent grant is no longer valid (e.g. '2027-04-30T11:05:00Z'). Useful for jurisdictions with mandatory re-consent windows (some US state TCPA-style rules cap consent at ~12 months for SMS). The dealer MUST reject `lead.submit` with `INVALID_CONSENT` if `expires_at` is in the past at the time the dealer would use the contact data."
+                "description": "Optional deadline for using this grant. When present it must follow granted_at. The dealer must not deliver or use customer contact data after this time without renewed permission. AAP does not prescribe a legal consent lifetime."
               }
             },
             "required": [
@@ -5569,7 +5754,7 @@
         "$defs": {
           "lead_submit_response": {
             "title": "LeadSubmitResponse",
-            "description": "Dealer agent's response to a `lead.submit.request`. Carries the assigned `lead_id` and overall lead `status`, plus an optional appointment block when the request included an `appointment` (the dealer can confirm the requested time, propose alternatives, leave it as merely requested for human follow-up, or reject the appointment while still accepting the lead). Carried as a typed DataPart in the A2A response or directly as the native Poppy API response body.",
+            "description": "Outcome of a consented lead submission, shared by MCP, A2A and PAP. A received lead is accepted for dealer follow-up. A duplicate repeats the original lead_id for the same key and payload. An appointment is booked only when its status is confirmed and confirmed_at is present.",
             "type": "object",
             "properties": {
               "type": {
@@ -5581,7 +5766,8 @@
                 "properties": {
                   "lead_id": {
                     "type": "string",
-                    "description": "Dealer-assigned identifier for this lead."
+                    "description": "Dealer-assigned identifier for this lead.",
+                    "minLength": 1
                   },
                   "status": {
                     "type": "string",
@@ -5590,7 +5776,7 @@
                       "duplicate",
                       "rejected"
                     ],
-                    "description": "Overall lead status. `duplicate` indicates the dealer recognized the same buyer/vehicle combination from a recent prior submission and merged it. `rejected` indicates the dealer did not accept the lead (e.g. consent invalid, vehicle no longer available, dealer not serving the buyer's region)."
+                    "description": "received: the dealer accepted the lead; duplicate: same idempotency key and payload, original lead_id returned; rejected: no accepted lead or booking. Consent/authentication failures use their defined errors before contact data is delivered."
                   },
                   "appointment": {
                     "type": "object",
@@ -5598,7 +5784,8 @@
                     "properties": {
                       "appointment_id": {
                         "type": "string",
-                        "description": "Dealer-assigned identifier for this appointment."
+                        "description": "Dealer-assigned identifier for this appointment.",
+                        "minLength": 1
                       },
                       "status": {
                         "type": "string",
@@ -5629,7 +5816,57 @@
                       "appointment_id",
                       "status"
                     ],
-                    "additionalProperties": false
+                    "additionalProperties": false,
+                    "allOf": [
+                      {
+                        "if": {
+                          "properties": {
+                            "status": {
+                              "const": "confirmed"
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ]
+                        },
+                        "then": {
+                          "required": [
+                            "confirmed_at"
+                          ]
+                        },
+                        "else": {
+                          "not": {
+                            "required": [
+                              "confirmed_at"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "status": {
+                              "const": "proposed"
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ]
+                        },
+                        "then": {
+                          "required": [
+                            "proposed_times"
+                          ]
+                        },
+                        "else": {
+                          "not": {
+                            "required": [
+                              "proposed_times"
+                            ]
+                          }
+                        }
+                      }
+                    ]
                   },
                   "dealer": {
                     "type": "object",
@@ -5663,7 +5900,43 @@
               "type",
               "data"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "data": {
+                      "properties": {
+                        "status": {
+                          "const": "rejected"
+                        }
+                      },
+                      "required": [
+                        "status"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "data": {
+                      "properties": {
+                        "appointment": {
+                          "properties": {
+                            "status": {
+                              "const": "rejected"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
           },
           "error": {
             "title": "Error",

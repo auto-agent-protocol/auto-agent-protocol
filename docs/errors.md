@@ -87,8 +87,8 @@ The codes, their meaning, recommended JSON-RPC code, and `retryable` default.
 | `INVALID_CONDITION` | `vehicle_of_interest.condition` is in the trade-in vocabulary, or `trade_in.condition` is in the sale-condition vocabulary. | -32602 (Invalid params) | `false` |
 | `VEHICLE_NOT_FOUND` | The supplied `vin` / `stock` / `vehicle_id` does not match any listing. | -32000 (Server error) | `false` |
 | `VEHICLE_UNAVAILABLE` | The vehicle exists but its `status` is no longer one of `available` \| `intransit` \| `pending`. | -32000 (Server error) | `false` |
-| `CONTACT_CONSENT_REQUIRED` | `customer` info present without `consent`, or follow-up channel not in `consent.allowed_channels`. | -32000 (Server error) | `false` |
-| `INVALID_CONSENT` | `consent` is present but malformed, expired, or its scope does not cover the called skill. | -32000 (Server error) | `false` |
+| `CONTACT_CONSENT_REQUIRED` | `consent` is missing from a lead submission. | -32000 (Server error) | `false` |
+| `INVALID_CONSENT` | `consent` is present but malformed, expired, its scope does not cover the called skill, or a contact channel is not authorized. | -32000 (Server error) | `false` |
 | `APPOINTMENT_TIME_UNAVAILABLE` | The requested `appointment_at` cannot be honored AND the dealer has no proposed alternatives. | -32000 (Server error) | `false` |
 | `IDEMPOTENCY_CONFLICT` | An `idempotency_key` was reused with a different request payload. | -32000 (Server error) | `false` |
 | `RATE_LIMITED` | Client has exceeded the dealer's rate limit. | -32000 (Server error) | **`true`** |
@@ -172,7 +172,7 @@ Returned when the listing existed but is no longer available — e.g. its `statu
 
 ### `CONTACT_CONSENT_REQUIRED`
 
-Returned when a `lead.submit` request omits `consent`, or when the `consent.allowed_channels[]` does not include the channel the dealer's process needs to use for follow-up. See [Behavior rules](./behavior-rules.md).
+Returned when a `lead.submit` request omits `consent`. An existing grant that does not authorize the needed channel returns `INVALID_CONSENT`. See [Behavior rules](./behavior-rules.md).
 
 ### `INVALID_CONSENT`
 
@@ -180,7 +180,7 @@ Returned when `consent` is structurally present but unusable: e.g. `consent.scop
 
 ### `APPOINTMENT_TIME_UNAVAILABLE`
 
-Returned by `lead.submit` when an `appointment` block was included, the requested `appointment_at` cannot be honored, AND the dealer has no `proposed_times` to offer. Dealers SHOULD prefer `data.appointment.status: "proposed"` with alternative times over this error whenever possible. The lead itself MAY still be `received` even when the appointment portion fails.
+Returned by `lead.submit` when an `appointment` block was included, the requested `appointment_at` cannot be honored, AND the dealer has no `proposed_times` to offer. Dealers SHOULD prefer `data.appointment.status: "proposed"` with alternative times over this error whenever possible. If the lead was accepted, return `lead.submit.response` with the appointment outcome instead of this error.
 
 ### `IDEMPOTENCY_CONFLICT`
 

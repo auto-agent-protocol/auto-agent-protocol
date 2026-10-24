@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/customer.schema.json",
   "title": "Customer",
-  "description": "Buyer/customer contact info attached to a `lead.submit.request` (shared by the A2A and native Poppy interfaces). At least one of email or phone MUST be present. When customer is present a ConsentGrant MUST also be present.",
+  "description": "Customer contact information for a consented lead, shared by MCP, A2A and PAP. First and last names and at least one email or E.164 phone number are required. Include only contact information authorized for this submission.",
   "type": "object",
   "examples": [
     {
