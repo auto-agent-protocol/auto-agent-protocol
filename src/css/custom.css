@@ -223,6 +223,10 @@ body {
   line-height: 1.75;
 }
 
+[data-theme="dark"] .docusaurus-mermaid-container .edgeLabel p {
+  color: var(--ifm-heading-color);
+}
+
 .theme-doc-markdown a:not(.hash-link) {
   text-decoration: underline;
   text-underline-offset: 3px;
