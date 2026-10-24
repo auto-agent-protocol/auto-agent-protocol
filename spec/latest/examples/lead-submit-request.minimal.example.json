@@ -18,5 +18,6 @@
     "name": "chatgpt-shopping-agent",
     "agent_card_url": "https://chat.openai.com/.well-known/agent-card.json"
   },
-  "submitted_at": "2026-04-30T10:42:05Z"
+  "submitted_at": "2026-04-30T10:42:05Z",
+  "idempotency_key": "demo-lead-submit-request.minimal"
 }

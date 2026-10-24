@@ -68,7 +68,7 @@ When optional context fields are omitted, AAP defines deterministic fallbacks so
 
 - **Prices and fee amounts are integers in whole US dollars.** `msrp`, `list_price`, `price`, and `fees[].amount` use plain integers (e.g. `26780` or `500`).
 - **Address default country.** `Address.country` is optional; when omitted, the assumed country is `US`.
-- **Idempotency.** Buyer agents that retry `lead.submit` after a network failure SHOULD pass an `idempotency_key` (UUID recommended). Dealer agents SHOULD dedupe on this key for at least 24 hours and return the original `lead_id` and status on retries.
+- **Idempotency.** Every `lead.submit` MUST include an `idempotency_key` (UUID recommended). Dealers MUST deduplicate for at least 24 hours by dealer, verified caller and key, including the stable PAP User ID where applicable. Anonymous requests use dealer and key. The same verified caller shares duplicate detection across bindings and session renewals. An identical retry returns the original `lead_id`; a changed payload returns `IDEMPOTENCY_CONFLICT`. Authorization and consent are checked before deduplication. Preserve the original key and payload after a timeout. Do not change authorization context and retry an uncertain submission without reconciling its outcome.
 - **Consent expiration.** When `ConsentGrant.expires_at` is omitted, the dealer MAY apply its own default expiration window per local regulation; an explicit `expires_at` always wins. The dealer MUST reject the lead with `INVALID_CONSENT` if the grant has already expired.
 
 ## Pricing rules

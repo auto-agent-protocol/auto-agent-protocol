@@ -31,5 +31,6 @@
     "name": "gemini-assistant",
     "agent_card_url": "https://gemini.example.com/.well-known/agent-card.json"
   },
-  "submitted_at": "2026-04-30T11:00:08Z"
+  "submitted_at": "2026-04-30T11:00:08Z",
+  "idempotency_key": "demo-lead-submit-request.vehicle-only"
 }

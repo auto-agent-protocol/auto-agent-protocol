@@ -96,7 +96,8 @@ Given a [`lead.submit`](../skills/lead-submit.md) request bundling a vehicle of 
     "url": "https://chatgpt.com",
     "agent_card_url": "https://chatgpt.com/.well-known/agent-card.json"
   },
-  "submitted_at": "2026-04-30T10:15:10Z"
+  "submitted_at": "2026-04-30T10:15:10Z",
+  "idempotency_key": "demo-consented-lead-1042"
 }
 ```
 

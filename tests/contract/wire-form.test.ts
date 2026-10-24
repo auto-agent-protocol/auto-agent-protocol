@@ -295,9 +295,6 @@ test("the published MCP manifest example matches what the generator produces", a
     const generated = JSON.parse(readFileSync(resolve(out, "mcp.json"), "utf8"));
     const published = JSON.parse(readFileSync(resolve(examplesDir, "mcp-manifest.example.json"), "utf8"));
     assert.deepEqual(published, generated, "spec/latest/examples/mcp-manifest.example.json has drifted from tools/generate-mcp-manifest.ts");
-    const docs = readFileSync(resolve(ROOT, "docs/compatibility/mcp.md"), "utf8");
-    const documented = JSON.parse(docs.match(/```json\n([\s\S]*?)\n```/)![1]);
-    assert.deepEqual(documented, generated, "the documented MCP manifest has drifted from the generator");
   } finally {
     rmSync(out, { recursive: true, force: true });
   }

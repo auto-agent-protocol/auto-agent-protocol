@@ -16,7 +16,7 @@ On the A2A interface, this skill uses `SendMessage` over the [JSON-RPC binding](
 
 The `lead.submit` skill is the **single, unified** lead-capture entry point in AAP. A buyer agent submits one request containing the consented `customer` plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment`. This matches how dealerships actually take leads: a shopper test-driving a new car often wants their old car appraised in the same visit.
 
-`lead.submit` replaced the early-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment` with a single contract, which AAP carries forward unchanged.
+`lead.submit` replaced the early-draft trio of `lead.general`, `lead.vehicle`, and `lead.appointment` with a single contract, with the same automotive payload on every binding. AAP 3.0 additionally requires a retry key.
 
 | Property | Value |
 |---|---|
@@ -45,7 +45,8 @@ For the field-by-field ADF/XML mapping, see [ADF mapping](../compatibility/adf-m
     "url": "https://chatgpt.com",
     "agent_card_url": "https://chatgpt.com/.well-known/agent-card.json"
   },
-  "submitted_at": "ISO-8601"
+  "submitted_at": "ISO-8601",
+  "idempotency_key": "client-generated-unique-key"
 }
 ```
 
@@ -63,6 +64,7 @@ For the field-by-field ADF/XML mapping, see [ADF mapping](../compatibility/adf-m
 | `source_agent.url` | string (uri) | no | Buyer agent's site or product URL. |
 | `source_agent.agent_card_url` | string (uri) | no | URL of the buyer agent's A2A agent card. |
 | `submitted_at` | date-time | no | Buyer-agent timestamp at submission. |
+| `idempotency_key` | string | **yes** | Stable key for this consented request; preserve it on retries. |
 
 The unified `Vehicle` interface is the same shape used by `inventory.search` results — see the [Vehicle schema source](https://draft.autoagentprotocol.invalid/latest/schemas/vehicle.schema.json). Both `vehicle_of_interest` and `trade_in` use this shape; only the valid `condition` enum subset differs. Either may be a motorcycle: set `vehicle_type: "motorcycle"` and include the powersports fields (`body`/segment, `displacement_cc`, plus niche specs such as `final_drive` or `wheel_count` in `other_attributes`). For a motorcycle, an `appointment_type` of `test_drive` denotes a demo ride.
 
@@ -161,7 +163,8 @@ A user wants to test-drive a 2024 Honda CR-V, trade in their 2020 Passat, and bo
     "url": "https://gemini.google.com",
     "agent_card_url": "https://gemini.google.com/.well-known/agent-card.json"
   },
-  "submitted_at": "2026-04-30T11:05:08Z"
+  "submitted_at": "2026-04-30T11:05:08Z",
+  "idempotency_key": "demo-consented-lead-1042"
 }
 ```
 
@@ -211,7 +214,8 @@ A user wants to test-drive a 2024 Honda CR-V, trade in their 2020 Passat, and bo
     "url": "https://chatgpt.com",
     "agent_card_url": "https://chatgpt.com/.well-known/agent-card.json"
   },
-  "submitted_at": "2026-04-30T10:42:05Z"
+  "submitted_at": "2026-04-30T10:42:05Z",
+  "idempotency_key": "demo-consented-lead-1042"
 }
 ```
 
@@ -270,3 +274,7 @@ See [Errors](../errors.md) for the full vocabulary.
 ## What `lead.submit` does NOT guarantee
 
 A successful `lead.submit.response` does not guarantee booking unless `data.appointment.status` is `confirmed`. `requested` and `proposed` mean the customer has expressed interest but has not been booked. Buyer agents MUST communicate this to the user clearly. See [Behavior rules](../behavior-rules.md).
+
+## Safe retries
+
+Every request MUST include `idempotency_key`. Preserve it and the full consented payload after a timeout. Dealers retain duplicate detection for at least 24 hours, scoped to the dealer and verified caller (including the stable PAP User ID); anonymous calls use dealer and key. The same caller and request share duplicate detection across bindings and session renewals. A same-key retry returns the original `lead_id`; changed content returns `IDEMPOTENCY_CONFLICT`. Authorization and consent checks still apply. Do not switch authorization context and blindly resubmit after an uncertain outcome.

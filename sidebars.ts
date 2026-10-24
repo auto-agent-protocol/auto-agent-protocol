@@ -15,6 +15,7 @@ const sidebars: SidebarsConfig = {
       label: "Bindings",
       collapsed: false,
       items: [
+        "bindings/mcp",
         "bindings/json-rpc",
         "bindings/rest",
       ],

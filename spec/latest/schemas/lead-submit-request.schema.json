@@ -70,10 +70,10 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 128,
-      "description": "Optional client-generated key (UUID recommended) the dealer agent uses to dedupe retried submissions. Two requests carrying the same `idempotency_key` MUST produce the same response (the dealer returns the original `lead_id` and status). Strongly RECOMMENDED for production buyer agents that retry on network failure."
+      "description": "Required client-generated key (UUID recommended) for this consented submission. Preserve the key and payload after a timeout or session renewal. Deduplicate for at least 24 hours by dealer and verified caller, including the stable PAP User ID where applicable; anonymous calls use dealer and key. The same caller and key across bindings return the original lead_id; a changed payload returns IDEMPOTENCY_CONFLICT. Deduplication never bypasses authorization or consent."
     }
   },
-  "required": ["type", "customer", "consent", "source_agent"],
+  "required": ["type", "customer", "consent", "source_agent", "idempotency_key"],
   "additionalProperties": false,
   "allOf": [
     {

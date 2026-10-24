@@ -602,7 +602,8 @@ The unified lead carries customer info plus any combination of `vehicle_of_inter
               "url": "https://chatgpt.com",
               "agent_card_url": "https://chatgpt.com/.well-known/agent-card.json"
             },
-            "submitted_at": "2026-04-30T10:16:05Z"
+            "submitted_at": "2026-04-30T10:16:05Z",
+            "idempotency_key": "demo-consented-lead-1042"
           },
           "mediaType": "application/vnd.autoagent.lead-submit-request+json"
         }
