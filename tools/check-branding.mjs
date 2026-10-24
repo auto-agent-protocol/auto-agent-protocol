@@ -44,8 +44,12 @@ async function assertTransparentCanvas(content, file) {
 for (const [file, dimensions] of Object.entries({
   'aap-symbol.png': [1024, 1024],
   'aap-symbol-white.png': [1024, 1024],
+  ...Object.fromEntries([76, 152, 228].map(width => [`aap-symbol-${width}.png`, [width, width]])),
   'aap-wordmark.png': [2380, 400],
   'aap-wordmark-white.png': [2380, 400],
+  ...Object.fromEntries(['', '-white'].flatMap(suffix => [238, 298, 476, 596, 714, 894].map(width => [
+    `aap-wordmark${suffix}-${width}.png`, [width, Math.round(width * 400 / 2380)],
+  ]))),
   'apple-touch-icon.png': [180, 180],
   'aap-social-card.png': [1200, 630],
 })) {
@@ -114,6 +118,8 @@ if (process.argv.includes('--build')) {
       for (const asset of ['aap-wordmark.png', 'aap-wordmark-white.png', 'aap-social-card.png', 'favicon.ico']) {
         assert.ok(html.includes(`/img/brand/${asset}`), `${file}: missing ${asset}`);
       }
+      assert.ok(html.includes('/img/brand/aap-wordmark-238.png 238w'), `${file}: missing responsive navigation logo`);
+      assert.ok(html.includes('/img/brand/aap-wordmark-white-298.png 298w'), `${file}: missing responsive footer logo`);
       assert.ok(!/\/img\/(?:logo(?:-white)?\.png|favicon\.ico|hero\.png|(?:v[\d.]+\/)?aap-hero-banner\.png)/.test(html), `Legacy brand reference in ${file}`);
       pages++;
     }

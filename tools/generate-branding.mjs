@@ -15,6 +15,13 @@ for (const [suffix, color] of [['', '#2874d7'], ['-white', '#ffffff']]) {
   artifacts.set(`img/brand/aap-wordmark${suffix}.svg`, Buffer.from(wordmark(color)));
   artifacts.set(`img/brand/aap-symbol${suffix}.png`, await raster(icon(color), 1024));
   artifacts.set(`img/brand/aap-wordmark${suffix}.png`, await raster(wordmark(color), 2380));
+  for (const width of [238, 298, 476, 596, 714, 894]) {
+    artifacts.set(`img/brand/aap-wordmark${suffix}-${width}.png`, await raster(wordmark(color), width));
+  }
+}
+
+for (const width of [76, 152, 228]) {
+  artifacts.set(`img/brand/aap-symbol-${width}.png`, await raster(icon(), width));
 }
 
 artifacts.set('img/brand/aap-social-card.svg', Buffer.from(socialCard()));

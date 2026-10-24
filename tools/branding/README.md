@@ -8,16 +8,20 @@ is white. The symbol and lettering have transparent backgrounds.
 
 | Placement | Asset |
 | --- | --- |
-| Navigation and footer | [2380 px blue wordmark](../../static/img/brand/aap-wordmark.png) / [white wordmark](../../static/img/brand/aap-wordmark-white.png) |
+| Navigation and footer | Responsive blue/white wordmarks at 238, 298, 476, 596, 714 and 894 px; the theme selects the size for the screen |
+| High-resolution wordmark | [2380 px blue wordmark](../../static/img/brand/aap-wordmark.png) / [white wordmark](../../static/img/brand/aap-wordmark-white.png) |
 | Avatars and compact website placements | [1024 px blue symbol](../../static/img/brand/aap-symbol.png) / [white symbol](../../static/img/brand/aap-symbol-white.png) |
+| Homepage diagram | Blue symbol at 76, 152 and 228 px for native screen-density selection |
 | Vector workflows | [Blue wordmark](../../static/img/brand/aap-wordmark.svg) / [white wordmark](../../static/img/brand/aap-wordmark-white.svg); [blue symbol](../../static/img/brand/aap-symbol.svg) / [white symbol](../../static/img/brand/aap-symbol-white.svg) |
 | Browser tabs | [Transparent 16/32/48/256 px ICO](../../static/img/brand/favicon.ico); an [SVG export](../../static/img/brand/favicon.svg) is also available |
 | iOS home-screen bookmarks | [Transparent 180 px touch icon](../../static/img/brand/apple-touch-icon.png) |
 | README and social/link previews | [1200 × 630 card](../../static/img/brand/aap-social-card.png) |
 
 Browser placements use the transparent PNG exports to avoid low-resolution
-SVG mask rendering in WebKit on high-density screens. The vector masters and
-the logo's geometry remain unchanged.
+SVG mask rendering in WebKit on high-density screens. Responsive wordmarks
+also avoid excessive raster downscaling on lower-density screens. Navigation
+and footer use their respective 238 px and 298 px display widths with native
+`srcset` selection. The vector masters and the logo's geometry remain unchanged.
 
 Use the blue artwork on light backgrounds and white artwork on dark backgrounds.
 Preserve the aspect ratio and leave clear space of at least one-quarter of the

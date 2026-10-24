@@ -1,17 +1,32 @@
 {
   "sources": {
     "tools/branding/artwork.mjs": "c2f8615e8ca15d2a1f98d0ff156de54a68d02c358a3dcb5c157c15cf2d1c1ff4",
-    "tools/generate-branding.mjs": "b244522dd3b5aed78ce7945b6053c09a3973434005e58e16f161d34e61358aeb"
+    "tools/generate-branding.mjs": "5bdc3ce1549b517bde5adfee5033d88378b4867fdff2897551d4d5fdd539fa39"
   },
   "files": {
     "static/img/brand/aap-symbol.svg": "438174c0210ecd631c9584172c1eba543bf46373f34de5a0a3d79bc375d34a1d",
     "static/img/brand/aap-wordmark.svg": "ec8dd25253212cd1c8ec782f90f11c3a6b3134083ac8bc22f41214b0337bea0c",
     "static/img/brand/aap-symbol.png": "0e94ddd089aefb301740ca98c93eed570b33014fdbdfe3eb14cf46a097305f26",
     "static/img/brand/aap-wordmark.png": "fac949e1cfe0928c476017db64ca80e23dcdc97cda810d2e61167d556e0e98b8",
+    "static/img/brand/aap-wordmark-238.png": "972e2580258d8ac183c846faff0e9c77d82d88a26e458ffdafe6dc0917868ea7",
+    "static/img/brand/aap-wordmark-298.png": "484ded35331857906d2820a7faf2f99bec7bd8d0f44be3ebb2a298cb2f4847c0",
+    "static/img/brand/aap-wordmark-476.png": "581e3e952af1f1d74348856737e4be5c3e09681e3713e31cb604916d279a076c",
+    "static/img/brand/aap-wordmark-596.png": "23f19fd0a78fbeb94c254ab431ef41d80dce7b37aae42213b0555bcd3965f7f5",
+    "static/img/brand/aap-wordmark-714.png": "19fece2f8dee7ab7428d2302e4082a7a226ba64dadf651a754f5a36178d56222",
+    "static/img/brand/aap-wordmark-894.png": "b94ebbc5105652edc3e917d1df9b13900290c025987470bf6571f92aab3511ce",
     "static/img/brand/aap-symbol-white.svg": "b88de63c63723cdbf4d419a9095d748afbf9044abcfa9e11153041e0f03f5b1d",
     "static/img/brand/aap-wordmark-white.svg": "b41d35af6291f65a935303be46cfddafe1800d2c046a7e94b76a18812a4ea5ef",
     "static/img/brand/aap-symbol-white.png": "dd1f6797195b1488ab893387e36eb0297806a7f734bed49e62aea0c99415a8e6",
     "static/img/brand/aap-wordmark-white.png": "3defd9002c5b2b07d57fd10066df6683134b8afaac0a13fee55d4b8353e8abd4",
+    "static/img/brand/aap-wordmark-white-238.png": "b8c549a218739d9369977426c5ab05da99969c142a29d0df67dba094fb7569ec",
+    "static/img/brand/aap-wordmark-white-298.png": "bb047bf8de33646543b3c322559bd324433659ffdba6b409f0624b1cb6b35bb7",
+    "static/img/brand/aap-wordmark-white-476.png": "eb007404eef00fc36c3529e4d1a3873989f0cfcdae9c9998d4aa9cb95fdff6de",
+    "static/img/brand/aap-wordmark-white-596.png": "d5c6b40ab11095f19128b70d9f648a50b5c5d4667bfeab0ea675f5a27da13d77",
+    "static/img/brand/aap-wordmark-white-714.png": "db862e65def63314d9c74c204864695b8e1eaed4cd15dcf2e702e3d835681d08",
+    "static/img/brand/aap-wordmark-white-894.png": "b613de38b75b595e353b8439544473295e8e751def3acd4ba4f4b87a6ed6dbe9",
+    "static/img/brand/aap-symbol-76.png": "c691114e76cfb1769719cdabc55a270c108a0ffd1e379bd41c06e8009fdd5e08",
+    "static/img/brand/aap-symbol-152.png": "e81f31d98af90c505cf12c45a28473917f9fbceb7e533637367c54fa84cbd899",
+    "static/img/brand/aap-symbol-228.png": "17145384f7215e1a4df726ddf6f79d9d75a55bbe69331c11ab1bb6247b9aa22f",
     "static/img/brand/aap-social-card.svg": "0aab3ba981015d7fd732ce9101beb5ac2bf5a4017b985053477b2e2ec6104ad2",
     "static/img/brand/aap-social-card.png": "6b97b779ecda3e9283bf852d207817c9baf8772365e9d35e12720d8269f8b17f",
     "static/img/brand/favicon.svg": "438174c0210ecd631c9584172c1eba543bf46373f34de5a0a3d79bc375d34a1d",
