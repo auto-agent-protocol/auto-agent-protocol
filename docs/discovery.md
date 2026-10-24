@@ -72,6 +72,8 @@ For redirects, PAP organization identity follows the **final HTTPS discovery hos
 
 ## llms.txt: a useful index, not registration
 
+![A short dealer llms.txt index links the exact MCP endpoint, A2A and PAP discovery, API documentation and inventory](./img/llms-discovery.svg)
+
 The [llms.txt proposal](https://llmstxt.org/) provides a small Markdown index. It does not make every agent automatically discover or trust a website. AAP 3.0 requires this index as an additional entry point, alongside working protocol discovery.
 
 Start from the [dealer llms.txt example](https://draft.autoagentprotocol.invalid/latest/examples/llms.txt.example.md). Include the dealer name, selected AAP version, exact MCP URL, public/authenticated access requirements, Agent Card, Poppy document, deployment-specific OpenAPI and a link to human-readable inventory. State that lead submission needs explicit customer contact consent.
@@ -86,6 +88,8 @@ Use descriptive Markdown links rather than an unstructured list of URLs. Keep it
 HTTP `Link` headers can advertise the same relationships. Only publish an alternate URL that actually serves a corresponding Markdown page. Do not describe a private `rel="mcp"` convention as a universally supported standard.
 
 ## One declaration, three equivalent surfaces
+
+![MCP, A2A and PAP expose equivalent skills, search capabilities, inventory, pricing, consent and outcomes](./img/capability-parity.svg)
 
 The AAP skill subset, automotive schemas, inventory visibility, search capabilities, pricing and consent rules MUST agree across MCP, A2A and PAP OpenAPI. A native PAP MCP entry, when present, MUST use the advertised MCP URL as both its `url` and `resource`.
 

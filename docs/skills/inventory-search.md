@@ -58,11 +58,15 @@ A deployment advertising feature filters MUST also expose [`inventory.facets`](.
 
 ### Equipment needs evidence
 
+![Present and absent equipment require a source; unknown equipment never satisfies a feature filter](../img/feature-evidence.svg)
+
 `features` remains a readable equipment list. `feature_evidence` records a code, label, status, source and a short source excerpt for a specific vehicle. Only `status: "present"` satisfies feature filters. Every matching result MUST include evidence for all `features_all` codes and at least one matching `features_any` code.
 
 A trim name or a model-year default is insufficient. Missing or `unknown` evidence does not prove presence or absence. A verified `absent` claim also needs a source. Clients SHOULD show the evidence when explaining why a vehicle matches.
 
 ### Distance is to the vehicle's rooftop
+
+![A geographic radius includes rooftops inside the boundary and reports actual distance to each matching listing](../img/geo-search.svg)
 
 `near` contains `latitude`, `longitude` and `radius_mi`. Use straight-line distance on a sphere with mean Earth radius **3958.7613 miles** and the haversine formula. Coordinates are WGS84 latitude/longitude. Apply the inclusive radius using the unrounded distance; report `distance_mi` to at least three decimal places. This is not driving distance or a delivery promise.
 
@@ -112,11 +116,13 @@ This compact response illustrates a price-only request. The complete [feature-an
 | `vehicles` | Current listings with `status`, `updated_at` and at least one of `vin`, `vehicle_id` or `stock`. |
 | `facets` | Optional counts and ranges across the full matching set, before pagination. |
 
-`price` includes mandatory dealer charges and excludes government charges. Any `fees` are already included. An omitted price is unknown: do not reconstruct it from `list_price` and fees. See [pricing](../pricing-and-ftc.md).
+`price` includes mandatory dealer charges and excludes government-required consumer charges. Any `fees` are already included. An omitted price is unknown: do not reconstruct it from `list_price` and fees. See [pricing](../pricing-and-ftc.md).
 
 `available`, `intransit` and `pending` are different states. A result is not a reservation. `updated_at` reflects the source's last relevant update; servers MUST NOT invent a fresh timestamp merely because an agent requested the listing.
 
 ## Continue through the full inventory
+
+![Keep query, filters, sort and page size fixed while following opaque cursors until next_cursor is null](../img/cursor-pagination.svg)
 
 For the first page, omit `cursor` and `skip`. Pass the returned `next_cursor` in `pagination.cursor` for the next page, keeping filters, sort and limit unchanged. Stop only when `next_cursor` is `null`. A page-size limit MUST NOT become a limit on the entire traversable matching set.
 

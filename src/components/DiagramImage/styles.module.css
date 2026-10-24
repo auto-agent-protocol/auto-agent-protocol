@@ -1,0 +1,39 @@
+.diagram {
+  display: block;
+  margin: 2rem 0 2.5rem;
+}
+
+.diagram a {
+  display: block;
+  color: var(--ifm-color-content-secondary);
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.diagram img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  transition: box-shadow 160ms ease;
+}
+
+.expand {
+  display: block;
+  padding: 0.6rem 0.2rem;
+  text-align: right;
+}
+
+.diagram a:hover img {
+  box-shadow: 0 0 0 2px var(--ifm-color-primary);
+}
+
+.diagram a:focus-visible {
+  outline: 3px solid var(--ifm-color-primary);
+  outline-offset: 5px;
+  border-radius: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diagram img { transition: none; }
+}

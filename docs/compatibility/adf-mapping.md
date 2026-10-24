@@ -6,7 +6,7 @@ description: Map a consented AAP lead into an existing CRM workflow while retain
 
 # ADF/XML mapping
 
-![AAP lead.submit JSON maps deterministically to ADF/XML for an existing dealer CRM](../img/adf-bridge.svg)
+![AAP leads map to a verified CRM XML format while consent and idempotency remain in a separate retained record](../img/adf-bridge.svg)
 
 **Connect the lead to an existing CRM workflow.** A dealer-side adapter maps AAP JSON to ADF/XML after validation, consent and deduplication. The buyer agent keeps using MCP, A2A or PAP.
 
