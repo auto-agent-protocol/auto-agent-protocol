@@ -100,7 +100,7 @@ For “hybrid SUV under $35k,” send `fuel`, `body` and `price_max`. Do not rel
 }
 ```
 
-This compact response illustrates a price-only request. The complete feature-and-radius request/response pair is in `spec/latest/examples/inventory-search-*.features-near.example.json`.
+This compact response illustrates a price-only request. The complete [feature-and-radius request](https://draft.autoagentprotocol.invalid/latest/examples/inventory-search-request.features-near.example.json) and [matching response](https://draft.autoagentprotocol.invalid/latest/examples/inventory-search-response.features-near.example.json) include evidence and distance.
 
 | Result field | Contract |
 |---|---|
@@ -121,8 +121,8 @@ This compact response illustrates a price-only request. The complete feature-and
 For the first page, omit `cursor` and `skip`. Pass the returned `next_cursor` in `pagination.cursor` for the next page, keeping filters, sort and limit unchanged. Stop only when `next_cursor` is `null`. A page-size limit MUST NOT become a limit on the entire traversable matching set.
 
 - Cursor and `skip` are mutually exclusive. A deployment may accept `skip` as an advertised entry point; its response still supplies cursor continuation.
-- Bind cursors to the endpoint tenant, authorization scope, normalized filters and sort. Do not put customer information in a cursor. Verify scope on every request; a cursor is not authorization.
-- Use a stable identifier to break sort ties, and preserve ordering for the cursor's lifetime. Document cursor expiry. An expired, altered or mismatched cursor returns `INVALID_CURSOR` with a hint to restart the search.
+- Bind cursors to the endpoint tenant, authorization scope, normalized filters, sort and page size. Do not put customer information in a cursor. Verify scope on every request; a cursor is not authorization.
+- Use a stable identifier (dealer + vehicle for aggregate scope) to break sort ties, and preserve ordering for the cursor's lifetime. Document cursor expiry. An expired, altered or mismatched cursor returns `INVALID_CURSOR` with a hint to restart the search.
 - Concurrent changes may remove listings. Do not return stale or unavailable vehicles merely to fill a snapshot page. An empty page with a non-null cursor can occur; clients may continue. Clients SHOULD detect repeated cursors and bound retries.
 - `privacy.anonymous: true` means no customer contact information is attached. It does not disable server authentication or make a PAP session unidentifiable.
 

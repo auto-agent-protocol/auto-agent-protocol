@@ -126,7 +126,7 @@
     "price": {
       "type": "integer",
       "minimum": 0,
-      "description": "Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context.",
+      "description": "Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.",
       "examples": [35500]
     },
     "list_price": {
@@ -144,17 +144,20 @@
     "stock": {
       "type": "string",
       "description": "Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts.",
-      "examples": ["H12345"]
+      "examples": ["H12345"],
+      "minLength": 1
     },
     "dealer_id": {
       "type": "string",
       "description": "Stable identifier of the dealer that owns this listing. Inventory context.",
-      "examples": ["demo-toyota-sf"]
+      "examples": ["demo-toyota-sf"],
+      "minLength": 1
     },
     "vehicle_id": {
       "type": "string",
       "description": "Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).",
-      "examples": ["veh_8f3c1a"]
+      "examples": ["veh_8f3c1a"],
+      "minLength": 1
     },
     "mileage": {
       "type": "integer",

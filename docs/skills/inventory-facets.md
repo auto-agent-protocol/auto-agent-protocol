@@ -1,131 +1,69 @@
 ---
 sidebar_position: 2
 title: inventory.facets
-description: Aggregated counts and ranges (makes, models, years, conditions, price/mileage ranges) over a dealer's inventory, optionally scoped by filters.
+description: Discover actual inventory values, ranges and feature vocabulary before constructing a search.
 ---
 
 # `inventory.facets`
 
-![Inventory facets describe the available identity, vehicle class, powertrain, range, and authoritative price buckets](../img/facets-overview.svg)
+**Ask what can be searched before guessing a filter value.** Facets expose counts, numeric ranges and the deployment's supported feature codes.
 
-:::info Invocation
-On the A2A interface, this skill uses `SendMessage` over the [JSON-RPC binding](../bindings/json-rpc.md), with its typed payload in `Message.parts[].data`. The native [Poppy OpenAPI binding](../personal-agent-protocol.md#5-automotive-openapi-binding) carries the same request and response payloads directly, using guest Sessions and DPoP. The removed A2A HTTP+JSON binding remains out of scope.
-:::
+![Facet buckets and feature codes summarize the full matching inventory before pagination](../img/facets-overview.svg)
 
-The `inventory.facets` skill returns aggregated facet counts and ranges over a dealer's inventory. A buyer agent uses it to discover what a dealer actually carries before composing a search — for example, to learn the set of available makes and models, the year range, or the price ceiling.
-
-| Property | Value |
+| MCP tool | Shared request → response |
 |---|---|
-| Skill id | `inventory.facets` |
-| Request type | `inventory.facets.request` |
-| Response type | `inventory.facets.response` |
-| Anonymous allowed | yes |
-| Consent required | no |
-| ADF compatible | no |
+| `aap_inventory_facets` | `inventory.facets.request` → `inventory.facets.response` |
 
-## Request shape
+The same typed payload works through MCP, A2A and PAP. It needs no customer information or contact consent.
+
+## Scope the inventory
 
 ```json
 {
   "type": "inventory.facets.request",
-  "filters": {
-    "...": "(same shape as inventory.search filters; all optional)"
-  }
+  "filters": { "condition": ["used"], "status": ["available"] }
 }
 ```
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `type` | const | yes | `inventory.facets.request`. |
-| `filters` | object | no | Optional scoping filters. Same shape as the [`inventory.search`](./inventory-search.md) filter block; all fields are optional. |
+Omit `filters` for the entire visible inventory. Otherwise, apply the [search filter semantics](./inventory-search.md) before aggregating. Counts cover the **full matching set**, not one page or a capped sample.
 
-When `filters` is absent, facets are aggregated over the dealer's entire inventory. When it is present, facets are aggregated over only the matching subset (e.g. all `condition: ["used"]` listings).
+When search is implemented, facets use its advertised filter capabilities and the same visibility. A facets-only endpoint accepts unfiltered requests and MUST reject supplied filters with `UNSUPPORTED_FILTER`; it cannot advertise search capabilities it does not implement.
 
-## Response shape
+## Read counts and ranges
 
 ```json
 {
   "type": "inventory.facets.response",
   "data": {
-    "makes":                 [{ "value": "string", "count": 0 }],
-    "models":                [{ "value": "string", "count": 0 }],
-    "trims":                 [{ "value": "string", "count": 0 }],
-    "years":                 [{ "value": 0,        "count": 0 }],
-    "conditions":            [{ "value": "string", "count": 0 }],
-    "transmissions":         [{ "value": "string", "count": 0 }],
-    "fuels":                 [{ "value": "string", "count": 0 }],
-    "dc_fast_charge":        [{ "value": "true | false", "count": 0 }],
-    "charge_ports":          [{ "value": "string", "count": 0 }],
-    "drivelines":            [{ "value": "string", "count": 0 }],
-    "bodies":                [{ "value": "string", "count": 0 }],
-    "vehicle_types":         [{ "value": "car | motorcycle | trailer | rv | other", "count": 0 }],
-    "exterior_colors":       [{ "value": "string", "count": 0 }],
-    "interior_colors":       [{ "value": "string", "count": 0 }],
-    "rooftops":              [{ "value": "string", "count": 0 }],
-    "statuses":              [{ "value": "available | intransit | pending", "count": 0 }],
-    "price_range":            { "min": 0, "max": 0 },
-    "mileage_range":          { "min": 0, "max": 0 },
-    "year_range":             { "min": 0, "max": 0 },
-    "displacement_cc_range":  { "min": 0, "max": 0 },
-    "electric_range_mi_range":{ "min": 0, "max": 0 }
+    "makes": [{ "value": "Honda", "count": 8 }, { "value": "Toyota", "count": 12 }],
+    "conditions": [{ "value": "used", "count": 20 }],
+    "price_range": { "min": 18995, "max": 34995 },
+    "features": [
+      { "code": "heated_front_seats", "label": "Heated front seats", "count": 11 },
+      { "code": "adaptive_cruise_control", "label": "Adaptive cruise control", "count": 0 }
+    ]
   }
 }
 ```
 
-Each facet array entry is `{ value, count }` where `value` is the facet term (string or integer) and `count` is the number of matching listings. The `statuses` facet's `value` is drawn from the controlled vehicle status enum — `available`, `intransit`, or `pending` — since those are the only statuses that appear in inventory feeds. The `*_range` fields are `{ min, max }` numeric ranges (`price_range` in whole US dollars, `displacement_cc_range` in cc, `electric_range_mi_range` in miles).
+| Facet group | Examples |
+|---|---|
+| Identity and condition | makes, models, trims, years, conditions, statuses |
+| Vehicle and location | vehicle_types, bodies, rooftops, exterior_colors, interior_colors |
+| Powertrain | fuels, transmissions, drivelines, charge_ports, dc_fast_charge |
+| Numeric ranges | price_range, mileage_range, year_range, displacement_cc_range, electric_range_mi_range |
+| Equipment vocabulary | features: stable code, readable label and verified-present count |
 
-Powersports dealers additionally return `vehicle_types` (`car` | `motorcycle` | `trailer` | `rv` | `other`), `bodies` (which for motorcycles carry segments like `cruiser`/`touring`), and `displacement_cc_range`, matching the filters on [`inventory.search`](./inventory-search.md). Electric inventory adds `electric_range_mi_range`, `dc_fast_charge`, and `charge_ports`. A dealer omits any facet key for which it has no inventory.
+Term entries use `{value, count}`; values are strings, integers or booleans as appropriate. Counts are nonnegative exact counts. `dc_fast_charge` uses actual booleans. Range fields use `{min, max}` with `min <= max` and the source field's units.
 
-`price_range` aggregates available authoritative `price` values, which include mandatory dealer charges and exclude government charges (see [Pricing and fee disclosure](../pricing-and-ftc.md)). Vehicles without `price` do not contribute; omit `price_range` when no matching vehicle has `price`.
+Only known authoritative prices contribute to `price_range`; omit it when none are known. Missing facets mean unavailable data. Empty/zero buckets are allowed when meaningful; do not invent an observed value.
 
-## Scoped facets example
+## Feature codes have stable meaning
 
-Used-only facets:
+A deployment supporting `features_all` or `features_any` MUST implement this skill and publish its full supported feature vocabulary in `features`. Include supported codes with zero matches so an empty result is distinguishable from an unsupported code. Filtering may change counts, but not a code's meaning.
 
-### Request
+Count only vehicle-specific evidence with `status: "present"`. Unknown or absent equipment does not contribute. Feature codes are unique within the vocabulary and use lowercase snake_case. A model's usual equipment or a trim label is not evidence for a particular vehicle.
 
-```json
-{
-  "type": "inventory.facets.request",
-  "filters": { "condition": ["used"] }
-}
-```
+Clients discover a code here, submit it to search, then inspect the returned evidence. An unadvertised code returns `UNSUPPORTED_FILTER`; it must not quietly become a keyword query.
 
-### Response
-
-```json
-{
-  "type": "inventory.facets.response",
-  "data": {
-    "makes": [
-      { "value": "Honda",  "count": 12 },
-      { "value": "Toyota", "count": 27 }
-    ],
-    "models": [
-      { "value": "Civic",   "count": 5 },
-      { "value": "Accord",  "count": 4 },
-      { "value": "Camry",   "count": 9 },
-      { "value": "Corolla", "count": 8 }
-    ],
-    "conditions": [
-      { "value": "used", "count": 39 }
-    ],
-    "statuses": [
-      { "value": "available", "count": 34 },
-      { "value": "intransit", "count": 3 },
-      { "value": "pending",   "count": 2 }
-    ],
-    "year_range":    { "min": 2015, "max": 2024 },
-    "price_range":   { "min": 9990, "max": 38990 },
-    "mileage_range": { "min": 8400, "max": 142000 }
-  }
-}
-```
-
-## When to use it
-
-- The buyer agent wants to enumerate the dealer's makes/models before constructing a search.
-- The buyer agent needs to surface a price slider or year filter to the user.
-- The buyer agent wants a count of the dealer's used inventory before recommending a deeper conversation.
-
-`inventory.facets` is anonymous and consent-free. The dealer agent SHOULD return the same set of facet keys regardless of filter, omitting only those for which it has no inventory.
+See the [full facet example](https://draft.autoagentprotocol.invalid/latest/examples/inventory-facets-response.example.json), [motorcycle example](https://draft.autoagentprotocol.invalid/latest/examples/inventory-facets-response.motorcycle.example.json) and [schema](https://draft.autoagentprotocol.invalid/latest/schemas/facets.schema.json).

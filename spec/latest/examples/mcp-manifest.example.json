@@ -13,11 +13,11 @@
     {
       "name": "aap_dealer_information",
       "title": "Dealer Information",
-      "description": "Return the dealership profile — group name, welcome message, and one or more rooftops (locations) with address, geo, contacts, business hours, timezone, default dealer fees, and service capabilities (including tags such as motorcycle_sales / powersports).",
+      "description": "Read dealership identity, rooftops, coordinates, hours, contact channels and default fee disclosures.",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "title": "DealerInformationRequest",
-        "description": "Typed AAP request for the `dealer.information` skill. The request carries no parameters; it asks for the dealer's static profile. Carried as a typed DataPart on the A2A interface or directly as the native Poppy API request body.",
+        "description": "Typed AAP request for the `dealer.information` skill. The request carries no parameters; it asks for the dealer's static profile. Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.",
         "type": "object",
         "examples": [
           {
@@ -49,7 +49,7 @@
         "$defs": {
           "dealer_information_response": {
             "title": "DealerInformationResponse",
-            "description": "Typed AAP response for the `dealer.information` skill. Wraps a DealerInformation object inside the standard AAP response envelope (`{ type, data, message? }`). Carried as a typed DataPart in the A2A response or directly as the native Poppy API response body.",
+            "description": "Typed AAP response for the `dealer.information` skill. Wraps a DealerInformation object inside the standard AAP response envelope (`{ type, data, message? }`). Shared by MCP structured results, A2A DataParts and native PAP OpenAPI bodies.",
             "type": "object",
             "properties": {
               "type": {
@@ -72,7 +72,7 @@
           },
           "dealer_information": {
             "title": "DealerInformation",
-            "description": "Public dealership profile. A dealer group has a `name`, an optional `welcome_message`, and one or more `rooftops` (physical locations). Per-location identity, address, geo, contacts, hours, default dealer fees, and service capabilities live on each rooftop. Vehicles reference the rooftop that holds them via `Vehicle.rooftop` = the rooftop's `name`. Rooftop fees are publisher defaults and discovery metadata only: if an inventory publisher emits Vehicle.fees, it materializes the complete effective vehicle itemization, and consumers never join or merge fee arrays. Returned by the `dealer.information` AAP skill, wrapped in `dealer.information.response` and carried by either the A2A or native Poppy interface.",
+            "description": "Public dealership profile. A dealer group has a `name`, an optional `welcome_message`, and one or more `rooftops` (physical locations). Per-location identity, address, geo, contacts, hours, default dealer fees, and service capabilities live on each rooftop. Vehicles reference the rooftop that holds them via `Vehicle.rooftop` = the rooftop's `name`. Rooftop fees are publisher defaults and discovery metadata only: if an inventory publisher emits Vehicle.fees, it materializes the complete effective vehicle itemization, and consumers never join or merge fee arrays. Returned by the `dealer.information` AAP skill, wrapped in `dealer.information.response` and shared by MCP, A2A and PAP.",
             "type": "object",
             "properties": {
               "name": {
@@ -404,7 +404,7 @@
           },
           "_primitives_dealer_fee": {
             "title": "DealerFee",
-            "description": "One mandatory, non-government charge or dealer-required add-on, expressed in whole US dollars. Examples include a documentation fee or a required pre-installed protection product. When used with Vehicle.price, the amount is already included in that authoritative price. When supplied without Vehicle.price, it is informational and MUST NOT be used to derive a payable price. Do not include sales tax, title, registration, other government charges, or optional products. Fee names SHOULD be specific enough for a buyer to understand what the charge represents and MUST be unique within one fees array.",
+            "description": "One mandatory dealer charge or required add-on, in whole US dollars. Include dealer-paid taxes or fees passed to the buyer; exclude only government-required consumer charges and optional products. The amount is already included when Vehicle.price is present. Without price it is informational and cannot establish a payable amount. Names must be specific, nonempty and unique within one fees array.",
             "type": "object",
             "properties": {
               "name": {
@@ -576,11 +576,11 @@
     {
       "name": "aap_inventory_facets",
       "title": "Inventory Facets",
-      "description": "Return searchable inventory facets such as makes, models, years, conditions, body styles/segments, price ranges, mileage ranges, drivetrain, fuel type, statuses, vehicle type, engine-displacement range, and electric facets (electric-range span, DC fast charge, charge port).",
+      "description": "Discover inventory values, numeric ranges and supported feature codes with verified-present counts.",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "title": "InventoryFacetsRequest",
-        "description": "Typed AAP request for the `inventory.facets` skill. An optional `filters` block scopes the facets to a subset of inventory (e.g. `condition: ['used']`). Carried as a typed DataPart on the A2A interface or directly as the native Poppy API request body.",
+        "description": "Typed AAP request for the `inventory.facets` skill. An optional `filters` block scopes the facets to a subset of inventory (e.g. `condition: ['used']`). Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.",
         "type": "object",
         "examples": [
           {
@@ -1038,7 +1038,7 @@
         "$defs": {
           "inventory_facets_response": {
             "title": "InventoryFacetsResponse",
-            "description": "Typed AAP response for the `inventory.facets` skill. The `data` object is a Facets aggregation. Carried as a typed DataPart in the A2A response or directly as the native Poppy API response body.",
+            "description": "Typed AAP response for the `inventory.facets` skill. The `data` object is a Facets aggregation. Shared by MCP structured results, A2A DataParts and native PAP OpenAPI bodies.",
             "type": "object",
             "properties": {
               "type": {
@@ -1388,7 +1388,7 @@
     {
       "name": "aap_inventory_search",
       "title": "Inventory Search",
-      "description": "Search vehicle inventory by query, make, model, trim, year, condition, price, mileage, body style/segment, VIN, stock, features, and availability — across cars, motorcycles, and other vehicle types, including filters such as vehicle type, body/segment, and engine displacement, plus electric filters such as electric range and DC fast charging.",
+      "description": "Find vehicles using advertised constraints, source-backed equipment, rooftop radius and complete cursor pagination. Return applied filters, freshness and authoritative prices.",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "title": "InventorySearchRequest",
@@ -2417,7 +2417,7 @@
               "price": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context.",
+                "description": "Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.",
                 "examples": [
                   35500
                 ]
@@ -2443,21 +2443,24 @@
                 "description": "Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts.",
                 "examples": [
                   "H12345"
-                ]
+                ],
+                "minLength": 1
               },
               "dealer_id": {
                 "type": "string",
                 "description": "Stable identifier of the dealer that owns this listing. Inventory context.",
                 "examples": [
                   "demo-toyota-sf"
-                ]
+                ],
+                "minLength": 1
               },
               "vehicle_id": {
                 "type": "string",
                 "description": "Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).",
                 "examples": [
                   "veh_8f3c1a"
-                ]
+                ],
+                "minLength": 1
               },
               "mileage": {
                 "type": "integer",
@@ -2724,7 +2727,7 @@
           },
           "_primitives_dealer_fee": {
             "title": "DealerFee",
-            "description": "One mandatory, non-government charge or dealer-required add-on, expressed in whole US dollars. Examples include a documentation fee or a required pre-installed protection product. When used with Vehicle.price, the amount is already included in that authoritative price. When supplied without Vehicle.price, it is informational and MUST NOT be used to derive a payable price. Do not include sales tax, title, registration, other government charges, or optional products. Fee names SHOULD be specific enough for a buyer to understand what the charge represents and MUST be unique within one fees array.",
+            "description": "One mandatory dealer charge or required add-on, in whole US dollars. Include dealer-paid taxes or fees passed to the buyer; exclude only government-required consumer charges and optional products. The amount is already included when Vehicle.price is present. Without price it is informational and cannot establish a payable amount. Names must be specific, nonempty and unique within one fees array.",
             "type": "object",
             "properties": {
               "name": {
@@ -3629,11 +3632,11 @@
     {
       "name": "aap_inventory_vehicle",
       "title": "Vehicle Detail",
-      "description": "Return details for a specific car or motorcycle by VIN, stock number, or vehicle_id, including status, pricing disclosure, photos, mileage, trim, features, fuel economy or engine displacement, electric range/battery/charging for BEV and PHEV units, and dealer page URL.",
+      "description": "Read one listing by VIN, stock or vehicle ID, including current status, equipment evidence, pricing and relevant specifications.",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "title": "VehicleDetailRequest",
-        "description": "Typed AAP request for the `inventory.vehicle` skill. The request MUST identify a specific listing via at least one of `vin`, `stock`, or `vehicle_id`. Carried as a typed DataPart on the A2A interface or directly as the native Poppy API request body.",
+        "description": "Typed AAP request for the `inventory.vehicle` skill. The request MUST identify a specific listing via at least one of `vin`, `stock`, or `vehicle_id`. Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.",
         "type": "object",
         "examples": [
           {
@@ -3658,14 +3661,16 @@
             "description": "Dealer's stock number, used when VIN is not yet assigned (e.g. in-transit units).",
             "examples": [
               "H12345"
-            ]
+            ],
+            "minLength": 1
           },
           "vehicle_id": {
             "type": "string",
             "description": "Dealer-internal vehicle identifier.",
             "examples": [
               "veh_8f3c1a"
-            ]
+            ],
+            "minLength": 1
           }
         },
         "required": [
@@ -3704,7 +3709,7 @@
         "$defs": {
           "vehicle_detail_response": {
             "title": "VehicleDetailResponse",
-            "description": "Typed AAP response for the `inventory.vehicle` skill. The `data` field is a Vehicle (v1.0 unified the former Vehicle + VehicleDetail into one type) and MAY be any vehicle type (`car`, `motorcycle`, `trailer`, `rv`, `other`), carrying the type-relevant fields (absent `vehicle_type` = car). Because it is always an inventory listing, `condition` is constrained to `new` | `used` | `cpo` and `status` (one of `available` | `intransit` | `pending`) is required. Carried as a typed DataPart in the A2A response or directly as the native Poppy API response body.",
+            "description": "Typed AAP response for the `inventory.vehicle` skill. The `data` field is a Vehicle (v1.0 unified the former Vehicle + VehicleDetail into one type) and MAY be any vehicle type (`car`, `motorcycle`, `trailer`, `rv`, `other`), carrying the type-relevant fields (absent `vehicle_type` = car). Because it is always an inventory listing, `condition` is constrained to `new` | `used` | `cpo` and `status` (one of `available` | `intransit` | `pending`) is required. Shared by MCP structured results, A2A DataParts and native PAP OpenAPI bodies.",
             "type": "object",
             "properties": {
               "type": {
@@ -3947,7 +3952,7 @@
               "price": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context.",
+                "description": "Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.",
                 "examples": [
                   35500
                 ]
@@ -3973,21 +3978,24 @@
                 "description": "Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts.",
                 "examples": [
                   "H12345"
-                ]
+                ],
+                "minLength": 1
               },
               "dealer_id": {
                 "type": "string",
                 "description": "Stable identifier of the dealer that owns this listing. Inventory context.",
                 "examples": [
                   "demo-toyota-sf"
-                ]
+                ],
+                "minLength": 1
               },
               "vehicle_id": {
                 "type": "string",
                 "description": "Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).",
                 "examples": [
                   "veh_8f3c1a"
-                ]
+                ],
+                "minLength": 1
               },
               "mileage": {
                 "type": "integer",
@@ -4254,7 +4262,7 @@
           },
           "_primitives_dealer_fee": {
             "title": "DealerFee",
-            "description": "One mandatory, non-government charge or dealer-required add-on, expressed in whole US dollars. Examples include a documentation fee or a required pre-installed protection product. When used with Vehicle.price, the amount is already included in that authoritative price. When supplied without Vehicle.price, it is informational and MUST NOT be used to derive a payable price. Do not include sales tax, title, registration, other government charges, or optional products. Fee names SHOULD be specific enough for a buyer to understand what the charge represents and MUST be unique within one fees array.",
+            "description": "One mandatory dealer charge or required add-on, in whole US dollars. Include dealer-paid taxes or fees passed to the buyer; exclude only government-required consumer charges and optional products. The amount is already included when Vehicle.price is present. Without price it is informational and cannot establish a payable amount. Names must be specific, nonempty and unique within one fees array.",
             "type": "object",
             "properties": {
               "name": {
@@ -4514,7 +4522,7 @@
     {
       "name": "aap_lead_submit",
       "title": "Submit Lead",
-      "description": "Submit a consented lead carrying customer info plus any combination of vehicle of interest, trade-in, and appointment request — a single unified contract that matches how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).",
+      "description": "Submit one explicitly consented inquiry with optional vehicle, trade-in and appointment details. Require an idempotency key and report lead and booking outcomes separately.",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "title": "LeadSubmitRequest",
@@ -5255,7 +5263,7 @@
               "price": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context.",
+                "description": "Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.",
                 "examples": [
                   35500
                 ]
@@ -5281,21 +5289,24 @@
                 "description": "Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts.",
                 "examples": [
                   "H12345"
-                ]
+                ],
+                "minLength": 1
               },
               "dealer_id": {
                 "type": "string",
                 "description": "Stable identifier of the dealer that owns this listing. Inventory context.",
                 "examples": [
                   "demo-toyota-sf"
-                ]
+                ],
+                "minLength": 1
               },
               "vehicle_id": {
                 "type": "string",
                 "description": "Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).",
                 "examples": [
                   "veh_8f3c1a"
-                ]
+                ],
+                "minLength": 1
               },
               "mileage": {
                 "type": "integer",
@@ -5562,7 +5573,7 @@
           },
           "_primitives_dealer_fee": {
             "title": "DealerFee",
-            "description": "One mandatory, non-government charge or dealer-required add-on, expressed in whole US dollars. Examples include a documentation fee or a required pre-installed protection product. When used with Vehicle.price, the amount is already included in that authoritative price. When supplied without Vehicle.price, it is informational and MUST NOT be used to derive a payable price. Do not include sales tax, title, registration, other government charges, or optional products. Fee names SHOULD be specific enough for a buyer to understand what the charge represents and MUST be unique within one fees array.",
+            "description": "One mandatory dealer charge or required add-on, in whole US dollars. Include dealer-paid taxes or fees passed to the buyer; exclude only government-required consumer charges and optional products. The amount is already included when Vehicle.price is present. Without price it is informational and cannot establish a payable amount. Names must be specific, nonempty and unique within one fees array.",
             "type": "object",
             "properties": {
               "name": {

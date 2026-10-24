@@ -1,240 +1,73 @@
 ---
 sidebar_position: 1
 title: dealer.information
-description: Return the dealership profile — identity, rooftop locations, hours, contact channels, default dealer fees, and service capabilities.
+description: Dealership identity, physical locations, hours and contact details through the same read skill on all three bindings.
 ---
 
 # `dealer.information`
 
-![One dealer group with several rooftops, each carrying operating details, capabilities, and a default fee schedule](../img/dealer-rooftops.svg)
+**Learn who the dealer is and where to go.** One dealer group can have several physical locations, called rooftops.
 
-:::info Invocation
-On the A2A interface, this skill uses `SendMessage` over the [JSON-RPC binding](../bindings/json-rpc.md), with its typed payload in `Message.parts[].data`. The native [Poppy OpenAPI binding](../personal-agent-protocol.md#5-automotive-openapi-binding) carries the same request and response payloads directly, using guest Sessions and DPoP. The removed A2A HTTP+JSON binding remains out of scope.
-:::
+![A dealer group connects to its rooftops, each with location, hours, contacts and services](../img/dealer-rooftops.svg)
 
-The `dealer.information` skill returns a dealership's static profile. It is the simplest AAP call: the request carries no parameters, the response carries a [`DealerInformation`](https://draft.autoagentprotocol.invalid/latest/schemas/dealer-information.schema.json) object describing the dealer group and its rooftops — each with identity, address, contact channels, business hours, default dealer fees, and service capabilities.
-
-| Property | Value |
+| MCP tool | Shared request → response |
 |---|---|
-| Skill id | `dealer.information` |
-| Request type | `dealer.information.request` |
-| Response type | `dealer.information.response` |
-| Anonymous allowed | yes |
-| Consent required | no |
-| ADF compatible | no |
+| `aap_dealer_information` | `dealer.information.request` → `dealer.information.response` |
 
-## Request shape
+Use the typed request as MCP arguments, an A2A DataPart or a PAP OpenAPI body. No customer information or contact consent is needed; transport authentication still applies.
 
-The request has a single field — the AAP type identifier. There are no parameters.
+## Request
 
 ```json
-{
-  "type": "dealer.information.request"
-}
+{ "type": "dealer.information.request" }
 ```
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `type` | string const | yes | Always `dealer.information.request`. |
+There are no parameters. Unknown request properties are invalid.
 
-`additionalProperties: false`. The request is invalid if any other property is present.
-
-## Response shape
-
-The response wraps a `DealerInformation` object inside the standard AAP response envelope. A `DealerInformation` is a dealer group (`name` + optional `welcome_message`) plus one or more `rooftops`, where each rooftop is an individual dealership location:
-
-```json
-{
-  "type": "dealer.information.response",
-  "data": {
-    "name": "string",
-    "welcome_message": "string",
-    "rooftops": [
-      {
-        "name": "string",
-        "legal_name": "string",
-        "website": "https://...",
-        "geo": { "latitude": 0, "longitude": 0 },
-        "emails": [{ "name": "string", "value": "string" }],
-        "phones": [{ "name": "string", "value": "+1XXXXXXXXXX" }],
-        "address": {
-          "country": "US",
-          "state": "CA",
-          "city": "string",
-          "address_line_1": "string",
-          "address_line_2": "string",
-          "zip": "94103"
-        },
-        "schedules": [
-          {
-            "name": "sales",
-            "value": { "monday": { "open": "HH:MM", "close": "HH:MM" }, "sunday": null }
-          }
-        ],
-        "timezone": "America/Los_Angeles",
-        "notes": "string",
-        "fees": [
-          { "name": "Documentation fee", "amount": 500 }
-        ],
-        "capabilities": ["sales", "service", "parts", "financing", "trade_in", "delivery"]
-      }
-    ]
-  },
-  "message": "Optional contextual note from the dealer."
-}
-```
-
-`data` carries the full `DealerInformation` object. The only required top-level fields are `name` and `rooftops` (at least one). Within each rooftop, only `name` is required; everything else is optional.
-
-| Field | Type | Required | Notes |
-|---|---|---|---|
-| `data.name` | string | yes | Dealer group name. |
-| `data.welcome_message` | string | no | Optional greeting surfaced to the buyer. |
-| `data.rooftops[]` | `Rooftop[]` | yes | One entry per dealership location; at least one. |
-| `rooftop.name` | string | yes | Public-facing name of the location (also used by a vehicle's `rooftop` field). |
-| `rooftop.legal_name` | string | no | Legal/registered business name. |
-| `rooftop.website` | URI | no | Public website for this location. |
-| `rooftop.geo.latitude` / `geo.longitude` | number | no | Coordinates of the location. |
-| `rooftop.emails[]` | `{ name, value }[]` | no | `value` holds the email address; `name` is an optional label (e.g. "Sales"). |
-| `rooftop.phones[]` | `{ name, value }[]` | no | `value` holds the phone number (e.g. `+14155550100`); `name` is an optional label. |
-| `rooftop.address` | `Address` | no | Physical address. `country` is optional and defaults to `US`. |
-| `rooftop.schedules[]` | object[] | no | Named weekly hours, e.g. `sales`, `service`, or `parts`; each entry is `{ name, value }` where `value` maps each weekday to `{ open, close }` (24h `HH:MM`) or `null` when closed. |
-| `rooftop.timezone` | string | no | IANA timezone identifier (e.g. `America/Los_Angeles`). |
-| `rooftop.notes` | string | no | Free-text notes (e.g. "closed major holidays"). |
-| `rooftop.fees[]` | `{ name, amount }[]` | no | Complete default schedule of mandatory, non-government dealer charges and required add-ons. Omitted = unknown; `[]` = affirmatively none. Publisher/discovery metadata only; consumers do not join it onto vehicles. |
-| `rooftop.capabilities[]` | string[] | no | Service capabilities, e.g. `sales`, `service`, `parts`, `financing`, `trade_in`, `delivery`. Rooftops MAY also advertise which vehicle types they sell with tags such as `motorcycle_sales` or `powersports`, so buyer agents know a rooftop's `vehicle_type` mix before searching. |
-
-### Department schedules
-
-A rooftop can publish separate schedules for its sales, service, and parts departments. Use `name: "parts"` for parts department hours, with the same weekly `value` structure used by `sales` and `service`. Each department can have different opening and closing times; times are local to the rooftop's `timezone`.
-
-Schedule names are free-text labels, so other department names are also allowed. Schedules remain optional. A rooftop can advertise the `parts` capability without publishing a parts schedule; that capability alone does not specify its hours.
-
-### How rooftop fees are used
-
-Rooftop `fees` are defaults for the inventory publisher, not a consumer-side inheritance mechanism. A publisher MAY start from this schedule, apply any vehicle-specific replacement, and then place the complete effective fee snapshot on the returned `Vehicle`. Vehicle-level `fees` remains optional even when `price` is present. When supplied, it is a complete itemization rather than a delta. Buyer agents MUST NOT fetch this skill to complete a vehicle breakdown or merge rooftop and vehicle arrays.
-
-## Full example
-
-A complete response from a dealer group with two rooftops:
+## Response
 
 ```json
 {
   "type": "dealer.information.response",
   "data": {
     "name": "Demo Auto Group",
-    "welcome_message": "Welcome — happy to help by phone or video call.",
-    "rooftops": [
-      {
-        "name": "Demo Toyota San Francisco",
-        "legal_name": "Demo Toyota of San Francisco, LLC",
-        "website": "https://sf.demo-toyota.example.com",
-        "geo": { "latitude": 37.7935, "longitude": -122.3946 },
-        "emails": [
-          { "name": "Sales", "value": "sales@sf.demo-toyota.example.com" }
-        ],
-        "phones": [
-          { "name": "Sales",   "value": "+14155550100" },
-          { "name": "Service", "value": "+14155550101" }
-        ],
-        "fees": [
-          { "name": "Documentation fee", "amount": 500 },
-          { "name": "Pre-installed theft protection", "amount": 1000 }
-        ],
-        "address": {
-          "country": "US",
-          "state": "CA",
-          "city": "San Francisco",
-          "address_line_1": "1450 Howard Street",
-          "zip": "94103"
-        },
-        "schedules": [
-          {
-            "name": "sales",
-            "value": {
-              "monday":    { "open": "09:00", "close": "20:00" },
-              "tuesday":   { "open": "09:00", "close": "20:00" },
-              "wednesday": { "open": "09:00", "close": "20:00" },
-              "thursday":  { "open": "09:00", "close": "20:00" },
-              "friday":    { "open": "09:00", "close": "20:00" },
-              "saturday":  { "open": "09:00", "close": "18:00" },
-              "sunday":    null
-            }
-          },
-          {
-            "name": "service",
-            "value": {
-              "monday":    { "open": "07:00", "close": "18:00" },
-              "tuesday":   { "open": "07:00", "close": "18:00" },
-              "wednesday": { "open": "07:00", "close": "18:00" },
-              "thursday":  { "open": "07:00", "close": "18:00" },
-              "friday":    { "open": "07:00", "close": "18:00" },
-              "saturday":  { "open": "08:00", "close": "14:00" },
-              "sunday":    null
-            }
-          },
-          {
-            "name": "parts",
-            "value": {
-              "monday":    { "open": "08:00", "close": "17:00" },
-              "tuesday":   { "open": "08:00", "close": "17:00" },
-              "wednesday": { "open": "08:00", "close": "17:00" },
-              "thursday":  { "open": "08:00", "close": "17:00" },
-              "friday":    { "open": "08:00", "close": "17:00" },
-              "saturday":  { "open": "08:00", "close": "12:00" },
-              "sunday":    null
-            }
-          }
-        ],
-        "timezone": "America/Los_Angeles",
-        "notes": "Closed major US holidays.",
-        "capabilities": ["sales", "service", "parts", "financing", "trade_in", "delivery"]
-      },
-      {
-        "name": "Demo Toyota Oakland",
-        "legal_name": "Demo Toyota of Oakland, LLC",
-        "website": "https://oak.demo-toyota.example.com",
-        "geo": { "latitude": 37.8044, "longitude": -122.2712 },
-        "emails": [
-          { "name": "Sales", "value": "sales@oak.demo-toyota.example.com" }
-        ],
-        "phones": [
-          { "name": "Sales", "value": "+15105550100" }
-        ],
-        "address": {
-          "country": "US",
-          "state": "CA",
-          "city": "Oakland",
-          "address_line_1": "200 Broadway",
-          "zip": "94607"
-        },
-        "schedules": [
-          {
-            "name": "sales",
-            "value": {
-              "monday":    { "open": "09:00", "close": "19:00" },
-              "tuesday":   { "open": "09:00", "close": "19:00" },
-              "wednesday": { "open": "09:00", "close": "19:00" },
-              "thursday":  { "open": "09:00", "close": "19:00" },
-              "friday":    { "open": "09:00", "close": "19:00" },
-              "saturday":  { "open": "10:00", "close": "17:00" },
-              "sunday":    null
-            }
-          }
-        ],
-        "timezone": "America/Los_Angeles",
-        "capabilities": ["sales", "trade_in"]
-      }
-    ]
-  },
-  "message": "Welcome — happy to help by phone or video call."
+    "rooftops": [{
+      "name": "Demo Toyota San Francisco",
+      "website": "https://demo-toyota.example.com",
+      "geo": { "latitude": 37.789, "longitude": -122.394 },
+      "timezone": "America/Los_Angeles",
+      "phones": [{ "name": "Sales", "value": "+14155550100" }],
+      "capabilities": ["sales", "service", "trade_in"]
+    }]
+  }
 }
 ```
 
-## When to use it
+`data.name` and at least one rooftop are required. Every rooftop needs `name`; the other details are optional. Omission means unknown, not closed or unavailable.
 
-- The buyer agent needs a rooftop's name, address, or hours to surface to the user.
-- The buyer agent needs to confirm a rooftop's `capabilities` (e.g. `service` or `trade_in`) before routing the user to that location.
-- The buyer agent needs the sales phone or email to display alongside a confirmed lead response.
+| Rooftop fields | Meaning |
+|---|---|
+| `name`, `legal_name`, `website` | Public identity, optional legal name and website |
+| `address`, `geo` | Physical location; latitude/longitude use WGS84 coordinates |
+| `emails`, `phones` | Labeled contact values such as Sales or Service |
+| `schedules`, `timezone` | Named weekly hours such as sales, service or parts in rooftop local time; a day is `{open, close}` or `null` when closed |
+| `capabilities` | Service tags such as sales, service, trade_in, delivery or motorcycle_sales |
+| `fees` | Optional default fee schedule for the publisher; never an extra charge for the buyer to add |
 
-`dealer.information` is anonymous and consent-free; LLM-driven buyer agents are encouraged to call it eagerly and cache the result.
+Rooftop names MUST be unique within a dealer-scoped endpoint and match the exact values used by `Vehicle.rooftop` and `filters.rooftops`. Aggregate search does not accept ambiguous rooftop-name filters. An aggregate operator must retain owning dealer identity on listings.
+
+A displayed `09:00` is interpreted in the rooftop's `timezone`, not the buyer's timezone. If the timezone or hours are absent, do not infer them. Keep cached profile data consistent with current operations.
+
+## Department schedules
+
+A rooftop can publish separate schedules for sales, service and parts. Use `name: "parts"` for parts department hours, with the same weekly `value` structure used by `sales` and `service`. Each department can have different opening and closing times, interpreted in the rooftop's `timezone`.
+
+Schedule names are free-text labels, so other department names are allowed. Schedules remain optional. Advertising the `parts` capability does not require a parts schedule or establish its hours. The full response example below includes a separate parts schedule.
+
+## Fees belong to the listing price
+
+Rooftop fees are publisher defaults and discovery metadata. A publisher may use them to construct a complete effective vehicle fee snapshot. Buyers MUST NOT join them onto a vehicle, add them to `price`, or treat a missing schedule as zero fees.
+
+A vehicle's optional `fees` is a complete replacement breakdown, already included in authoritative `price`. See [pricing](../pricing-and-ftc.md).
+
+The [full example](https://draft.autoagentprotocol.invalid/latest/examples/dealer-information-response.example.json) includes two rooftops and complete schedules. The [schema](https://draft.autoagentprotocol.invalid/latest/schemas/dealer-information.schema.json) defines every field.

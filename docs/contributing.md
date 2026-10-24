@@ -50,12 +50,12 @@ Version-specific documentation images, including compatibility branding files un
 
 ## Generated files
 
-`pnpm generate` writes draft artifacts only to `generated/latest/`. It never updates a stable package or release snapshot. `pnpm copy-static` assembles the site from immutable release data and mirrors the registry's stable release to public `/latest/`.
+`pnpm generate` writes draft contract artifacts to `generated/latest/` and builds agent-readable documentation from the stable release. It never updates a stable package or release snapshot. `pnpm copy-static` assembles the site from immutable release data and mirrors the registry's stable release to public `/latest/`.
 
 Only the explicit release command creates a version directory:
 
 ```bash
-pnpm release:prepare 2.0.0 --dry-run
+pnpm release:prepare 3.0.0 --dry-run
 ```
 
 Release preparation is a maintainer operation, not a normal contribution step. It requires a clean tree, refuses overwrites, and performs no commit, tag, push, publication, or deployment.

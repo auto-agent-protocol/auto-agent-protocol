@@ -1,53 +1,44 @@
 ---
 sidebar_position: 2
 title: Why automotive needs AAP
-description: The gap AAP fills against A2A, ACP, MCP, and ADF — and why it is the first automotive-specific A2A profile.
+description: General agent protocols connect systems. AAP gives them a consistent automotive vocabulary and behavior.
 ---
 
 # Why automotive needs AAP
 
-![Before AAP every buyer-agent and dealership pair needs a custom integration; after AAP one open profile connects them](./img/why-before-after.svg)
+**A connected tool still needs to explain what its data means.** Does a price include required fees? Does a feature exist on this vehicle? Is a test drive booked, or merely requested?
 
-![Five AAP skills covering the read-and-lead lifecycle](./img/skills-overview.svg)
+![Separate custom integrations converge on one automotive contract that works through MCP, A2A and PAP](./img/why-before-after.svg)
 
-Automotive retail has unusual constraints that no general-purpose agent protocol addresses end-to-end:
+AAP makes those answers consistent across dealerships and protocols.
 
-- Inventory is **mixed** (new + used + certified + in-transit) and **mutates daily**. A car listed at 9am can be sold by 11am.
-- Pricing is **regulated**. Current FTC enforcement warns that advertised vehicle prices must include mandatory dealer fees and required add-ons and must not rely on rebates unavailable to all consumers.
-- Customer contact data is **regulated**. TCPA, CAN-SPAM, and state laws require explicit, scoped consent before a dealer can call, text, or email.
-- Lead handoff is **legacy-bound**. Dealer CRMs ingest [ADF/XML](https://en.wikipedia.org/wiki/Auto-lead_Data_Format) (Auto-lead Data Format) leads that have been the de-facto standard for two decades.
+| Automotive question | AAP contract |
+|---|---|
+| Is this listing still eligible? | Controlled availability and a source update timestamp |
+| Does it meet the buyer's constraints? | Declared filters, evidence, radius/distance and complete pagination |
+| Which price can I compare? | Authoritative advertised price with mandatory dealer charges included |
+| May I contact this dealer for the buyer? | An explicit consent grant for this payload and these channels |
+| What happened after submission? | A lead ID, deduplicated retries and an explicit appointment outcome |
 
-A protocol for AI agents talking to dealerships has to handle all four. AAP does. Generic agent protocols do not.
+## Built on the protocols agents use
 
-## How AAP relates to neighboring protocols
+![MCP tools, A2A DataParts and PAP OpenAPI reuse the same automotive operations](./img/architecture-stack.svg)
 
-| Protocol | What it standardizes | What it does NOT cover for automotive |
-|---|---|---|
-| [A2A](https://a2a-protocol.org) (Agent2Agent) | Generic agent discovery, message envelope, JSON-RPC + HTTP+JSON bindings, task model, push notifications | Automotive vocabulary (vehicles, VIN, pricing semantics, ADF compatibility, dealership consent rules) |
-| [ACP](https://www.agenticcommerce.dev) (Agentic Commerce Protocol) | E-commerce checkout (cart, payment, fulfillment) between agents and merchants | Pre-purchase research, leads, appointments, dealership-specific data — vehicles are rarely bought through agentic checkout |
-| [MCP](https://modelcontextprotocol.io) (Model Context Protocol) | Tool layer between an LLM client and one host application (filesystem, DB, API) | A peer-to-peer protocol between agents; MCP is host-to-tool, not agent-to-business |
-| [ADF/XML](https://en.wikipedia.org/wiki/Auto-lead_Data_Format) | Legacy lead format dealer CRMs ingest today | A read API (no inventory queries), no agent discovery, no consent records, no appointment booking |
+| Standard | Its role in AAP 3.0 |
+|---|---|
+| [MCP](https://modelcontextprotocol.io/) | Native, self-describing tools with complete schemas and structured results |
+| [A2A](https://a2a-protocol.org/) | Agent Card discovery and typed automotive messages |
+| [Personal Agent Protocol](https://personalagentprotocol.org/docs/0.2/spec) | Company identity, guest Sessions, DPoP and native APIs |
+| [ADF/XML](./compatibility/adf-mapping.md) | A practical delivery bridge to existing dealer lead systems |
 
-AAP does not replace any of these. It complements them.
+AAP supplies automotive semantics and uses each protocol's own transport and authentication rules. An operator can route all three interfaces to the same inventory, pricing and lead services.
 
-- **AAP IS an A2A profile.** On its A2A interface, every AAP message carries a typed `DataPart`. A buyer agent that already speaks A2A can call an AAP dealer agent without learning a new transport. AAP keeps the A2A surface minimal: AAP uses a single A2A transport — JSON-RPC 2.0 — so a JSONRPC interface is required on every AAP agent card (the HTTP+JSON (REST) binding was [removed in v1.1.0](./bindings/rest.md), and gRPC is out of scope), and AAP uses exactly one A2A operation — `SendMessage`. The optional A2A surface (streaming, tasks, push notifications) is out of scope: dealer agents do not need to implement it, and buyer agents must not require it.
-- **AAP COMPLEMENTS ACP.** ACP is built around payment + checkout. Vehicles are typically not transacted that way — the dealer's lead system, financing, F&I, and trade-in conversation happen out of band. AAP covers the lead step that precedes (or replaces) checkout.
-- **AAP SUPPORTS POPPY.** [Personal Agent Protocol](./personal-agent-protocol.md) gives personal agents standard company discovery, sessions and APIs. AAP supplies the automotive payloads through a native OpenAPI interface; the A2A interface keeps its own binding.
-- **AAP COMPLEMENTS MCP.** A buyer agent's host LLM can expose AAP skills as MCP tools. The [MCP compatibility page](./compatibility/mcp.md) shows the one-to-one mapping.
-- **AAP MAPS TO ADF.** Every `lead.submit` request can be losslessly converted to an ADF/XML payload so a dealer's existing CRM accepts it without changes. See the [ADF mapping page](./compatibility/adf-mapping.md).
+## A vertical contract with a clear boundary
 
-## What AAP adds that A2A alone does not
+Cars, electric vehicles, motorcycles, RVs and trailers share the same five skills. Vehicle-specific fields carry range, charging, engine displacement and other known attributes without changing the call flow.
 
-A2A standardizes how agents exchange messages, not what is in them. Two A2A-compliant dealer agents could each invent their own `inventory_search` skill with different field names, different filter semantics, different pricing fields, and a buyer agent would have to special-case each one.
+![Cars, electric powertrains and motorcycles share identity, pricing, evidence and availability](./img/multi-class-inventory.svg)
 
-AAP fixes the field names, types, and required behavior:
+The release covers research and consented dealer contact. It does not define checkout, payments, credit decisions or binding valuations. An accepted lead is a conversation starter; a confirmed appointment is an explicit, separate outcome.
 
-- **Five canonical skill IDs** form the AAP vocabulary; dealer agents implement whichever subset matches their capabilities.
-- **Strict typed `DataParts`** (`<scope>.<thing>.request`, `<scope>.<thing>.response`) so a buyer agent can validate before sending.
-- **Explicit pricing and fee fields** (`msrp`, `list_price`, `price`, `fees`) where `price` includes every mandatory dealer charge, optional `fees` can expose the complete itemization, and buyer-specific government charges remain excluded — see [Pricing and fee disclosure](./pricing-and-ftc.md).
-- **`ConsentGrant`** structure required when a lead carries customer contact info, with explicit `allowed_channels` and `scope`.
-- **A controlled vehicle `status` enum** (`available`, `intransit`, `pending`) — these are the only statuses that appear in an inventory feed; a vehicle in any other state (sold, reserved, in service, etc.) is out of stock and is omitted by the dealer and ignored by the buyer — see [behavior rules](./behavior-rules.md).
-
-## First automotive-specific A2A profile
-
-AAP is the first published A2A profile written specifically for the automotive retail vertical, riding on A2A v1.0; AAP 2.1 also supports PAP draft 0.2 through a native guest API. Its goal is narrow: a buyer agent should be able to talk to any compliant dealer agent — Toyota, Honda, an independent used-car lot, a motorcycle or powersports store, a CDK/Reynolds-backed group — through identical typed messages, with consent, pricing, and ADF compatibility built in from day one. The unified `Vehicle` shape carries an optional `vehicle_type` (`car`, `motorcycle`, `trailer`, `rv`, `other`; absent = `car`) plus a class-agnostic `body`/segment field and a free-form `other_attributes` map for niche specs, so the same five skills serve both car and motorcycle dealers. A generic electric-powertrain group (range, battery kWh, motor hp, 0-60, charge time, DC fast charge) covers electric cars and electric motorcycles alike.
+Use [conformance](./conformance.md) to distinguish a validated contract from a verified deployment. Publishing discovery alone does not implement the service, prove a client's support, or establish universal agent adoption.

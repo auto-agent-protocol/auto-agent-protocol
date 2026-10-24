@@ -24,7 +24,7 @@
             "description": "type: must be an integer"
           },
           {
-            "field": "/filters/make",
+            "field": "/filters/made_up",
             "description": "additionalProperties: unknown filter key"
           }
         ]
@@ -45,7 +45,7 @@
                 "error": "must be an integer"
               },
               {
-                "instanceLocation": "/filters/make",
+                "instanceLocation": "/filters/made_up",
                 "keyword": "additionalProperties",
                 "error": "unknown filter key"
               }

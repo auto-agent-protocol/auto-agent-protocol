@@ -78,7 +78,8 @@ test("every documented or published server Message includes its context even wit
     const message = value.result?.message ?? (value.role === "ROLE_AGENT" ? value : undefined);
     return message ? [{ file, message }] : [];
   });
-  assert.ok(responses.length >= 9, "response examples are missing from the audit");
+  assert.ok(responses.some(({ file }) => file === "docs/bindings/json-rpc.md"), "missing documented server response");
+  assert.ok(responses.some(({ file }) => file.endsWith(".jsonrpc.example.json")), "missing published server response");
   for (const { file, message } of responses) {
     assert.equal(message.role, "ROLE_AGENT", file);
     assert.ok(typeof message.contextId === "string" && message.contextId.length > 0, `${file}: server contextId required`);

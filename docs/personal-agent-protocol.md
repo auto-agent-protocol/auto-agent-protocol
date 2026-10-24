@@ -9,7 +9,7 @@ description: Normative AAP 3.0 profile of Poppy draft 0.2, with paired discovery
 {/* aap-draft-only:start */}
 
 :::info Unreleased contract — planned 3.0.0
-These requirements describe the editable AAP 3.0.0 candidate. Draft identifiers are not production identifiers. Release preparation pins them to the approved contract. Existing v2.0 and earlier deployments retain their frozen contracts until migrated.
+These requirements describe the editable AAP 3.0.0 candidate. Draft identifiers are not production identifiers. Release preparation pins them to the approved contract. Existing v2.1 and earlier deployments retain their frozen contracts until migrated.
 :::
 
 {/* aap-draft-only:end */}

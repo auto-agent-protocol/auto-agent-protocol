@@ -57,8 +57,8 @@
   },
   "message": "Interested in the 2024 Acme Moto Grand Tourer (VIN 1AM1KRM19NB654321). I'd like a demo ride and to trade in my 2019 Meridian Cruiser 500 with 8,600 miles.",
   "source_agent": {
-    "name": "claude-auto-shopper",
-    "agent_card_url": "https://shopper.example.com/.well-known/agent-card.json"
+    "name": "example-buyer",
+    "url": "https://buyer.example"
   },
   "submitted_at": "2026-04-30T16:20:09Z",
   "idempotency_key": "01HZ9DANAREYES5521LEAD0007"
