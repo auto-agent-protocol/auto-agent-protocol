@@ -1,28 +1,30 @@
 # @autoagentprotocol/types
 
-TypeScript types for [Auto Agent Protocol](https://autoagentprotocol.org) (AAP), generated from the AAP JSON Schemas — one interface per request, response, and shared object.
+TypeScript types for [Auto Agent Protocol 3.0](https://autoagentprotocol.org/docs/v3.0/intro): shared automotive payloads and discovery for MCP, A2A and PAP. Generated from the published JSON Schema 2020-12 contract.
 
 ## Install
 
 ```bash
-npm install --save-dev @autoagentprotocol/types
+npm install --save-dev @autoagentprotocol/types@3.0.0
 ```
 
 ## Usage
 
 ```ts
-import type {
-  InventorySearchRequest,
-  InventorySearchResponse,
-  Vehicle,
-} from "@autoagentprotocol/types";
+import type { InventorySearchRequest } from "@autoagentprotocol/types";
 
-function handleSearch(req: InventorySearchRequest): InventorySearchResponse {
-  // ...
-}
+const search: InventorySearchRequest = {
+  type: "inventory.search.request",
+  filters: { body: ["suv"], price_max: 35000, status: ["available"] },
+  pagination: { limit: 20 },
+  sort: { field: "price", order: "asc" },
+  privacy: { anonymous: true },
+};
 ```
 
-The types are generated from the AAP 2.1.0 JSON Schema 2020-12 sources — see the [Agent Card schema](https://autoagentprotocol.org/v2.1/schemas/agent-card.schema.json) and the [versioning policy](https://autoagentprotocol.org/docs/v2.1/versioning).
+The same payload travels inside an MCP tool call, A2A DataPart or PAP operation. This package supplies compile-time types, not a protocol client or runtime validation. Schema constraints such as minimum values, formats and conditional fields still require validation at runtime.
+
+AAP 3.0 adds required discovery and search-response fields. See the [Agent Card schema](https://autoagentprotocol.org/v3.0/schemas/agent-card.schema.json) and [migration guide](https://autoagentprotocol.org/docs/v3.0/versioning) before upgrading.
 
 - Runtime validation: [`@autoagentprotocol/validator`](https://www.npmjs.com/package/@autoagentprotocol/validator)
 - Raw JSON Schema modules: [`@autoagentprotocol/schemas`](https://www.npmjs.com/package/@autoagentprotocol/schemas)

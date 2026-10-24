@@ -78,6 +78,7 @@ pnpm check:images
 pnpm check:releases
 pnpm test:release
 pnpm --filter @autoagentprotocol/schemas build
+pnpm --filter @autoagentprotocol/types build
 pnpm --filter @autoagentprotocol/validator build
 pnpm check:packages
 pnpm build

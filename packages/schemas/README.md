@@ -1,17 +1,17 @@
 # @autoagentprotocol/schemas
 
-The [Auto Agent Protocol](https://autoagentprotocol.org) (AAP) JSON Schemas (2020-12) as importable modules — the source of truth for every AAP request, response, and shared object.
+JSON Schema 2020-12 modules for [Auto Agent Protocol 3.0](https://autoagentprotocol.org/docs/v3.0/intro): shared automotive payloads and discovery for MCP, A2A and PAP.
 
 ## Install
 
 ```bash
-npm install @autoagentprotocol/schemas
+npm install @autoagentprotocol/schemas@3.0.0 ajv ajv-formats
 ```
 
 ## Usage
 
 ```ts
-import Ajv2020 from "ajv/dist/2020";
+import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { allSchemas, inventorySearchRequestSchema } from "@autoagentprotocol/schemas";
 
@@ -19,13 +19,22 @@ const ajv = new Ajv2020({ strict: false });
 addFormats(ajv);
 ajv.addSchema(allSchemas);
 const validate = ajv.compile(inventorySearchRequestSchema);
+const payload = {
+  type: "inventory.search.request",
+  filters: { body: ["suv"], price_max: 35000, status: ["available"] },
+  pagination: { limit: 20 },
+  sort: { field: "price", order: "asc" },
+  privacy: { anonymous: true },
+};
 
 if (!validate(payload)) {
   console.error(validate.errors);
 }
 ```
 
-Each schema is exported by its camelCased name (`agentCardSchema`, `vehicleSchema`, `inventorySearchRequestSchema`, …) for AAP 2.1.0. The same schemas are hosted under `https://autoagentprotocol.org/v2.1/schemas/`, including the [Agent Card schema](https://autoagentprotocol.org/v2.1/schemas/agent-card.schema.json), and documented on the [spec site](https://autoagentprotocol.org). `allSchemas` includes the shared definitions needed to resolve references.
+Each schema has a camelCase export: `agentCardSchema`, `mcpEndpointSchema`, `vehicleSchema`, `inventorySearchRequestSchema` and more. `allSchemas` includes every shared definition needed to resolve references. The identical published schemas live under [`/v3.0/schemas/`](https://autoagentprotocol.org/v3.0/schemas/agent-card.schema.json).
+
+These schemas validate payload shape. They do not implement an MCP server, authenticate PAP assertions, verify consent or prove inventory accuracy. Follow the [binding and behavior rules](https://autoagentprotocol.org/docs/v3.0/conformance). AAP 3.0 adds required discovery and search-response fields; read the [migration guide](https://autoagentprotocol.org/docs/v3.0/versioning) before upgrading.
 
 - Ready-made validator library: [`@autoagentprotocol/validator`](https://www.npmjs.com/package/@autoagentprotocol/validator)
 - TypeScript types: [`@autoagentprotocol/types`](https://www.npmjs.com/package/@autoagentprotocol/types)

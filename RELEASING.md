@@ -23,7 +23,7 @@ This repository has one editable source and immutable release snapshots.
    pnpm build
    ```
 
-The independent Protobuf error check also runs in CI. Install the pinned Python dependencies and run it as described in [Conformance](docs/conformance.md#specification-checks-in-this-repository).
+The independent Protobuf error check also runs in CI. Install the pinned Python dependencies and run it as described in [Conformance](docs/conformance.md#run-the-repository-checks).
 
 4. Choose the next `MAJOR.MINOR.0` version. Use a minor release only for additive changes; use a major release for validation-affecting or semantic breaks. The sole approved exception is the 2.0.0 → 2.1.0 PAP 0.2 transition described below.
 
@@ -31,10 +31,10 @@ Patch releases are not cut because public contract URLs identify major/minor onl
 
 ## Rehearse first
 
-The examples below prepare 2.0.0 from stable 1.3.0. Select the next eligible version from the current registry; never reuse an existing release label.
+The examples below prepare 3.0.0 from stable 2.1.0. Select the next eligible version from the current registry; never reuse an existing release label.
 
 ```bash
-pnpm release:prepare 2.0.0 --dry-run
+pnpm release:prepare 3.0.0 --dry-run
 ```
 
 Dry-run validation creates candidates in an operating-system temporary directory, prints the structural compatibility report, and leaves the repository byte-for-byte unchanged. Review every reported change. The report intentionally does not certify normative behavior, security, privacy, legal compliance, or interoperability.
@@ -44,7 +44,7 @@ Dry-run validation creates candidates in an operating-system temporary directory
 Commit the approved editable source, confirm the tree is clean, then run:
 
 ```bash
-pnpm release:prepare 2.0.0
+pnpm release:prepare 3.0.0
 ```
 
 The command:
@@ -72,6 +72,7 @@ AAP 2.1.0 retains the AAP 2.0 automotive payloads, A2A v1.0 behavior and bridge 
 
 1. Review the complete diff, especially pinned identifiers and the compatibility report.
 2. Run the full validation and production build again.
+   Review current diagrams and responsive pages visually, verify Markdown alternates and `llms.txt`, and build all three npm packages. Preserve every previously published snapshot and image.
 3. Open and merge a dedicated release pull request.
 4. After merge, create the signed tag and GitHub release through the normal maintainer process.
 5. Publish packages explicitly and verify their version and contents.

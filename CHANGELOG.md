@@ -7,9 +7,21 @@ versioning policy is described in the
 
 ## [Unreleased]
 
-### Added
+## [3.0.0] — release candidate
 
-- Documented `parts` department schedules alongside `sales` and `service` in the `dealer.information` schema and documentation, with separate weekly hours in the sample response. Schedule names remain free text and schedules remain optional; payload validation is unchanged.
+AAP becomes a shared automotive contract with native MCP, A2A and PAP interfaces. This major release requires an explicit deployment migration; previous releases remain immutable.
+
+- Require a working MCP Streamable HTTP endpoint, with current `2026-07-28` and legacy `2025-11-25` interoperability, complete bundled tool schemas, standard annotations and typed success/error results.
+- Cross-link dealer-domain Agent Cards, PAP discovery and `llms.txt`; declare the actual skill subset and search capabilities consistently across all three interfaces.
+- Add feature filters with source-backed equipment evidence, rooftop-radius search and distance sorting, explicit applied filters, exact-or-unknown totals and complete cursor continuation.
+- Require listing identity, availability and source update timestamps. Reject unsupported filters and sorts rather than silently broadening a request.
+- Require lead idempotency keys and contact details for every permitted channel. Make appointment confirmation times and alternative times explicit, with consistent partial-success behavior.
+- Document separate `parts` department schedules alongside `sales` and `service`, with a complete sample. Department names remain free text and schedules remain optional.
+- Clarify fee-inclusive price semantics and ADF receiver mappings with separate retained consent and idempotency records.
+- Verify official current and legacy MCP clients, official A2A wire exchanges, pinned upstream MCP schemas, PAP discovery and authentication contracts, and copyable documentation examples.
+- Rebuild the website, README and all 32 current explanatory diagrams, including five new discovery/search visuals. Add readable Markdown representations and keep frozen artwork unchanged.
+
+See the [migration matrix](docs/versioning.md#for-implementers) and [deployment acceptance cases](docs/conformance.md#required-deployment-acceptance-cases). Contract fixtures do not certify a live dealership implementation.
 
 ## [2.1.0] — 2026-10-23
 

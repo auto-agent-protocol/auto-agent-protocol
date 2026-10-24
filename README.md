@@ -1,156 +1,124 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="static/img/brand/aap-wordmark-white.svg">
-  <img src="static/img/brand/aap-wordmark.svg" alt="Auto Agent Protocol" width="595">
-</picture>
+[![Auto Agent Protocol 3.0 — automotive skills through MCP, A2A and PAP](static/img/brand/aap-social-card.svg)](https://autoagentprotocol.org)
 
-# Auto Agent Protocol (AAP)
+# Auto Agent Protocol 3.0
 
-[![Spec version](https://img.shields.io/badge/spec-v2.1.0-2874d7)](https://autoagentprotocol.org/docs/v2.1/intro)
-[![A2A](https://img.shields.io/badge/A2A-v1.0-2874d7)](https://a2a-protocol.org)
-[![License](https://img.shields.io/badge/license-Apache--2.0-52657c)](LICENSE)
+[![Specification](https://img.shields.io/badge/AAP-3.0.0-2874d7)](https://autoagentprotocol.org/docs/v3.0/intro)
 [![Validate](https://github.com/auto-agent-protocol/auto-agent-protocol/actions/workflows/validate.yml/badge.svg)](https://github.com/auto-agent-protocol/auto-agent-protocol/actions/workflows/validate.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-52627a)](LICENSE)
 
-Brand assets: [symbol, wordmark, and usage guidance](tools/branding/README.md).
+**One open automotive contract for MCP, A2A and Personal Agent Protocol.** Discover dealerships, search real inventory, verify vehicle facts and send customer-approved inquiries.
 
-**AAP lets AI assistants shop at your car or motorcycle dealership.**
+[Website](https://autoagentprotocol.org) · [Specification](https://autoagentprotocol.org/docs/v3.0/intro) · [FAQ](https://autoagentprotocol.org/faq) · [Migration](docs/versioning.md) · [Full spec for agents](https://autoagentprotocol.org/llms-full.txt)
 
-New to the protocol? Read the [AAP FAQ](https://autoagentprotocol.org/faq) for its purpose, supported capabilities, assistant compatibility, and how to get started.
+![MCP, A2A and PAP connect buyer agents to one automotive contract and dealership backends](docs/img/network-overview.svg)
 
-More and more car and motorcycle buyers start their search by asking an AI assistant. AAP is the free, open standard that lets any AI assistant **find your dealership, browse your real inventory, and send you a sales lead with the customer's permission** — straight into the systems you already use. You publish two discovery files on your own website, answer a few well-defined kinds of questions, and any AAP-capable agent can do business with you. No app store. No middleman. No per-partner integration projects.
+## Native in all three interfaces
 
-Listings carry an optional `vehicle_type` (`car`, `motorcycle`, `trailer`, `rv`, `other`; absent = `car`), so the same five skills serve both automotive and powersports retail — including electric models via a generic electric-powertrain field group.
-
-![Dealers go live in three steps: publish both discovery documents, serve the skills they choose, and receive consented leads in their CRM](docs/img/dealer-onboarding.svg)
-
-![Why AAP: from a mesh of custom integrations to one open profile](docs/img/why-before-after.svg)
-
-**For engineers:** AAP 2.1 combines an open [A2A v1.0](https://a2a-protocol.org) profile with a native Personal Agent Protocol guest API. A compliant dealer publishes both discovery documents, advertises the AAP extension URI (`https://autoagentprotocol.org/extensions/aap/v2.1`) on its Agent Card, and implements **one or more** of the five standard AAP automotive skills on both interfaces (a small used-car lot might only do `inventory.search` + `lead.submit`; a franchise dealership might do all five).
-
-The A2A interface is deliberately minimal: every AAP agent exposes the **JSON-RPC 2.0 binding** — the sole A2A transport (the optional HTTP+JSON binding was removed in v1.1.0); the only A2A operation AAP uses is **`SendMessage`** — request `Message` in, response `Message` out. The optional A2A surface (streaming, tasks, push notifications, extended cards) is out of scope: dealer agents do not need to implement it and buyer agents must not require it.
-
-![The Agent Card advertises the A2A binding, AAP extension, supported skill subset, and per-skill schema URLs](docs/img/agent-card-passport.svg)
-
-## v2.1.0 Scope
-
-v2.1.0 upgrades the Personal Agent Protocol profile to draft 0.2. It requires exact issuer audiences for both assertions, final-host discovery identity, explicit pre-1.0 version support and capability-based MCP token selection. Guest sessions still authenticate the personal agent; shoppers need no dealer account. Automotive payloads, A2A v1.0 behavior, bridge version `1`, pricing and consent are unchanged from AAP 2.0. The 2.1.0 release uses an explicit PAP-only versioning exception; PAP 0.1 clients still require migration. Earlier releases remain frozen. See the [migration guide](docs/versioning.md#pap-02-migration), [PAP profile](docs/personal-agent-protocol.md) and [client walkthrough](docs/pap-client-guide.md).
-
-- **Paired discovery** via `/.well-known/agent-card.json` (A2A) and `/.well-known/poppy.json` (Poppy)
-- **Native Poppy API** with verified OAuth issuer discovery, signed-out sessions, DPoP and OpenAPI 3.1; no customer account required
-- **Inventory**: facets, search, vehicle detail — across **cars and motorcycles** via an optional `vehicle_type` discriminator, with motorcycle body/segment carried in `body`, displacement in `displacement_cc`, niche specs in a free-form `other_attributes` map, and a generic electric-powertrain group (range, battery kWh, motor hp, DC fast charge, charge port) for BEV/PHEV cars and motorcycles alike
-- **Transparent pricing**: one authoritative all-in `price`, optional complete vehicle fee itemization, optional rooftop fee defaults for publishers, and explicit handling for list-only and conditional-rebate data
-- **Dealership information**: group name, welcome message, and one or more rooftops (locations) with address, geo, contacts, hours, timezone, capabilities, and optional default fee schedules
-- **Leads**: a single unified `lead.submit` accepting a consented customer plus any combination of vehicle of interest, trade-in, and appointment
-- **ADF/XML mapping** documented for legacy CRM compatibility
-- **Verified contract interoperability**: official A2A JavaScript SDK HTTP round-trips for every skill, Poppy discovery/identity checks and generated OpenAPI schema parity; see [verification scope](docs/conformance.md)
-
-v2.1.0 does **not** cover: payments, financing approval, RFQ/quote flows, trade-in valuations, buyer-specific out-the-door calculations, or reservations.
-
-![How an AI agent shops: discover the dealer, search inventory, inspect one complete vehicle, and submit a consented lead](docs/img/buyer-journey.svg)
-
-## Quick links
-
-- **Specification**: [autoagentprotocol.org](https://autoagentprotocol.org)
-- **Stable v2.1.0 agent card**: [`spec/v2.1/examples/agent-card.example.json`](spec/v2.1/examples/agent-card.example.json)
-- **Editable JSON Schemas**: [`spec/latest/schemas/`](spec/latest/schemas/)
-- **Editable examples**: [`spec/latest/examples/`](spec/latest/examples/)
-- **OpenAPI 3.1** (built at deploy time): `https://autoagentprotocol.org/v2.1/openapi-jsonrpc.yaml`
-- **Poppy OpenAPI**: `https://autoagentprotocol.org/v2.1/openapi-poppy.yaml`
-- **Poppy example**: [`spec/v2.1/examples/poppy.example.json`](spec/v2.1/examples/poppy.example.json)
-- **PAP client handshake and diagnostics**: [client walkthrough](docs/pap-client-guide.md)
-- **Conformance and limits**: [verification guide](docs/conformance.md)
-- **Changelog**: [CHANGELOG.md](CHANGELOG.md)
-
-## The five skills
-
-| Skill | Purpose |
-|---|---|
-| `dealer.information` | Dealership profile, address, hours, capabilities |
-| `inventory.facets` | Aggregated counts and ranges over the dealer's inventory |
-| `inventory.search` | Filtered, paginated inventory queries (cars and motorcycles) |
-| `inventory.vehicle` | Detail view of one specific vehicle or motorcycle (by VIN, stock, or vehicle_id) |
-| `lead.submit` | Unified consented lead — customer + optional(vehicle of interest, trade-in, appointment) |
-
-## Packages
-
-![AAP SDK: types, schemas, and validator packages generated from the reviewed contract](docs/img/aap-sdk-toolbox.svg)
-
-| Package | Description |
-|---------|-------------|
-| `@autoagentprotocol/types` | TypeScript types generated from JSON Schema |
-| `@autoagentprotocol/schemas` | Raw JSON Schema files as importable modules |
-| `@autoagentprotocol/validator` | Ajv-based validators for all AAP objects |
-
-## Development
-
-### Prerequisites
-
-- Node.js 22+
-- pnpm 10+
-
-### Setup
-
-```bash
-pnpm install
-```
-
-### Commands
-
-```bash
-pnpm run validate          # Validate schemas and examples
-pnpm run generate          # Generate draft artifacts in generated/latest
-pnpm run generate:images   # Regenerate tracked latest SVG diagrams in docs/img
-pnpm run check:images      # Verify diagram sources, palette, references, and output
-pnpm run check:releases    # Verify frozen snapshots and stable packages
-pnpm run test:release      # Rehearse release and freeze invariants
-pnpm run build             # Build the stable production site
-pnpm start                 # Serve editable docs with an unreleased banner
-```
-
-### Repository structure
-
-```
-spec/latest/               Editable JSON Schema 2020-12, examples, and skills manifest
-spec/v*/                   Frozen released specs (committed, immutable)
-docs/                      Editable documentation; served locally as an unreleased draft
-docs/img/                  Editable, generated SVG diagrams used by the latest docs and README
-versioned_docs/, versioned_sidebars/  Frozen release documentation snapshots
-releases.json              Explicit release registry and stable-release pointer
-releases/v*/               Frozen generated artifacts, provenance, reports, and integrity manifests
-docs/skills/, bindings/    A2A binding + skill reference (committed)
-packages/                  npm packages: types, schemas, validator (committed)
-tools/image-specs.ts       Reviewed content source for every latest documentation diagram
-tools/                     Generators and validators (committed)
-src/components/            FieldCard React component (committed)
-
-generated/latest/          Auto-generated draft types, OpenAPI, and MCP manifest (NOT committed)
-static/v*/, static/latest/ Site assembly output copied from frozen snapshots (NOT committed where applicable)
-build/                     Docusaurus production output (NOT committed)
-```
-
-Draft artifacts are produced by `pnpm run generate`; production assets are assembled by `pnpm run copy-static`. Published artifact snapshots are committed under `releases/v*/` so a historical release is never regenerated with newer tooling.
-
-## Versioning
-
-Released versions are immutable. Repository changes use `spec/latest/`; the public `latest` URL always points to the release selected by `releases.json`. There is no `next` channel. Each release has pinned schema URLs at `https://autoagentprotocol.org/v{version}/schemas/`. See the [versioning policy](https://autoagentprotocol.org/docs/latest/versioning) and [maintainer release guide](RELEASING.md).
-
-## How AAP relates to other protocols
-
-| Layer | Protocol | Role for AAP |
+| Interface | Native operation | Automotive contract |
 |---|---|---|
-| Transport / data model (BASE) | **[A2A v1.0](https://a2a-protocol.org)** | The A2A interface carries AAP requests and responses inside `Message.parts[].data` as typed `DataParts` over JSON-RPC. |
-| Discovery / sessions / APIs | **[Personal Agent Protocol](https://personalagentprotocol.org/)** (PAP draft 0.2) | Paired discovery and a native guest OpenAPI interface reuse the automotive payloads with Poppy authentication. |
-| Adjacent / complementary | **ACP** (Agentic Commerce), **MCP** (Model Context Protocol) | ACP covers commerce checkout (out of scope for AAP). MCP can expose AAP skills as LLM tools — AAP publishes an official MCP reference manifest (generated from `skills.yaml` at build time and served at `https://autoagentprotocol.org/v2.1/mcp.json`). |
-| Legacy / target system | **ADF/XML** | The 25-year-old dealer-CRM lead format. `lead.submit` is field-by-field mappable to ADF/XML so existing CRMs ingest AAP leads without code changes. |
+| **[MCP](docs/bindings/mcp.md)** | Streamable HTTP tools; current `2026-07-28` and `2025-11-25` compatibility | Typed arguments, complete schemas and structured results |
+| **[A2A 1.0](docs/bindings/json-rpc.md)** | `SendMessage` with the required AAP extension | The same payload in `DataPart.data` |
+| **[PAP 0.2](docs/personal-agent-protocol.md)** | Verified guest Sessions, DPoP and native OpenAPI | The same request and response bodies |
 
-## License
+A full AAP 3.0 dealer deployment serves its implemented skill subset through all three. A buyer client needs only its chosen binding. AAP does not require a dealer-side language model or a new CRM.
 
-- Specification and schemas: [Apache-2.0](LICENSE) — chosen for its explicit patent grant, which protects every adopting dealership, platform, and SDK vendor; it is also the license of A2A itself.
-- Documentation prose: [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
+A working MCP endpoint is required. The generated [`mcp.json` catalog](https://autoagentprotocol.org/v3.0/mcp.json) describes tools; it is not a server. See [conformance and runtime acceptance](docs/conformance.md).
 
-## Security
+## Discovery starts at the dealership
 
-See [SECURITY.md](SECURITY.md) for how to report a vulnerability in the spec, schemas, or packages.
+![The dealer domain publishes an Agent Card, Poppy document and llms.txt linking its working MCP, A2A and PAP endpoints](docs/img/discovery-flow.svg)
 
-## Contributing
+| Dealer-domain resource | What it tells an agent |
+|---|---|
+| `/.well-known/agent-card.json` | A2A endpoint, selected AAP contract, skills, search capabilities and MCP/PAP links |
+| `/.well-known/poppy.json` | PAP identity, issuer, native API and matching AAP discovery links |
+| `/llms.txt` | Exact service URLs, access requirements, documentation and inventory links |
 
-See the [Contributing guide](https://autoagentprotocol.org/docs/latest/contributing) for details on proposing changes, and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community standards.
+The service may run on a provider’s infrastructure. Every entry point identifies the same dealership and actual capabilities. Discovery helps compatible agents find a service; it does not guarantee that every assistant will choose it.
+
+Start from the [Agent Card](spec/v3.0/examples/agent-card.example.json), [Poppy document](spec/v3.0/examples/poppy.example.json) and [dealer llms.txt](spec/v3.0/examples/llms.txt.example.md). These release-pinned templates use fictional dealers: replace their identity, URLs and capabilities before deployment. [Discovery requirements →](docs/discovery.md)
+
+## Five skills, one automotive journey
+
+![Dealer information, inventory facets, search and vehicle detail lead to one explicitly consented inquiry](docs/img/skills-overview.svg)
+
+[Dealer information](docs/skills/dealer-information.md) · [Facets](docs/skills/inventory-facets.md) · [Search](docs/skills/inventory-search.md) · [Vehicle detail](docs/skills/inventory-vehicle.md) · [Lead submission](docs/skills/lead-submit.md)
+
+Browse without shopper contact details. Submit a lead only with explicit consent, permitted channels and an idempotency key. A received inquiry and a confirmed appointment are separate outcomes.
+
+## What is new in 3.0
+
+- **Native MCP:** real tool discovery and calls, self-contained schemas, structured successes and failures, current and legacy clients.
+- **Unified discovery:** exact MCP URL, A2A card, PAP API and `llms.txt` on the dealer domain.
+- **Evidence-based search:** supported feature codes, verified equipment, rooftop radius and distance, explicit applied filters and complete cursor pagination.
+- **Clear outcomes:** current availability, source timestamps, authoritative prices, channel-specific consent and unambiguous appointment states.
+
+![Equipment is present, absent or unknown; positive and negative claims need source evidence](docs/img/feature-evidence.svg)
+
+This is a **major-version migration**. AAP 2.x contracts remain immutable. [Migration guide →](docs/versioning.md#for-implementers)
+
+## Automotive detail, shared across vehicle types
+
+![Cars, motorcycles and electric powertrains share listing identity, availability, price and equipment evidence](docs/img/multi-class-inventory.svg)
+
+Known prices include mandatory dealer charges; only government-required consumer charges are excluded. Optional fee itemization explains the existing total. Unknown equipment and prices stay unknown.
+
+[Vehicle shape](docs/skills/inventory-vehicle.md) · [Pricing](docs/pricing-and-ftc.md) · [Consent and behavior](docs/behavior-rules.md) · [CRM / ADF mapping](docs/compatibility/adf-mapping.md)
+
+Payments, financing approval, reservations and trade-in valuations are outside AAP’s scope.
+
+## Use the packages
+
+![Reviewed JSON Schemas produce matching schemas, TypeScript types and runtime validators](docs/img/aap-sdk-toolbox.svg)
+
+```bash
+npm install @autoagentprotocol/schemas@3.0.0 @autoagentprotocol/types@3.0.0 @autoagentprotocol/validator@3.0.0
+```
+
+| Artifact | Reference |
+|---|---|
+| JSON Schema 2020-12 | [`spec/v3.0/schemas/`](spec/v3.0/schemas/) |
+| Typed and wire examples | [`spec/v3.0/examples/`](spec/v3.0/examples/) |
+| MCP tool catalog | [`/v3.0/mcp.json`](https://autoagentprotocol.org/v3.0/mcp.json) |
+| A2A JSON-RPC OpenAPI | [`/v3.0/openapi-jsonrpc.yaml`](https://autoagentprotocol.org/v3.0/openapi-jsonrpc.yaml) |
+| PAP OpenAPI | [`/v3.0/openapi-poppy.yaml`](https://autoagentprotocol.org/v3.0/openapi-poppy.yaml) |
+| Immutable release registry | [`releases.json`](releases.json) |
+
+## Build and verify
+
+Use Node.js 22+ and pnpm 10. Run heavy checks one at a time.
+
+```bash
+pnpm install --frozen-lockfile
+pnpm validate
+pnpm test:contract
+pnpm typecheck
+pnpm build
+```
+
+Official MCP and A2A clients exercise real HTTP contract fixtures. PAP checks cover discovery, identity, session schemas and generated OpenAPI. These validate the specification; each production deployment must also verify live authentication, inventory, consent and CRM behavior.
+
+See [all verification commands](docs/conformance.md#run-the-repository-checks), [release preparation](RELEASING.md) and [visual generation](tools/branding/README.md).
+
+<details>
+<summary>Repository map</summary>
+
+| Path | Purpose |
+|---|---|
+| `spec/latest/`, `docs/` | Editable contract and documentation |
+| `docs/img/` | Reproducible SVG diagrams; `pnpm generate:images` |
+| `spec/v*/`, `versioned_docs/` | Immutable release snapshots |
+| `releases/v*/` | Generated artifacts, provenance and integrity |
+| `packages/` | Schemas, types and validator packages |
+| `src/` | Website and interactive explanations |
+| `tools/` | Generators, validation and release checks |
+
+`/latest` machine artifacts follow the stable registry. `/docs/latest` is editable documentation and may describe a future release. Pin the advertised version for an integration.
+
+</details>
+
+## Contribute
+
+[Contribution guide](docs/contributing.md) · [Security reports](SECURITY.md) · [Code of conduct](CODE_OF_CONDUCT.md) · [Brand assets](tools/branding/README.md)
+
+Specification, schemas and code: [Apache-2.0](LICENSE). Documentation prose: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).

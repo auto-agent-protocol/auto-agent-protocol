@@ -42,12 +42,30 @@ manifest binds the exports to their source files and checks their hashes
 without depending on cross-platform font rendering. Review the social card
 visually after regeneration because system fonts can vary by OS.
 
-Branding generation owns the historic public logo/favicon and promotional
-banner URLs as compatibility aliases. They serve the new artwork; no obsolete
-binary is retained. The former banner HTML source was removed so the diagram
-generator cannot overwrite the brand exports. The unused legacy hero was
-removed. All historical explanatory diagrams and released contract text are
-unchanged. Git history is intentionally not rewritten.
+Branding generation updates the current public brand assets and unversioned
+logo/favicon/banner aliases. Historical versioned artwork remains byte-for-byte
+unchanged. Do not regenerate or overwrite images under released snapshot paths.
+
+## Explanatory diagrams
+
+The current 32 diagrams are native SVGs generated from
+[`image-specs.ts`](../image-specs.ts) and [`generate-images.ts`](../generate-images.ts).
+They share one palette, accessible titles/descriptions and the canonical symbol.
+The generator measures rendered text widths and checks every current reference.
+
+```sh
+pnpm generate:images
+pnpm check:images
+# Optional local PNG exports for visual review:
+pnpm generate:images --preview-dir=/tmp/aap-visual-review
+# Regenerate a single diagram after a targeted correction:
+pnpm generate:images --only=discovery-flow
+```
+
+Review every changed diagram at full size and in the website, including mobile.
+Check reading order, factual labels, text boundaries and connector placement.
+The website links to full-size diagrams for detailed inspection. Automated width
+checks complement visual review; they do not replace it.
 
 CI verifies asset dimensions, transparency-capable PNGs, favicon frames,
 source/export consistency, retired-artwork hashes, and shared branding on
@@ -56,9 +74,9 @@ not arbitrary visual alterations; newly added illustrations still need review.
 
 ## Relationship to A2A
 
-The visual direction was requested to reflect AAP's role as an automotive
-retail profile of [A2A](https://a2a-protocol.org/), using its blue and connected
-circles as a reference. The production paths are independently drawn for AAP.
+The original visual direction referenced [A2A](https://a2a-protocol.org/)
+through blue and connected circles. AAP 3.0 retains that independent identity
+while treating MCP, A2A and PAP as native interfaces. The production paths are independently drawn for AAP.
 This is AAP branding, not an official A2A logo, certification, or endorsement.
 The repository's software license does not grant rights to third-party marks;
 any A2A brand-permission questions should be confirmed with the mark owner
