@@ -7,9 +7,9 @@ export const WORDMARK_HEIGHT = 200;
 const a = 'M18 64 39 14 60 64 M25 47H53';
 const p = 'M145 186V136H164Q182 136 182 152T164 168H145';
 
-export function symbol(color = BLUE) {
+export function symbol(color = BLUE, id = 'aap-symbol') {
   return `<defs>
-    <mask id="aap-symbol" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="200">
+    <mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="200">
       <g fill="white">
         <circle cx="100" cy="100" r="83" fill="none" stroke="white" stroke-width="8"/>
         <circle cx="39" cy="39" r="39"/>
@@ -21,7 +21,7 @@ export function symbol(color = BLUE) {
       </g>
     </mask>
   </defs>
-  <path fill="${color}" mask="url(#aap-symbol)" d="M0 0H200V200H0Z"/>`;
+  <path fill="${color}" mask="url(#${id})" d="M0 0H200V200H0Z"/>`;
 }
 
 // Rounded geometric lettering matches the approved AAP concept. These are
@@ -60,11 +60,17 @@ export function icon(color = BLUE) { return svg(symbol(color), 200, 200, 'AAP');
 export function wordmark(color = BLUE) { return svg(symbol(color) + lettering(color), WORDMARK_WIDTH, WORDMARK_HEIGHT); }
 
 export function socialCard() {
-  return svg(`<path fill="#fff" d="M0 0H1200V630H0Z"/>
-    <path fill="${BLUE}" d="M0 0H1200V12H0Z"/>
-    <g transform="translate(84 125) scale(.87)">${symbol()}${lettering()}</g>
-    <text x="84" y="392" font-family="Arial, Helvetica, sans-serif" font-size="33" fill="#20364f">The open automotive retail profile of A2A</text>
-    <path stroke="#dce5f0" d="M84 462H1116"/>
-    <text x="84" y="523" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#52657c">Discover dealerships. Browse inventory. Connect with consent.</text>
-    <text x="84" y="578" font-family="Arial, Helvetica, sans-serif" font-size="20" fill="${BLUE}">autoagentprotocol.org</text>`, 1200, 630);
+  const font = 'DejaVu Sans, Arial, sans-serif';
+  return svg(`<path fill="#f5f7fb" d="M0 0H1200V630H0Z"/>
+    <g transform="translate(64 48) scale(.48)">${symbol()}${lettering()}</g>
+    <rect x="1020" y="62" width="116" height="48" rx="24" fill="#12213a"/>
+    <text x="1078" y="95" text-anchor="middle" font-family="${font}" font-size="27" font-weight="700" fill="#fff">v3.0</text>
+    <text x="64" y="273" font-family="${font}" font-size="76" font-weight="700" fill="#12213a">Automotive.</text>
+    <text x="64" y="363" font-family="${font}" font-size="64" font-weight="700" fill="#12213a">Built for AI agents.</text>
+    <circle cx="982" cy="304" r="128" fill="#eaf2ff" stroke="#d8e1ed" stroke-width="2"/>
+    <g transform="translate(904 226) scale(.78)">${symbol(BLUE, 'aap-social-symbol')}</g>
+    ${['MCP', 'A2A', 'PAP'].map((name, index) => `<rect x="${64 + index * 192}" y="425" width="170" height="60" rx="15" fill="#fff" stroke="#d8e1ed" stroke-width="2"/><text x="${149 + index * 192}" y="465" text-anchor="middle" font-family="${font}" font-size="29" font-weight="700" fill="${BLUE}">${name}</text>`).join('')}
+    <text x="64" y="538" font-family="${font}" font-size="24" fill="#52627a">Discovery · inventory · pricing · consent</text>
+    <path stroke="#d8e1ed" stroke-width="2" d="M64 566H1136"/>
+    <text x="64" y="606" font-family="${font}" font-size="22" fill="${BLUE}">autoagentprotocol.org</text>`, 1200, 630, 'Auto Agent Protocol 3.0 — automotive skills through MCP, A2A and PAP');
 }

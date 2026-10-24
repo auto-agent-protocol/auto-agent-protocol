@@ -1,7 +1,7 @@
 {
   "sources": {
-    "tools/branding/artwork.mjs": "7aab3d52e08c014729ea16d45ecff14ae28dd9054e8cb31c26f751bd479d0d75",
-    "tools/generate-branding.mjs": "9d2c8e8ec4502bf1e1e0332c9779e19091d22b812d841abbb14ae34f31e0b5db"
+    "tools/branding/artwork.mjs": "c2f8615e8ca15d2a1f98d0ff156de54a68d02c358a3dcb5c157c15cf2d1c1ff4",
+    "tools/generate-branding.mjs": "b244522dd3b5aed78ce7945b6053c09a3973434005e58e16f161d34e61358aeb"
   },
   "files": {
     "static/img/brand/aap-symbol.svg": "438174c0210ecd631c9584172c1eba543bf46373f34de5a0a3d79bc375d34a1d",
@@ -12,17 +12,14 @@
     "static/img/brand/aap-wordmark-white.svg": "b41d35af6291f65a935303be46cfddafe1800d2c046a7e94b76a18812a4ea5ef",
     "static/img/brand/aap-symbol-white.png": "dd1f6797195b1488ab893387e36eb0297806a7f734bed49e62aea0c99415a8e6",
     "static/img/brand/aap-wordmark-white.png": "3defd9002c5b2b07d57fd10066df6683134b8afaac0a13fee55d4b8353e8abd4",
-    "static/img/brand/aap-social-card.svg": "bf12f8e17ceabbde131441eddddb6666fbddef1b5f3a89983ff589ed931d5ee6",
-    "static/img/brand/aap-social-card.png": "28b93dafa630daaa8423e3806ec12b22967aa12caf724fc267bec349686b0c91",
+    "static/img/brand/aap-social-card.svg": "0aab3ba981015d7fd732ce9101beb5ac2bf5a4017b985053477b2e2ec6104ad2",
+    "static/img/brand/aap-social-card.png": "6b97b779ecda3e9283bf852d207817c9baf8772365e9d35e12720d8269f8b17f",
     "static/img/brand/favicon.svg": "438174c0210ecd631c9584172c1eba543bf46373f34de5a0a3d79bc375d34a1d",
     "static/img/brand/apple-touch-icon.png": "d1909bfbe77267b5030a431282577ab6a305674d8af3283a009b0491491e6c5f",
     "static/img/brand/favicon.ico": "46d07b2268817778cb5961ca48e86796ab32ed50bb93da927a2f7a08c582e4b3",
     "static/img/logo.png": "0e94ddd089aefb301740ca98c93eed570b33014fdbdfe3eb14cf46a097305f26",
     "static/img/logo-white.png": "dd1f6797195b1488ab893387e36eb0297806a7f734bed49e62aea0c99415a8e6",
     "static/img/favicon.ico": "46d07b2268817778cb5961ca48e86796ab32ed50bb93da927a2f7a08c582e4b3",
-    "static/img/aap-hero-banner.png": "28b93dafa630daaa8423e3806ec12b22967aa12caf724fc267bec349686b0c91",
-    "static/img/v1.0/aap-hero-banner.png": "28b93dafa630daaa8423e3806ec12b22967aa12caf724fc267bec349686b0c91",
-    "static/img/v1.1/aap-hero-banner.png": "28b93dafa630daaa8423e3806ec12b22967aa12caf724fc267bec349686b0c91",
-    "static/img/v1.2/aap-hero-banner.png": "28b93dafa630daaa8423e3806ec12b22967aa12caf724fc267bec349686b0c91"
+    "static/img/aap-hero-banner.png": "6b97b779ecda3e9283bf852d207817c9baf8772365e9d35e12720d8269f8b17f"
   }
 }

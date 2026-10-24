@@ -48,9 +48,7 @@ artifacts.set('img/brand/favicon.ico', Buffer.concat([directory, ...frames]));
 artifacts.set('img/logo.png', artifacts.get('img/brand/aap-symbol.png'));
 artifacts.set('img/logo-white.png', artifacts.get('img/brand/aap-symbol-white.png'));
 artifacts.set('img/favicon.ico', artifacts.get('img/brand/favicon.ico'));
-for (const prefix of ['', 'v1.0/', 'v1.1/', 'v1.2/']) {
-  artifacts.set(`img/${prefix}aap-hero-banner.png`, artifacts.get('img/brand/aap-social-card.png'));
-}
+artifacts.set('img/aap-hero-banner.png', artifacts.get('img/brand/aap-social-card.png'));
 
 let failed = false;
 for (const [relative, content] of artifacts) {
