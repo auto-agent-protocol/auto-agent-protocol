@@ -140,7 +140,7 @@ function HeroMap(): JSX.Element {
         </svg>
       </div>
       <div className={styles.mapCore}>
-        <img src="/img/brand/aap-symbol.svg" width="76" height="76" alt="" />
+        <img src="/img/brand/aap-symbol.png" width="76" height="76" alt="" />
         <div>
           <span>THE AUTOMOTIVE LAYER</span>
           <strong>Auto Agent Protocol</strong>

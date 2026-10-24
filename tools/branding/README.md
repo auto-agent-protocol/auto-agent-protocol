@@ -8,12 +8,16 @@ is white. The symbol and lettering have transparent backgrounds.
 
 | Placement | Asset |
 | --- | --- |
-| Navigation, homepage, README | [Blue wordmark](../../static/img/brand/aap-wordmark.svg) / [white wordmark](../../static/img/brand/aap-wordmark-white.svg) |
-| Avatars, integrations, compact placements | [Blue symbol](../../static/img/brand/aap-symbol.svg) / [white symbol](../../static/img/brand/aap-symbol-white.svg) |
-| Raster-only consumers | [1024 px symbol](../../static/img/brand/aap-symbol.png) / [2380 px wordmark](../../static/img/brand/aap-wordmark.png) (white PNG variants are also provided) |
-| Browser tabs | [Transparent SVG favicon](../../static/img/brand/favicon.svg), with a transparent [16/32/48/256 px ICO fallback](../../static/img/brand/favicon.ico) |
+| Navigation and footer | [2380 px blue wordmark](../../static/img/brand/aap-wordmark.png) / [white wordmark](../../static/img/brand/aap-wordmark-white.png) |
+| Avatars and compact website placements | [1024 px blue symbol](../../static/img/brand/aap-symbol.png) / [white symbol](../../static/img/brand/aap-symbol-white.png) |
+| Vector workflows | [Blue wordmark](../../static/img/brand/aap-wordmark.svg) / [white wordmark](../../static/img/brand/aap-wordmark-white.svg); [blue symbol](../../static/img/brand/aap-symbol.svg) / [white symbol](../../static/img/brand/aap-symbol-white.svg) |
+| Browser tabs | [Transparent 16/32/48/256 px ICO](../../static/img/brand/favicon.ico); an [SVG export](../../static/img/brand/favicon.svg) is also available |
 | iOS home-screen bookmarks | [Transparent 180 px touch icon](../../static/img/brand/apple-touch-icon.png) |
-| Social/link previews | [1200 × 630 card](../../static/img/brand/aap-social-card.png) |
+| README and social/link previews | [1200 × 630 card](../../static/img/brand/aap-social-card.png) |
+
+Browser placements use the transparent PNG exports to avoid low-resolution
+SVG mask rendering in WebKit on high-density screens. The vector masters and
+the logo's geometry remain unchanged.
 
 Use the blue artwork on light backgrounds and white artwork on dark backgrounds.
 Preserve the aspect ratio and leave clear space of at least one-quarter of the

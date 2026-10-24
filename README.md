@@ -1,4 +1,4 @@
-[![Auto Agent Protocol 3.0 — automotive skills through MCP, A2A and PAP](static/img/brand/aap-social-card.svg)](https://autoagentprotocol.org)
+[![Auto Agent Protocol 3.0 — automotive skills through MCP, A2A and PAP](static/img/brand/aap-social-card.png)](https://autoagentprotocol.org)
 
 # Auto Agent Protocol 3.0
 

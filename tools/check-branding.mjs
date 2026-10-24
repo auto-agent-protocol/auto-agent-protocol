@@ -111,7 +111,7 @@ if (process.argv.includes('--build')) {
     assert.ok(!retired.has(sha256(content)), `Retired logo in build: ${file}`);
     if (file.endsWith('.html') && content.includes(Buffer.from('navbar__brand'))) {
       const html = content.toString();
-      for (const asset of ['aap-wordmark.svg', 'aap-wordmark-white.svg', 'aap-social-card.png', 'favicon.ico']) {
+      for (const asset of ['aap-wordmark.png', 'aap-wordmark-white.png', 'aap-social-card.png', 'favicon.ico']) {
         assert.ok(html.includes(`/img/brand/${asset}`), `${file}: missing ${asset}`);
       }
       assert.ok(!/\/img\/(?:logo(?:-white)?\.png|favicon\.ico|hero\.png|(?:v[\d.]+\/)?aap-hero-banner\.png)/.test(html), `Legacy brand reference in ${file}`);

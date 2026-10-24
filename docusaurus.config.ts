@@ -116,10 +116,6 @@ const config: Config = {
     },
     {
       tagName: "link",
-      attributes: { rel: "icon", type: "image/svg+xml", href: "/img/brand/favicon.svg" },
-    },
-    {
-      tagName: "link",
       attributes: { rel: "apple-touch-icon", sizes: "180x180", href: "/img/brand/apple-touch-icon.png" },
     },
     {
@@ -210,8 +206,8 @@ const config: Config = {
     navbar: {
       logo: {
         alt: "Auto Agent Protocol",
-        src: "img/brand/aap-wordmark.svg",
-        srcDark: "img/brand/aap-wordmark-white.svg",
+        src: "img/brand/aap-wordmark.png",
+        srcDark: "img/brand/aap-wordmark-white.png",
         width: 238,
         height: 40,
       },
@@ -256,7 +252,7 @@ const config: Config = {
       style: "dark",
       logo: {
         alt: "Auto Agent Protocol",
-        src: "img/brand/aap-wordmark-white.svg",
+        src: "img/brand/aap-wordmark-white.png",
         href: "/",
         width: 298,
         height: 50,
