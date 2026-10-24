@@ -40,7 +40,7 @@ Start from the [Agent Card](spec/v3.0/examples/agent-card.example.json), [Poppy 
 
 ## Five skills, one automotive journey
 
-![Dealer information, inventory facets, search and vehicle detail lead to one explicitly consented inquiry](docs/img/skills-overview.svg)
+![A buyer agent discovers a dealer, searches inventory, verifies one vehicle and submits a consented inquiry](docs/img/buyer-journey.svg)
 
 [Dealer information](docs/skills/dealer-information.md) · [Facets](docs/skills/inventory-facets.md) · [Search](docs/skills/inventory-search.md) · [Vehicle detail](docs/skills/inventory-vehicle.md) · [Lead submission](docs/skills/lead-submit.md)
 
