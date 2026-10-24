@@ -50,7 +50,7 @@ Supply at least one of `vin`, `stock` or `vehicle_id`; prefer VIN when known. Id
 }
 ```
 
-Every result requires `status`, `updated_at` and a nonempty VIN, stock or vehicle ID. Identity fields such as year/make/model are strongly recommended. Sale condition, when known, is `new`, `used` or `cpo`.
+Every result follows the [InventoryListing schema](https://draft.autoagentprotocol.invalid/latest/schemas/inventory-listing.schema.json): `status`, `updated_at` and a nonempty VIN, stock or vehicle ID. Identity fields such as year/make/model are strongly recommended. Sale condition, when known, is `new`, `used` or `cpo`. Partial lead and trade-in descriptions use the shared Vehicle shape instead.
 
 | Information | Fields and interpretation |
 |---|---|

@@ -2,49 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/vehicle-detail-response.schema.json",
   "title": "VehicleDetailResponse",
-  "description": "Typed AAP response for the `inventory.vehicle` skill. The `data` field is a Vehicle (v1.0 unified the former Vehicle + VehicleDetail into one type) and MAY be any vehicle type (`car`, `motorcycle`, `trailer`, `rv`, `other`), carrying the type-relevant fields (absent `vehicle_type` = car). Because it is always an inventory listing, `condition` is constrained to `new` | `used` | `cpo` and `status` (one of `available` | `intransit` | `pending`) is required. Shared by MCP structured results, A2A DataParts and native PAP OpenAPI bodies.",
+  "description": "Typed inventory.vehicle response shared by MCP, A2A and PAP. The data object is an InventoryListing with eligible availability, source update time and a stable identifier. It can describe any supported vehicle type; an omitted vehicle_type means car. Sale condition is new, used or cpo.",
   "type": "object",
   "properties": {
     "type": { "const": "inventory.vehicle.response" },
     "data": {
-      "allOf": [
-        {
-          "$ref": "./vehicle.schema.json"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "condition": {
-              "enum": [
-                "new",
-                "used",
-                "cpo"
-              ]
-            }
-          },
-          "required": [
-            "status",
-            "updated_at"
-          ],
-          "anyOf": [
-            {
-              "required": [
-                "vin"
-              ]
-            },
-            {
-              "required": [
-                "vehicle_id"
-              ]
-            },
-            {
-              "required": [
-                "stock"
-              ]
-            }
-          ]
-        }
-      ]
+      "$ref": "./inventory-listing.schema.json"
     },
     "message": {
       "type": "string",

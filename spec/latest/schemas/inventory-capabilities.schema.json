@@ -82,9 +82,18 @@
         {
           "properties": {
             "field": {
-              "not": {
-                "const": "distance_mi"
-              }
+              "type": "string",
+              "enum": [
+                "price",
+                "list_price",
+                "msrp",
+                "mileage",
+                "year",
+                "make",
+                "model",
+                "stock",
+                "updated_at"
+              ]
             }
           }
         }

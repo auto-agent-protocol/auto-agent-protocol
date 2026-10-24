@@ -2027,44 +2027,7 @@
                     "type": "array",
                     "description": "Vehicles in this page, in the requested order. Items MAY span multiple vehicle types (`car`, `motorcycle`, `trailer`, `rv`, `other`); each carries its own `vehicle_type` (absent = car). Each item is a Vehicle constrained to the sale-condition vocabulary (`new`|`used`|`cpo`) — inventory listings never carry trade-in wear values — and MUST carry a `status` of `available`, `intransit`, or `pending`. Out-of-stock vehicles are never returned.",
                     "items": {
-                      "allOf": [
-                        {
-                          "$ref": "#/$defs/vehicle"
-                        },
-                        {
-                          "type": "object",
-                          "properties": {
-                            "condition": {
-                              "enum": [
-                                "new",
-                                "used",
-                                "cpo"
-                              ]
-                            }
-                          },
-                          "required": [
-                            "status",
-                            "updated_at"
-                          ],
-                          "anyOf": [
-                            {
-                              "required": [
-                                "vin"
-                              ]
-                            },
-                            {
-                              "required": [
-                                "vehicle_id"
-                              ]
-                            },
-                            {
-                              "required": [
-                                "stock"
-                              ]
-                            }
-                          ]
-                        }
-                      ]
+                      "$ref": "#/$defs/inventory_listing"
                     }
                   },
                   "facets": {
@@ -2233,6 +2196,70 @@
             ],
             "additionalProperties": false
           },
+          "inventory_listing": {
+            "title": "InventoryListing",
+            "description": "An eligible inventory listing shared by search and vehicle detail. Requires availability, a source update timestamp and at least one stable identifier. Lead vehicle descriptions remain partial Vehicle objects.",
+            "allOf": [
+              {
+                "$ref": "#/$defs/vehicle"
+              }
+            ],
+            "type": "object",
+            "properties": {
+              "condition": {
+                "enum": [
+                  "new",
+                  "used",
+                  "cpo"
+                ]
+              },
+              "status": {
+                "$ref": "#/$defs/vehicle_properties_status"
+              },
+              "updated_at": {
+                "$ref": "#/$defs/vehicle_properties_updated_at"
+              }
+            },
+            "required": [
+              "status",
+              "updated_at"
+            ],
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "vin": {
+                    "$ref": "#/$defs/vehicle_properties_vin"
+                  }
+                },
+                "required": [
+                  "vin"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "vehicle_id": {
+                    "$ref": "#/$defs/vehicle_properties_vehicle_id"
+                  }
+                },
+                "required": [
+                  "vehicle_id"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "stock": {
+                    "$ref": "#/$defs/vehicle_properties_stock"
+                  }
+                },
+                "required": [
+                  "stock"
+                ]
+              }
+            ]
+          },
           "vehicle": {
             "title": "Vehicle",
             "description": "Shared vehicle shape for listings, vehicle_of_interest and trade_in. Inventory and vehicle_of_interest use condition new, used or cpo; trade_in uses excellent, good, fair or poor. Inventory requires an available, intransit or pending status, an identifier and updated_at. Out-of-stock units are omitted. Context schemas enforce these constraints. Prices are integers in whole US dollars. price includes mandatory dealer charges and excludes only government-required consumer charges; fee itemizations are already included. Optional vehicle_type defaults to car; motorcycles, trailers, RVs and other units use relevant fields only. Electric range, battery and charging fields apply across vehicle types. Free-text features are descriptive; feature_evidence supports verified equipment filtering. Additional inventory attributes remain allowed.",
@@ -2391,7 +2418,7 @@
                   "intransit",
                   "pending"
                 ],
-                "description": "Inventory availability. v1.0 supports exactly three values: `available` (in stock now), `intransit` (allocated / en route to the dealership), `pending` (deal in progress). A vehicle in any other state is OUT OF STOCK and MUST NOT appear in inventory feeds — dealers omit it and buyer agents ignore any item missing or carrying an unknown status. Required on inventory listings; omitted on vehicle_of_interest and trade_in.",
+                "description": "Inventory availability: available (in stock now), intransit (allocated or en route), or pending (a deal is in progress). Listings in any other state are excluded from inventory responses. Required on inventory listings; partial lead vehicle descriptions do not require it.",
                 "examples": [
                   "available",
                   "intransit"
@@ -2609,7 +2636,7 @@
                 "items": {
                   "type": "string"
                 },
-                "description": "Notable equipment and options as free-text strings (e.g. 'Adaptive Cruise Control', 'Apple CarPlay', 'Heated Front Seats'). v1.0 uses one flat list and does not separate option packages, factory equipment, or installed accessories.",
+                "description": "Notable equipment and options as readable strings, such as Adaptive Cruise Control, Apple CarPlay or Heated Front Seats. This descriptive list does not replace vehicle-specific feature_evidence for verified matching.",
                 "examples": [
                   [
                     "Adaptive Cruise Control",
@@ -2847,6 +2874,51 @@
               }
             ],
             "additionalProperties": false
+          },
+          "vehicle_properties_status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "intransit",
+              "pending"
+            ],
+            "description": "Inventory availability: available (in stock now), intransit (allocated or en route), or pending (a deal is in progress). Listings in any other state are excluded from inventory responses. Required on inventory listings; partial lead vehicle descriptions do not require it.",
+            "examples": [
+              "available",
+              "intransit"
+            ]
+          },
+          "vehicle_properties_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 / RFC 3339 timestamp (with timezone offset) of the last update to this vehicle's availability, price, fees, or status (e.g. '2026-04-30T08:42:00Z'). Buyer agents treat this as the freshness signal for availability and pricing claims.",
+            "examples": [
+              "2026-04-30T08:42:00Z"
+            ]
+          },
+          "vehicle_properties_vin": {
+            "type": "string",
+            "pattern": "^[A-HJ-NPR-Z0-9]{17}$",
+            "description": "Vehicle Identification Number (17 chars, ISO 3779). Applies to both cars and on-road motorcycles. Optional on trade-ins; recommended on inventory listings of used vehicles.",
+            "examples": [
+              "1HGCV1F30NA123456"
+            ]
+          },
+          "vehicle_properties_vehicle_id": {
+            "type": "string",
+            "description": "Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).",
+            "examples": [
+              "veh_8f3c1a"
+            ],
+            "minLength": 1
+          },
+          "vehicle_properties_stock": {
+            "type": "string",
+            "description": "Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts.",
+            "examples": [
+              "H12345"
+            ],
+            "minLength": 1
           },
           "facets": {
             "title": "Facets",
@@ -3713,51 +3785,14 @@
         "$defs": {
           "vehicle_detail_response": {
             "title": "VehicleDetailResponse",
-            "description": "Typed AAP response for the `inventory.vehicle` skill. The `data` field is a Vehicle (v1.0 unified the former Vehicle + VehicleDetail into one type) and MAY be any vehicle type (`car`, `motorcycle`, `trailer`, `rv`, `other`), carrying the type-relevant fields (absent `vehicle_type` = car). Because it is always an inventory listing, `condition` is constrained to `new` | `used` | `cpo` and `status` (one of `available` | `intransit` | `pending`) is required. Shared by MCP structured results, A2A DataParts and native PAP OpenAPI bodies.",
+            "description": "Typed inventory.vehicle response shared by MCP, A2A and PAP. The data object is an InventoryListing with eligible availability, source update time and a stable identifier. It can describe any supported vehicle type; an omitted vehicle_type means car. Sale condition is new, used or cpo.",
             "type": "object",
             "properties": {
               "type": {
                 "const": "inventory.vehicle.response"
               },
               "data": {
-                "allOf": [
-                  {
-                    "$ref": "#/$defs/vehicle"
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "condition": {
-                        "enum": [
-                          "new",
-                          "used",
-                          "cpo"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "status",
-                      "updated_at"
-                    ],
-                    "anyOf": [
-                      {
-                        "required": [
-                          "vin"
-                        ]
-                      },
-                      {
-                        "required": [
-                          "vehicle_id"
-                        ]
-                      },
-                      {
-                        "required": [
-                          "stock"
-                        ]
-                      }
-                    ]
-                  }
-                ]
+                "$ref": "#/$defs/inventory_listing"
               },
               "message": {
                 "type": "string",
@@ -3770,6 +3805,70 @@
               "data"
             ],
             "additionalProperties": false
+          },
+          "inventory_listing": {
+            "title": "InventoryListing",
+            "description": "An eligible inventory listing shared by search and vehicle detail. Requires availability, a source update timestamp and at least one stable identifier. Lead vehicle descriptions remain partial Vehicle objects.",
+            "allOf": [
+              {
+                "$ref": "#/$defs/vehicle"
+              }
+            ],
+            "type": "object",
+            "properties": {
+              "condition": {
+                "enum": [
+                  "new",
+                  "used",
+                  "cpo"
+                ]
+              },
+              "status": {
+                "$ref": "#/$defs/vehicle_properties_status"
+              },
+              "updated_at": {
+                "$ref": "#/$defs/vehicle_properties_updated_at"
+              }
+            },
+            "required": [
+              "status",
+              "updated_at"
+            ],
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "vin": {
+                    "$ref": "#/$defs/vehicle_properties_vin"
+                  }
+                },
+                "required": [
+                  "vin"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "vehicle_id": {
+                    "$ref": "#/$defs/vehicle_properties_vehicle_id"
+                  }
+                },
+                "required": [
+                  "vehicle_id"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "stock": {
+                    "$ref": "#/$defs/vehicle_properties_stock"
+                  }
+                },
+                "required": [
+                  "stock"
+                ]
+              }
+            ]
           },
           "vehicle": {
             "title": "Vehicle",
@@ -3929,7 +4028,7 @@
                   "intransit",
                   "pending"
                 ],
-                "description": "Inventory availability. v1.0 supports exactly three values: `available` (in stock now), `intransit` (allocated / en route to the dealership), `pending` (deal in progress). A vehicle in any other state is OUT OF STOCK and MUST NOT appear in inventory feeds — dealers omit it and buyer agents ignore any item missing or carrying an unknown status. Required on inventory listings; omitted on vehicle_of_interest and trade_in.",
+                "description": "Inventory availability: available (in stock now), intransit (allocated or en route), or pending (a deal is in progress). Listings in any other state are excluded from inventory responses. Required on inventory listings; partial lead vehicle descriptions do not require it.",
                 "examples": [
                   "available",
                   "intransit"
@@ -4147,7 +4246,7 @@
                 "items": {
                   "type": "string"
                 },
-                "description": "Notable equipment and options as free-text strings (e.g. 'Adaptive Cruise Control', 'Apple CarPlay', 'Heated Front Seats'). v1.0 uses one flat list and does not separate option packages, factory equipment, or installed accessories.",
+                "description": "Notable equipment and options as readable strings, such as Adaptive Cruise Control, Apple CarPlay or Heated Front Seats. This descriptive list does not replace vehicle-specific feature_evidence for verified matching.",
                 "examples": [
                   [
                     "Adaptive Cruise Control",
@@ -4385,6 +4484,51 @@
               }
             ],
             "additionalProperties": false
+          },
+          "vehicle_properties_status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "intransit",
+              "pending"
+            ],
+            "description": "Inventory availability: available (in stock now), intransit (allocated or en route), or pending (a deal is in progress). Listings in any other state are excluded from inventory responses. Required on inventory listings; partial lead vehicle descriptions do not require it.",
+            "examples": [
+              "available",
+              "intransit"
+            ]
+          },
+          "vehicle_properties_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 / RFC 3339 timestamp (with timezone offset) of the last update to this vehicle's availability, price, fees, or status (e.g. '2026-04-30T08:42:00Z'). Buyer agents treat this as the freshness signal for availability and pricing claims.",
+            "examples": [
+              "2026-04-30T08:42:00Z"
+            ]
+          },
+          "vehicle_properties_vin": {
+            "type": "string",
+            "pattern": "^[A-HJ-NPR-Z0-9]{17}$",
+            "description": "Vehicle Identification Number (17 chars, ISO 3779). Applies to both cars and on-road motorcycles. Optional on trade-ins; recommended on inventory listings of used vehicles.",
+            "examples": [
+              "1HGCV1F30NA123456"
+            ]
+          },
+          "vehicle_properties_vehicle_id": {
+            "type": "string",
+            "description": "Dealer-internal identifier when the vehicle is not yet VIN-decoded (e.g. an in-transit unit).",
+            "examples": [
+              "veh_8f3c1a"
+            ],
+            "minLength": 1
+          },
+          "vehicle_properties_stock": {
+            "type": "string",
+            "description": "Dealer's stock number for this unit. Inventory and vehicle_of_interest contexts.",
+            "examples": [
+              "H12345"
+            ],
+            "minLength": 1
           },
           "error": {
             "title": "Error",
@@ -5242,7 +5386,7 @@
                   "intransit",
                   "pending"
                 ],
-                "description": "Inventory availability. v1.0 supports exactly three values: `available` (in stock now), `intransit` (allocated / en route to the dealership), `pending` (deal in progress). A vehicle in any other state is OUT OF STOCK and MUST NOT appear in inventory feeds — dealers omit it and buyer agents ignore any item missing or carrying an unknown status. Required on inventory listings; omitted on vehicle_of_interest and trade_in.",
+                "description": "Inventory availability: available (in stock now), intransit (allocated or en route), or pending (a deal is in progress). Listings in any other state are excluded from inventory responses. Required on inventory listings; partial lead vehicle descriptions do not require it.",
                 "examples": [
                   "available",
                   "intransit"
@@ -5460,7 +5604,7 @@
                 "items": {
                   "type": "string"
                 },
-                "description": "Notable equipment and options as free-text strings (e.g. 'Adaptive Cruise Control', 'Apple CarPlay', 'Heated Front Seats'). v1.0 uses one flat list and does not separate option packages, factory equipment, or installed accessories.",
+                "description": "Notable equipment and options as readable strings, such as Adaptive Cruise Control, Apple CarPlay or Heated Front Seats. This descriptive list does not replace vehicle-specific feature_evidence for verified matching.",
                 "examples": [
                   [
                     "Adaptive Cruise Control",

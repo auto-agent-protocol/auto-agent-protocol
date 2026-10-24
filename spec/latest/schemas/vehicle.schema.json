@@ -109,7 +109,7 @@
     "status": {
       "type": "string",
       "enum": ["available", "intransit", "pending"],
-      "description": "Inventory availability. v1.0 supports exactly three values: `available` (in stock now), `intransit` (allocated / en route to the dealership), `pending` (deal in progress). A vehicle in any other state is OUT OF STOCK and MUST NOT appear in inventory feeds — dealers omit it and buyer agents ignore any item missing or carrying an unknown status. Required on inventory listings; omitted on vehicle_of_interest and trade_in.",
+      "description": "Inventory availability: available (in stock now), intransit (allocated or en route), or pending (a deal is in progress). Listings in any other state are excluded from inventory responses. Required on inventory listings; partial lead vehicle descriptions do not require it.",
       "examples": ["available", "intransit"]
     },
     "rooftop": {
@@ -249,7 +249,7 @@
     "features": {
       "type": "array",
       "items": { "type": "string" },
-      "description": "Notable equipment and options as free-text strings (e.g. 'Adaptive Cruise Control', 'Apple CarPlay', 'Heated Front Seats'). v1.0 uses one flat list and does not separate option packages, factory equipment, or installed accessories.",
+      "description": "Notable equipment and options as readable strings, such as Adaptive Cruise Control, Apple CarPlay or Heated Front Seats. This descriptive list does not replace vehicle-specific feature_evidence for verified matching.",
       "examples": [["Adaptive Cruise Control", "Apple CarPlay", "Heated Front Seats"]]
     },
     "photos": {

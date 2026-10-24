@@ -19,6 +19,7 @@ AAP becomes a shared automotive contract with native MCP, A2A and PAP interfaces
 - Document separate `parts` department schedules alongside `sales` and `service`, with a complete sample. Department names remain free text and schedules remain optional.
 - Clarify fee-inclusive price semantics and ADF receiver mappings with separate retained consent and idempotency records.
 - Verify official current and legacy MCP clients, official A2A wire exchanges, pinned upstream MCP schemas, PAP discovery and authentication contracts, and copyable documentation examples.
+- Generate complete TypeScript declarations in one shared naming scope; preserve nested result fields and required inventory listing identifiers, availability and timestamps.
 - Rebuild the website, README and all 32 current explanatory diagrams, including five new discovery/search visuals. Add readable Markdown representations and keep frozen artwork unchanged.
 
 See the [migration matrix](docs/versioning.md#for-implementers) and [deployment acceptance cases](docs/conformance.md#required-deployment-acceptance-cases). Contract fixtures do not certify a live dealership implementation.

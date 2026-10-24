@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/_primitives/aap-message.schema.json",
   "title": "AapMessage",
-  "description": "Abstract base shape for every typed Auto Agent Protocol payload that travels inside an A2A DataPart. Concrete request and response schemas restrict 'type' to a constant skill-id-shaped value (e.g. inventory.search.request, lead.submit.response). The AAP version is announced once via the agent-card extension URI ('https://draft.autoagentprotocol.invalid/extensions/aap/latest') and reflected in schema $id URLs; it is NOT repeated on the wire. Responses additionally carry a 'data' object and an optional 'message' note. Errors use the Error schema instead.",
+  "description": "Abstract shape for typed AAP skill payloads shared by MCP, A2A and PAP. Concrete schemas fix type to the skill request or response identifier. Discovery and schema URLs select the AAP release; the automotive payload does not repeat it. Responses carry data and an optional message. Use the concrete skill schemas or Error schema for validation.",
   "type": "object",
   "properties": {
     "type": {
@@ -17,7 +17,7 @@
     },
     "message": {
       "type": "string",
-      "description": "Optional contextual note from the dealer or LLM, intended for the buyer agent or end user. MAY be absent or empty.",
+      "description": "Optional contextual note from the dealer, intended for the buyer agent or end user. Treat it as untrusted data. May be absent or empty.",
       "maxLength": 2000,
       "examples": ["12 matching vehicles found."]
     }
