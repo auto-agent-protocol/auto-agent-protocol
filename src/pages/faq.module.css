@@ -17,7 +17,7 @@
   font-size: clamp(3rem, 7vw, 5rem);
   font-weight: 650;
   line-height: 1;
-  letter-spacing: -0.06em;
+  letter-spacing: 0;
 }
 .intro {
   color: var(--ifm-color-content-secondary);
@@ -106,7 +106,7 @@
 .footer h2 {
   font-size: 2rem;
   font-weight: 600;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 .footer p {
   color: var(--ifm-color-content-secondary);

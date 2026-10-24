@@ -43,10 +43,10 @@
 }
 .hero h1 {
   margin: 25px 0 26px;
-  font-size: clamp(3.75rem, 6.2vw, 5.6rem);
+  font-size: clamp(3.5rem, 6.2vw, 5.3rem);
   font-weight: 650;
   line-height: 0.99;
-  letter-spacing: -0.065em;
+  letter-spacing: 0;
 }
 .hero h1 em {
   color: var(--ifm-color-primary);
@@ -210,7 +210,7 @@
   display: block;
   color: var(--ifm-heading-color);
   font-size: 1.35rem;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 .mapCore p {
   margin: 8px 0 0;
@@ -306,7 +306,7 @@
   font-size: clamp(2.1rem, 4vw, 3.45rem);
   font-weight: 600;
   line-height: 1.08;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
   text-wrap: balance;
 }
 .sectionHeading > p:last-child {
@@ -663,7 +663,7 @@
   margin: 0;
   font-size: 1.35rem;
   font-weight: 650;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 .vehicleIdentity > strong {
   text-align: right;
@@ -1015,7 +1015,7 @@
     gap: 38px;
   }
   .hero h1 {
-    font-size: 4.7rem;
+    font-size: clamp(3.5rem, 6.4vw, 4.7rem);
   }
   .heroMap {
     padding: 20px;
@@ -1232,7 +1232,7 @@
   .hero h1 {
     margin-top: 24px;
     margin-bottom: 24px;
-    font-size: clamp(2.75rem, 13.5vw, 4.9rem);
+    font-size: clamp(2.55rem, 12.6vw, 4.9rem);
   }
   .heroDescription {
     font-size: 1rem;
