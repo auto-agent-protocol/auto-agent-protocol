@@ -91,7 +91,19 @@
     ],
     "price_range": { "min": 8995, "max": 89500 },
     "mileage_range": { "min": 0, "max": 142500 },
-    "year_range": { "min": 2018, "max": 2026 }
+    "year_range": { "min": 2018, "max": 2026 },
+    "features": [
+      {
+        "code": "adaptive_cruise_control",
+        "label": "Adaptive cruise control",
+        "count": 2
+      },
+      {
+        "code": "heated_front_seats",
+        "label": "Heated front seats",
+        "count": 2
+      }
+    ]
   },
   "message": "Facets aggregated over 350 active used and certified pre-owned listings, refreshed every 15 minutes."
 }

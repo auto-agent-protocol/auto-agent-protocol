@@ -731,6 +731,9 @@ Recommended JSON-RPC code mapping:
 | `MISSING_REQUIRED_FIELD` | -32602 | "Invalid params". |
 | `INVALID_CONDITION` | -32602 | "Invalid params" — a `condition` value is in the wrong vocabulary. |
 | `UNSUPPORTED_SKILL` | -32602 | Invalid AAP request parameter: the dealer does not implement the skill identified by the typed payload. The JSON-RPC method is still `SendMessage`. Reserve -32004 for A2A `UnsupportedOperationError` with A2A's required ErrorInfo reason and domain. |
+| `UNSUPPORTED_FILTER` | -32602 (Invalid params) | Filter or feature code is not supported here. |
+| `UNSUPPORTED_SORT` | -32602 (Invalid params) | Sort field is not advertised. |
+| `INVALID_CURSOR` | -32602 (Invalid params) | Cursor is invalid, expired or bound to another request. |
 | `VEHICLE_NOT_FOUND` | -32000 | Application error. |
 | `VEHICLE_UNAVAILABLE` | -32000 | Application error. |
 | `CONTACT_CONSENT_REQUIRED` | -32000 | Application error. |

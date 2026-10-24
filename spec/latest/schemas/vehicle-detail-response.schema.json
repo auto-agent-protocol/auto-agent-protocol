@@ -8,13 +8,41 @@
     "type": { "const": "inventory.vehicle.response" },
     "data": {
       "allOf": [
-        { "$ref": "./vehicle.schema.json" },
+        {
+          "$ref": "./vehicle.schema.json"
+        },
         {
           "type": "object",
           "properties": {
-            "condition": { "enum": ["new", "used", "cpo"] }
+            "condition": {
+              "enum": [
+                "new",
+                "used",
+                "cpo"
+              ]
+            }
           },
-          "required": ["status"]
+          "required": [
+            "status",
+            "updated_at"
+          ],
+          "anyOf": [
+            {
+              "required": [
+                "vin"
+              ]
+            },
+            {
+              "required": [
+                "vehicle_id"
+              ]
+            },
+            {
+              "required": [
+                "stock"
+              ]
+            }
+          ]
         }
       ]
     },

@@ -121,8 +121,46 @@
       ],
       "price_range": { "min": 29495, "max": 32995 },
       "mileage_range": { "min": 14820, "max": 28450 },
-      "year_range": { "min": 2023, "max": 2024 }
-    }
+      "year_range": { "min": 2023, "max": 2024 },
+      "features": [
+        {
+          "code": "adaptive_cruise_control",
+          "label": "Adaptive cruise control",
+          "count": 2
+        },
+        {
+          "code": "heated_front_seats",
+          "label": "Heated front seats",
+          "count": 2
+        }
+      ]
+    },
+    "applied_filters": {
+      "make": [
+        "Honda",
+        "BMW"
+      ],
+      "model": [
+        "CR-V"
+      ],
+      "condition": [
+        "used"
+      ],
+      "year_min": 2023,
+      "year_max": 2025,
+      "price_max": 35000,
+      "transmission": [
+        "automatic"
+      ],
+      "rooftops": [
+        "Demo Toyota San Francisco"
+      ]
+    },
+    "sort": {
+      "field": "price",
+      "order": "asc"
+    },
+    "next_cursor": null
   },
   "message": "2 used Honda CR-Vs match your filters. Each 'price' includes the itemized mandatory dealer fees; government charges such as tax, title, and registration are excluded."
 }

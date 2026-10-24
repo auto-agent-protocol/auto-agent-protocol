@@ -3,7 +3,7 @@
   "filters": {
     "vehicle_type": ["motorcycle"],
     "make": ["Acme Moto"],
-    "condition": ["new"],
+    "condition": ["new", "used"],
     "body": ["cruiser", "touring"],
     "displacement_cc_min": 1200,
     "displacement_cc_max": 2000,

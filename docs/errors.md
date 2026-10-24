@@ -1,14 +1,14 @@
 ---
 sidebar_position: 8
 title: Errors
-description: The 12 AAP error codes — meaning, suggested JSON-RPC mapping, and retryable defaults.
+description: AAP skill error codes — meaning, suggested JSON-RPC mapping, and retryable defaults.
 ---
 
 # Errors
 
 {/* aap-draft-only:start */}
 
-This editable page describes the unreleased **2.1.0** contract. A2A error behavior is unchanged from AAP 2.0; older endpoints retain their released contract; see [migration guidance](./versioning.md#for-implementers). Draft extension identifiers below are illustrative and MUST NOT be deployed; release preparation replaces them with the approved version URI.
+This editable page describes the unreleased **3.0.0** contract. AAP 3.0 adds explicit search-capability and cursor errors; older endpoints retain their released contract; see [migration guidance](./versioning.md#for-implementers). Draft extension identifiers below are illustrative and MUST NOT be deployed; release preparation replaces them with the approved version URI.
 
 {/* aap-draft-only:end */}
 
@@ -54,7 +54,7 @@ The reviewed Python client loses AAP `details.errors[]` through its ordinary exc
 |---|---|---|---|
 | `type` | const | yes | Always `aap.error`. |
 | `error_id` | string | yes | Unique identifier for this error instance (UUID recommended), suitable for support correlation. |
-| `code` | enum | yes | One of the 12 AAP error codes below. |
+| `code` | enum | yes | One of the AAP error codes below. |
 | `message` | string | yes | Human-readable summary. May be surfaced to the end user. |
 | `retryable` | boolean | yes | Whether the buyer agent SHOULD retry the same request after a backoff. |
 | `details` | object | no | Code-specific details. For validation errors it carries an **`errors[]`** array listing EVERY problem at once (see below); other codes use it for retry hints, ids, etc. |
@@ -74,11 +74,14 @@ A dealer agent MUST return all currently-detectable validation errors in one res
 
 ## Error code reference
 
-The 12 codes, their meaning, recommended JSON-RPC code, and `retryable` default.
+The codes, their meaning, recommended JSON-RPC code, and `retryable` default.
 
 | `code` | Meaning | JSON-RPC | `retryable` default |
 |---|---|---|---|
 | `UNSUPPORTED_SKILL` | The agent does not implement the skill identified by the typed request payload; the `SendMessage` method itself is supported. | -32602 (Invalid params) | `false` |
+| `UNSUPPORTED_FILTER` | A known filter or feature code is not supported in this deployment; nothing was silently ignored. | -32602 (Invalid params) | `false` |
+| `UNSUPPORTED_SORT` | The requested sort field is not advertised. | -32602 (Invalid params) | `false` |
+| `INVALID_CURSOR` | Continuation is expired, malformed, belongs to another scope, or no longer matches the request. | -32602 (Invalid params) | `false` |
 | `SCHEMA_VALIDATION_FAILED` | Request body fails JSON Schema validation. | -32602 (Invalid params) | `false` |
 | `MISSING_REQUIRED_FIELD` | A specifically required field is absent. | -32602 (Invalid params) | `false` |
 | `INVALID_CONDITION` | `vehicle_of_interest.condition` is in the trade-in vocabulary, or `trade_in.condition` is in the sale-condition vocabulary. | -32602 (Invalid params) | `false` |
