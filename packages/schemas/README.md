@@ -11,12 +11,11 @@ npm install @autoagentprotocol/schemas@3.0.0 ajv ajv-formats
 ## Usage
 
 ```ts
-import Ajv2020 from "ajv/dist/2020.js";
-import addFormats from "ajv-formats";
+import { Ajv2020 } from "ajv/dist/2020.js";
+import { fullFormats } from "ajv-formats/dist/formats.js";
 import { allSchemas, inventorySearchRequestSchema } from "@autoagentprotocol/schemas";
 
-const ajv = new Ajv2020({ strict: false });
-addFormats(ajv);
+const ajv = new Ajv2020({ strict: false, formats: fullFormats });
 ajv.addSchema(allSchemas);
 const validate = ajv.compile(inventorySearchRequestSchema);
 const payload = {
