@@ -59,6 +59,8 @@ for (const version of renderedVersions) {
     const markdownPath = `${doc.path}.md`;
     if (!existsSync(join(build, markdownPath))) throw new Error(`Missing readable page ${markdownPath}`);
     const html = readFileSync(join(build, `${doc.path}.html`), "utf8");
+    const robots = (html.match(/<meta\b[^>]*>/g) ?? []).find(tag => /\bname="robots"/.test(tag))?.match(/\bcontent="([^"]+)"/)?.[1] ?? "";
+    if (/\bnoindex\b/.test(robots) !== (version.name !== stable.contract)) throw new Error(`Only the stable contract should be publicly indexed: ${doc.path}`);
     const alternate = html.match(/<link\b[^>]*rel="alternate"[^>]*type="text\/markdown"[^>]*>/)?.[0];
     if (!alternate?.includes(`href="${markdownPath}"`)) throw new Error(`Missing Markdown alternate for ${doc.path}`);
     const markdown = readFileSync(join(build, markdownPath), "utf8");

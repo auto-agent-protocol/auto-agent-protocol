@@ -6,20 +6,27 @@
   --ifm-color-primary-light: #3e82db;
   --ifm-color-primary-lighter: #4989de;
   --ifm-color-primary-lightest: #699fe4;
+  --ifm-link-color: var(--ifm-color-primary-dark);
+  --ifm-breadcrumb-color-active: var(--ifm-color-primary-dark);
+  --ifm-navbar-search-input-placeholder-color: #596a82;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-  --ifm-background-color: #fbfdff;
+  --ifm-background-color: #ffffff;
   --ifm-background-surface-color: #ffffff;
-  --ifm-heading-color: #102a43;
-  --ifm-font-color-base: #20364f;
+  --ifm-heading-color: #12213a;
+  --ifm-font-color-base: #263851;
   --ifm-navbar-shadow: 0 1px 0 rgba(32, 54, 79, 0.09);
-  --aap-soft-blue: #eaf3ff;
+  --aap-soft-blue: #eaf2ff;
+  --aap-canvas: #f5f7fb;
+  --aap-teal: #087567;
+  --aap-teal-tint: #e6f5f1;
+  --aap-muted: #596a82;
   --aap-line: #dce5f0;
 }
 
-[data-theme="dark"] {
+:root[data-theme="dark"] {
   --ifm-color-primary: #4d9cf5;
-  --ifm-color-primary-dark: #2d8af3;
+  --ifm-color-primary-dark: #87baff;
   --ifm-color-primary-darker: #1d81f2;
   --ifm-color-primary-darkest: #0a6ad8;
   --ifm-color-primary-light: #6daef7;
@@ -30,7 +37,12 @@
   --ifm-background-surface-color: #142238;
   --ifm-heading-color: #edf5ff;
   --ifm-font-color-base: #d1deed;
+  --ifm-navbar-search-input-placeholder-color: #b2c2d8;
   --aap-soft-blue: #172b45;
+  --aap-canvas: #101e32;
+  --aap-teal: #6ed6c5;
+  --aap-teal-tint: #153934;
+  --aap-muted: #a7b8cf;
   --aap-line: #293b54;
 }
 
@@ -211,6 +223,12 @@ body {
   line-height: 1.75;
 }
 
+.theme-doc-markdown a:not(.hash-link) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
 .theme-doc-markdown > p > img,
 .theme-doc-markdown > img {
   display: block;
@@ -233,6 +251,11 @@ body {
   border-spacing: 0;
   border-radius: 12px;
   overflow-x: auto;
+}
+
+.theme-doc-markdown table:focus-visible {
+  outline: 3px solid var(--ifm-color-primary);
+  outline-offset: 4px;
 }
 
 .theme-doc-markdown table th,

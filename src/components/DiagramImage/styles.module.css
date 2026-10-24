@@ -35,5 +35,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .diagram img { transition: none; }
+  .diagram img {
+    transition: none;
+  }
 }

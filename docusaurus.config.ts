@@ -13,7 +13,7 @@ const releasedDocs = Object.fromEntries(
       label: release.version,
       path: release.contract,
       ...(release.contract === stableContract
-        ? { banner: "none" as const, noIndex: true }
+        ? { banner: "none" as const, noIndex: false }
         : { banner: "unmaintained" as const, noIndex: true }),
     },
   ])
@@ -22,7 +22,7 @@ const releasedDocs = Object.fromEntries(
 const config: Config = {
   title: "Auto Agent Protocol",
   tagline:
-    "The open standard that lets AI assistants find dealerships, browse real inventory, and send consented leads — built on A2A v1.0",
+    "The open automotive contract for MCP, A2A and PAP: dealer discovery, real inventory, evidence, pricing and consent",
   favicon: "img/brand/favicon.ico",
   url: "https://autoagentprotocol.org",
   baseUrl: "/",
@@ -55,11 +55,8 @@ const config: Config = {
         indexPages: true,
         language: ["en"],
         docsRouteBasePath: "/docs",
-        // Released versions carry noIndex so search engines see one canonical
-        // doc surface. The search plugin reuses that same tag to skip pages,
-        // which empties the index it serves from every page outside
-        // /docs/latest — including the homepage, whose index is built from the
-        // newest published release. On-site search is not crawling.
+        // Search every explicitly selected version locally, including drafts
+        // and archives. Public search engines index only the stable contract.
         forceIgnoreNoIndex: true,
         highlightSearchTermsOnTargetPage: true,
         searchBarShortcutHint: true,
@@ -90,16 +87,14 @@ const config: Config = {
               path: "latest",
               banner: "unreleased",
               badge: false,
+              noIndex: true,
             },
             ...releasedDocs,
           },
         },
         blog: false,
         sitemap: {
-          // Only /search needs listing here: the sitemap plugin already drops
-          // noIndex routes on its own, so the frozen versions above need no
-          // entry, but /search is the local search UI (no noIndex of its own)
-          // and is not content.
+          // Draft and archived docs are already excluded through noIndex.
           ignorePatterns: ["/search"],
         },
         theme: {
@@ -113,6 +108,10 @@ const config: Config = {
   // results and AI/search grounding. Page-specific structured data (the spec
   // APIReference) is injected on the homepage via <Head> in src/pages/index.tsx.
   headTags: [
+    {
+      tagName: "link",
+      attributes: { rel: "describedby", type: "text/plain", href: "/llms.txt" },
+    },
     {
       tagName: "link",
       attributes: { rel: "icon", type: "image/svg+xml", href: "/img/brand/favicon.svg" },
@@ -134,7 +133,7 @@ const config: Config = {
             alternateName: "AAP",
             url: "https://autoagentprotocol.org/",
             description:
-              "The open standard that lets AI assistants find dealerships, browse real inventory, and send consented leads — built on A2A v1.0.",
+              "The open automotive contract for MCP, A2A and PAP: dealer discovery, real inventory, evidence, pricing and consent.",
             inLanguage: "en",
             publisher: { "@id": "https://autoagentprotocol.org/#organization" },
             potentialAction: {
@@ -160,7 +159,7 @@ const config: Config = {
               height: 1024,
             },
             description:
-              "An open A2A v1.0 profile for automotive: buyer-agent discovery, real inventory browsing, and consented lead submission.",
+              "An independent open automotive protocol with native MCP, A2A and Personal Agent Protocol interfaces.",
             sameAs: [
               "https://github.com/auto-agent-protocol/auto-agent-protocol",
             ],
@@ -189,19 +188,19 @@ const config: Config = {
       {
         name: "keywords",
         content:
-          "Auto Agent Protocol, AAP, A2A, Agent2Agent, agentic commerce, automotive retail, dealership API, agent card, .well-known/agent-card.json, vehicle inventory API, MCP, JSON-RPC, AI agents, buyer agent, consented leads, car buying, ADF/XML",
+          "Auto Agent Protocol, AAP, MCP, Model Context Protocol, PAP, Personal Agent Protocol, A2A, Agent2Agent, agentic commerce, automotive retail, dealership API, agent card, .well-known/agent-card.json, vehicle inventory API, JSON-RPC, AI agents, buyer agent, consented leads, car buying, ADF/XML",
       },
       {
         name: "twitter:image:alt",
         content:
-          "Auto Agent Protocol — the open automotive retail profile of A2A",
+          "Auto Agent Protocol 3.0 — automotive skills through MCP, A2A and PAP",
       },
       { property: "og:site_name", content: "Auto Agent Protocol" },
       { property: "og:type", content: "website" },
       {
         property: "og:image:alt",
         content:
-          "Auto Agent Protocol — the open automotive retail profile of A2A",
+          "Auto Agent Protocol 3.0 — automotive skills through MCP, A2A and PAP",
       },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
@@ -236,16 +235,13 @@ const config: Config = {
           position: "right",
         },
         {
-          href: "https://a2a-protocol.org/v1.0.0/specification/",
-          label: "A2A spec",
+          label: "Protocols",
           position: "right",
-        },
-        {
-          href: "https://personalagentprotocol.org/docs/0.2/spec",
-          label: "PAP spec",
-          title: "Personal Agent Protocol (Poppy) specification — draft 0.2",
-          "aria-label": "PAP spec: Personal Agent Protocol (Poppy), draft 0.2",
-          position: "right",
+          items: [
+            { label: "MCP specification", href: "https://modelcontextprotocol.io/specification/2026-07-28" },
+            { label: "A2A 1.0 specification", href: "https://a2a-protocol.org/v1.0.0/specification/" },
+            { label: "PAP draft 0.2 specification", href: "https://personalagentprotocol.org/docs/0.2/spec" },
+          ],
         },
         {
           href: "https://github.com/auto-agent-protocol/auto-agent-protocol",
@@ -267,64 +263,47 @@ const config: Config = {
         {
           title: "Specification",
           items: [
-            { label: "Introduction", to: "/docs/latest/intro" },
-            { label: "A2A profile", to: "/docs/latest/a2a-profile" },
-            { label: "Discovery", to: "/docs/latest/discovery" },
-            { label: "Pricing and fees", to: "/docs/latest/pricing-and-ftc" },
+            { label: "Start here", to: `/docs/${stableContract}/intro` },
+            { label: "Dealer discovery", to: `/docs/${stableContract}/discovery` },
+            { label: "Inventory search", to: `/docs/${stableContract}/skills/inventory-search` },
+            { label: "Pricing and consent", to: `/docs/${stableContract}/behavior-rules` },
           ],
         },
         {
-          title: "Bindings & Skills",
+          title: "Native interfaces",
           items: [
-            { label: "JSON-RPC binding", to: "/docs/latest/bindings/json-rpc" },
-            { label: "Inventory search", to: "/docs/latest/skills/inventory-search" },
-            { label: "Submit lead", to: "/docs/latest/skills/lead-submit" },
+            { label: "MCP tools", to: `/docs/${stableContract}/bindings/mcp` },
+            { label: "A2A messages", to: `/docs/${stableContract}/bindings/json-rpc` },
+            { label: "PAP guest API", to: `/docs/${stableContract}/personal-agent-protocol` },
+            { label: "CRM / ADF mapping", to: `/docs/${stableContract}/compatibility/adf-mapping` },
           ],
         },
         {
-          title: "Compatibility",
+          title: "For builders",
           items: [
-            { label: "ADF mapping", to: "/docs/latest/compatibility/adf-mapping" },
-            { label: "MCP", to: "/docs/latest/compatibility/mcp" },
+            { label: "Conformance", to: `/docs/${stableContract}/conformance` },
+            { label: "MCP tool catalog", href: `https://autoagentprotocol.org/${stableContract}/mcp.json` },
+            { label: "llms.txt", href: "https://autoagentprotocol.org/llms.txt" },
+            { label: "Full specification for agents", href: "https://autoagentprotocol.org/llms-full.txt" },
           ],
         },
         {
-          title: "Built on A2A",
-          items: [
-            {
-              label: "A2A protocol",
-              href: "https://a2a-protocol.org",
-            },
-            {
-              label: "A2A spec v1.0",
-              href: "https://a2a-protocol.org/latest/specification/",
-            },
-            {
-              label: "How AAP profiles A2A",
-              to: "/docs/latest/a2a-profile",
-            },
-          ],
-        },
-        {
-          title: "Community",
+          title: "Project",
           items: [
             { label: "FAQ", to: "/faq" },
-            { label: "Partners", to: "/partners" },
-            {
-              label: "GitHub",
-              href: "https://github.com/auto-agent-protocol/auto-agent-protocol",
-            },
-            {
-              label: "Contributing",
-              href: "https://github.com/auto-agent-protocol/auto-agent-protocol/blob/main/RELEASING.md",
-            },
+            { label: "Ecosystem", to: "/partners" },
+            { label: "GitHub", href: "https://github.com/auto-agent-protocol/auto-agent-protocol" },
+            { label: "Contribute", to: "/docs/latest/contributing" },
           ],
         },
       ],
-      copyright: `Copyright ${new Date().getFullYear()} Auto Agent Protocol contributors. Apache-2.0 License.`,
+      copyright: `Copyright ${new Date().getFullYear()} Auto Agent Protocol contributors. Specification: Apache-2.0. Documentation: CC BY 4.0.`,
     },
     prism: {
-      theme: prismThemes.github,
+      theme: {
+        ...prismThemes.vsLight,
+        styles: [...prismThemes.vsLight.styles, { types: ["attr-name"], style: { color: "#b42335" } }],
+      },
       darkTheme: prismThemes.dracula,
       additionalLanguages: ["json", "bash", "yaml"],
     },

@@ -1,18 +1,18 @@
 ---
-sidebar_position: 2
-title: HTTP+JSON (REST) binding — removed in v1.1.0
-description: The HTTP+JSON (REST) binding was removed in AAP v1.1.0. AAP's A2A interface uses JSON-RPC; Poppy has a separate native API.
+title: Legacy REST binding
+description: The historical A2A HTTP+JSON option was removed in AAP 1.1. Use the current MCP, A2A JSON-RPC or PAP binding.
 ---
 
-# HTTP+JSON (REST) binding — removed in v1.1.0
+# Legacy REST binding
 
-:::danger A2A HTTP+JSON removed in v1.1.0
-The HTTP+JSON (REST) binding is **no longer part of AAP** as of v1.1.0. AAP's A2A interface uses the **[JSON-RPC 2.0 binding](json-rpc.md)** (A2A Section 9). There is no `POST /message:send` REST surface in AAP; `SendMessage` is invoked exclusively over JSON-RPC.
+The optional A2A HTTP+JSON interface was removed in **AAP 1.1**. This URL remains for historical links. AAP does not define a `POST /message:send` endpoint.
 
-This page is kept only so existing links do not 404. For the current A2A transport, see the **[JSON-RPC 2.0 binding](json-rpc.md)**.
-:::
+Current interfaces:
 
-In AAP v1.0.0, a dealer agent MAY have additionally exposed an optional HTTP+JSON interface alongside its required JSON-RPC interface. AAP v1.1.0 removed that option from its A2A profile. AAP's A2A clients and dealer interfaces MUST use the [JSON-RPC binding](json-rpc.md).
+| Interface | Automotive calls |
+|---|---|
+| [MCP](./mcp.md) | Native tools over Streamable HTTP |
+| [A2A](./json-rpc.md) | `SendMessage` over JSON-RPC |
+| [PAP](../personal-agent-protocol.md) | Native OpenAPI operations with PAP Sessions and DPoP |
 
-
-AAP 2.0 adds a separate [native Poppy OpenAPI interface](../personal-agent-protocol.md). It uses Poppy sessions and automotive skill routes; it does not restore A2A HTTP+JSON or `/message:send`.
+PAP's automotive API is separate from the retired A2A HTTP+JSON option.

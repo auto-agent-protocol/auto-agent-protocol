@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-09-04",
+  "updated": "2026-10-24",
   "partners": [
     {
       "name": "A2A Protocol",
@@ -15,7 +15,7 @@
       "name": "Dealer Handshake",
       "type": "Organization",
       "role": "AAP implementation",
-      "description": "Connects a dealership's live inventory to compatible AI assistants over AAP and routes consented shopper leads into the CRM the dealer already runs, delivered as ADF. Car Handshake, the consumer marketplace it operates, publishes an agent card declaring the AAP v1.2 extension and serving inventory.facets, inventory.search, and inventory.vehicle over the JSON-RPC binding.",
+      "description": "Connects dealership inventory to compatible AI assistants and routes consented leads to dealer CRMs as ADF. Its Car Handshake marketplace publishes a versioned AAP Agent Card exposing dealer information, inventory facets, search, vehicle detail and consented inquiries over A2A JSON-RPC. Check that live card for the deployed contract version.",
       "links": [
         { "label": "Dealer Handshake", "url": "https://dealerhandshake.com" },
         { "label": "Car Handshake", "url": "https://carhandshake.com" }
