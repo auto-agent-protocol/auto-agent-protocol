@@ -9,7 +9,7 @@ if (cleared.status !== 0) process.exit(cleared.status ?? 1);
 const args = process.argv.slice(2).filter((argument, index) => argument !== "--" || index !== 0);
 const result = spawnSync(process.execPath, [docusaurus, "start", ...args], {
   cwd: ROOT,
-  env: process.env,
+  env: { ...process.env, WEBPACK_URL_LOADER_LIMIT: "0" },
   stdio: "inherit",
 });
 if (result.error) throw result.error;

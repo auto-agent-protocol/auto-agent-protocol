@@ -1,199 +1,213 @@
-// Generates static/llms.txt and static/llms-full.txt from the single sources of
-// truth — the stable release registry, frozen sidebars/docs, and the stable
-// skills manifest — so neither file
-// is ever hand-maintained or drifts on a version change. Run as part of
-// `pnpm run generate`; the outputs are gitignored build artifacts.
-//
-// llms.txt        — the llmstxt.org index (curated links).
-// llms-full.txt   — every docs page inlined into one file for one-fetch LLM ingestion.
-
-import { readFileSync, writeFileSync } from "fs";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { dirname, join, relative } from "node:path";
 import { parse as parseYaml } from "yaml";
-import { LATEST } from "./versions.js";
-import { readJson, stableRelease } from "./lib/releases.js";
+import {
+  filesIn,
+  loadRegistry,
+  readJson,
+  ROOT,
+  SITE,
+  stableRelease,
+} from "./lib/releases.js";
+import {
+  parseDoc,
+  readableMarkdown,
+  type MarkdownDoc,
+} from "./lib/markdown.js";
 import { loadPartners } from "./check-partners.js";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const DOCS_DIR = resolve(ROOT, "versioned_docs", `version-${LATEST}`);
-const OUT_DIR = resolve(ROOT, "static");
-
-// Stable site identity (not version-dependent). Everything version-specific below
-// is derived from LATEST / skills.yaml.
-const SITE = "https://autoagentprotocol.org";
-const TITLE = "Auto Agent Protocol";
-const STABLE_RELEASE = stableRelease();
-const DOCS_BASE = `${SITE}/docs/${LATEST}`;
-const VER_BASE = `${SITE}/${LATEST}`;
-
-interface Skill {
-  id: string;
-  name: string;
-  description: string;
-}
-interface SkillsManifest {
-  version: string;
-  extension_uri: string;
-  skills: Skill[];
-}
-
-const skillsManifest = parseYaml(
-  readFileSync(resolve(ROOT, "spec", LATEST, "skills.yaml"), "utf-8")
-) as SkillsManifest;
-const poppyVersion = readJson<{protocol_version: string}>(
-  resolve(ROOT, "spec", LATEST, "examples/poppy.example.json")
+type SidebarItem =
+  | string
+  | { type: string; label?: string; id?: string; items?: SidebarItem[] };
+type Skill = { id: string; name: string; description: string };
+type Manifest = { version: string; extension_uri: string; skills: Skill[] };
+const release = stableRelease();
+const contract = release.contract;
+const docsBase = `${SITE}/docs/${contract}`;
+const artifactBase = `${SITE}/${contract}`;
+const outDir = join(ROOT, "static");
+const manifest = parseYaml(
+  readFileSync(join(ROOT, "spec", contract, "skills.yaml"), "utf8"),
+) as Manifest;
+const poppyVersion = readJson<{ protocol_version: string }>(
+  join(ROOT, "spec", contract, "examples/poppy.example.json"),
 ).protocol_version;
-
-// --- sidebar traversal (doc structure is the single source of order) ---
-type SidebarItem = string | { type: string; label: string; items?: SidebarItem[] };
-const rootItems = (readJson(resolve(ROOT, "versioned_sidebars", `version-${LATEST}-sidebars.json`)) as { specSidebar: SidebarItem[] }).specSidebar;
-
-const strings = (items: SidebarItem[]): string[] =>
-  items.filter((i): i is string => typeof i === "string");
-
-// Recursively collect doc ids in sidebar order, walking nested categories.
-// Tolerates non-category items (link/html/ref) that carry no `items`.
-const collectDocIds = (items: SidebarItem[] = []): string[] =>
-  items.flatMap((i) => (typeof i === "string" ? [i] : collectDocIds(i.items)));
-
-const topLevelDocs = strings(rootItems);
-const categories = rootItems.filter(
-  (i): i is { type: string; label: string; items?: SidebarItem[] } => typeof i !== "string"
+const nativeMcp = existsSync(
+  join(ROOT, "spec", contract, "schemas/mcp-endpoint.schema.json"),
 );
-// Full reading order: every doc (including any nested categories), in sidebar order.
-const allDocIds = collectDocIds(rootItems);
-
-// --- doc reading ---
-interface Doc {
-  title: string;
-  description: string;
-  body: string;
-}
-function readDoc(id: string): Doc {
-  const raw = readFileSync(resolve(DOCS_DIR, `${id}.md`), "utf-8");
-  const fm = raw.match(/^---\n([\s\S]*?)\n---\n?/);
-  if (!fm) return { title: id, description: "", body: raw };
-  const meta = parseYaml(fm[1]) as Record<string, unknown>;
-  return {
-    title: typeof meta.title === "string" ? meta.title : id,
-    description: typeof meta.description === "string" ? meta.description : "",
-    body: raw.slice(fm[0].length),
-  };
-}
-
-// Clean a doc body into plain, self-contained spec text for llms-full.txt.
-function cleanBody(md: string): string {
-  return md
-    .replace(/```mermaid[\s\S]*?```/g, "") // drop diagram source
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, "") // drop images
-    .replace(/^:::(\w+)[ \t]*(.*?)\s*$/gm, (_m, type: string, title: string) => {
-      // admonition open -> bold, preserving the severity word (Note/Info/Warning/…)
-      const label = type.charAt(0).toUpperCase() + type.slice(1);
-      return title ? `**${label}: ${title}**` : `**${label}**`;
-    })
-    .replace(/^:::\s*$/gm, "") // admonition close
-    .replace(/\[([^\]]+)\]\((?!https?:)[^)]*\.md[^)]*\)/g, "$1") // relative .md links -> text
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
+const interfaces = `${nativeMcp ? "native MCP Streamable HTTP tools; " : ""}A2A 1.0 SendMessage; Poppy draft ${poppyVersion} guest OpenAPI with DPoP`;
+const sidebar = readJson<{ specSidebar: SidebarItem[] }>(
+  join(ROOT, "versioned_sidebars", `version-${contract}-sidebars.json`),
+).specSidebar;
+const collectIds = (items: SidebarItem[]): string[] =>
+  items.flatMap((item) =>
+    typeof item === "string"
+      ? [item]
+      : item.type === "doc" && item.id
+        ? [item.id]
+        : collectIds(item.items ?? []),
+  );
+const ids = collectIds(sidebar);
+const documents = new Map<string, MarkdownDoc>();
+for (const id of ids)
+  documents.set(
+    id,
+    parseDoc(
+      readFileSync(
+        join(ROOT, "versioned_docs", `version-${contract}`, `${id}.md`),
+        "utf8",
+      ),
+      id,
+    ),
+  );
+const partners = loadPartners(ROOT);
 
 function docLink(id: string): string {
-  const d = readDoc(id);
-  return `- [${d.title}](${DOCS_BASE}/${id})${d.description ? `: ${d.description}` : ""}`;
+  const doc = documents.get(id)!;
+  return `- [${doc.title}](${docsBase}/${id}.md)${doc.description ? `: ${doc.description}` : ""}`;
 }
-
-function buildLlmsTxt(): string {
-  const skillIds = skillsManifest.skills.map((s) => s.id).join(", ");
-  const out: string[] = [
-    `# ${TITLE}`,
+function artifactLinks(): string[] {
+  return [
+    `- [MCP reference tool catalog](${artifactBase}/mcp.json): tool definitions, not a running MCP endpoint`,
+    `- [A2A JSON-RPC OpenAPI](${artifactBase}/openapi-jsonrpc.yaml): the automotive SendMessage binding`,
+    `- [PAP OpenAPI](${artifactBase}/openapi-poppy.yaml): native automotive operations with guest Sessions`,
+    `- [Agent Card example](${artifactBase}/examples/agent-card.example.json): replace fictional identity and deployment URLs`,
+    `- [Poppy discovery example](${artifactBase}/examples/poppy.example.json): PAP identity, issuer and API discovery`,
+    ...(nativeMcp
+      ? [
+          `- [Dealer llms.txt example](${artifactBase}/examples/llms.txt.example.md): exact MCP URL, discovery links and access requirements`,
+        ]
+      : []),
+    `- [Agent Card schema](${artifactBase}/schemas/agent-card.schema.json): JSON Schema 2020-12; other payload schemas share this versioned directory`,
+    `- [Full specification](${SITE}/llms-full.txt): the complete stable documentation in one Markdown file`,
+    `- [Source repository](https://github.com/auto-agent-protocol/auto-agent-protocol): schemas, tools, examples and release history`,
+  ];
+}
+function indexText(): string {
+  const out = [
+    "# Auto Agent Protocol",
     "",
-    `> ${TITLE} (AAP) is an open A2A v1.0 profile: AI buyer-agents discover a car dealership, browse its real inventory, and submit consented sales leads. ${skillsManifest.skills.length} skills: ${skillIds}. Current release ${STABLE_RELEASE.version} (contract ${LATEST}); A2A SendMessage over JSON-RPC 2.0 and a Poppy draft ${poppyVersion} guest OpenAPI interface; discovery via /.well-known/agent-card.json and /.well-known/poppy.json; extension URI ${skillsManifest.extension_uri}.`,
+    `> Auto Agent Protocol (AAP) is an open automotive contract for dealership discovery, inventory, pricing and consented inquiries. Current release ${release.version} (contract ${contract}). Interfaces: ${interfaces}.`,
     "",
-    `The entire specification is also available as a single self-contained file at ${SITE}/llms-full.txt.`,
+    "This website publishes the specification and examples. It is not a dealer inventory service or a live MCP endpoint. Find working services through a dealership's own discovery documents and use the exact advertised URLs, capabilities and contract version.",
     "",
-    "## Getting started",
-    `- [AAP FAQ](${SITE}/faq): purpose, supported capabilities, assistant compatibility, and adoption`,
+    "The links below prefer readable Markdown. Every documentation page also advertises its corresponding Markdown representation with an HTML alternate link. Schemas define payload validation; normative prose defines behavior and security obligations.",
     "",
-    "## Specification",
-    ...topLevelDocs.map(docLink),
+    "## Start here",
+    "",
+    `- [AAP FAQ](${SITE}/faq): purpose, native interfaces, discovery and adoption`,
+    ...sidebar
+      .filter((item): item is string => typeof item === "string")
+      .map(docLink),
     "",
   ];
-  for (const cat of categories) {
-    const ids = collectDocIds(cat.items);
-    // The skills category is rendered from skills.yaml below; identify it by
-    // content (all skill docs) rather than a fragile display-label match.
-    if (ids.length > 0 && ids.every((id) => id.startsWith("skills/"))) continue;
-    out.push(`## ${cat.label}`, ...ids.map(docLink), "");
+  for (const category of sidebar) {
+    if (typeof category === "string" || !category.items) continue;
+    out.push(
+      `## ${category.label}`,
+      "",
+      ...collectIds(category.items).map(docLink),
+      "",
+    );
   }
-  const partners = loadPartners(ROOT);
   out.push(
-    "## Skills",
-    ...skillsManifest.skills.map(
-      (s) => `- [${s.name}](${DOCS_BASE}/skills/${s.id.replace(/\./g, "-")}): ${s.description}`
-    ),
+    "## Machine-readable artifacts",
+    "",
+    ...artifactLinks(),
     "",
     "## Ecosystem",
-    `- [Partners](${SITE}/partners): organizations with a public, verifiable connection to AAP or to the A2A standard it profiles — ${partners.partners.map((p) => p.name).join(", ")} (alphabetical, updated ${partners.updated}).`,
+    "",
+    `- [Public ecosystem register](${SITE}/partners): implementations and upstream organizations; a listing is not certification of AAP ${release.version}`,
     ...partners.partners.map(
-      (p) => `- [${p.name}](${p.links[0].url}): ${p.role}. ${p.description}`
+      (partner) =>
+        `- [${partner.name}](${partner.links[0].url}): ${partner.role}. ${partner.description}`,
     ),
     "",
-    "## Machine-readable artifacts",
-    `- [OpenAPI (JSON-RPC)](${VER_BASE}/openapi-jsonrpc.yaml): OpenAPI 3.1 description of AAP over the JSON-RPC binding`,
-    `- [Poppy OpenAPI](${VER_BASE}/openapi-poppy.yaml): native automotive API with Poppy guest sessions`,
-    `- [Poppy discovery example](${VER_BASE}/examples/poppy.example.json): paired company discovery`,
-    `- [MCP manifest](${VER_BASE}/mcp.json): AAP skills exposed as MCP tools`,
-    `- [JSON Schemas](${VER_BASE}/schemas/agent-card.schema.json): JSON Schema 2020-12 objects, one file per type under /${LATEST}/schemas/`,
-    `- [Agent Card example](${VER_BASE}/examples/agent-card.example.json): sample /.well-known/agent-card.json declaring the aap extension`,
-    `- [Full spec, single file](${SITE}/llms-full.txt): entire AAP protocol inlined for one-fetch ingestion`,
-    ""
   );
   return out.join("\n");
 }
-
-function buildLlmsFull(): string {
-  const out: string[] = [
-    `# ${TITLE} — Full Specification (${LATEST})`,
+function fullText(): string {
+  const out = [
+    `# Auto Agent Protocol — Full Specification (${contract})`,
     "",
     `Canonical URL: ${SITE}`,
-    `Version: ${skillsManifest.version}  |  Extension URI: ${skillsManifest.extension_uri}`,
-    `Interfaces: A2A \`SendMessage\` over JSON-RPC 2.0; Poppy draft ${poppyVersion} guest OpenAPI API with DPoP`,
-    "Discovery: GET https://{dealer-domain}/.well-known/agent-card.json and /.well-known/poppy.json",
-    "Built on: A2A v1.0 (Agent2Agent, https://a2a-protocol.org)",
-    "License: Specification & schemas Apache-2.0; documentation prose CC-BY-4.0",
-    `Generated from the ${LATEST} documentation — do not edit by hand. Schemas define payload validation; the normative prose defines behavior and security obligations that schemas cannot express.`,
+    `Version: ${release.version} | Extension URI: ${manifest.extension_uri}`,
+    `Interfaces: ${interfaces}`,
+    `Source: immutable ${contract} documentation. Editable future work is separate at ${SITE}/docs/latest/intro.md.`,
+    "Scope: specification and contract fixtures; not certification of a live dealership or agent.",
+    "License: specification and schemas Apache-2.0; documentation prose CC BY 4.0.",
     "",
   ];
-  for (const id of allDocIds) out.push(cleanBody(readDoc(id).body), "");
-  const partners = loadPartners(ROOT);
-  out.push(
-    "## Partners",
-    "",
-    `Organizations with a public, verifiable connection to AAP or to the A2A standard it profiles. Listed alphabetically at ${SITE}/partners; updated ${partners.updated}.`,
-    "",
-    ...partners.partners.map((p) => `- ${p.name} (${p.role}, ${p.links.map((l) => l.url).join(", ")}): ${p.description}`),
-    "",
-    "## Machine-readable artifacts",
-    "",
-    `- OpenAPI (JSON-RPC, 3.1): ${VER_BASE}/openapi-jsonrpc.yaml`,
-    `- OpenAPI (Poppy, 3.1):    ${VER_BASE}/openapi-poppy.yaml`,
-    `- Poppy discovery:        ${VER_BASE}/examples/poppy.example.json`,
-    `- MCP manifest:            ${VER_BASE}/mcp.json`,
-    `- JSON Schemas (2020-12):  ${VER_BASE}/schemas/<name>.schema.json`,
-    `- Agent Card example:      ${VER_BASE}/examples/agent-card.example.json`,
-    "- Source repository:       https://github.com/auto-agent-protocol/auto-agent-protocol",
-    ""
-  );
+  for (const [id, doc] of documents) {
+    out.push(
+      `<!-- Source: ${docsBase}/${id} -->`,
+      "",
+      readableMarkdown(doc.body, `${docsBase}/${id}.md`),
+      "",
+    );
+  }
+  out.push("## Machine-readable artifacts", "", ...artifactLinks(), "");
   return out.join("\n");
 }
-
-function main() {
-  writeFileSync(resolve(OUT_DIR, "llms.txt"), buildLlmsTxt().trimEnd() + "\n");
-  writeFileSync(resolve(OUT_DIR, "llms-full.txt"), buildLlmsFull().trimEnd() + "\n");
-  console.log(
-    `Generated static/llms.txt + static/llms-full.txt for ${LATEST} (${allDocIds.length} docs, ${skillsManifest.skills.length} skills)`
-  );
+function generatePageMarkdown(): number {
+  const target = join(outDir, "docs");
+  rmSync(target, { recursive: true, force: true });
+  const versions = [
+    { label: "latest", directory: join(ROOT, "docs"), draft: true },
+    ...loadRegistry().releases.map((item) => ({
+      label: item.contract,
+      directory: join(ROOT, "versioned_docs", `version-${item.contract}`),
+      draft: false,
+    })),
+  ];
+  let count = 0;
+  for (const version of versions) {
+    const destination = join(target, version.label);
+    mkdirSync(destination, { recursive: true });
+    const imageDirectory = join(version.directory, "img");
+    if (existsSync(imageDirectory))
+      cpSync(imageDirectory, join(destination, "img"), { recursive: true });
+    for (const file of filesIn(version.directory).filter(
+      (file) =>
+        file.endsWith(".md") &&
+        !relative(version.directory, file)
+          .split(/[\\/]/)
+          .some((part) => part.startsWith("_")),
+    )) {
+      const id = relative(version.directory, file)
+        .replaceAll("\\", "/")
+        .replace(/\.md$/, "");
+      const doc = parseDoc(readFileSync(file, "utf8"), id);
+      const pageUrl = `${SITE}/docs/${version.label}/${id}.md`;
+      const content = readableMarkdown(doc.body, pageUrl);
+      const header = [
+        `<!-- Canonical HTML: ${SITE}/docs/${version.label}/${id} -->`,
+        version.draft
+          ? `<!-- Editable draft. Stable contract: ${contract}. -->`
+          : `<!-- Immutable contract: ${version.label}. -->`,
+        "",
+      ];
+      const output = join(destination, `${id}.md`);
+      mkdirSync(dirname(output), { recursive: true });
+      writeFileSync(
+        output,
+        `${header.join("\n")}${/^# /m.test(content) ? "" : `# ${doc.title}\n\n`}${content}\n`,
+      );
+      count++;
+    }
+  }
+  return count;
 }
-
-main();
+mkdirSync(outDir, { recursive: true });
+writeFileSync(join(outDir, "llms.txt"), `${indexText().trimEnd()}\n`);
+writeFileSync(join(outDir, "llms-full.txt"), `${fullText().trimEnd()}\n`);
+console.log(
+  `Generated llms.txt, llms-full.txt and ${generatePageMarkdown()} Markdown pages; stable ${release.version}.`,
+);

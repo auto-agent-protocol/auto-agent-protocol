@@ -6,6 +6,7 @@ import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { globSync } from "glob";
 import { ROOT } from "../../tools/lib/releases.js";
+import { readableMarkdown } from "../../tools/lib/markdown.js";
 
 const schemas = globSync("spec/latest/schemas/**/*.schema.json", { cwd: ROOT }).map(file => ({ file, schema: JSON.parse(readFileSync(resolve(ROOT, file), "utf8")) }));
 const ajv = new Ajv2020({ strict: false, allErrors: true });
@@ -58,4 +59,16 @@ test("schema examples and defaults satisfy their own published constraints", () 
     });
   }
   assert.ok(checked > 0, "no schema examples audited");
+});
+
+test("readable documentation preserves executable examples and resolves relative reading links", () => {
+  for (const file of globSync("docs/**/*.md", { cwd: ROOT })) {
+    const source = readFileSync(resolve(ROOT, file), "utf8");
+    const page = `https://autoagentprotocol.org/${file.replace(/^docs\//, "docs/latest/")}`;
+    const markdown = readableMarkdown(source, page);
+    const fences = (value: string) => [...value.matchAll(/^[ \t]*```[^\n]*\n[\s\S]*?\n[ \t]*```[ \t]*(?=\n|$)/gm)].map(match => match[0]);
+    assert.deepEqual(fences(markdown), fences(source), `${file}: altered code examples`);
+  }
+  const converted = readableMarkdown("![Distance diagram](../img/geo-search.svg)\n[Search](./inventory-search.md#equipment-needs-evidence)", "https://autoagentprotocol.org/docs/v3.0/skills/inventory-vehicle.md");
+  assert.equal(converted, "![Distance diagram](https://autoagentprotocol.org/docs/v3.0/img/geo-search.svg)\n[Search](https://autoagentprotocol.org/docs/v3.0/skills/inventory-search.md#equipment-needs-evidence)");
 });

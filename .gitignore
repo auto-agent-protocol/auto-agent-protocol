@@ -20,3 +20,6 @@ static/v2.1/
 static/latest/
 static/llms.txt
 static/llms-full.txt
+
+# Readable page representations and their diagram assets.
+static/docs/

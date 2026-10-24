@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { filesIn, hash, loadRegistry, readJson, ROOT, stableRelease } from "./lib/releases.js";
 import { loadPartners } from "./check-partners.js";
@@ -54,6 +54,17 @@ for (const [, contract] of faq.matchAll(/href="\/docs\/(v\d+\.\d+)\//g)) {
 }
 if (!readdirSync(join(build, "docs")).includes("latest")) throw new Error("Production docs/latest alias is missing");
 if (!readdirSync(join(build, "docs")).includes(stable.contract)) throw new Error(`Published docs/${stable.contract} is missing`);
+for (const version of renderedVersions) {
+  for (const doc of version.docs ?? []) {
+    const markdownPath = `${doc.path}.md`;
+    if (!existsSync(join(build, markdownPath))) throw new Error(`Missing readable page ${markdownPath}`);
+    const html = readFileSync(join(build, `${doc.path}.html`), "utf8");
+    const alternate = html.match(/<link\b[^>]*rel="alternate"[^>]*type="text\/markdown"[^>]*>/)?.[0];
+    if (!alternate?.includes(`href="${markdownPath}"`)) throw new Error(`Missing Markdown alternate for ${doc.path}`);
+    const markdown = readFileSync(join(build, markdownPath), "utf8");
+    if (!markdown.includes(`# `) || !markdown.includes(`Canonical HTML: https://autoagentprotocol.org${doc.path}`)) throw new Error(`Invalid readable representation for ${doc.path}`);
+  }
+}
 const latestDocsRoot = join(build, "docs", "latest");
 const latestPages = filesIn(latestDocsRoot).filter(file => file.endsWith(".html"));
 const currentVersion = renderedVersions.find(version => version.name === "current");
