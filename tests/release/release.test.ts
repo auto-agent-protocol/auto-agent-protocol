@@ -180,6 +180,11 @@ test("the PAP 0.2 exception permits only the reviewed 2.0.0 to 2.1.0 specificati
 test("release preparation snapshots latest once and refuses overwrite", async () => {
   const context = fixture();
   try {
+    const bindingFile = join(context.root, "docs/bindings/json-rpc.md");
+    const substantiveNotice = ":::info Protocol guidance\nKeep required transport headers.\n:::";
+    writeFileSync(bindingFile, `${readFileSync(bindingFile, "utf8")}\n${substantiveNotice}\n`);
+    git(context.root, ["add", "docs/bindings/json-rpc.md"]);
+    git(context.root, ["commit", "-qm", "feat: add substantive release fixture guidance"]);
     const candidate = nextRelease(context.root);
     const latestBefore = snapshot(join(context.root, "spec/latest"));
     const docsBefore = snapshot(join(context.root, "docs"));
@@ -202,20 +207,22 @@ test("release preparation snapshots latest once and refuses overwrite", async ()
     assert.ok(new RegExp(header.schema.pattern).test(extensionUri), "released header must accept the pinned extension URI");
     assert.equal(new RegExp(header.schema.pattern).test(extensionUri.replace("autoagentprotocol.", "autoagentprotocolX")), false);
     const releasedDocs = join(context.root, "versioned_docs", `version-${candidate.contract}`);
-    for (const file of ["intro.md", "a2a-profile.md", "discovery.md", "bindings/json-rpc.md", "errors.md", "compatibility/mcp.md"]) {
+    for (const file of ["intro.md", "a2a-profile.md", "discovery.md", "bindings/json-rpc.md", "bindings/mcp.md", "errors.md", "compatibility/mcp.md"]) {
       const editable = readFileSync(join(context.root, "docs", file), "utf8");
       const frozen = readFileSync(join(releasedDocs, file), "utf8");
       assert.match(editable, /aap-draft-only:start/, `${file}: editable scope warning must remain`);
       assert.doesNotMatch(frozen, /aap-draft-only:|Unreleased contract|This editable page describes the planned|draft\.autoagentprotocol\.invalid/, `${file}: draft-only warning leaked into the frozen release`);
-      assert.ok(frozen.includes(extensionUri), `${file}: examples must identify the approved release`);
+      if (editable.includes(`${DRAFT_SITE}/extensions/aap/latest`)) {
+        assert.ok(frozen.includes(extensionUri), `${file}: examples must identify the approved release`);
+      }
     }
     const binding = readFileSync(join(releasedDocs, "bindings/json-rpc.md"), "utf8");
-    assert.ok(binding.includes(":::info A2A v1.0 wire format — the ProtoJSON form"), "unmarked substantive admonitions must not be stripped");
+    assert.ok(binding.includes(substantiveNotice), "unmarked substantive admonitions must not be stripped");
     const discovery = readFileSync(join(releasedDocs, "discovery.md"), "utf8");
     assert.ok(discovery.includes(`https://autoagentprotocol.org/${candidate.contract}/schemas/`), "released schema URLs must be pinned to the approved contract");
     const versioning = readFileSync(join(releasedDocs, "versioning.md"), "utf8");
     const historicalReferences = [...readFileSync(join(context.root, "docs/versioning.md"), "utf8")
-      .matchAll(/https:\/\/autoagentprotocol\.org\/(?:v\d+\.\d+\/schemas\/[a-z.-]+|extensions\/aap\/v\d+\.\d+)/g)]
+      .matchAll(/https:\/\/autoagentprotocol\.org\/(?:v\d+\.\d+\/schemas\/|docs\/v\d+\.\d+\/|extensions\/aap\/v\d+\.\d+)[^\s)]+/g)]
       .map(match => match[0]);
     assert.ok(historicalReferences.length > 0, "historical version references are missing from the audit");
     for (const url of historicalReferences) assert.ok(versioning.includes(url), `historical pinned URL was silently rewritten: ${url}`);
