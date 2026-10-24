@@ -26,7 +26,7 @@ export async function generateTypes(schemasDir: string, outDir: string, version:
     declareExternallyReferenced: true,
     unknownAny: false,
   });
-  const output = `// Auto-generated from JSON Schema — do not edit\n// Auto Agent Protocol ${version}\n\n${declarations}\n`;
+  const output = `// Auto-generated from JSON Schema — do not edit\n// Auto Agent Protocol ${version}\n\n${declarations.trimEnd()}\n`;
   mkdirSync(outDir, { recursive: true });
   writeFileSync(resolve(outDir, "types.d.ts"), output);
   console.log(`Generated ${resolve(outDir, "types.d.ts")}`);
