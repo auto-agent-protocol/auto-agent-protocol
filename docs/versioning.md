@@ -30,8 +30,9 @@ Migrate the implementation and its clients before switching discovery. Keep each
 | MCP | Reference manifest/optional adapter | Implement native Streamable HTTP for both required revisions, actual tools/list and typed success/error results |
 | Discovery | A2A + PAP pair | Add complete AAP params, exact MCP URL, search capabilities, release metadata and dealer `/llms.txt` |
 | Search filters | Flat filters with incomplete behavior discovery | Advertise actual supported keys/sorts; reject unsupported constraints; implement explicit query token rules |
-| Features | Free-text attributes | Add feature vocabulary in facets and source-backed `feature_evidence`; unknown is not absent |
+| Features | Free-text attributes | Add `features_all` (AND), `features_any` (OR), advertised feature vocabulary and source-backed `feature_evidence`; unknown is not absent |
 | Geography | Location context without a radius contract | If advertised, implement `near`, haversine miles, radius filtering and `distance_mi` ordering |
+| Coordinate names — breaking for deployed clients | Some deployment extensions accept `near.lat` / `near.lng`, including in validation-error hints; these were not AAP 2.1 schema fields | Use `near.latitude` / `near.longitude`. Update handlers, client/tool schemas, examples and error hints together; AAP 3.0 rejects the short keys |
 | Pagination | Offset/limit | Required cursor continuation; `limit` 1–100; `total` exact or null; no silent result caps |
 | Search response | Vehicles and page coordinates | Require `next_cursor`, `applied_filters`, effective `sort`; query terms and distance/evidence when applicable |
 | Inventory listings | Some guarantees only in prose | Require eligible `status`, `updated_at` and a stable identifier in search/detail responses |
