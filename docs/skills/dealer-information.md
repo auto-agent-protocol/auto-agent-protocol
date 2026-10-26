@@ -98,11 +98,17 @@ The response wraps a `DealerInformation` object inside the standard AAP response
 | `rooftop.emails[]` | `{ name, value }[]` | no | `value` holds the email address; `name` is an optional label (e.g. "Sales"). |
 | `rooftop.phones[]` | `{ name, value }[]` | no | `value` holds the phone number (e.g. `+14155550100`); `name` is an optional label. |
 | `rooftop.address` | `Address` | no | Physical address. `country` is optional and defaults to `US`. |
-| `rooftop.schedules[]` | object[] | no | Named weekly hours; each entry is `{ name, value }` where `value` maps each weekday to `{ open, close }` (24h `HH:MM`) or `null` when closed. |
+| `rooftop.schedules[]` | object[] | no | Named weekly hours, e.g. `sales`, `service`, or `parts`; each entry is `{ name, value }` where `value` maps each weekday to `{ open, close }` (24h `HH:MM`) or `null` when closed. |
 | `rooftop.timezone` | string | no | IANA timezone identifier (e.g. `America/Los_Angeles`). |
 | `rooftop.notes` | string | no | Free-text notes (e.g. "closed major holidays"). |
 | `rooftop.fees[]` | `{ name, amount }[]` | no | Complete default schedule of mandatory, non-government dealer charges and required add-ons. Omitted = unknown; `[]` = affirmatively none. Publisher/discovery metadata only; consumers do not join it onto vehicles. |
 | `rooftop.capabilities[]` | string[] | no | Service capabilities, e.g. `sales`, `service`, `parts`, `financing`, `trade_in`, `delivery`. Rooftops MAY also advertise which vehicle types they sell with tags such as `motorcycle_sales` or `powersports`, so buyer agents know a rooftop's `vehicle_type` mix before searching. |
+
+### Department schedules
+
+A rooftop can publish separate schedules for its sales, service, and parts departments. Use `name: "parts"` for parts department hours, with the same weekly `value` structure used by `sales` and `service`. Each department can have different opening and closing times; times are local to the rooftop's `timezone`.
+
+Schedule names are free-text labels, so other department names are also allowed. Schedules remain optional. A rooftop can advertise the `parts` capability without publishing a parts schedule; that capability alone does not specify its hours.
 
 ### How rooftop fees are used
 
@@ -164,6 +170,18 @@ A complete response from a dealer group with two rooftops:
               "thursday":  { "open": "07:00", "close": "18:00" },
               "friday":    { "open": "07:00", "close": "18:00" },
               "saturday":  { "open": "08:00", "close": "14:00" },
+              "sunday":    null
+            }
+          },
+          {
+            "name": "parts",
+            "value": {
+              "monday":    { "open": "08:00", "close": "17:00" },
+              "tuesday":   { "open": "08:00", "close": "17:00" },
+              "wednesday": { "open": "08:00", "close": "17:00" },
+              "thursday":  { "open": "08:00", "close": "17:00" },
+              "friday":    { "open": "08:00", "close": "17:00" },
+              "saturday":  { "open": "08:00", "close": "12:00" },
               "sunday":    null
             }
           }

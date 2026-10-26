@@ -7,6 +7,10 @@ versioning policy is described in the
 
 ## [Unreleased]
 
+### Added
+
+- Documented `parts` department schedules alongside `sales` and `service` in the `dealer.information` schema and documentation, with separate weekly hours in the sample response. Schedule names remain free text and schedules remain optional; payload validation is unchanged.
+
 ## [2.1.0] — 2026-10-23
 
 This release upgrades the PAP profile to draft 0.2, pinned to upstream commit `39b35bdf240fc07f157d6ca4e29b5a41d4b36b5d`. It changes discovery and authentication semantics; deployments must migrate before advertising the new contract. A2A v1.0 behavior, automotive payloads and bridge version `1` are unchanged. The 2.1.0 label is an explicit exception to the major-release policy for this PAP transition; it does not imply PAP 0.1 compatibility. The compatibility report retains every detected breaking change.
