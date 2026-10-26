@@ -112,12 +112,16 @@ test("header normalization preserves supplied credentials and validates encoded 
     headers.set("Mcp-Name", value);
     assert.equal(mcpRequestHeaders(headers, request).error?.code, -32020);
   }
-  for (const name of ["検索", " padded ", "line\nbreak", "=?base64?literal?="]) {
+  for (const name of ["検索", " padded ", "line\nbreak", "=?base64?literal?=", "\uFEFFname"]) {
     const named = { ...request, params: { ...request.params, name } };
     const inferred = mcpRequestHeaders(new Headers(), named);
     assert.equal(inferred.error, undefined);
     assert.equal(inferred.headers.get("Mcp-Name"), `=?base64?${Buffer.from(name).toString("base64")}?=`);
     assert.equal(mcpRequestHeaders(inferred.headers, named).error, undefined, "inferred headers must pass the same validation when supplied");
+  }
+  for (const [name, value] of [["\uFFFD", "=?base64?/w==?="], ["\uFFFD\uFFFD", "=?base64?wK8=?="], ["café", "café"]]) {
+    const named = { ...request, params: { ...request.params, name } };
+    assert.equal(mcpRequestHeaders(new Headers({ "Mcp-Name": value }), named).error?.code, -32020, "malformed UTF-8 and unencoded non-ASCII header values must be rejected");
   }
   assert.equal(mcpRequestHeaders(new Headers(), { ...request, method: "tools/call\ninjected" }).error?.code, -32020);
 });

@@ -52,10 +52,14 @@ export function mcpRequestHeaders(input: Headers, request: McpRequest, negotiate
     let decoded = actual;
     if (name === "Mcp-Name" && actual?.startsWith("=?base64?") && actual.endsWith("?=")) {
       const encoded = actual.slice(9, -2);
-      decoded = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(encoded)
-        ? Buffer.from(encoded, "base64").toString("utf8") : null;
+      decoded = null;
+      if (/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(encoded)) {
+        try {
+          decoded = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(Buffer.from(encoded, "base64"));
+        } catch { /* Invalid UTF-8 cannot represent the request's name. */ }
+      }
     }
-    if (actual !== null && decoded !== expected) {
+    if (actual !== null && (/[^\x09\x20-\x7e]/.test(actual) || decoded !== expected)) {
       return { headers, error: { code: -32020, message: `${name} conflicts with the request body` } };
     }
     if (current && actual === null) {
