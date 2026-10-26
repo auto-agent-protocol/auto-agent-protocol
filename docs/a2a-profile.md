@@ -1,7 +1,7 @@
 ---
 sidebar_position: 3
 title: A2A profile
-description: Typed automotive DataParts in A2A 1.0 SendMessage, with explicit extension activation.
+description: Typed automotive DataParts in A2A 1.0 SendMessage, with optional redundant headers on contract-pinned AAP endpoints.
 ---
 
 # A2A profile
@@ -34,7 +34,7 @@ The required extension URI for this contract is:
 https://draft.autoagentprotocol.invalid/extensions/aap/latest
 ```
 
-The buyer activates that exact URI with `A2A-Extensions` on every request. The server MUST enforce activation before executing a skill. An unknown or older URI does not select this contract, and an error hint does not make an unsupported client compatible.
+Portable A2A clients activate that exact URI with `A2A-Extensions`. A contract-pinned AAP endpoint also accepts omission of `A2A-Version` and `A2A-Extensions`, selecting its configured A2A 1.0 interface and exact AAP contract before dispatch. Supplied conflicting values still fail before a skill executes. This [AAP compatibility behavior](./bindings/json-rpc.md#request-headers) extends strict upstream header handling; it does not change the required automotive semantics or allow version fallback.
 
 ## Typed data, standard envelope
 

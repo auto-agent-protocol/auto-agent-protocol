@@ -102,7 +102,7 @@ Cache discovery using accurate HTTP cache headers, ETags and reasonable lifetime
 Every published endpoint and redirect MUST use HTTPS. Loopback HTTP is allowed only in a local development harness. Do not embed credentials in discovery URLs.
 
 - **MCP:** public inventory reads are recommended. Protected access follows MCP OAuth discovery and the endpoint's declared authorization policy.
-- **A2A:** follow `securitySchemes` / `securityRequirements`; every call activates the selected extension using `A2A-Extensions` and sends `A2A-Version: 1.0`. If an interface declares `tenant`, echo it in every request.
+- **A2A:** follow `securitySchemes` / `securityRequirements`. Portable clients send `A2A-Version: 1.0` and the exact `A2A-Extensions` URI; a [contract-pinned AAP endpoint](./bindings/json-rpc.md#request-headers) also accepts their omission. If an interface declares `tenant`, echo it in every request.
 - **PAP OpenAPI:** use a verified PAP Session Token and DPoP, including for signed-out shoppers.
 
 A link does not authorize credential forwarding. Authenticate to the selected resource under its own rules. See [migration](./versioning.md#for-implementers) for separate version-specific cards and endpoints, and [conformance](./conformance.md) for runtime acceptance.

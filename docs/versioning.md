@@ -28,6 +28,7 @@ Migrate the implementation and its clients before switching discovery. Keep each
 | Area | AAP 2.1 | AAP 3.0 action |
 |---|---|---|
 | MCP | Reference manifest/optional adapter | Implement native Streamable HTTP for both required revisions, actual tools/list and typed success/error results |
+| Request headers | A2A version and extension headers mandatory | Accept omitted A2A headers on contract-pinned endpoints and omitted MCP mirror headers when the body or this client's negotiated session supplies the value. Keep supplied-value conflict checks and all authentication requirements; see the binding pages for this AAP compatibility extension |
 | PAP | Draft 0.2 authentication and discovery | Migrate to draft 0.3 as detailed [below](#pap-03-migration); changing the version label is insufficient |
 | Discovery | A2A + PAP pair | Add complete AAP params, exact MCP URL, search capabilities, release metadata and dealer `/llms.txt` |
 | Search filters | Empty arrays, repeated values and empty queries can validate | Advertise supported keys/sorts; deduplicate arrays and omit empty optional filters. Reject `make: []`, `make: ["Honda", "Honda"]`, empty/whitespace-only `query`, unknown keys and unsupported constraints; implement explicit query token rules |
@@ -131,4 +132,4 @@ After reviewing the compatibility report, run without `--dry-run` from a clean t
 
 ## A2A version handling
 
-Send `A2A-Version: 1.0` and the exact `A2A-Extensions` URI as headers on every A2A call. Under this AAP profile, a missing version returns -32009. A2A separately defines an explicitly empty version as `0.3`; reject it when unsupported. Do not confuse an upstream protocol version with the selected AAP extension. See [request headers](./bindings/json-rpc.md#request-headers).
+Portable A2A clients send `A2A-Version: 1.0` and the exact `A2A-Extensions` URI. AAP 3.0 additionally accepts their omission on a contract-pinned endpoint, using its configured A2A 1.0 interface and AAP contract. Supplied values still take effect: unsupported versions return -32009, and an explicitly empty version means `0.3`, not a request for a default. This compatibility extension does not change strict upstream client requirements or permit automatic contract fallback. See [request headers](./bindings/json-rpc.md#request-headers).

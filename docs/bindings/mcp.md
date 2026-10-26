@@ -23,7 +23,7 @@ An AAP 3.0 MCP endpoint MUST implement Streamable HTTP for **MCP 2026-07-28** an
 |---|---|---|
 | Start | Optional client call to mandatory `server/discover` | `initialize`, then `notifications/initialized` |
 | Request metadata | Protocol version and client capabilities required; client info recommended, optional | Version, capabilities and client info supplied during initialization |
-| HTTP headers | `MCP-Protocol-Version`, `Mcp-Method`, and `Mcp-Name` for tool calls | Negotiated `MCP-Protocol-Version` after initialization |
+| HTTP metadata | Standard clients send `MCP-Protocol-Version`, `Mcp-Method`, and `Mcp-Name` for tool calls; AAP accepts their omission when the body supplies the values | Negotiated `MCP-Protocol-Version`; may be omitted when this client's validated session supplies it |
 | Completed results | `resultType: "complete"` | No `resultType` field required |
 | Protocol sessions | None | Optional `Mcp-Session-Id` |
 
@@ -41,7 +41,7 @@ Publish a public HTTPS MCP URL on the dealership's own discovery surfaces. It ma
 
 Do not guess `/mcp` or invent a universal well-known MCP path. Discovery files MUST identify the same dealership, AAP contract and implemented skill subset. See [discovery](../discovery.md).
 
-The endpoint MUST accept POST. Each request uses `Content-Type: application/json` and `Accept: application/json, text/event-stream`. Current clients MUST handle either JSON or request-scoped SSE responses. A server may use JSON for every AAP operation. Validate a supplied `Origin` against the deployment's allowed origins; reject invalid origins with HTTP 403. A missing browser Origin header is not, by itself, evidence of an unauthorized server-side client.
+The endpoint MUST accept POST with `Content-Type: application/json`. Standard MCP clients send `Accept: application/json, text/event-stream` and handle either JSON or request-scoped SSE responses. AAP endpoints MUST also serve synchronous operations as JSON when `Accept` is absent, is `*/*`, or accepts JSON without SSE. Do not reject such a request solely for omitting SSE from `Accept`; honor explicit media exclusions and return 406 if no supported response type is acceptable. Validate a supplied `Origin` against the deployment's allowed origins; reject invalid origins with HTTP 403. A missing browser Origin header is not, by itself, evidence of an unauthorized server-side client.
 
 ## Discover and list tools
 
@@ -140,7 +140,7 @@ A successful current result contains `resultType: "complete"`, `isError: false`,
 
 The output schema's success/error union keeps structured failures valid. `isError` MUST agree with the payload: true for `aap.error`, false for a successful skill response. Include request paths and a concrete correction in `details`; never include credentials, customer values or internal stack traces.
 
-In the current revision, mismatched or missing required metadata headers return HTTP 400 with `HeaderMismatch` (`-32020`). An unsupported protocol date returns HTTP 400 with `UnsupportedProtocolVersionError` (`-32022`) and supported versions. The body and mirrored headers MUST agree. Correct the request instead of interpreting these errors as a signal to drop into an older protocol.
+Supplied metadata headers that conflict with the body return HTTP 400 with `HeaderMismatch` (`-32020`). The [AAP ingress rules](#keep-the-client-requirements-small) below allow omission of redundant headers. An unsupported or unresolvable protocol date returns HTTP 400 with `UnsupportedProtocolVersionError` (`-32022`) and supported versions. Required current body metadata still applies. Correct the request instead of interpreting these errors as a signal to drop into an older protocol.
 
 ## Host schema compatibility
 
@@ -152,7 +152,7 @@ Repository checks compare the generated and canonical validators on valid and ma
 
 ## Existing clients
 
-For 2025-11-25, accept `initialize` with `protocolVersion`, `clientInfo` and `capabilities`; return that supported version, `serverInfo` and `capabilities.tools`. Accept `notifications/initialized` with HTTP 202 and no body. Subsequent requests send the negotiated protocol header. Keep tool arguments, schemas and AAP results identical to the current binding.
+For 2025-11-25, accept `initialize` with `protocolVersion`, `clientInfo` and `capabilities`; return that supported version, `serverInfo` and `capabilities.tools`. Accept `notifications/initialized` with HTTP 202 and no body. Subsequent requests send the negotiated protocol header, or may omit it when the server can recover the version from this client's validated session. A stateless request with no version information must supply the header. Keep tool arguments, schemas and AAP results identical to the current binding.
 
 A legacy server may issue an MCP session ID. It is transport state, never a replacement for authorization or a PAP Session Token. If issued, enforce its lifecycle under the legacy specification. The current 2026-07-28 path does not create protocol sessions. Do not require legacy initialization or a session ID on a current request.
 
@@ -162,7 +162,18 @@ Use the upstream [HTTP compatibility rules](https://modelcontextprotocol.io/spec
 
 Public MCP reads need no A2A activation headers, PAP Session, DPoP proof or customer sign-in. Require authorization only when the endpoint advertises it. Validate `Origin` when supplied; non-browser clients need not invent it. For legacy clients, prefer stateless operation without issuing `Mcp-Session-Id` unless a deployment actually needs transport sessions. Modern MCP has no protocol session ID.
 
-The [modern HTTP rules](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http#standard-request-headers) require `MCP-Protocol-Version`, `Mcp-Method`, and `Mcp-Name` on tool calls; `Mcp-Name` is unnecessary for `tools/list` and `server/discover`. These required headers cannot be made optional while claiming that revision. `Content-Type: application/json` and an `Accept` header supporting both JSON and SSE complete the ordinary POST. AAP adds no custom header or `x-mcp-header` parameter mirroring requirement. Version negotiation selects the applicable modern or legacy rules; never apply modern header requirements to a valid legacy request.
+The [modern HTTP rules](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http#standard-request-headers) require mirror headers from conforming MCP clients. AAP adds explicit compatibility ingress so those redundant copies do not block a request whose body already supplies the same information:
+
+| Header | AAP behavior when absent | Behavior when supplied |
+|---|---|---|
+| `MCP-Protocol-Version` | Use the current request's `params._meta["io.modelcontextprotocol/protocolVersion"]`, or this client's negotiated legacy session version | Must agree with the body or negotiated context and select a supported revision |
+| `Mcp-Method` | Derive from JSON-RPC `method` | Must match `method` |
+| `Mcp-Name` on `tools/call` | Derive from `params.name` | Decode standard Base64 sentinel encoding when used, then require an exact match |
+| `Accept` | Return JSON for synchronous AAP operations | JSON-only is accepted; respect explicit media exclusions |
+
+AAP servers MUST accept these omissions whenever the listed source unambiguously supplies the value. Normalize metadata before routing or policies that use it, then run the same envelope, schema, authorization and tenant checks. Never overwrite a supplied conflict, infer a version from another client's session, or treat absent credentials as a public grant. Keep current body version/capability metadata required; do not guess a protocol version when neither the body, header nor the client's negotiated context provides one.
+
+These omission rules are an AAP compatibility extension, not the strict upstream MCP wire requirements. Portable MCP clients should continue sending the standard headers, as the examples do. An adapter to a strict MCP implementation fills the omitted copies before forwarding. AAP adds no custom header or `x-mcp-header` parameter mirroring requirement. Modern mirror requirements never apply to a valid legacy request. The [reference normalization helpers](https://github.com/auto-agent-protocol/auto-agent-protocol/blob/main/tools/lib/request-headers.ts) and HTTP contract tests cover both accepted omissions and rejected conflicts; deployed endpoints must implement and verify this behavior too.
 
 ## Public reads and PAP sessions
 

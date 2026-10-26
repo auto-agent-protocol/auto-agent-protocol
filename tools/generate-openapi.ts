@@ -139,17 +139,17 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
               {
                 name: "A2A-Version",
                 in: "header",
-                required: true,
+                required: false,
                 description:
-                  "A2A protocol version the client speaks, `Major.Minor` (A2A Sections 3.2.6 and 9.2). A2A Section 3.6.2 interprets an empty value as `0.3`; this does not select `1.0`. AAP additionally requires rejection of a missing version header with `VersionNotSupportedError` (-32009). An unsupported version is also rejected with -32009. When multiple checks fail, no error precedence is prescribed.",
+                  "Portable A2A clients send 1.0. On this contract-pinned AAP endpoint, omission selects the configured A2A 1.0 interface through AAP compatibility ingress. Explicit empty or unsupported values still return VersionNotSupportedError (-32009); they are never overwritten. This omission behavior extends strict upstream A2A header handling.",
                 schema: { type: "string", const: "1.0" },
               },
               {
                 name: "A2A-Extensions",
                 in: "header",
-                required: true,
+                required: false,
                 description:
-                  "Comma-separated extension URIs the client activates. The AAP profile extension is declared `required: true` on the agent card, so a request that does not activate it is answered with `ExtensionSupportRequiredError` (JSON-RPC -32008), per A2A Section 3.3.4.",
+                  `Portable A2A clients send the exact AAP extension URI as a comma-separated list member. On this contract-pinned endpoint, omission selects ${manifest.extension_uri} through AAP compatibility ingress. A supplied list must contain that exact URI or return ExtensionSupportRequiredError (-32008). The required AAP payload, consent and idempotency rules still apply.`,
                 schema: { type: "string", pattern: `(^|,)\\s*${manifest.extension_uri.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*(,|$)` },
               },
             ],

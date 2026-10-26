@@ -135,7 +135,7 @@ These are the A2A numeric mappings. MCP keeps them as typed tool errors; PAP map
 | A2A error | JSON-RPC | Cause |
 |---|---|---|
 | `ExtensionSupportRequiredError` | -32008 | The exact AAP extension was not activated. |
-| `VersionNotSupportedError` | -32009 | Missing/unsupported `A2A-Version` under the AAP profile. |
+| `VersionNotSupportedError` | -32009 | Supplied `A2A-Version` is unsupported; an explicitly empty value means `0.3`. Omission on a contract-pinned AAP endpoint uses `1.0`. |
 | `ContentTypeNotSupportedError` | -32005 | Unsupported input media type, or no acceptable output alternative. |
 | `UnsupportedOperationError` | -32004 | Unsupported A2A operation. |
 | `PushNotificationNotSupportedError` | -32003 | Push notification operations are not supported. |
@@ -168,7 +168,7 @@ An activation error MUST name both the exact required extension URI and `A2A-Ext
 }
 ```
 
-A buyer retries with that header only if it already implements the advertised contract. An error hint cannot implement the extension for the client. The server MUST check activation before skill execution; an SDK import or card flag alone does not enforce it.
+A buyer retries with that header only if it already implements the advertised contract. An error hint cannot implement the extension for the client. On a contract-pinned AAP endpoint, a missing header selects the configured contract; a supplied conflicting list still fails. The server MUST resolve and validate the contract before skill execution; an SDK import or card flag alone does not enforce it.
 
 ## SDK error handling
 

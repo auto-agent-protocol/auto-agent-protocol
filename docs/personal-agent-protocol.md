@@ -181,7 +181,7 @@ AAP standardizes these routes relative to the deployment's published API base. A
 | `/skills/inventory.vehicle` | `inventory.vehicle.request` | `inventory.vehicle.response` |
 | `/skills/lead.submit` | `lead.submit.request` | `lead.submit.response` |
 
-A request `type` MUST match the operation selected by the path. Publish an operation for every AAP skill on the paired Agent Card, and no others under these standard skill identifiers. Schemas and the `x-aap-extension` OpenAPI field MUST identify the same AAP contract as that card. Poppy OpenAPI clients do not need `A2A-Version` or `A2A-Extensions` headers; A2A clients still MUST send both on their own binding.
+A request `type` MUST match the operation selected by the path. Publish an operation for every AAP skill on the paired Agent Card, and no others under these standard skill identifiers. Schemas and the `x-aap-extension` OpenAPI field MUST identify the same AAP contract as that card. Poppy OpenAPI clients do not need `A2A-Version` or `A2A-Extensions` headers. Their optional use on a contract-pinned A2A endpoint is described in the [A2A binding](./bindings/json-rpc.md#request-headers).
 
 ```http
 POST https://demo-toyota.example.com/poppy/skills/inventory.search

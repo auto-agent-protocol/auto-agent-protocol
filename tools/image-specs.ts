@@ -69,8 +69,8 @@ export const imageSpecs = {
   "jsonrpc-envelope": {
     eyebrow: "A2A WIRE FORMAT",
     title: "One operation carries every automotive skill.",
-    description: "JSON-RPC SendMessage wraps an A2A Message and a typed AAP DataPart. HTTP headers select A2A 1.0 and the exact AAP extension URI.",
-    takeaway: "Activate the selected AAP extension on every call. Keep its URI exact.",
+    description: "JSON-RPC SendMessage wraps an A2A Message and a typed AAP DataPart. Optional HTTP headers confirm the protocol and contract selected by a pinned AAP endpoint.",
+    takeaway: "Pinned AAP endpoints infer omitted headers. Supplied values must match the exact contract.",
   },
   "discovery-flow": {
     eyebrow: "DEALER-DOMAIN DISCOVERY",

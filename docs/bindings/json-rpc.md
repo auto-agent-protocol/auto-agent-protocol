@@ -58,11 +58,13 @@ A2A-Version: 1.0
 A2A-Extensions: https://draft.autoagentprotocol.invalid/extensions/aap/latest
 ```
 
-The selected Agent Card's authorization requirements also apply.
+The selected Agent Card's authorization requirements also apply. Portable A2A clients should send both headers as shown. AAP makes them **optional on a contract-pinned endpoint**: its URL and configuration already select one A2A 1.0 interface and one exact AAP contract.
 
-- `A2A-Version` is mandatory under this AAP profile. Missing or unsupported versions return `VersionNotSupportedError` (-32009) before skill execution. Under A2A, an explicitly empty value means `0.3`; reject it when unsupported. Do not infer `1.0`.
-- `A2A-Extensions` MUST contain the card's exact AAP URI as a comma-separated list member. Missing activation returns `ExtensionSupportRequiredError` (-32008). Unknown unrelated extensions are ignored; a different AAP version is not a match.
-- A query parameter does not replace either header. A2A version and extension validation have no mandated precedence when both fail.
+- If `A2A-Version` is absent, the ingress MUST use the endpoint's configured `1.0`. A supplied unsupported value returns `VersionNotSupportedError` (-32009) before skill execution. An explicitly empty value retains A2A's `0.3` meaning and is rejected when unsupported.
+- If `A2A-Extensions` is absent, the ingress MUST select the endpoint's exact AAP URI. If supplied, its comma-separated list MUST contain that exact URI or return `ExtensionSupportRequiredError` (-32008). Unknown unrelated extensions are ignored; a different AAP version is not a match.
+- Apply these defaults before dispatch, and validate the full AAP envelope, payload, consent, authorization and tenant. An endpoint serving ambiguous contract versions cannot infer a selection. Query parameters do not override headers, and supplied values MUST NOT be silently replaced.
+
+This is an explicit AAP compatibility extension to strict upstream A2A header handling. A request using these omissions is accepted by this AAP ingress; it is not a promise that an arbitrary A2A server accepts it. Normalize the inferred values before forwarding to a strict A2A implementation. The Agent Card still declares the automotive extension `required: true`, and clients still implement its complete semantics. Header omission never selects a different contract or grants permission.
 
 Servers SHOULD echo activated extensions in the response `A2A-Extensions` header. An activation failure MUST name the exact URI and header in its message and standard ErrorInfo metadata; see [recovery instructions](../errors.md#activation-recovery).
 

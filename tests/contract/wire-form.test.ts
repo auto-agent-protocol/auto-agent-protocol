@@ -245,10 +245,17 @@ test("generated error details validate the reachable AAP component without swall
   assert.ok(response(envelope), "unknown non-AAP error details stay forward compatible");
 });
 
-test("generated extension headers accept exact list members and reject lookalikes", async () => {
+test("generated A2A headers are optional at AAP ingress but supplied values must select the exact contract", async () => {
   const doc = await openapi();
   const uri = parseYaml(readFileSync(resolve(ROOT, "spec/latest/skills.yaml"), "utf8")).extension_uri as string;
-  const schema = doc.paths["/"].post.parameters.find((p: any) => p.name === "A2A-Extensions").schema;
+  const parameters = doc.paths["/"].post.parameters;
+  for (const name of ["A2A-Version", "A2A-Extensions"]) {
+    assert.equal(parameters.find((p: any) => p.name === name).required, false, `${name} is inferred only when omitted`);
+  }
+  const version = new Ajv2020().compile(parameters.find((p: any) => p.name === "A2A-Version").schema);
+  assert.equal(version("1.0"), true);
+  for (const value of ["", "0.3", "2.0"]) assert.equal(version(value), false);
+  const schema = parameters.find((p: any) => p.name === "A2A-Extensions").schema;
   const validate = new Ajv2020().compile(schema);
   for (const value of [uri, ` ${uri} `, `https://example.com/ext, ${uri}`, `${uri},https://example.com/ext`]) {
     assert.equal(validate(value), true, value);
