@@ -41,6 +41,7 @@
       "additionalProperties": false
     },
     "day_hours": {
+      "title": "DayHours",
       "description": "A single day's hours — {open, close} in 24h HH:MM (rooftop local time) or null when closed.",
       "oneOf": [
         {

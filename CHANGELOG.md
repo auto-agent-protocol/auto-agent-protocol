@@ -17,7 +17,11 @@ AAP becomes a shared automotive contract with native MCP, A2A and PAP interfaces
 - Standardize coordinates as `filters.near.latitude` and `filters.near.longitude`. Deployed `lat`/`lng` extensions and the validation errors teaching those names require a breaking client/server migration; the short keys are not 3.0 aliases.
 - Require listing identity, availability and source update timestamps. Reject unsupported filters and sorts rather than silently broadening a request.
 - Require lead idempotency keys and contact details for every permitted channel. Make appointment confirmation times and alternative times explicit, with consistent partial-success behavior.
+- Resolve aggregate seller IDs through `dealer.information` before consent; return `DEALER_NOT_FOUND` for an inaccessible or unknown seller.
 - Document separate `parts` department schedules alongside `sales` and `service`, with a complete sample. Department names remain free text and schedules remain optional.
+- Replace the ambiguous `duplicate` lead status with `replayed: true` alongside the complete original outcome, including booking details.
+- Require the effective search page size and millisecond retry hints; document stricter arrays/queries and preserve the public `DayHours` export. General first-page examples omit optional offsets.
+- Nest MCP input constraints below the root without changing validation, document affected-host limitations, and validate every canonical schema URL in the native catalog metadata.
 - Clarify fee-inclusive price semantics and ADF receiver mappings with separate retained consent and idempotency records.
 - Verify official current and legacy MCP clients, official A2A wire exchanges, pinned upstream MCP schemas, PAP discovery and authentication contracts, and copyable documentation examples.
 - Generate complete TypeScript declarations in one shared naming scope; preserve nested result fields and required inventory listing identifiers, availability and timestamps.

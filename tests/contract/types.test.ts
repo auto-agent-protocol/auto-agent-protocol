@@ -26,6 +26,9 @@ test("generated declarations typecheck real examples and retain required automot
     assert.ok(assignments.length >= 37, "Expected the complete typed example set");
     writeFileSync(join(directory, "consumer.ts"), `import type * as AAP from "./types.js";
 ${assignments.join("\n")}
+const publicDayHours: AAP.DayHours = { open: "09:00", close: "18:00" };
+const closedDay: AAP.DayHours = null;
+const weeklySchedule: AAP.WeeklyHours = { monday: publicDayHours, sunday: closedDay };
 // @ts-expect-error Required search result fields cannot disappear into an index signature.
 const emptySearch: AAP.InventorySearchResponse["data"] = {};
 // @ts-expect-error A total is numeric or unknown, never text.

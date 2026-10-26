@@ -29,17 +29,20 @@ Migrate the implementation and its clients before switching discovery. Keep each
 |---|---|---|
 | MCP | Reference manifest/optional adapter | Implement native Streamable HTTP for both required revisions, actual tools/list and typed success/error results |
 | Discovery | A2A + PAP pair | Add complete AAP params, exact MCP URL, search capabilities, release metadata and dealer `/llms.txt` |
-| Search filters | Flat filters with incomplete behavior discovery | Advertise actual supported keys/sorts; reject unsupported constraints; implement explicit query token rules |
+| Search filters | Empty arrays, repeated values and empty queries can validate | Advertise supported keys/sorts; deduplicate arrays and omit empty optional filters. Reject `make: []`, `make: ["Honda", "Honda"]`, empty/whitespace-only `query`, unknown keys and unsupported constraints; implement explicit query token rules |
 | Features | Free-text attributes | Add `features_all` (AND), `features_any` (OR), advertised feature vocabulary and source-backed `feature_evidence`; unknown is not absent |
 | Geography | Location context without a radius contract | If advertised, implement `near`, haversine miles, radius filtering and `distance_mi` ordering |
 | Coordinate names — breaking for deployed clients | Some deployment extensions accept `near.lat` / `near.lng`, including in validation-error hints; these were not AAP 2.1 schema fields | Use `near.latitude` / `near.longitude`. Update handlers, client/tool schemas, examples and error hints together; AAP 3.0 rejects the short keys |
 | Pagination | Offset/limit | Required cursor continuation; `limit` 1–100; `total` exact or null; no silent result caps |
-| Search response | Vehicles and page coordinates | Require `next_cursor`, `applied_filters`, effective `sort`; query terms and distance/evidence when applicable |
+| Search response | `data.limit` is optional | Always return the effective `data.limit`, even when the client omitted it, plus `next_cursor`, `applied_filters` and effective `sort`; include query terms and distance/evidence when applicable |
+| Aggregate seller | Opaque `dealer_id` without a lookup | Expose `dealer.information` with a `dealer_id` selector; echo the same ID and actual seller profile before consent. Parameterless dealer-scoped requests remain valid |
 | Inventory listings | Some guarantees only in prose | Require eligible `status`, `updated_at` and a stable identifier in search/detail responses |
-| Lead retries | Optional key | Require `idempotency_key`; atomic deduplication for at least 24 hours and correlated callers across bindings |
+| Lead retries | Optional key; `duplicate` can replace the outcome | Require `idempotency_key`; retain atomic deduplication for at least 24 hours. Replay the complete original result with `data.replayed: true`, preserving `received`/`rejected`, appointment details and message. `status: "duplicate"` is removed |
 | Contact channels | Consent declaration | Require matching contact data and an authorized preferred channel; reject unusable grants before delivery |
 | Appointment outcome | Some conditions only described | Enforce time on `confirmed`, alternatives on `proposed`, and no booking on a rejected lead |
-| Errors | Existing automotive vocabulary | Add `UNSUPPORTED_FILTER`, `UNSUPPORTED_SORT`, `INVALID_CURSOR`; expose usable diagnostics and retry timing |
+| Errors | Existing automotive vocabulary; retry timing optional and may use seconds | Add `DEALER_NOT_FOUND`, `UNSUPPORTED_FILTER`, `UNSUPPORTED_SORT`, `INVALID_CURSOR`. `RATE_LIMITED` requires `details.retry_after_ms`; multiply seconds by 1,000. `retry_after_seconds` alone is insufficient. HTTP 429 also requires `Retry-After` |
+
+The public `DayHours` and `WeeklyHours` TypeScript exports are retained. `DayHours` remains `{open, close} | null`; consumers keep their existing imports.
 
 Pricing semantics, five canonical skill IDs, A2A 1.0 wire form, PAP 0.2 identity/DPoP and discovery bridge `1` remain. Do not weaken authentication to make a client with missing credentials appear compatible.
 
