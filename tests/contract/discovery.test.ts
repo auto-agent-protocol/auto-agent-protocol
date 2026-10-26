@@ -59,6 +59,7 @@ test("cross-document checks catch declarations that JSON Schema cannot compare",
     (card: any) => card.skills.push(card.skills[0]),
     (card: any) => Object.assign(params(card).skills["inventory.search"].capabilities, { default_limit: 60, max_limit: 50 }),
     (card: any) => params(card).skills["inventory.search"].capabilities.sort_fields = ["year"],
+    (card: any) => Object.assign(params(card).skills["inventory.search"].capabilities, { currencies: ["CAD"], default_currency: "USD" }),
     (card: any) => params(card).llms_txt = "https://another-dealer.example/llms.txt",
     (card: any) => params(card).poppy = "https://another-dealer.example/.well-known/poppy.json",
     (card: any, poppy: any) => poppy.extensions["autoagentprotocol.org/aap"].aap_version = "2.1.0",
@@ -76,4 +77,21 @@ test("cross-document checks catch declarations that JSON Schema cannot compare",
   const mismatched = deployedTools(card);
   mismatched.find((tool: any) => tool.name === "aap_inventory_search")._meta["autoagentprotocol.org/aap"].capabilities = { ...params(card).skills["inventory.search"].capabilities, max_limit: 50 };
   assert.ok(checkDiscovery(card, read("poppy"), manifest, cardUrl, mismatched).some(error => error.includes("capabilities must agree")));
+});
+
+test("discovery compares effective currency and unit defaults across bindings", () => {
+  const card = read("agent-card"), capabilities = params(card).skills["inventory.search"].capabilities;
+  const tools = deployedTools(card);
+  const metadata = tools.find((tool: any) => tool.name === "aap_inventory_search")._meta["autoagentprotocol.org/aap"];
+  metadata.capabilities = { ...capabilities };
+  for (const key of ["currencies", "default_currency", "default_mileage_unit"]) delete metadata.capabilities[key];
+  assert.deepEqual(checkDiscovery(card, read("poppy"), manifest, cardUrl, tools), [], "absent USD/mi defaults match explicit ones");
+  capabilities.currencies = ["USD", "CAD"];
+  metadata.capabilities.currencies = ["CAD", "USD"];
+  assert.deepEqual(checkDiscovery(card, read("poppy"), manifest, cardUrl, tools), [], "supported currency order is immaterial");
+  metadata.capabilities.default_currency = "CAD";
+  assert.ok(checkDiscovery(card, read("poppy"), manifest, cardUrl, tools).some(error => error.includes("capabilities must agree")));
+  metadata.capabilities.default_currency = "USD";
+  metadata.capabilities.default_mileage_unit = "km";
+  assert.ok(checkDiscovery(card, read("poppy"), manifest, cardUrl, tools).some(error => error.includes("capabilities must agree")));
 });

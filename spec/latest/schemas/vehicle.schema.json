@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/vehicle.schema.json",
   "title": "Vehicle",
-  "description": "Shared vehicle shape for listings, vehicle_of_interest and trade_in. Inventory and vehicle_of_interest use condition new, used or cpo; trade_in uses excellent, good, fair or poor. Inventory requires an available, intransit or pending status, an identifier and updated_at. Out-of-stock units are omitted. Context schemas enforce these constraints. Prices are integers in whole US dollars. price includes mandatory dealer charges and excludes only government-required consumer charges; fee itemizations are already included. Optional vehicle_type defaults to car; motorcycles, trailers, RVs and other units use relevant fields only. Electric range, battery and charging fields apply across vehicle types. Free-text features are descriptive; feature_evidence supports verified equipment filtering. Additional inventory attributes remain allowed.",
+  "description": "Shared vehicle shape for listings, vehicle_of_interest and trade_in. Inventory and vehicle_of_interest use condition new, used or cpo; trade_in uses excellent, good, fair or poor. Inventory requires an available, intransit or pending status, an identifier and updated_at. Out-of-stock units are omitted. Context schemas enforce these constraints. Prices are integers in whole units of currency (USD when omitted); mileage uses mileage_unit (mi when omitted). Neither country nor request context overrides these per-vehicle defaults. price includes mandatory dealer charges and excludes only government-required consumer charges; fee itemizations are already included. Optional vehicle_type defaults to car; motorcycles, trailers, RVs and other units use relevant fields only. Electric range, battery and charging fields apply across vehicle types. Free-text features are descriptive; feature_evidence supports verified equipment filtering. Additional inventory attributes remain allowed.",
   "type": "object",
   "examples": [
     {
@@ -117,22 +117,27 @@
       "description": "Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer.information. Nullable; single-rooftop dealers MAY leave it null.",
       "examples": ["Demo Toyota San Francisco"]
     },
+    "currency": {
+      "$ref": "./_primitives/currency.schema.json",
+      "default": "USD",
+      "description": "Currency of this vehicle's price, list_price, msrp and fees[].amount. Omitted means USD, including for Canadian addresses or CAD query context. Publishers MUST include CAD explicitly for Canadian-dollar amounts. Currency selection never performs a foreign-exchange conversion."
+    },
     "msrp": {
       "type": "integer",
       "minimum": 0,
-      "description": "Manufacturer's Suggested Retail Price (sticker price), whole US dollars. Inventory context.",
+      "description": "Manufacturer's Suggested Retail Price (sticker price), in whole units of this vehicle's currency (USD when omitted). Inventory context.",
       "examples": [36000]
     },
     "price": {
       "type": "integer",
       "minimum": 0,
-      "description": "Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.",
+      "description": "Authoritative advertised vehicle price in whole units of this vehicle's currency (USD when omitted). It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.",
       "examples": [35500]
     },
     "list_price": {
       "type": "integer",
       "minimum": 0,
-      "description": "Dealer's base list price before discounts, rebates, mandatory dealer charges, and required add-ons, in whole US dollars. This is comparison context, not an amount a consumer can necessarily buy the vehicle for. A provider that knows only a base or list amount publishes `list_price` and omits `price`. Inventory context.",
+      "description": "Dealer's base list price before discounts, rebates, mandatory dealer charges, and required add-ons, in whole units of this vehicle's currency (USD when omitted). This is comparison context, not an amount a consumer can necessarily buy the vehicle for. A provider that knows only a base or list amount publishes `list_price` and omits `price`. Inventory context.",
       "examples": [34000]
     },
     "fees": {
@@ -159,10 +164,15 @@
       "examples": ["veh_8f3c1a"],
       "minLength": 1
     },
+    "mileage_unit": {
+      "$ref": "./_primitives/mileage-unit.schema.json",
+      "default": "mi",
+      "description": "Unit of this vehicle's mileage. Omitted means mi; include km explicitly for a kilometre odometer. This unit does not inherit from country, currency or the search's query unit."
+    },
     "mileage": {
       "type": "integer",
       "minimum": 0,
-      "description": "Known odometer reading in miles. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.",
+      "description": "Known odometer reading in this vehicle's mileage_unit (mi when omitted). Preserve the labelled native reading; query comparisons and sorting may convert it without changing this value. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.",
       "examples": [12, 38450]
     },
     "body": {

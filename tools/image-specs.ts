@@ -178,7 +178,7 @@ export const imageSpecs = {
     eyebrow: "RELEASE LIFECYCLE",
     title: "Review. Freeze. Publish. Migrate.",
     description: "Editable sources pass schema, behavior and interoperability checks before a new immutable release is prepared and a deployment switches its discovery.",
-    takeaway: "Published contracts stay byte-stable. AAP 3.0 is an explicit major-version migration.",
+    takeaway: "Published contracts stay byte-stable. Additions preserve the meaning of existing payloads.",
   },
   "feature-evidence": {
     eyebrow: "EQUIPMENT EVIDENCE",

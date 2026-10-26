@@ -1,29 +1,44 @@
 ---
 sidebar_position: 9
 title: Versions and migration
-description: AAP 3.0 migration, independent upstream versions, and immutable release artifacts.
+description: AAP 3.1 currency and odometer migration, independent upstream versions, and immutable release artifacts.
 ---
 
 # Versions and migration
 
-**AAP 3.0 is a new major contract.** It makes MCP native, adds dealer-domain discovery links and search capabilities, and tightens automotive results and lead outcomes. Do not advertise it on an unchanged 2.1 endpoint.
+**AAP 3.1 adds explicit currency and odometer units.** Existing omitted labels retain USD/mi meanings. Native Canadian amounts require the new fields and a 3.1 endpoint; do not relabel CAD/km numbers on an unchanged 3.0 endpoint. The frozen 3.0 contract remains unchanged.
 
 ![Edit and verify the draft, freeze a new release, then publish and switch a verified deployment](./img/versioning-timeline.svg)
 
 ## Four independent version numbers
 
-| Identifier | Meaning in AAP 3.0 |
+| Identifier | Meaning in AAP 3.1 |
 |---|---|
-| AAP `3.0.0` / contract `v3.0` | Automotive schemas, bindings and behavior |
+| AAP `3.1.0` / contract `v3.1` | Automotive schemas, bindings and behavior |
 | MCP `2026-07-28` + `2025-11-25` | Current wire protocol and explicit compatibility path |
 | A2A `1.0` | Agent Card, Message and JSON-RPC protocol |
 | PAP `0.3` | Pinned in-progress Poppy draft; discovery bridge remains `version: "1"` |
 
-A server's software version is separate. A PAP 0.2 client must migrate its authentication flow; a PAP 0.3 client is not automatically an AAP 3.0 client, and MCP version negotiation does not choose an automotive schema version.
+A server's software version is separate. A PAP 0.2 client must migrate its authentication flow; a PAP 0.3 client is not automatically an AAP 3.1 client, and MCP version negotiation does not choose an automotive schema version.
+
+## AAP 3.0 to 3.1
+
+| Area | Existing 3.0 meaning | Additive 3.1 behavior |
+|---|---|---|
+| Vehicle amounts | Whole USD | Optional `currency` labels USD or CAD; omission still means USD. It covers `price`, `list_price`, `msrp` and vehicle fees |
+| Vehicle odometer | Miles | Optional `mileage_unit` labels mi or km; omission still means mi. Returned numbers remain native |
+| Rooftop fee defaults | Whole USD | Optional rooftop `currency`; omission still means USD. Never infer vehicle currency from it |
+| Search and facets | USD prices, mi odometer comparisons | Optional top-level `currency` and `mileage_unit`; use declared capability defaults, falling back to USD/mi. One currency scopes every matching set; mileage comparisons convert exactly |
+| Capabilities | No monetary or odometer context | Optional `currencies`, `default_currency`, `default_mileage_unit`; declarations must agree across bindings |
+| Results and cursors | USD/mi implicit | Label effective nondefault contexts explicitly on search/facet data; bind both contexts into cursor identity. Per-vehicle labels never inherit query context |
+| Geographic and electric range | Explicit `_mi` fields | Unchanged: miles for every country and odometer unit |
+| Leads and trade-ins | USD/mi if numeric values are present | Preserve explicit currency and odometer labels with each partial vehicle description |
+
+This requires schema, generated tool/OpenAPI metadata and runtime changes together. Documentation alone cannot establish the new fields or comparison behavior. Keep existing 3.0 and approved connector endpoints operating under their original contracts while publishing separate 3.1 discovery and endpoints. See [currency and odometer context](./skills/inventory-search.md#currency-and-odometer-context) for exact defaults and comparison rules.
 
 ## For implementers
 
-Migrate the implementation and its clients before switching discovery. Keep each supported automotive contract at its own card and endpoint identity.
+For implementations coming from 2.1, the 3.0 major migration below is also required. It made MCP native, added dealer-domain discovery links and search capabilities, and tightened automotive results and lead outcomes. Migrate the implementation and its clients before switching discovery. Keep each supported automotive contract at its own card and endpoint identity.
 
 | Area | AAP 2.1 | AAP 3.0 action |
 |---|---|---|
@@ -95,7 +110,7 @@ Regenerate client/tool schemas and update TypeScript constructors with the new P
 
 ### PAP 0.2 migration
 
-This heading remains as a historical link. AAP 2.1 used PAP 0.2; its [frozen migration record](https://autoagentprotocol.org/docs/v2.1/versioning#pap-02-migration) documents the earlier 0.1 → 0.2 transition. New AAP 3.0 implementations target **0.3 directly** and apply all final identity, issuer-audience and proof requirements. They do not need an intermediate 0.2 deployment. The historical 2.0 → 2.1 minor-release exception was approved for one specification hash and does not relax the major-version policy.
+This heading remains as a historical link. AAP 2.1 used PAP 0.2; its [frozen migration record](https://autoagentprotocol.org/docs/v2.1/versioning#pap-02-migration) documents the earlier 0.1 → 0.2 transition. New AAP 3.1 implementations target **0.3 directly** and apply all final identity, issuer-audience and proof requirements. They do not need an intermediate 0.2 deployment. The historical 2.0 → 2.1 minor-release exception was approved for one specification hash and does not relax the major-version policy.
 
 ### Breaking migration checklist
 
@@ -107,7 +122,7 @@ An upgrade from AAP 1.x must also apply the [frozen 2.0 migration](https://autoa
 |---|---|
 | `spec/latest/`, `docs/` | Editable specification and documentation |
 | `/docs/latest/` | Editable documentation with an unreleased banner |
-| `spec/v3.0/`, `/v3.0/`, `/docs/v3.0/` | Frozen contract, artifacts and documentation after approval |
+| `spec/v3.1/`, `/v3.1/`, `/docs/v3.1/` | Frozen contract, artifacts and documentation after approval |
 | `/latest/` | Artifact alias of the stable release named by `releases.json` |
 
 Draft schema/extension URLs use `https://draft.autoagentprotocol.invalid`. Release preparation replaces them with immutable production identifiers. Agents pin the selected release rather than relying on a moving `/latest/` alias.
@@ -125,7 +140,7 @@ A release freezes schemas, examples, skills, docs/sidebar/images, generated Type
 Commit reviewed edits to the working sources, then rehearse:
 
 ```bash
-pnpm release:prepare 3.0.0 --dry-run
+pnpm release:prepare 3.1.0 --dry-run
 ```
 
 After reviewing the compatibility report, run without `--dry-run` from a clean tree. The command validates and freezes the new contract, generates artifacts, records the source commit/hashes and updates registry/package versions. It does not commit, tag, push, publish npm packages or deploy the site. See [RELEASING.md](https://github.com/auto-agent-protocol/auto-agent-protocol/blob/main/RELEASING.md).

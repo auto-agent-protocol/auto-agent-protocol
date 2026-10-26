@@ -7,6 +7,15 @@ versioning policy is described in the
 
 ## [Unreleased]
 
+## [3.1.0] — 2026-10-26
+
+This additive release preserves native Canadian prices and odometers without changing the meaning of existing USD/mi payloads. MCP, A2A and PAP wire versions are unchanged.
+
+- Add explicit USD/CAD `currency` and mi/km `mileage_unit` labels for native vehicle amounts and odometers, with USD/mi retained when labels are omitted. Rooftop currency labels default fee amounts; country does not override unit labels.
+- Add optional search/facets currency and mileage contexts, matching capability defaults and result labels. Scope price comparisons to one currency, convert odometer comparisons exactly without rounding, and bind cursor continuation to the effective contexts. Explicit `_mi` fields remain miles.
+- Preserve the frozen 3.0.0 contract and existing US payload meanings; expose the new contract through separate versioned discovery and bindings.
+- Normalize only generated release identity constants during minor compatibility checks, retaining checks for business constants and all validation-affecting changes.
+
 ## [3.0.0] — 2026-10-26
 
 AAP becomes a shared automotive contract with native MCP, A2A and PAP interfaces. This major release requires an explicit deployment migration; previous releases remain immutable.

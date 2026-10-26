@@ -7,7 +7,7 @@ description: Native automotive tools over MCP Streamable HTTP, with complete sch
 
 {/* aap-draft-only:start */}
 
-This is the unreleased **3.0.0** binding. Draft identifiers are replaced when the release is prepared; do not deploy them.
+This is the unreleased **3.1.0** binding. Draft identifiers are replaced when the release is prepared; do not deploy them.
 
 {/* aap-draft-only:end */}
 
@@ -17,7 +17,7 @@ This is the unreleased **3.0.0** binding. Draft identifiers are replaced when th
 
 ## Protocol baseline
 
-An AAP 3.0 MCP endpoint MUST implement Streamable HTTP for **MCP 2026-07-28** and **2025-11-25**. Advertise both actual revisions in discovery; additional revisions are optional. AAP's `3.0.0` release number is separate from these MCP protocol dates and from a server's software version.
+An AAP 3.1 MCP endpoint MUST implement Streamable HTTP for **MCP 2026-07-28** and **2025-11-25**. Advertise both actual revisions in discovery; additional revisions are optional. AAP's `3.1.0` release number is separate from these MCP protocol dates and from a server's software version.
 
 | | MCP 2026-07-28 | MCP 2025-11-25 compatibility |
 |---|---|---|

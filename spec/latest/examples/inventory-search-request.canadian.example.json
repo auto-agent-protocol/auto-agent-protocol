@@ -1,0 +1,30 @@
+{
+  "type": "inventory.search.request",
+  "currency": "CAD",
+  "mileage_unit": "km",
+  "filters": {
+    "make": [
+      "Toyota"
+    ],
+    "condition": [
+      "used"
+    ],
+    "price_max": 40000,
+    "mileage_max": 80000,
+    "near": {
+      "latitude": 43.6532,
+      "longitude": -79.3832,
+      "radius_mi": 50
+    }
+  },
+  "pagination": {
+    "limit": 20
+  },
+  "sort": {
+    "field": "price",
+    "order": "asc"
+  },
+  "privacy": {
+    "anonymous": true
+  }
+}

@@ -42,20 +42,22 @@ Patch releases are not cut because public contract URLs identify major/minor onl
 
 ## Rehearse first
 
-The examples below prepare 3.0.0 from stable 2.1.0. Select the next eligible version from the current registry; never reuse an existing release label.
+The examples below prepare 3.1.0 from stable 3.0.0. Select the next eligible version from the current registry; never reuse an existing release label.
 
 ```bash
-pnpm release:prepare 3.0.0 --dry-run
+pnpm release:prepare 3.1.0 --dry-run
 ```
 
 Dry-run validation creates candidates in an operating-system temporary directory, prints the structural compatibility report, and leaves the repository byte-for-byte unchanged. Review every reported change. The report intentionally does not certify normative behavior, security, privacy, legal compliance, or interoperability.
+
+The comparison normalizes release URL prefixes and the two generated AAP version constants in Agent Card and Poppy identity schemas. It does not normalize business constants or waive validation changes. An additive minor still requires unchanged meanings for existing payloads and a review of the documented defaults.
 
 ## Prepare the reviewable snapshot
 
 Commit the approved editable source, confirm the tree is clean, then run:
 
 ```bash
-pnpm release:prepare 3.0.0
+pnpm release:prepare 3.1.0
 ```
 
 The command:

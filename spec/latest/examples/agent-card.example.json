@@ -88,7 +88,12 @@
                 },
                 "default_limit": 20,
                 "max_limit": 100,
-                "offset": true
+                "offset": true,
+                "currencies": [
+                  "USD"
+                ],
+                "default_currency": "USD",
+                "default_mileage_unit": "mi"
               }
             },
             "inventory.vehicle": {

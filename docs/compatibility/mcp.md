@@ -7,7 +7,7 @@ description: Move from the optional AAP wrapper catalog to the first-class AAP 3
 
 {/* aap-draft-only:start */}
 
-This page describes the unreleased **3.0.0** contract.
+This page describes the unreleased **3.1.0** contract.
 
 {/* aap-draft-only:end */}
 

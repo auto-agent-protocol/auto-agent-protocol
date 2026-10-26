@@ -24,7 +24,7 @@ AAP makes those answers consistent across dealerships and protocols.
 
 ![MCP tools, A2A DataParts and PAP OpenAPI reuse the same automotive operations](./img/architecture-stack.svg)
 
-| Standard | Its role in AAP 3.0 |
+| Standard | Its role in AAP 3.1 |
 |---|---|
 | [MCP](https://modelcontextprotocol.io/) | Native, self-describing tools with complete schemas and structured results |
 | [A2A](https://a2a-protocol.org/) | Agent Card discovery and typed automotive messages |

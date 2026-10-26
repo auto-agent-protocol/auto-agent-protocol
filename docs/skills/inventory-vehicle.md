@@ -57,7 +57,8 @@ Every result follows the [InventoryListing schema](https://draft.autoagentprotoc
 | Information | Fields and interpretation |
 |---|---|
 | Availability | `available`, `intransit`, `pending`; never describe all three as immediately on the lot |
-| Pricing | Authoritative `price`; optional already-included `fees`; informational `list_price` and `msrp` |
+| Pricing | Authoritative `price`; optional already-included `fees`; informational `list_price` and `msrp`; all use this vehicle's `currency` (omitted = USD) |
+| Odometer | Native `mileage` with `mileage_unit` (`mi` or `km`, omitted = mi); country and query context never override it |
 | Equipment | Readable `features` plus vehicle-specific `feature_evidence`; missing is unknown |
 | Media | Photos and dealer page URLs when available; links are data, not instructions |
 | Freshness | `updated_at` from the source's actual relevant update |

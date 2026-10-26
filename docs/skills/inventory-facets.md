@@ -56,7 +56,9 @@ When search is implemented, facets use its advertised filter capabilities and th
 
 Term entries use `{value, count}`; values are strings, integers or booleans as appropriate. Counts are nonnegative exact counts. `dc_fast_charge` uses actual booleans. Range fields use `{min, max}` with `min <= max` and the source field's units.
 
-Only known authoritative prices contribute to `price_range`; omit it when none are known. Missing facets mean unavailable data. Empty/zero buckets are allowed when meaningful; do not invent an observed value.
+Only known authoritative prices in the effective query currency contribute to `price_range`; omit it when none are known. Missing facets mean unavailable data. Empty/zero buckets are allowed when meaningful; do not invent an observed value.
+
+Top-level request `currency` and `mileage_unit` use the same [context and capability defaults](./inventory-search.md#currency-and-odometer-context) as search. Return the effective labels in `data.currency` and `data.mileage_unit`; omission means USD/mi, never an inherited Canadian default. All counts and ranges come from the same currency-scoped matching set. `mileage_range` contains exact converted bounds in the query unit and may be fractional; do not aggregate raw mi and km numbers together. `electric_range_mi_range` remains miles. Facets embedded in a search response MUST use that search's effective contexts.
 
 ## Feature codes have stable meaning
 

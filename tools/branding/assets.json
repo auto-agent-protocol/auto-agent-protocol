@@ -1,6 +1,6 @@
 {
   "sources": {
-    "tools/branding/artwork.mjs": "c2f8615e8ca15d2a1f98d0ff156de54a68d02c358a3dcb5c157c15cf2d1c1ff4",
+    "tools/branding/artwork.mjs": "5f01002f7df0d1f996c6d1449de236ab8564a53184738634339575cec77287e9",
     "tools/generate-branding.mjs": "5bdc3ce1549b517bde5adfee5033d88378b4867fdff2897551d4d5fdd539fa39"
   },
   "files": {
@@ -27,14 +27,14 @@
     "static/img/brand/aap-symbol-76.png": "c691114e76cfb1769719cdabc55a270c108a0ffd1e379bd41c06e8009fdd5e08",
     "static/img/brand/aap-symbol-152.png": "e81f31d98af90c505cf12c45a28473917f9fbceb7e533637367c54fa84cbd899",
     "static/img/brand/aap-symbol-228.png": "17145384f7215e1a4df726ddf6f79d9d75a55bbe69331c11ab1bb6247b9aa22f",
-    "static/img/brand/aap-social-card.svg": "0aab3ba981015d7fd732ce9101beb5ac2bf5a4017b985053477b2e2ec6104ad2",
-    "static/img/brand/aap-social-card.png": "6b97b779ecda3e9283bf852d207817c9baf8772365e9d35e12720d8269f8b17f",
+    "static/img/brand/aap-social-card.svg": "e89c9375e880692adaac4e1646631d5ca30ec6e0d6b4c778ab0c58e3742a6115",
+    "static/img/brand/aap-social-card.png": "5684c7abdf51e14f6e71777d022fa47a09858065690a525f176f1191676bbab6",
     "static/img/brand/favicon.svg": "438174c0210ecd631c9584172c1eba543bf46373f34de5a0a3d79bc375d34a1d",
     "static/img/brand/apple-touch-icon.png": "d1909bfbe77267b5030a431282577ab6a305674d8af3283a009b0491491e6c5f",
     "static/img/brand/favicon.ico": "46d07b2268817778cb5961ca48e86796ab32ed50bb93da927a2f7a08c582e4b3",
     "static/img/logo.png": "0e94ddd089aefb301740ca98c93eed570b33014fdbdfe3eb14cf46a097305f26",
     "static/img/logo-white.png": "dd1f6797195b1488ab893387e36eb0297806a7f734bed49e62aea0c99415a8e6",
     "static/img/favicon.ico": "46d07b2268817778cb5961ca48e86796ab32ed50bb93da927a2f7a08c582e4b3",
-    "static/img/aap-hero-banner.png": "6b97b779ecda3e9283bf852d207817c9baf8772365e9d35e12720d8269f8b17f"
+    "static/img/aap-hero-banner.png": "5684c7abdf51e14f6e71777d022fa47a09858065690a525f176f1191676bbab6"
   }
 }

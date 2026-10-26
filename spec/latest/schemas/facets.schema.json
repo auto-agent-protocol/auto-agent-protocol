@@ -32,6 +32,16 @@
     }
   },
   "properties": {
+    "currency": {
+      "$ref": "./_primitives/currency.schema.json",
+      "default": "USD",
+      "description": "Effective query currency of the matching set and price_range. Omitted means USD; CAD facets MUST include this field. Do not combine monetary ranges from different currencies."
+    },
+    "mileage_unit": {
+      "$ref": "./_primitives/mileage-unit.schema.json",
+      "default": "mi",
+      "description": "Effective query unit of mileage_range. Omitted means mi; km facets MUST include this field. Compute the bounds from known native odometers converted exactly to this unit."
+    },
     "makes": { "$ref": "#/$defs/term_facet" },
     "models": { "$ref": "#/$defs/term_facet" },
     "trims": { "$ref": "#/$defs/term_facet" },
@@ -48,8 +58,8 @@
     "interior_colors": { "$ref": "#/$defs/term_facet" },
     "rooftops": { "$ref": "#/$defs/term_facet", "description": "Rooftop facets — vehicle counts per dealership location, matching `Vehicle.rooftop` and `filters.rooftops`." },
     "statuses": { "$ref": "#/$defs/term_facet" },
-    "price_range": { "$ref": "#/$defs/range_facet", "description": "Observed minimum and maximum of authoritative Vehicle.price values. Vehicles without `price` do not contribute; omit `price_range` when no matching vehicle has `price`." },
-    "mileage_range": { "$ref": "#/$defs/range_facet" },
+    "price_range": { "$ref": "#/$defs/range_facet", "description": "Observed minimum and maximum of authoritative Vehicle.price values in the effective query currency. Vehicles without `price` do not contribute; omit `price_range` when no matching vehicle has `price`." },
+    "mileage_range": { "$ref": "#/$defs/range_facet", "description": "Observed minimum and maximum known odometer readings after exact conversion to the effective query mileage_unit. Bounds may be fractional; never aggregate native mi and km numbers directly." },
     "year_range": { "$ref": "#/$defs/range_facet" },
     "displacement_cc_range": { "$ref": "#/$defs/range_facet", "description": "Engine-displacement range in cc across the matching set, matching `Vehicle.displacement_cc` and `filters.displacement_cc_min` / `filters.displacement_cc_max`." },
     "electric_range_mi_range": { "$ref": "#/$defs/range_facet", "description": "Electric-range span in miles across the matching set, matching `Vehicle.electric_range_mi` and `filters.electric_range_mi_min` / `filters.electric_range_mi_max`." },

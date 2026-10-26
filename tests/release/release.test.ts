@@ -11,7 +11,7 @@ import { generateMcp } from "../../tools/generate-mcp-manifest.js";
 import { generateOpenapi } from "../../tools/generate-openapi.js";
 import { generateTypes } from "../../tools/generate-types.js";
 import { contractFor, createIntegrity, DRAFT_SITE, DRAFT_VERSION, filesIn, hash, loadRegistry, parseVersion, releasePrefixes, ROOT, readJson, SITE, writeJson } from "../../tools/lib/releases.js";
-import { prepareRelease } from "../../tools/release-prepare.js";
+import { normalizeReleaseIdentifiers, prepareRelease } from "../../tools/release-prepare.js";
 
 function snapshot(directory: string): string {
   return hash(filesIn(directory).map(file => `${relative(directory, file).split("\\").join("/")}\0${hash(readFileSync(file))}`).join("\n"));
@@ -60,6 +60,49 @@ test("release version labels reject ambiguous patch contracts", () => {
   assert.equal(contractFor("1.3.0"), "v1.3");
   assert.throws(() => contractFor("1.3.1"), /patch/i);
   assert.throws(() => parseVersion("01.3.0"), /invalid/i);
+});
+
+test("minor compatibility normalizes only the two known generated version constants", () => {
+  const file = "aap-extension-params.schema.json";
+  const schema = { properties: { version: { const: "3.1.0" }, business_value: { const: "3.1.0" } } };
+  assert.deepEqual(normalizeReleaseIdentifiers(schema, file, "3.1.0"), {
+    properties: { version: { const: "{release-version}" }, business_value: { const: "3.1.0" } },
+  });
+  assert.deepEqual(normalizeReleaseIdentifiers(schema, "unrelated.schema.json", "3.1.0"), schema);
+  assert.deepEqual(normalizeReleaseIdentifiers(schema, file, "3.0.0"), schema, "an unexpected version value is not normalized");
+  const poppy = readJson<any>(join(ROOT, "spec/latest/schemas/poppy.schema.json"));
+  const path = (value: any) => value.allOf[1].properties.extensions.properties["autoagentprotocol.org/aap"].allOf[1].properties.aap_version;
+  path(poppy).const = "3.1.0";
+  poppy.properties = { business_value: { const: "3.1.0" } };
+  const normalized = normalizeReleaseIdentifiers(poppy, "poppy.schema.json", "3.1.0") as any;
+  assert.equal(path(normalized).const, "{release-version}");
+  assert.equal(normalized.properties.business_value.const, "3.1.0");
+});
+
+test("an additive minor can advance its pinned contract identifiers without a compatibility exception", async () => {
+  const context = fixture();
+  try {
+    const registry = loadRegistry(context.root);
+    const stable = registry.releases.find(release => release.contract === registry.stable)!;
+    const [major, minor] = stable.version.split(".").map(Number);
+    const draftSpec = join(context.root, "spec/latest");
+    rmSync(draftSpec, { recursive: true });
+    cpSync(join(context.root, "spec", stable.contract), draftSpec, { recursive: true });
+    for (const file of filesIn(draftSpec)) writeFileSync(file, readFileSync(file, "utf8")
+      .replaceAll(`${SITE}/${stable.contract}/`, `${DRAFT_SITE}/latest/`)
+      .replaceAll(`${SITE}/extensions/aap/${stable.contract}`, `${DRAFT_SITE}/extensions/aap/latest`)
+      .replaceAll(stable.version, DRAFT_VERSION));
+    const schemaFile = join(draftSpec, "schemas/inventory-search-request.schema.json");
+    const schema = readJson<any>(schemaFile);
+    schema.properties.optional_fixture_flag = { type: "boolean" };
+    writeJson(schemaFile, schema);
+    const before = releaseState(context.root);
+    const candidate = await prepareRelease(context.root, `${major}.${minor + 1}.0`, true);
+    assert.equal(candidate.contract, `v${major}.${minor + 1}`);
+    assert.ok(candidate.changes.some(change => change.path === "$.properties.optional_fixture_flag"));
+    assert.ok(candidate.changes.every(change => change.kind === "additive"));
+    assert.equal(releaseState(context.root), before);
+  } finally { context.cleanup(); }
 });
 
 test("release checks reject broken MCP metadata links even when snapshot hashes agree", async () => {

@@ -5,6 +5,24 @@
   "description": "Actual search behavior of one deployment. Publish in the A2A AAP extension params.skills.inventory.search.capabilities and the MCP search tool metadata. The same scope, supported filters, sort fields and limits apply to every binding.",
   "type": "object",
   "properties": {
+    "currencies": {
+      "type": "array",
+      "items": { "$ref": "./_primitives/currency.schema.json" },
+      "minItems": 1,
+      "uniqueItems": true,
+      "default": ["USD"],
+      "description": "Supported search/facets query currencies. Omitted means only USD. The selected currency scopes the matching set, including listings without a price, and never invokes currency conversion."
+    },
+    "default_currency": {
+      "$ref": "./_primitives/currency.schema.json",
+      "default": "USD",
+      "description": "Effective currency when a search/facets request omits currency. Must appear in currencies (or be USD when currencies is omitted). This deployment default never overrides omitted per-vehicle, rooftop or response labels, which retain USD."
+    },
+    "default_mileage_unit": {
+      "$ref": "./_primitives/mileage-unit.schema.json",
+      "default": "mi",
+      "description": "Effective mileage query unit when omitted by a caller. All implementations accept mi and km contexts and convert odometer comparisons exactly. This default never changes the unit of a returned vehicle reading."
+    },
     "scope": {
       "type": "string",
       "enum": [

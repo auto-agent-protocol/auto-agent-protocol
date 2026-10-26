@@ -191,14 +191,14 @@ const config: Config = {
       {
         name: "twitter:image:alt",
         content:
-          "Auto Agent Protocol 3.0 — automotive skills through MCP, A2A and PAP",
+          "Auto Agent Protocol 3.1 — automotive skills through MCP, A2A and PAP",
       },
       { property: "og:site_name", content: "Auto Agent Protocol" },
       { property: "og:type", content: "website" },
       {
         property: "og:image:alt",
         content:
-          "Auto Agent Protocol 3.0 — automotive skills through MCP, A2A and PAP",
+          "Auto Agent Protocol 3.1 — automotive skills through MCP, A2A and PAP",
       },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },

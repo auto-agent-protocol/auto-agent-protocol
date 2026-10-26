@@ -31,7 +31,7 @@ Read skills MUST accept requests without customer information or contact consent
 | `list_price` | Informational base/list amount. It cannot replace or reconstruct `price`. |
 | `msrp` | Manufacturer reference amount. |
 
-Amounts are integers in **whole US dollars**. AAP 3.0 does not negotiate another currency. `price` must not depend on dealer financing, an additional down payment, or a discount unavailable to every buyer. Never automatically subtract conditional rebates.
+Amounts are integers in **whole units of the vehicle's explicit currency**, `USD` or `CAD`; omission retains USD. Odometers use the vehicle's `mileage_unit`, with omission retaining miles. Country never overrides these defaults. Search/facets select one currency and a mileage comparison unit; never mix currencies, invent exchange rates, or compare raw mi and km readings. `price` must not depend on dealer financing, an additional down payment, or a discount unavailable to every buyer. Never automatically subtract conditional rebates.
 
 Price filters and `sort.field: "price"` use authoritative `price`. Unpriced vehicles do not match a price range. Buyers MUST NOT add `fees` again, compute `list_price + fees` as a replacement price, or join rooftop fee defaults into a listing. Government charges remain separate; this is not a transaction quote. See [pricing](./pricing-and-ftc.md) for the complete field contract.
 
@@ -71,4 +71,4 @@ Operators SHOULD record correlation ID, actual binding, upstream protocol revisi
 
 ## Defaults
 
-Omitted `vehicle_type` means `car`; omitted address `country` means `US`. Search defaults come from advertised capabilities. Unknown feature evidence and missing prices remain unknown. Defaults never weaken authorization, consent, visibility or pricing requirements.
+Omitted `vehicle_type` means `car`; omitted address `country` means `US`. Omitted per-vehicle `currency` and `mileage_unit` always mean USD/mi; omitted rooftop currency means USD. Search/facets context defaults come from advertised capabilities, falling back to USD/mi when those capabilities are absent. Responses label nondefault contexts explicitly. Unknown feature evidence and missing prices remain unknown. Defaults never weaken authorization, consent, visibility or pricing requirements.

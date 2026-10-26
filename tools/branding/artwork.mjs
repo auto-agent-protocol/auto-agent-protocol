@@ -64,7 +64,7 @@ export function socialCard() {
   return svg(`<path fill="#f5f7fb" d="M0 0H1200V630H0Z"/>
     <g transform="translate(64 48) scale(.48)">${symbol()}${lettering()}</g>
     <rect x="1020" y="62" width="116" height="48" rx="24" fill="#12213a"/>
-    <text x="1078" y="95" text-anchor="middle" font-family="${font}" font-size="27" font-weight="700" fill="#fff">v3.0</text>
+    <text x="1078" y="95" text-anchor="middle" font-family="${font}" font-size="27" font-weight="700" fill="#fff">v3.1</text>
     <text x="64" y="273" font-family="${font}" font-size="76" font-weight="700" fill="#12213a">Automotive.</text>
     <text x="64" y="363" font-family="${font}" font-size="64" font-weight="700" fill="#12213a">Built for AI agents.</text>
     <circle cx="982" cy="304" r="128" fill="#eaf2ff" stroke="#d8e1ed" stroke-width="2"/>
@@ -72,5 +72,5 @@ export function socialCard() {
     ${['MCP', 'A2A', 'PAP'].map((name, index) => `<rect x="${64 + index * 192}" y="425" width="170" height="60" rx="15" fill="#fff" stroke="#d8e1ed" stroke-width="2"/><text x="${149 + index * 192}" y="465" text-anchor="middle" font-family="${font}" font-size="29" font-weight="700" fill="${BLUE}">${name}</text>`).join('')}
     <text x="64" y="538" font-family="${font}" font-size="24" fill="#52627a">Discovery · inventory · pricing · consent</text>
     <path stroke="#d8e1ed" stroke-width="2" d="M64 566H1136"/>
-    <text x="64" y="606" font-family="${font}" font-size="22" fill="${BLUE}">autoagentprotocol.org</text>`, 1200, 630, 'Auto Agent Protocol 3.0 — automotive skills through MCP, A2A and PAP');
+    <text x="64" y="606" font-family="${font}" font-size="22" fill="${BLUE}">autoagentprotocol.org</text>`, 1200, 630, 'Auto Agent Protocol 3.1 — automotive skills through MCP, A2A and PAP');
 }

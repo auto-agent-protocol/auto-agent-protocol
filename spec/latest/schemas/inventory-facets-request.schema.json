@@ -12,6 +12,12 @@
   ],
   "properties": {
     "type": { "const": "inventory.facets.request" },
+    "currency": {
+      "$ref": "./inventory-search-request.schema.json#/properties/currency"
+    },
+    "mileage_unit": {
+      "$ref": "./inventory-search-request.schema.json#/properties/mileage_unit"
+    },
     "filters": {
       "$ref": "./inventory-search-request.schema.json#/$defs/filters",
       "description": "Optional filters to scope facet aggregation. Same shape as inventory.search filters; all fields are optional."

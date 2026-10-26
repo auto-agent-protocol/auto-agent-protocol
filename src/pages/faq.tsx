@@ -16,9 +16,9 @@ const questions = [
     label: "Start with the specification",
   },
   {
-    title: "What changes in AAP 3.0?",
+    title: "What changes in AAP 3.1?",
     answer:
-      "MCP becomes a native interface alongside A2A and PAP draft 0.3. PAP gains per-Session keys, explicit MCP token exchange and browser-code joins. Dealer-domain discovery links all three. Search adds source-backed equipment, radius and distance, explicit capabilities, applied filters and complete cursor pagination. AAP 3.0 is a major-version migration.",
+      "Currency and odometer labels preserve native USD/CAD amounts and mi/km readings. Search and facets select one currency and a mileage comparison unit, with explicit capability defaults and result context. Omitted vehicle labels keep their USD/miles meaning. This additive release retains the three native interfaces and frozen 3.0 contract.",
     link: "versioning",
     label: "Read the migration guide",
   },
@@ -39,7 +39,7 @@ const questions = [
   {
     title: "Must every implementation support all three?",
     answer:
-      "A full AAP 3.0 dealer deployment exposes its implemented skill subset through MCP, A2A and PAP OpenAPI. A buyer client only needs the binding it uses. A partial dealer implementation can identify its supported AAP binding, but cannot claim full deployment conformance.",
+      "A full AAP dealer deployment exposes its implemented skill subset through MCP, A2A and PAP OpenAPI. A buyer client only needs the binding it uses. A partial dealer implementation can identify its supported AAP binding, but cannot claim full deployment conformance.",
     link: "conformance",
     label: "Understand conformance",
   },

@@ -38,7 +38,7 @@ The coordinates above are an illustrative San Francisco origin. A client resolve
 |---|---|---|
 | Vehicle | `make`, `model`, `trim`, `condition`, `vehicle_type`, `body` | Arrays of accepted values; sale condition is `new`, `used` or `cpo`. |
 | Powertrain | `transmission`, `fuel`, `driveline`, `charge_port`, `dc_fast_charge` | The listing must contain the requested value. Both `true` and `false` are constraints. |
-| Ranges | `year_min/max`, `price_min/max`, `electric_range_mi_min/max`, `displacement_cc_min/max`, `mileage_max` | Inclusive bounds. Inverted ranges are invalid. Prices are whole US dollars. |
+| Ranges | `year_min/max`, `price_min/max`, `electric_range_mi_min/max`, `displacement_cc_min/max`, `mileage_max` | Inclusive bounds. Inverted ranges are invalid. Price and odometer bounds use the effective query context below. |
 | Equipment | `features_all`, `features_any` | Advertised feature codes with verified, vehicle-specific evidence. |
 | Location | `near`, `rooftops` | Radius around a point, or exact rooftop names on a dealer-scoped endpoint. |
 | Availability | `status` | `available`, `intransit`, `pending`; no sold or out-of-stock units. |
@@ -57,6 +57,29 @@ The capabilities name the endpoint's `scope` (`dealer` or `aggregate`), supporte
 An aggregate endpoint MUST also expose [`dealer.information`](./dealer-information.md#resolve-a-seller-from-aggregate-inventory), accepting the listing's `dealer_id` and returning that actual seller's profile before consent.
 
 A deployment advertising feature filters MUST also expose [`inventory.facets`](./inventory-facets.md). Its `features` facet supplies the feature codes, labels and counts; include supported codes with zero matches when necessary to preserve the vocabulary. An unknown code produces `UNSUPPORTED_FILTER` with its request path and a recovery hint.
+
+### Currency and odometer context
+
+`currency` and `mileage_unit` are optional top-level request fields, separate from `filters`. The same contexts apply to `inventory.facets`.
+
+```json
+{
+  "type": "inventory.search.request",
+  "currency": "CAD",
+  "mileage_unit": "km",
+  "filters": { "price_max": 40000, "mileage_max": 80000 },
+  "sort": { "field": "price", "order": "asc" }
+}
+```
+
+The Agent Card and MCP search metadata advertise `currencies`, `default_currency` and `default_mileage_unit`. Omitted capability fields mean `currencies: ["USD"]`, `default_currency: "USD"` and `default_mileage_unit: "mi"`. A default currency MUST be supported. A Canadian dealer may advertise CAD/km defaults; an aggregate may support both currencies with USD/mi defaults. An omitted request context uses the advertised default. Callers can pass both fields explicitly to avoid relying on deployment defaults.
+
+- The effective `currency` selects **one denomination for the entire matching set**, including listings without a price. Compare and sort price fields only within it; never sort CAD and USD amounts as interchangeable numbers or invent an exchange rate. A schema-valid but unsupported currency produces `SCHEMA_VALIDATION_FAILED` at `/currency`.
+- `mileage_unit` defines the units of `mileage_max`, mileage sorting and `mileage_range`. Both `mi` and `km` contexts are supported. Convert known native readings using exactly **1 mi = 1.609344 km** before filtering, sorting and range aggregation. Do not round before comparison. Missing odometers never satisfy a mileage bound and sort last in either direction.
+- Search results echo the effective context in `data.currency` and `data.mileage_unit`; embedded facets carry the same labels. These response fields may be omitted only for the original USD/mi meanings. CAD or km contexts MUST be explicit, including on empty pages.
+- Each returned `Vehicle.currency` and `Vehicle.mileage_unit` describes that vehicle's native numbers. Omitted vehicle labels always mean USD/mi and **never inherit** request, response, capability or country values. CAD listings MUST label `currency: "CAD"`; kilometre readings MUST label `mileage_unit: "km"`.
+
+Currency is not a country selector. Use geography for location; a Canadian vehicle may be priced in USD or have a miles odometer. Fields explicitly ending in `_mi`, including geographic radius and electric range, always remain miles. Cursor identity includes both effective contexts: changing either while continuing returns `INVALID_CURSOR`.
 
 ### Equipment needs evidence
 
