@@ -1,6 +1,0 @@
-{
-  "type": "inventory.facets.request",
-  "filters": {
-    "condition": ["used"]
-  }
-}
