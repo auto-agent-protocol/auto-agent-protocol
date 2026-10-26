@@ -15,6 +15,8 @@ AAP becomes a shared automotive contract with native MCP, A2A and PAP interfaces
 - Require a working MCP Streamable HTTP endpoint, with current `2026-07-28` and legacy `2025-11-25` interoperability, complete bundled tool schemas, standard annotations and typed success/error results.
 - Cross-link dealer-domain Agent Cards, PAP discovery and `llms.txt`; declare the actual skill subset and search capabilities consistently across all three interfaces.
 - Add feature filters with source-backed equipment evidence, rooftop-radius search and distance sorting, explicit applied filters, exact-or-unknown totals and complete cursor continuation.
+- Reduce the search `pagination.limit` schema maximum from 1000 to 100. Clients requesting larger pages must use at most the deployment's advertised `max_limit` (never above 100) and follow `next_cursor`.
+- Change `aap.error.details` from unrestricted JSON to an object when present. Every `details.errors[]` item now requires `instanceLocation`, `keyword` and `error`; migrate custom validation diagnostics to this shape. Additional detail fields remain allowed.
 - Standardize coordinates as `filters.near.latitude` and `filters.near.longitude`. Deployed `lat`/`lng` extensions and the validation errors teaching those names require a breaking client/server migration; the short keys are not 3.0 aliases.
 - Require listing identity, availability and source update timestamps. Reject unsupported filters and sorts rather than silently broadening a request.
 - Require lead idempotency keys and contact details for every permitted channel. Make appointment confirmation times and alternative times explicit, with consistent partial-success behavior.
