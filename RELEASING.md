@@ -9,6 +9,8 @@ This repository has one editable source and immutable release snapshots.
 
 ## Before preparing a release
 
+Use Node.js from `.nvmrc` and the exact pnpm version in `package.json`'s `packageManager` field, as both CI workflows do. Keep dependency overrides in `pnpm-workspace.yaml` so newer pnpm launchers can read the workspace before selecting the pinned version.
+
 For future major releases, use three separate pull requests, in review order:
 
 1. Specification, schemas, examples and binding behavior.

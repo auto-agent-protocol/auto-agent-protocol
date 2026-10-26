@@ -4,6 +4,7 @@
   "private": true,
   "description": "Auto Agent Protocol — the open contract for AI agents to talk to car dealerships",
   "license": "Apache-2.0",
+  "packageManager": "pnpm@10.34.9",
   "engines": {
     "node": ">=22",
     "pnpm": ">=10"
@@ -68,11 +69,6 @@
     "tsx": "^4.19.0",
     "typescript": "^5.7.0",
     "yaml": "^2.6.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "webpack": "5.97.1"
-    }
   },
   "browserslist": {
     "production": [

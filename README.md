@@ -87,7 +87,7 @@ npm install @autoagentprotocol/schemas@3.0.0 @autoagentprotocol/types@3.0.0 @aut
 
 ## Build and verify
 
-Use Node.js 22+ and pnpm 10. Run heavy checks one at a time.
+Use Node.js 22+ and the pnpm 10 version pinned in `package.json`. Corepack and recent pnpm launchers select that version automatically; both CI workflows use the same pin. Run heavy checks one at a time.
 
 ```bash
 pnpm install --frozen-lockfile
