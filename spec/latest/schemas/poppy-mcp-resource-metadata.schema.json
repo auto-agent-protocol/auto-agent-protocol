@@ -34,7 +34,7 @@
         "const": "ES256"
       },
       "uniqueItems": true,
-      "description": "Optional advertisement; when present it must include ES256. ES256 proof verification is mandatory even when this field is omitted."
+      "description": "Presence advertises MCP DPoP support and requires ES256. If absent, PAP clients obtain Bearer tokens through token exchange with DPoP at the token endpoint."
     },
     "scopes_supported": {
       "type": "array",
