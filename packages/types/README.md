@@ -2,6 +2,8 @@
 
 TypeScript types for [Auto Agent Protocol 3.0](https://autoagentprotocol.org/docs/v3.0/intro): shared automotive payloads and discovery for MCP, A2A and PAP. Generated from the published JSON Schema 2020-12 contract.
 
+PAP types target the pinned **0.3 draft**. `PoppyGuestTokenResponse` omits `scope`, `session_id` and `signed_in`; `PoppyTokenExchangeRequest`, `PoppyTokenExchangeResponse` and `PoppyBrowserSessionRequest` describe the new flows. Update client constructors using the [PAP migration](https://autoagentprotocol.org/docs/v3.0/versioning#pap-03-migration).
+
 ## Install
 
 ```bash

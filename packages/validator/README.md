@@ -2,6 +2,8 @@
 
 Node.js payload validation for [Auto Agent Protocol 3.0](https://autoagentprotocol.org/docs/v3.0/intro). Uses Ajv and the matching bundled AAP JSON Schemas for MCP, A2A and PAP automotive payloads.
 
+The bundled PAP schemas target the pinned **0.3 draft**. Validate a JWT-bearer guest response with `poppy-guest-token-response`; use `poppy-token-exchange-request` and `poppy-token-exchange-response` for the non-DPoP MCP exchange. The general `poppy-session-token` shape cannot determine signed-in state without the grant/request context. See the [PAP migration](https://autoagentprotocol.org/docs/v3.0/versioning#pap-03-migration).
+
 ## Install
 
 ```bash

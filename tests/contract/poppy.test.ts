@@ -259,6 +259,10 @@ test("native PAP MCP requires explicit DPoP resource support or a bound token ex
   const url = document.extensions["autoagentprotocol.org/aap"].mcp;
   document.apis.push({ type: "mcp", url, resource: url, description: "Native PAP MCP" });
   const resource = { resource: url, authorization_servers: [document.auth.issuer] };
+  assert.equal(validate("poppy-mcp-resource-metadata", read("poppy-mcp-resource-metadata")), true);
+  assert.equal(validate("poppy-mcp-resource-metadata", read("poppy-mcp-resource-metadata.dpop")), true);
+  assert.equal(validate("poppy-mcp-resource-metadata", { ...resource, dpop_signing_alg_values_supported: ["RS256"] }), false);
+  assert.equal(validate("poppy-mcp-resource-metadata", { ...resource, bearer_methods_supported: ["query"] }), false);
   assert.ok(checkPoppyMcpResource(document, metadata, url, resource).some(e => e.includes("token-exchange")));
   metadata.grant_types_supported.push("urn:ietf:params:oauth:grant-type:token-exchange");
   assert.deepEqual(checkPoppyMcpResource(document, metadata, url, resource), []);

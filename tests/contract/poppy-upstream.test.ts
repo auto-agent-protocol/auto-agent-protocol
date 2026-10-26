@@ -18,6 +18,9 @@ test("PAP 0.3 examples conform to the pinned independent Company-kit schemas", (
     ["poppy-session-token", "token-response"], ["poppy-token-exchange-response", "token-response"],
     ["poppy-alternative", "alternative"], ["poppy-excluded-tasks", "excluded-tasks"],
     ["poppy-feedback-request", "feedback-report"],
+    ["poppy.native-mcp", "poppy"], ["poppy-oauth-metadata.native-mcp", "authorization-server-metadata"],
+    ["poppy-mcp-resource-metadata", "protected-resource-metadata"],
+    ["poppy-mcp-resource-metadata.dpop", "protected-resource-metadata"],
   ];
   for (const [example, schema] of pairs) {
     const value = JSON.parse(readFileSync(resolve(ROOT, `spec/latest/examples/${example}.example.json`), "utf8"));

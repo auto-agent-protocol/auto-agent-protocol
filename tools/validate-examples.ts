@@ -4,7 +4,7 @@ import { glob } from "glob";
 import { readFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { ROOT, isMain } from "./lib/releases.js";
-import { checkPoppyAssertion, checkPoppyClientIdentity, checkPoppyIdentity, checkPoppyTokenResponse, poppyAlternativeReferences } from "./lib/poppy.js";
+import { checkPoppyAssertion, checkPoppyClientIdentity, checkPoppyIdentity, checkPoppyMcpResource, checkPoppyTokenResponse, poppyAlternativeReferences } from "./lib/poppy.js";
 import { checkDiscovery } from "./lib/discovery.js";
 import { validateManifest } from "./validate-manifest.js";
 
@@ -22,8 +22,7 @@ export async function validateExamples(specDir: string, label: string): Promise<
   let validated = 0;
   for (const file of files) {
     if (SKIP.some(pattern => pattern.test(file))) continue;
-    const name = basename(file, ".example.json"), variant = name.match(/^([a-z][a-z0-9-]+(?:request|response))\./);
-    const candidate = variant?.[1] ?? name, schema = schemas.get(candidate);
+    const candidate = basename(file, ".example.json").split(".")[0], schema = schemas.get(candidate);
     if (!schema) {
       if (candidate === "agent-card" && label === "v0.2") continue;
       throw new Error(`${label}/${file}: no matching schema ${candidate}`);
@@ -45,6 +44,12 @@ export async function validateExamples(specDir: string, label: string): Promise<
       ];
       const alternative = read("poppy-alternative");
       if (poppyAlternativeReferences(document, alternative).length !== alternative.references.length) tokenErrors.push("Alternative references an unadvertised API");
+      const native = read("poppy.native-mcp"), metadata = read("poppy-oauth-metadata.native-mcp");
+      const url = read("poppy-token-exchange-request").resource;
+      tokenErrors.push(...checkPoppyIdentity(native, `https://${native.organization.domain}/.well-known/poppy.json`, metadata));
+      for (const name of ["poppy-mcp-resource-metadata", "poppy-mcp-resource-metadata.dpop"]) {
+        tokenErrors.push(...checkPoppyMcpResource(native, metadata, url, read(name)));
+      }
       if (tokenErrors.length) throw new Error(`${label}/PAP 0.3 examples: ${tokenErrors.join("; ")}`);
     }
     if (schemas.has("aap-extension-params")) {

@@ -1,0 +1,12 @@
+{
+  "resource": "https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp",
+  "authorization_servers": [
+    "https://demo-toyota.example.com/poppy"
+  ],
+  "bearer_methods_supported": [
+    "header"
+  ],
+  "dpop_signing_alg_values_supported": [
+    "ES256"
+  ]
+}
