@@ -1,0 +1,29 @@
+{
+  "protocol_version": "0.3",
+  "organization": {
+    "name": "Demo Toyota",
+    "domain": "demo-toyota.example.com"
+  },
+  "auth": {
+    "issuer": "https://demo-toyota.example.com/poppy"
+  },
+  "apis": [
+    {
+      "type": "openapi",
+      "url": "https://demo-toyota.example.com/poppy/openapi.yaml",
+      "resource": "https://demo-toyota.example.com/poppy",
+      "description": "Dealer information, inventory facets, search, vehicle details and consented leads using AAP payloads and Poppy guest sessions."
+    }
+  ],
+  "web": {},
+  "extensions": {
+    "autoagentprotocol.org/aap": {
+      "version": "1",
+      "agent_card": "https://demo-toyota.example.com/.well-known/agent-card.json",
+      "documentation": "https://autoagentprotocol.org/",
+      "aap_version": "3.0.0",
+      "mcp": "https://api.provider.example/aap/3.0.0/demo-toyota/mcp",
+      "llms_txt": "https://demo-toyota.example.com/llms.txt"
+    }
+  }
+}
