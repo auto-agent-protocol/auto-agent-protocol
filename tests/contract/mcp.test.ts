@@ -118,6 +118,7 @@ test("MCP input schemas avoid the reported host root-keyword restriction without
 for (const modern of [true, false]) {
   test(`official MCP ${modern ? "2.4.0 current" : "1.32.2 legacy"} client discovers and calls all five tools`, { timeout: 15000 }, async () => {
     const calls: Array<{ request: any; headers: Record<string, unknown>; result?: any }> = [];
+    let responseExample: string | undefined;
     const servedTools = structuredClone(catalog.tools);
     servedTools.find((tool: any) => tool.name === "aap_inventory_search")._meta[AAP_MCP_META].capabilities = read("inventory-capabilities.example.json");
     const server = createServer(async (req, res) => {
@@ -147,7 +148,7 @@ for (const modern of [true, false]) {
         const tool = tools.find((entry: any) => entry.name === request.params.name);
         if (!tool) { res.end(JSON.stringify({ jsonrpc: "2.0", id: request.id, error: { code: -32602, message: "Unknown tool" } })); return; }
         const valid = tool.input(request.params.arguments);
-        const payload = valid ? read(exampleFile(tool._meta[AAP_MCP_META].response_schema)) : read("error.example.json");
+        const payload = valid ? read(responseExample ?? exampleFile(tool._meta[AAP_MCP_META].response_schema)) : read("error.example.json");
         result = { ...(current ? { resultType: "complete" } : {}), isError: !valid, structuredContent: payload, content: [{ type: "text", text: JSON.stringify(payload) }] };
       } else { res.writeHead(404).end(); return; }
       call.result = result;
@@ -172,6 +173,17 @@ for (const modern of [true, false]) {
         assert.deepEqual(result.structuredContent, read(exampleFile(meta.response_schema)));
         assert.equal(tool.output(result.structuredContent), true, JSON.stringify(tool.output.errors));
       }
+      for (const [name, requestFile, responseFile] of [
+        ["aap_dealer_information", "dealer-information-request.aggregate.example.json", "dealer-information-response.aggregate.example.json"],
+        ["aap_lead_submit", "lead-submit-request.example.json", "lead-submit-response.replayed.example.json"],
+      ]) {
+        responseExample = responseFile;
+        const result = await client.callTool({ name, arguments: read(requestFile) });
+        assert.equal(result.isError, false);
+        assert.deepEqual(result.structuredContent, read(responseFile), "seller identity and recovered booking survive the transport unchanged");
+        assert.equal(tools.find((tool: any) => tool.name === name).output(result.structuredContent), true);
+      }
+      responseExample = undefined;
       const failure = await client.callTool({ name: "aap_inventory_search", arguments: { type: "inventory.search.request", filters: { unknown: true } } });
       assert.equal(failure.isError, true);
       assert.deepEqual(failure.structuredContent, read("error.example.json"));

@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 import test from "node:test";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
+import { globSync } from "glob";
 import { parse } from "yaml";
 import { generateOpenapi } from "../../tools/generate-openapi.js";
 import { DRAFT_VERSION, ROOT } from "../../tools/lib/releases.js";
@@ -39,9 +40,12 @@ test("Poppy OpenAPI carries every AAP skill unchanged and requires DPoP", async 
       ]) {
         const component = schema.$ref.split("/").pop();
         assert.deepEqual(api.components.schemas[component], a2a.components.schemas[component], "bindings must use identical payload schemas");
-        const example = JSON.parse(readFileSync(resolve(spec, "examples", schemaUrl.split("/").pop().replace(".schema.json", ".example.json")), "utf8"));
         const validate = ajv.compile({ $ref: `https://test.example/poppy${schema.$ref}` });
-        assert.equal(validate(example), true, JSON.stringify(validate.errors));
+        const stem = schemaUrl.split("/").pop().replace(".schema.json", "");
+        for (const file of globSync(`${stem}*.example.json`, { cwd: resolve(spec, "examples") }).filter(file => !file.includes(".jsonrpc."))) {
+          const example = JSON.parse(readFileSync(resolve(spec, "examples", file), "utf8"));
+          assert.equal(validate(example), true, `${file}: ${JSON.stringify(validate.errors)}`);
+        }
         assert.equal(validate({ type: "unrelated.request" }), false);
       }
       assert.equal(ajv.validate({ $ref: `https://test.example/poppy${op.requestBody.content["application/json"].schema.$ref}` }, op.requestBody.content["application/json"].example), true);
