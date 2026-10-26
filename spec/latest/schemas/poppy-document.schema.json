@@ -6,7 +6,7 @@
   "properties": {
     "protocol_version": {
       "type": "string",
-      "const": "0.2",
+      "const": "0.3",
       "description": "Supported PAP draft. Pre-1.0 major.minor versions are not implicitly compatible; unknown fields within this version remain allowed."
     },
     "organization": {
@@ -34,42 +34,6 @@
           "type": "string",
           "format": "uri",
           "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:/[^?#\\s]*)?$"
-        },
-        "direct": {
-          "type": "object",
-          "properties": {
-            "scopes": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "minLength": 1,
-                "pattern": "^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
-              },
-              "uniqueItems": true
-            }
-          },
-          "required": [
-            "scopes"
-          ],
-          "additionalProperties": true
-        },
-        "device": {
-          "type": "object",
-          "properties": {
-            "scopes": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "minLength": 1,
-                "pattern": "^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
-              },
-              "uniqueItems": true
-            }
-          },
-          "required": [
-            "scopes"
-          ],
-          "additionalProperties": true
         },
         "mediated": {
           "type": "object",
@@ -109,10 +73,10 @@
               "type": "array",
               "items": {
                 "type": "string",
-                "minLength": 1,
-                "pattern": "^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
+                "pattern": "^(?!poppy:)[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
               },
-              "uniqueItems": true
+              "uniqueItems": true,
+              "minItems": 1
             }
           },
           "required": [
@@ -122,11 +86,39 @@
           ],
           "additionalProperties": true
         },
-        "custom_scopes": {
+        "scopes": {
           "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^(?!poppy:)[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
+          },
           "additionalProperties": {
             "type": "string",
             "minLength": 1
+          }
+        },
+        "scope_hints": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^(?!poppy:)[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "changes",
+              "personal_data"
+            ],
+            "properties": {
+              "changes": {
+                "type": "string",
+                "description": "Readers treat unrecognized values as irreversible; publishers use none, reversible or irreversible."
+              },
+              "personal_data": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": true
           }
         }
       },
@@ -169,7 +161,7 @@
             "type": "string",
             "format": "uri",
             "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?][^#\\s]*)?$",
-            "description": "HTTPS resource identifier without a fragment, as required by PAP 0.2 and RFC 8707."
+            "description": "HTTPS resource identifier without a fragment, as required by PAP 0.3 and RFC 8707."
           }
         },
         "required": [
@@ -202,7 +194,7 @@
                 "type": "string",
                 "format": "uri",
                 "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?][^#\\s]*)?$",
-                "description": "HTTPS resource identifier without a fragment, as required by PAP 0.2 and RFC 8707."
+                "description": "HTTPS resource identifier without a fragment, as required by PAP 0.3 and RFC 8707."
               }
             },
             "required": [
@@ -247,6 +239,20 @@
         "endpoint"
       ],
       "additionalProperties": true
+    },
+    "excluded_tasks": {
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+        }
+      },
+      "additionalProperties": true
     }
   },
   "required": [
@@ -254,7 +260,7 @@
     "organization"
   ],
   "additionalProperties": true,
-  "description": "Structural validation of Personal Agent Protocol draft 0.2 discovery. Readers ignore unknown fields and skip unsupported interface types. Cross-document identity and runtime security require separate checks.",
+  "description": "Structural validation of Personal Agent Protocol draft 0.3 discovery. Readers ignore unknown fields and skip unsupported interface types. Cross-document identity and runtime security require separate checks.",
   "anyOf": [
     {
       "required": [

@@ -1,0 +1,163 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "poppy.schema.json",
+    "title": "poppy.json",
+    "description": "The discovery document a Company publishes at /.well-known/poppy.json. Spec section 3 (Discovery) and 3.1 (Fields). Unknown fields are allowed: Personal Agents ignore fields they don't recognize.",
+    "type": "object",
+    "required": ["protocol_version", "organization"],
+    "properties": {
+        "protocol_version": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]+$"
+        },
+        "organization": {
+            "type": "object",
+            "required": ["name", "domain"],
+            "properties": {
+                "name": { "type": "string", "minLength": 1 },
+                "domain": { "$ref": "#/$defs/domain" }
+            }
+        },
+        "auth": {
+            "type": "object",
+            "required": ["issuer"],
+            "properties": {
+                "issuer": { "$ref": "#/$defs/https_url" },
+                "mediated": {
+                    "type": "object",
+                    "required": ["endpoint", "fields", "scopes"],
+                    "properties": {
+                        "endpoint": { "$ref": "#/$defs/https_url" },
+                        "fields": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "object",
+                                "required": ["name", "label", "secret"],
+                                "properties": {
+                                    "name": { "type": "string", "minLength": 1 },
+                                    "label": { "type": "string", "minLength": 1 },
+                                    "secret": { "type": "boolean" }
+                                }
+                            }
+                        },
+                        "scopes": { "$ref": "#/$defs/scopes" }
+                    }
+                },
+                "scopes": {
+                    "description": "A description of each scope, keyed by scope name, in the same form as the scopes of an OpenAPI OAuth 2.0 security scheme. Every scope in scopes_supported needs a description here or in an OpenAPI description the Company lists.",
+                    "type": "object",
+                    "additionalProperties": { "type": "string", "minLength": 1 }
+                },
+                "scope_hints": {
+                    "description": "Hints about each scope, keyed by scope name, describing the most consequential operation that requires it.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "required": ["changes", "personal_data"],
+                        "properties": {
+                            "changes": { "enum": ["none", "reversible", "irreversible"] },
+                            "personal_data": { "type": "boolean" }
+                        }
+                    }
+                }
+            }
+        },
+        "agent": {
+            "type": "object",
+            "required": ["protocols"],
+            "properties": {
+                "protocols": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "required": ["type", "endpoint"],
+                        "properties": {
+                            "type": { "type": "string", "minLength": 1 },
+                            "endpoint": { "$ref": "#/$defs/https_url" },
+                            "resource": { "$ref": "#/$defs/https_url" }
+                        }
+                    }
+                }
+            }
+        },
+        "feedback": {
+            "type": "object",
+            "required": ["endpoint"],
+            "properties": {
+                "endpoint": {
+                    "$ref": "#/$defs/https_url"
+                }
+            }
+        },
+        "excluded_tasks": {
+            "type": "object",
+            "required": ["url"],
+            "properties": {
+                "url": { "$ref": "#/$defs/https_url" }
+            }
+        },
+        "web": {
+            "type": "object",
+            "properties": {
+                "browser_session_endpoint": { "$ref": "#/$defs/https_url" }
+            }
+        },
+        "apis": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["type", "url", "description"],
+                "properties": {
+                    "type": { "type": "string", "minLength": 1 },
+                    "url": { "$ref": "#/$defs/https_url" },
+                    "description": { "type": "string", "minLength": 1 },
+                    "resource": { "$ref": "#/$defs/https_url" }
+                }
+            }
+        },
+        "extensions": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "required": ["version"],
+                "properties": {
+                    "version": { "type": "string", "minLength": 1 },
+                    "endpoint": { "$ref": "#/$defs/https_url" }
+                }
+            }
+        }
+    },
+    "allOf": [
+        {
+            "if": {
+                "anyOf": [
+                    { "required": ["agent"] },
+                    { "required": ["apis"] },
+                    { "required": ["feedback"] },
+                    {
+                        "required": ["web"],
+                        "properties": { "web": { "required": ["browser_session_endpoint"] } }
+                    }
+                ]
+            },
+            "then": { "required": ["auth"] }
+        },
+        {
+            "anyOf": [{ "required": ["agent"] }, { "required": ["apis"] }, { "required": ["web"] }]
+        }
+    ],
+    "$defs": {
+        "https_url": { "type": "string", "pattern": "^https://[^\\s/?#]+" },
+        "domain": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$"
+        },
+        "scopes": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "pattern": "^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" }
+        }
+    }
+}

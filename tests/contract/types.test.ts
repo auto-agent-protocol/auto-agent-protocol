@@ -29,6 +29,14 @@ ${assignments.join("\n")}
 const publicDayHours: AAP.DayHours = { open: "09:00", close: "18:00" };
 const closedDay: AAP.DayHours = null;
 const weeklySchedule: AAP.WeeklyHours = { monday: publicDayHours, sunday: closedDay };
+const guestToken: AAP.PoppyGuestTokenResponse = { access_token: "illustrative", token_type: "DPoP", expires_in: 3600 };
+const browserJoin: AAP.PoppyBrowserSessionRequest = { code: "illustrative", proof: "illustrative" };
+// @ts-expect-error PAP 0.3 removes session_id from the token contract.
+const oldSessionToken: AAP.PoppySessionTokenResponse = { ...guestToken, session_id: "old" };
+// @ts-expect-error PAP 0.3 removes signed_in from the token contract.
+const oldSignedInToken: AAP.PoppySessionTokenResponse = { ...guestToken, signed_in: false };
+// @ts-expect-error Guest token responses omit scope entirely.
+const oldGuestScope: AAP.PoppyGuestTokenResponse = { ...guestToken, scope: "" };
 // @ts-expect-error Required search result fields cannot disappear into an index signature.
 const emptySearch: AAP.InventorySearchResponse["data"] = {};
 // @ts-expect-error A total is numeric or unknown, never text.

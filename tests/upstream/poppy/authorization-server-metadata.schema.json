@@ -1,0 +1,45 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "authorization-server-metadata.schema.json",
+    "title": "OAuth Authorization Server Metadata",
+    "description": "The RFC 8414 metadata the Company's auth.issuer publishes, with the fields Poppy requires. Spec section 3.2 (OAuth server). Other fields are allowed, and Personal Agents ignore them. grant_types_supported says which of Direct and Device Sign-In the Company offers: authorization_endpoint is required when it includes authorization_code, and device_authorization_endpoint when it includes the device_code grant. scopes_supported is required when the Company offers any type of sign-in, which can depend on poppy.json. These are checked separately.",
+    "type": "object",
+    "required": [
+        "issuer",
+        "token_endpoint",
+        "revocation_endpoint",
+        "grant_types_supported",
+        "protected_resources"
+    ],
+    "properties": {
+        "issuer": { "$ref": "#/$defs/https_url" },
+        "token_endpoint": { "$ref": "#/$defs/https_url" },
+        "revocation_endpoint": { "$ref": "#/$defs/https_url" },
+        "authorization_endpoint": { "$ref": "#/$defs/https_url" },
+        "device_authorization_endpoint": { "$ref": "#/$defs/https_url" },
+        "dpop_signing_alg_values_supported": {
+            "description": "Optional. The JWS algorithms the Company accepts for DPoP Proofs (RFC 9449 section 5.1). When present, it must include ES256, which is checked separately.",
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+        },
+        "grant_types_supported": {
+            "description": "Must include urn:ietf:params:oauth:grant-type:jwt-bearer and refresh_token, which is checked separately.",
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+        },
+        "scopes_supported": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" }
+        },
+        "protected_resources": {
+            "description": "RFC 9728 section 4. Lists https://{domain} for every domain whose poppy.json names the issuer, and may list other resources.",
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/https_url" }
+        }
+    },
+    "$defs": {
+        "https_url": { "type": "string", "pattern": "^https://[^\\s/?#]+" }
+    }
+}

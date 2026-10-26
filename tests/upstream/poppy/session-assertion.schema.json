@@ -1,0 +1,17 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "session-assertion.schema.json",
+    "title": "Session assertion claims",
+    "description": "The JWT payload of the assertion a Personal Agent sends with the JWT bearer grant to start or renew a Session. Spec section 4.2 (Starting a Session). aud is a single string, the Company's auth.issuer, never its token endpoint URL. jti has at least 128 random bits, which is at least 22 base64url characters.",
+    "type": "object",
+    "required": ["iss", "sub", "aud", "iat", "exp", "jti"],
+    "properties": {
+        "iss": { "type": "string", "pattern": "^https://[^\\s/?#]+" },
+        "sub": { "type": "string", "minLength": 1 },
+        "agent_id": { "type": "string", "minLength": 1 },
+        "aud": { "type": "string", "pattern": "^https://[^\\s/?#]+" },
+        "iat": { "type": "integer", "minimum": 0 },
+        "exp": { "type": "integer", "minimum": 0 },
+        "jti": { "type": "string", "minLength": 22 }
+    }
+}

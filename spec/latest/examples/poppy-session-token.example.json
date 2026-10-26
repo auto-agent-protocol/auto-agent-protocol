@@ -1,8 +1,5 @@
 {
   "access_token": "example-opaque-session-token-not-a-credential",
   "token_type": "DPoP",
-  "expires_in": 3600,
-  "scope": "",
-  "session_id": "session_example_001",
-  "signed_in": false
+  "expires_in": 3600
 }

@@ -1,0 +1,7 @@
+# PAP 0.3 draft fixtures
+
+Unmodified Company-kit schemas from [personal-agent-protocol/personal-agent-protocol](https://github.com/personal-agent-protocol/personal-agent-protocol/tree/86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7/kit/company/schemas), commit `86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7` (2026-10-26), Apache-2.0. These offline fixtures pin a draft, not an upstream final release.
+
+The normative source is [spec.mdx at that revision](https://github.com/personal-agent-protocol/personal-agent-protocol/blob/86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7/content/versions/0.3/spec.mdx). The upstream kit's schemas intentionally leave cross-document and runtime checks to implementers. At this revision the client-metadata schema still accepts only HTTPS redirects, despite §4.1 permitting RFC 8252 loopback callbacks. The scope-hint schema enumerates publication values, whereas §4.4 requires readers to treat unknown values as irreversible. Our separate regression cases follow the normative text for those distinctions. The kit also restricts NumericDates and token lifetimes to integers; the normative text permits JWT NumericDates and positive lifetimes, so fractional-number cases are checked separately.
+
+`tests/contract/poppy-upstream.test.ts` checks our baseline examples against these independent shapes. `poppy.test.ts` covers the 0.3 changes, publication constraints, reader tolerance and cross-document checks. Neither validates a deployed authorization service or proves JWT signatures, key ownership, nonce/replay enforcement, or consent.

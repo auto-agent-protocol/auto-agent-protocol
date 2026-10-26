@@ -1,0 +1,36 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "client-metadata.schema.json",
+    "title": "Personal Agent client metadata document",
+    "description": "The document at a Personal Agent's client_id URL. Spec section 4.1 (Agent identity). client_id must equal the URL it was fetched from, and jwks_uri and redirect_uris must be on the same domain as client_id; those depend on the fetch and are checked separately. Unknown fields are allowed.",
+    "type": "object",
+    "required": [
+        "client_id",
+        "client_name",
+        "jwks_uri",
+        "redirect_uris",
+        "token_endpoint_auth_method"
+    ],
+    "properties": {
+        "client_id": { "$ref": "#/$defs/https_url" },
+        "client_name": { "type": "string", "minLength": 1 },
+        "logo_uri": { "$ref": "#/$defs/https_url" },
+        "jwks_uri": { "$ref": "#/$defs/https_url" },
+        "redirect_uris": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/https_url" }
+        },
+        "token_endpoint_auth_method": { "const": "private_key_jwt" },
+        "extensions": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "required": ["version"],
+                "properties": { "version": { "type": "string", "minLength": 1 } }
+            }
+        }
+    },
+    "$defs": {
+        "https_url": { "type": "string", "pattern": "^https://[^\\s/?#]+" }
+    }
+}

@@ -1,0 +1,38 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "alternative.schema.json",
+    "title": "Alternative",
+    "description": "Another way to do a task: in an excluded task, or as the body of a 200 response to a feedback report. Spec 8.2 (Alternatives). Personal Agents skip reference types they don't recognize.",
+    "type": "object",
+    "anyOf": [{ "required": ["instructions"] }, { "required": ["references"] }],
+    "properties": {
+        "instructions": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "references": { "type": "array", "items": { "$ref": "#/$defs/reference" } }
+    },
+    "$defs": {
+        "reference": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+                "type": { "type": "string", "minLength": 1 },
+                "url": { "$ref": "poppy.schema.json#/$defs/https_url" },
+                "operation_id": { "type": "string", "minLength": 1 },
+                "tool": { "type": "string", "minLength": 1 }
+            },
+            "allOf": [
+                {
+                    "if": { "properties": { "type": { "const": "openapi" } } },
+                    "then": { "required": ["url", "operation_id"] }
+                },
+                {
+                    "if": { "properties": { "type": { "const": "mcp" } } },
+                    "then": { "required": ["url", "tool"] }
+                },
+                {
+                    "if": { "properties": { "type": { "const": "web" } } },
+                    "then": { "required": ["url"] }
+                }
+            ]
+        }
+    }
+}

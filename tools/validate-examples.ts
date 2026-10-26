@@ -4,7 +4,7 @@ import { glob } from "glob";
 import { readFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { ROOT, isMain } from "./lib/releases.js";
-import { checkPoppyAssertion, checkPoppyClientIdentity, checkPoppyIdentity } from "./lib/poppy.js";
+import { checkPoppyAssertion, checkPoppyClientIdentity, checkPoppyIdentity, checkPoppyTokenResponse, poppyAlternativeReferences } from "./lib/poppy.js";
 import { checkDiscovery } from "./lib/discovery.js";
 import { validateManifest } from "./validate-manifest.js";
 
@@ -38,6 +38,15 @@ export async function validateExamples(specDir: string, label: string): Promise<
     const document = read("poppy");
     const errors = checkPoppyIdentity(document, `https://${document.organization.domain}/.well-known/poppy.json`, read("poppy-oauth-metadata"));
     if (errors.length) throw new Error(`${label}/poppy.example.json: ${errors.join("; ")}`);
+    if (document.protocol_version === "0.3") {
+      const tokenErrors = [
+        ...checkPoppyTokenResponse(read("poppy-session-token"), { grant: "guest" }),
+        ...checkPoppyTokenResponse(read("poppy-token-exchange-response"), { grant: "exchange", subjectScopes: [] }),
+      ];
+      const alternative = read("poppy-alternative");
+      if (poppyAlternativeReferences(document, alternative).length !== alternative.references.length) tokenErrors.push("Alternative references an unadvertised API");
+      if (tokenErrors.length) throw new Error(`${label}/PAP 0.3 examples: ${tokenErrors.join("; ")}`);
+    }
     if (schemas.has("aap-extension-params")) {
       const discoveryErrors = checkDiscovery(read("agent-card"), document, validateManifest(specDir, label), document.extensions["autoagentprotocol.org/aap"].agent_card);
       if (discoveryErrors.length) throw new Error(`${label}/discovery: ${discoveryErrors.join("; ")}`);
