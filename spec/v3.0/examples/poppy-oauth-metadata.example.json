@@ -1,0 +1,18 @@
+{
+  "issuer": "https://demo-toyota.example.com/poppy",
+  "token_endpoint": "https://demo-toyota.example.com/poppy/oauth/token",
+  "revocation_endpoint": "https://demo-toyota.example.com/poppy/oauth/revoke",
+  "grant_types_supported": [
+    "urn:ietf:params:oauth:grant-type:jwt-bearer",
+    "refresh_token"
+  ],
+  "token_endpoint_auth_methods_supported": [
+    "private_key_jwt"
+  ],
+  "dpop_signing_alg_values_supported": [
+    "ES256"
+  ],
+  "protected_resources": [
+    "https://demo-toyota.example.com"
+  ]
+}

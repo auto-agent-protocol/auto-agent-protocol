@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.0/schemas/vehicle-detail-response.schema.json",
+  "title": "VehicleDetailResponse",
+  "description": "Typed inventory.vehicle response shared by MCP, A2A and PAP. The data object is an InventoryListing with eligible availability, source update time and a stable identifier. It can describe any supported vehicle type; an omitted vehicle_type means car. Sale condition is new, used or cpo.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "inventory.vehicle.response" },
+    "data": {
+      "$ref": "./inventory-listing.schema.json"
+    },
+    "message": {
+      "type": "string",
+      "description": "Optional contextual note. MAY be omitted.",
+      "maxLength": 2000
+    }
+  },
+  "required": ["type", "data"],
+  "additionalProperties": false
+}
