@@ -1,44 +1,52 @@
 // Auto-generated from JSON Schema — do not edit
-// Auto Agent Protocol 3.0.0
+// Auto Agent Protocol 3.1.0
 
 /**
- * AAP 3.0 metadata carried in the A2A Agent Card extension params. Links the three bindings without inventing an A2A transport or a PAP conversation protocol.
+ * Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.
+ */
+export type Currency = "USD" | "CAD";
+/**
+ * Odometer or mileage-query unit: mi means miles and km means kilometres. One mile is exactly 1.609344 kilometres. Fields explicitly ending in _mi always remain miles.
+ */
+export type MileageUnit = "mi" | "km";
+/**
+ * AAP 3.1 metadata carried in the A2A Agent Card extension params. Links the three bindings without inventing an A2A transport or a PAP conversation protocol.
  */
 export type AapExtensionParams = {
   /**
    * Stable deployment identifier. It must not identify a shopper.
    */
   id: string;
-  version: "3.0.0";
-  schema_base_url: "https://autoagentprotocol.org/v3.0/schemas/";
+  version: "3.1.0";
+  schema_base_url: "https://autoagentprotocol.org/v3.1/schemas/";
   mcp: McpEndpoint;
   poppy: string;
   llms_txt: string;
   skills: {
     "dealer.information"?: {
-      request_schema: "https://autoagentprotocol.org/v3.0/schemas/dealer-information-request.schema.json";
-      response_schema: "https://autoagentprotocol.org/v3.0/schemas/dealer-information-response.schema.json";
+      request_schema: "https://autoagentprotocol.org/v3.1/schemas/dealer-information-request.schema.json";
+      response_schema: "https://autoagentprotocol.org/v3.1/schemas/dealer-information-response.schema.json";
       [k: string]: any;
     };
     "inventory.facets"?: {
-      request_schema: "https://autoagentprotocol.org/v3.0/schemas/inventory-facets-request.schema.json";
-      response_schema: "https://autoagentprotocol.org/v3.0/schemas/inventory-facets-response.schema.json";
+      request_schema: "https://autoagentprotocol.org/v3.1/schemas/inventory-facets-request.schema.json";
+      response_schema: "https://autoagentprotocol.org/v3.1/schemas/inventory-facets-response.schema.json";
       [k: string]: any;
     };
     "inventory.search"?: {
-      request_schema: "https://autoagentprotocol.org/v3.0/schemas/inventory-search-request.schema.json";
-      response_schema: "https://autoagentprotocol.org/v3.0/schemas/inventory-search-response.schema.json";
+      request_schema: "https://autoagentprotocol.org/v3.1/schemas/inventory-search-request.schema.json";
+      response_schema: "https://autoagentprotocol.org/v3.1/schemas/inventory-search-response.schema.json";
       capabilities: InventoryCapabilities;
       [k: string]: any;
     };
     "inventory.vehicle"?: {
-      request_schema: "https://autoagentprotocol.org/v3.0/schemas/vehicle-detail-request.schema.json";
-      response_schema: "https://autoagentprotocol.org/v3.0/schemas/vehicle-detail-response.schema.json";
+      request_schema: "https://autoagentprotocol.org/v3.1/schemas/vehicle-detail-request.schema.json";
+      response_schema: "https://autoagentprotocol.org/v3.1/schemas/vehicle-detail-response.schema.json";
       [k: string]: any;
     };
     "lead.submit"?: {
-      request_schema: "https://autoagentprotocol.org/v3.0/schemas/lead-submit-request.schema.json";
-      response_schema: "https://autoagentprotocol.org/v3.0/schemas/lead-submit-response.schema.json";
+      request_schema: "https://autoagentprotocol.org/v3.1/schemas/lead-submit-request.schema.json";
+      response_schema: "https://autoagentprotocol.org/v3.1/schemas/lead-submit-response.schema.json";
       [k: string]: any;
     };
   };
@@ -48,6 +56,14 @@ export type AapExtensionParams = {
  * Actual search behavior of one deployment. Publish in the A2A AAP extension params.skills.inventory.search.capabilities and the MCP search tool metadata. The same scope, supported filters, sort fields and limits apply to every binding.
  */
 export type InventoryCapabilities = {
+  /**
+   * Supported search/facets query currencies. Omitted means only USD. The selected currency scopes the matching set, including listings without a price, and never invokes currency conversion.
+   *
+   * @minItems 1
+   */
+  currencies?: [Currency, ...Currency[]];
+  default_currency?: Currency1;
+  default_mileage_unit?: MileageUnit1;
   /**
    * dealer searches the named dealership or dealer group; aggregate searches multiple independently identified dealers. Aggregate endpoints do not accept ambiguous rooftop-name filters.
    */
@@ -114,6 +130,14 @@ export type InventoryCapabilities = {
   offset: boolean;
 };
 /**
+ * Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.
+ */
+export type Currency1 = "USD" | "CAD";
+/**
+ * Odometer or mileage-query unit: mi means miles and km means kilometres. One mile is exactly 1.609344 kilometres. Fields explicitly ending in _mi always remain miles.
+ */
+export type MileageUnit1 = "mi" | "km";
+/**
  * Customer contact information for a consented lead, shared by MCP, A2A and PAP. First and last names and at least one email or E.164 phone number are required. Include only contact information authorized for this submission.
  */
 export type Customer = {
@@ -141,6 +165,10 @@ export type Customer = {
   preferred_contact?: "email" | "phone" | "sms" | "any";
   address?: Address1;
 };
+/**
+ * Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.
+ */
+export type Currency2 = "USD" | "CAD";
 /**
  * A single day's hours — {open, close} in 24h HH:MM (rooftop local time) or null when closed.
  */
@@ -214,7 +242,7 @@ export type Error = {
   created_at: string;
 };
 /**
- * RESERVED. AAP event envelope for future compatibility. AAP 3.0 defines no event subscription or delivery mechanism. Implementations MUST NOT emit or expect this envelope through any AAP binding.
+ * RESERVED. AAP event envelope for future compatibility. AAP 3.1 defines no event subscription or delivery mechanism. Implementations MUST NOT emit or expect this envelope through any AAP binding.
  */
 export type Event = {
   [k: string]: any;
@@ -243,6 +271,14 @@ export type Event = {
     [k: string]: any;
   };
 };
+/**
+ * Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.
+ */
+export type Currency3 = "USD" | "CAD";
+/**
+ * Odometer or mileage-query unit: mi means miles and km means kilometres. One mile is exactly 1.609344 kilometres. Fields explicitly ending in _mi always remain miles.
+ */
+export type MileageUnit2 = "mi" | "km";
 /**
  * A term facet: each entry pairs a distinct field value with the count of matching vehicles.
  */
@@ -335,6 +371,14 @@ export type TermFacet6 = {
   count: number;
 }[];
 /**
+ * Single currency of the matching inventory and all price bounds, price sorts and price facets. Omit to use capabilities.default_currency, or USD when that capability is absent. Every matched vehicle has this effective currency, including listings without a price. No foreign-exchange conversion or country inference occurs. A schema-valid currency not advertised by capabilities.currencies returns SCHEMA_VALIDATION_FAILED at /currency.
+ */
+export type Currency4 = "USD" | "CAD";
+/**
+ * Unit for filters.mileage_max, mileage sorting and mileage_range. Omit to use capabilities.default_mileage_unit, or mi when absent. Compare known odometers after exact conversion using 1 mi = 1.609344 km, without rounding before filtering or sorting. Returned Vehicle.mileage stays in each vehicle's explicitly labelled native unit. This does not change radius_mi, distance_mi or electric_range_mi.
+ */
+export type MileageUnit3 = "mi" | "km";
+/**
  * An eligible inventory listing shared by search and vehicle detail. Requires availability, a source update timestamp and at least one stable identifier. Lead vehicle descriptions remain partial Vehicle objects.
  */
 export type InventoryListing = Vehicle &
@@ -373,6 +417,14 @@ export type InventoryListing = Vehicle &
     [k: string]: any;
   };
 /**
+ * Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.
+ */
+export type Currency5 = "USD" | "CAD";
+/**
+ * Odometer or mileage-query unit: mi means miles and km means kilometres. One mile is exactly 1.609344 kilometres. Fields explicitly ending in _mi always remain miles.
+ */
+export type MileageUnit4 = "mi" | "km";
+/**
  * Evidence about equipment on this specific vehicle. A trim name, model-year default or unverified marketing claim is not proof that equipment is installed. A missing entry means unknown, not absent.
  */
 export type VehicleFeature = {
@@ -407,9 +459,11 @@ export type VehicleFeature = {
  */
 export type InventorySearchRequest = {
   type: "inventory.search.request";
+  currency?: Currency6;
+  mileage_unit?: MileageUnit5;
   filters?: Filters1;
   /**
-   * Omit cursor and skip for the first page. Continue with the previous response's next_cursor and the same filters, sort and limit. Offset entry is optional and must be advertised. Cursor and skip are mutually exclusive. The server publishes its default_limit and max_limit; limits above max_limit are rejected.
+   * Omit cursor and skip for the first page. Continue with the previous response's next_cursor and the same effective currency, mileage_unit, filters, sort and limit. Offset entry is optional and must be advertised. Cursor and skip are mutually exclusive. The server publishes its default_limit and max_limit; limits above max_limit are rejected.
    */
   pagination?: {
     /**
@@ -430,7 +484,7 @@ export type InventorySearchRequest = {
    */
   sort?: {
     /**
-     * Primary sort field. Missing values sort last in either direction. price includes mandatory dealer charges and excludes only government-required consumer charges. distance_mi requires filters.near and is straight-line distance to the vehicle's rooftop. Break ties with a stable listing identifier so cursor pages do not repeat listings.
+     * Primary sort field. Missing values sort last in either direction. Price fields compare only amounts in the effective query currency; mileage compares readings converted to the effective query mileage_unit without rounding. price includes mandatory dealer charges and excludes only government-required consumer charges. distance_mi requires filters.near and is straight-line distance to the vehicle's rooftop. Break ties with a stable listing identifier so cursor pages do not repeat listings.
      */
     field:
       "price" | "list_price" | "msrp" | "mileage" | "year" | "make" | "model" | "stock" | "updated_at" | "distance_mi";
@@ -446,6 +500,22 @@ export type InventorySearchRequest = {
     anonymous?: boolean;
   };
 };
+/**
+ * Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.
+ */
+export type Currency6 = "USD" | "CAD";
+/**
+ * Odometer or mileage-query unit: mi means miles and km means kilometres. One mile is exactly 1.609344 kilometres. Fields explicitly ending in _mi always remain miles.
+ */
+export type MileageUnit5 = "mi" | "km";
+/**
+ * Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.
+ */
+export type Currency7 = "USD" | "CAD";
+/**
+ * Odometer or mileage-query unit: mi means miles and km means kilometres. One mile is exactly 1.609344 kilometres. Fields explicitly ending in _mi always remain miles.
+ */
+export type MileageUnit6 = "mi" | "km";
 /**
  * Submit one consented automotive inquiry through MCP, A2A or PAP. Customer, consent, source_agent and idempotency_key are required. Vehicle interest and trade-in may contain partial user-provided information. An optional appointment requires appointment_type; requesting a visit does not itself confirm a booking.
  */
@@ -772,7 +842,7 @@ export type PoppyTokenExchangeResponse = PoppySessionTokenResponse & {
   [k: string]: any;
 };
 /**
- * AAP 3.0 PAP draft 0.3 publication profile. Requires a guest OAuth issuer, native OpenAPI API and an AAP bridge linking the matching Agent Card, public MCP endpoint and llms.txt. Native PAP MCP session support remains conditional on advertising an MCP API entry.
+ * AAP 3.1 PAP draft 0.3 publication profile. Requires a guest OAuth issuer, native OpenAPI API and an AAP bridge linking the matching Agent Card, public MCP endpoint and llms.txt. Native PAP MCP session support remains conditional on advertising an MCP API entry.
  */
 export type AAPPoppyDiscovery = PoppyDocument & {
   protocol_version?: "0.3";
@@ -795,7 +865,7 @@ export type AAPPoppyDiscovery = PoppyDocument & {
   }[];
   extensions: {
     "autoagentprotocol.org/aap": PoppyAapExtension & {
-      aap_version: "3.0.0";
+      aap_version: "3.1.0";
       mcp: string;
       [k: string]: any;
     };
@@ -837,7 +907,9 @@ export type VehicleDetailRequest = {
 export interface AapSchemaTypes {
   AapMessage: AapMessage;
   Address: Address;
+  Currency: Currency;
   DealerFee: DealerFee;
+  MileageUnit: MileageUnit;
   AapExtensionParams: AapExtensionParams;
   AgentCard: AgentCard;
   Appointment: Appointment;
@@ -930,7 +1002,7 @@ export interface Address {
   zip?: string;
 }
 /**
- * One mandatory dealer charge or required add-on, in whole US dollars. Include dealer-paid taxes or fees passed to the buyer; exclude only government-required consumer charges and optional products. The amount is already included when Vehicle.price is present. Without price it is informational and cannot establish a payable amount. Names must be specific, nonempty and unique within one fees array.
+ * One mandatory dealer charge or required add-on, in whole units of the enclosing Vehicle.currency or rooftop.currency (USD when omitted). Include dealer-paid taxes or fees passed to the buyer; exclude only government-required consumer charges and optional products. The amount is already included when Vehicle.price is present. Without price it is informational and cannot establish a payable amount. Names must be specific, nonempty and unique within one fees array.
  */
 export interface DealerFee {
   /**
@@ -938,7 +1010,7 @@ export interface DealerFee {
    */
   name: string;
   /**
-   * Amount in whole US dollars. When Vehicle.price is present, this amount is already included and MUST NOT be added again. Without Vehicle.price, the amount is informational only.
+   * Amount in whole units of the enclosing vehicle's or rooftop's currency (USD when omitted). When Vehicle.price is present, this amount is already included and MUST NOT be added again. Without Vehicle.price, the amount is informational only.
    */
   amount: number;
 }
@@ -949,7 +1021,7 @@ export interface McpEndpoint {
   url: string;
   transport: "streamable-http";
   /**
-   * Every actually supported MCP revision. AAP 3.0 requires both the current baseline and the initialization-based compatibility revision.
+   * Every actually supported MCP revision. AAP 3.1 requires both the current baseline and the initialization-based compatibility revision.
    */
   protocol_versions: string[];
   /**
@@ -963,14 +1035,14 @@ export interface McpEndpoint {
  */
 export interface Sort {
   /**
-   * Primary sort field. Missing values sort last in either direction. price includes mandatory dealer charges and excludes only government-required consumer charges. distance_mi requires filters.near and is straight-line distance to the vehicle's rooftop. Break ties with a stable listing identifier so cursor pages do not repeat listings.
+   * Primary sort field. Missing values sort last in either direction. Price fields compare only amounts in the effective query currency; mileage compares readings converted to the effective query mileage_unit without rounding. price includes mandatory dealer charges and excludes only government-required consumer charges. distance_mi requires filters.near and is straight-line distance to the vehicle's rooftop. Break ties with a stable listing identifier so cursor pages do not repeat listings.
    */
   field:
     "price" | "list_price" | "msrp" | "mileage" | "year" | "make" | "model" | "stock" | "updated_at" | "distance_mi";
   order: "asc" | "desc";
 }
 /**
- * A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. AAP requires a JSONRPC interface in 'supportedInterfaces[]'. Additional bindings are outside AAP's conformance requirements, but all bindings on the same card MUST expose equivalent functionality, behavior, errors and authentication under A2A section 5.1. The card MUST declare exactly one AAP extension, whose 'uri' equals 'https://autoagentprotocol.org/extensions/aap/v3.0' and whose 'required' flag is true.
+ * A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. AAP requires a JSONRPC interface in 'supportedInterfaces[]'. Additional bindings are outside AAP's conformance requirements, but all bindings on the same card MUST expose equivalent functionality, behavior, errors and authentication under A2A section 5.1. The card MUST declare exactly one AAP extension, whose 'uri' equals 'https://autoagentprotocol.org/extensions/aap/v3.1' and whose 'required' flag is true.
  */
 export interface AgentCard {
   /**
@@ -1284,6 +1356,7 @@ export interface Rooftop {
    * Rooftop name shown to buyers and referenced by `Vehicle.rooftop` (e.g. 'Demo Toyota San Francisco').
    */
   name: string;
+  currency?: Currency2;
   /**
    * Legal / registered business name for this location.
    */
@@ -1397,6 +1470,8 @@ export interface WeeklyHours {
  * Counts and ranges across the full matching inventory, before pagination. Shared by inventory.facets and optional search-response facets on every binding. Omitted facets are unavailable; zero counts describe known empty buckets. Feature counts use verified present equipment only.
  */
 export interface Facets {
+  currency?: Currency3;
+  mileage_unit?: MileageUnit2;
   makes?: TermFacet;
   models?: TermFacet;
   trims?: TermFacet;
@@ -1415,9 +1490,9 @@ export interface Facets {
   statuses?: TermFacet;
   price_range?: RangeFacet;
   mileage_range?: RangeFacet1;
-  year_range?: RangeFacet1;
-  displacement_cc_range?: RangeFacet2;
-  electric_range_mi_range?: RangeFacet3;
+  year_range?: RangeFacet2;
+  displacement_cc_range?: RangeFacet3;
+  electric_range_mi_range?: RangeFacet4;
   /**
    * Advertised feature vocabulary and verified present counts. A code has one meaning across the deployment; unknown codes return UNSUPPORTED_FILTER. Counts exclude absent and unknown equipment.
    */
@@ -1428,7 +1503,7 @@ export interface Facets {
   }[];
 }
 /**
- * Observed minimum and maximum of authoritative Vehicle.price values. Vehicles without `price` do not contribute; omit `price_range` when no matching vehicle has `price`.
+ * Observed minimum and maximum of authoritative Vehicle.price values in the effective query currency. Vehicles without `price` do not contribute; omit `price_range` when no matching vehicle has `price`.
  */
 export interface RangeFacet {
   /**
@@ -1441,7 +1516,7 @@ export interface RangeFacet {
   max: number;
 }
 /**
- * A numeric range facet: the observed min and max for a field across the matching set.
+ * Observed minimum and maximum known odometer readings after exact conversion to the effective query mileage_unit. Bounds may be fractional; never aggregate native mi and km numbers directly.
  */
 export interface RangeFacet1 {
   /**
@@ -1480,10 +1555,25 @@ export interface RangeFacet3 {
   max: number;
 }
 /**
+ * A numeric range facet: the observed min and max for a field across the matching set.
+ */
+export interface RangeFacet4 {
+  /**
+   * Lowest observed value for this field across the matching set.
+   */
+  min: number;
+  /**
+   * Highest observed value for this field across the matching set.
+   */
+  max: number;
+}
+/**
  * Typed AAP request for the `inventory.facets` skill. An optional `filters` block scopes the facets to a subset of inventory (e.g. `condition: ['used']`). Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.
  */
 export interface InventoryFacetsRequest {
   type: "inventory.facets.request";
+  currency?: Currency4;
+  mileage_unit?: MileageUnit3;
   filters?: Filters;
 }
 /**
@@ -1586,13 +1676,16 @@ export interface Filters {
   year_min?: number;
   year_max?: number;
   /**
-   * Minimum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.
+   * Minimum price in whole units of the effective query currency, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.
    */
   price_min?: number;
   /**
-   * Maximum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.
+   * Maximum price in whole units of the effective query currency, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.
    */
   price_max?: number;
+  /**
+   * Inclusive maximum odometer in the effective query mileage_unit. Convert the known native reading exactly before comparing; a missing reading never matches.
+   */
   mileage_max?: number;
   vin?: string;
   stock?: string;
@@ -1639,7 +1732,7 @@ export interface InventoryFacetsResponse {
   message?: string;
 }
 /**
- * Shared vehicle shape for listings, vehicle_of_interest and trade_in. Inventory and vehicle_of_interest use condition new, used or cpo; trade_in uses excellent, good, fair or poor. Inventory requires an available, intransit or pending status, an identifier and updated_at. Out-of-stock units are omitted. Context schemas enforce these constraints. Prices are integers in whole US dollars. price includes mandatory dealer charges and excludes only government-required consumer charges; fee itemizations are already included. Optional vehicle_type defaults to car; motorcycles, trailers, RVs and other units use relevant fields only. Electric range, battery and charging fields apply across vehicle types. Free-text features are descriptive; feature_evidence supports verified equipment filtering. Additional inventory attributes remain allowed.
+ * Shared vehicle shape for listings, vehicle_of_interest and trade_in. Inventory and vehicle_of_interest use condition new, used or cpo; trade_in uses excellent, good, fair or poor. Inventory requires an available, intransit or pending status, an identifier and updated_at. Out-of-stock units are omitted. Context schemas enforce these constraints. Prices are integers in whole units of currency (USD when omitted); mileage uses mileage_unit (mi when omitted). Neither country nor request context overrides these per-vehicle defaults. price includes mandatory dealer charges and excludes only government-required consumer charges; fee itemizations are already included. Optional vehicle_type defaults to car; motorcycles, trailers, RVs and other units use relevant fields only. Electric range, battery and charging fields apply across vehicle types. Free-text features are descriptive; feature_evidence supports verified equipment filtering. Additional inventory attributes remain allowed.
  */
 export interface Vehicle {
   /**
@@ -1678,16 +1771,17 @@ export interface Vehicle {
    * Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer.information. Nullable; single-rooftop dealers MAY leave it null.
    */
   rooftop?: string | null;
+  currency?: Currency5;
   /**
-   * Manufacturer's Suggested Retail Price (sticker price), whole US dollars. Inventory context.
+   * Manufacturer's Suggested Retail Price (sticker price), in whole units of this vehicle's currency (USD when omitted). Inventory context.
    */
   msrp?: number;
   /**
-   * Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.
+   * Authoritative advertised vehicle price in whole units of this vehicle's currency (USD when omitted). It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.
    */
   price?: number;
   /**
-   * Dealer's base list price before discounts, rebates, mandatory dealer charges, and required add-ons, in whole US dollars. This is comparison context, not an amount a consumer can necessarily buy the vehicle for. A provider that knows only a base or list amount publishes `list_price` and omits `price`. Inventory context.
+   * Dealer's base list price before discounts, rebates, mandatory dealer charges, and required add-ons, in whole units of this vehicle's currency (USD when omitted). This is comparison context, not an amount a consumer can necessarily buy the vehicle for. A provider that knows only a base or list amount publishes `list_price` and omits `price`. Inventory context.
    */
   list_price?: number;
   /**
@@ -1706,8 +1800,9 @@ export interface Vehicle {
    * Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.
    */
   vehicle_id?: string;
+  mileage_unit?: MileageUnit4;
   /**
-   * Known odometer reading in miles. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.
+   * Known odometer reading in this vehicle's mileage_unit (mi when omitted). Preserve the labelled native reading; query comparisons and sorting may convert it without changing this value. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.
    */
   mileage?: number;
   /**
@@ -1914,13 +2009,16 @@ export interface Filters1 {
   year_min?: number;
   year_max?: number;
   /**
-   * Minimum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.
+   * Minimum price in whole units of the effective query currency, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.
    */
   price_min?: number;
   /**
-   * Maximum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.
+   * Maximum price in whole units of the effective query currency, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.
    */
   price_max?: number;
+  /**
+   * Inclusive maximum odometer in the effective query mileage_unit. Convert the known native reading exactly before comparing; a missing reading never matches.
+   */
   mileage_max?: number;
   vin?: string;
   stock?: string;
@@ -1961,6 +2059,8 @@ export interface Filters1 {
 export interface InventorySearchResponse {
   type: "inventory.search.response";
   data: {
+    currency?: Currency7;
+    mileage_unit?: MileageUnit6;
     /**
      * Exact number of matching vehicles across all pages, or null when an exact count is unavailable. Never report the page size, a capped count or an estimate as the total.
      */
@@ -2000,6 +2100,8 @@ export interface InventorySearchResponse {
  * Counts and ranges across the full matching inventory, before pagination. Shared by inventory.facets and optional search-response facets on every binding. Omitted facets are unavailable; zero counts describe known empty buckets. Feature counts use verified present equipment only.
  */
 export interface Facets1 {
+  currency?: Currency3;
+  mileage_unit?: MileageUnit2;
   makes?: TermFacet;
   models?: TermFacet;
   trims?: TermFacet;
@@ -2018,9 +2120,9 @@ export interface Facets1 {
   statuses?: TermFacet;
   price_range?: RangeFacet;
   mileage_range?: RangeFacet1;
-  year_range?: RangeFacet1;
-  displacement_cc_range?: RangeFacet2;
-  electric_range_mi_range?: RangeFacet3;
+  year_range?: RangeFacet2;
+  displacement_cc_range?: RangeFacet3;
+  electric_range_mi_range?: RangeFacet4;
   /**
    * Advertised feature vocabulary and verified present counts. A code has one meaning across the deployment; unknown codes return UNSUPPORTED_FILTER. Counts exclude absent and unknown equipment.
    */
@@ -2130,13 +2232,16 @@ export interface Filters2 {
   year_min?: number;
   year_max?: number;
   /**
-   * Minimum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.
+   * Minimum price in whole units of the effective query currency, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.
    */
   price_min?: number;
   /**
-   * Maximum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.
+   * Maximum price in whole units of the effective query currency, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.
    */
   price_max?: number;
+  /**
+   * Inclusive maximum odometer in the effective query mileage_unit. Convert the known native reading exactly before comparing; a missing reading never matches.
+   */
   mileage_max?: number;
   vin?: string;
   stock?: string;
@@ -2176,7 +2281,7 @@ export interface Filters2 {
  */
 export interface Sort1 {
   /**
-   * Primary sort field. Missing values sort last in either direction. price includes mandatory dealer charges and excludes only government-required consumer charges. distance_mi requires filters.near and is straight-line distance to the vehicle's rooftop. Break ties with a stable listing identifier so cursor pages do not repeat listings.
+   * Primary sort field. Missing values sort last in either direction. Price fields compare only amounts in the effective query currency; mileage compares readings converted to the effective query mileage_unit without rounding. price includes mandatory dealer charges and excludes only government-required consumer charges. distance_mi requires filters.near and is straight-line distance to the vehicle's rooftop. Break ties with a stable listing identifier so cursor pages do not repeat listings.
    */
   field:
     "price" | "list_price" | "msrp" | "mileage" | "year" | "make" | "model" | "stock" | "updated_at" | "distance_mi";
@@ -2213,7 +2318,7 @@ export interface ConsentGrant1 {
   expires_at?: string;
 }
 /**
- * Shared vehicle shape for listings, vehicle_of_interest and trade_in. Inventory and vehicle_of_interest use condition new, used or cpo; trade_in uses excellent, good, fair or poor. Inventory requires an available, intransit or pending status, an identifier and updated_at. Out-of-stock units are omitted. Context schemas enforce these constraints. Prices are integers in whole US dollars. price includes mandatory dealer charges and excludes only government-required consumer charges; fee itemizations are already included. Optional vehicle_type defaults to car; motorcycles, trailers, RVs and other units use relevant fields only. Electric range, battery and charging fields apply across vehicle types. Free-text features are descriptive; feature_evidence supports verified equipment filtering. Additional inventory attributes remain allowed.
+ * Shared vehicle shape for listings, vehicle_of_interest and trade_in. Inventory and vehicle_of_interest use condition new, used or cpo; trade_in uses excellent, good, fair or poor. Inventory requires an available, intransit or pending status, an identifier and updated_at. Out-of-stock units are omitted. Context schemas enforce these constraints. Prices are integers in whole units of currency (USD when omitted); mileage uses mileage_unit (mi when omitted). Neither country nor request context overrides these per-vehicle defaults. price includes mandatory dealer charges and excludes only government-required consumer charges; fee itemizations are already included. Optional vehicle_type defaults to car; motorcycles, trailers, RVs and other units use relevant fields only. Electric range, battery and charging fields apply across vehicle types. Free-text features are descriptive; feature_evidence supports verified equipment filtering. Additional inventory attributes remain allowed.
  */
 export interface Vehicle1 {
   /**
@@ -2252,16 +2357,17 @@ export interface Vehicle1 {
    * Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer.information. Nullable; single-rooftop dealers MAY leave it null.
    */
   rooftop?: string | null;
+  currency?: Currency5;
   /**
-   * Manufacturer's Suggested Retail Price (sticker price), whole US dollars. Inventory context.
+   * Manufacturer's Suggested Retail Price (sticker price), in whole units of this vehicle's currency (USD when omitted). Inventory context.
    */
   msrp?: number;
   /**
-   * Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.
+   * Authoritative advertised vehicle price in whole units of this vehicle's currency (USD when omitted). It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.
    */
   price?: number;
   /**
-   * Dealer's base list price before discounts, rebates, mandatory dealer charges, and required add-ons, in whole US dollars. This is comparison context, not an amount a consumer can necessarily buy the vehicle for. A provider that knows only a base or list amount publishes `list_price` and omits `price`. Inventory context.
+   * Dealer's base list price before discounts, rebates, mandatory dealer charges, and required add-ons, in whole units of this vehicle's currency (USD when omitted). This is comparison context, not an amount a consumer can necessarily buy the vehicle for. A provider that knows only a base or list amount publishes `list_price` and omits `price`. Inventory context.
    */
   list_price?: number;
   /**
@@ -2280,8 +2386,9 @@ export interface Vehicle1 {
    * Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.
    */
   vehicle_id?: string;
+  mileage_unit?: MileageUnit4;
   /**
-   * Known odometer reading in miles. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.
+   * Known odometer reading in this vehicle's mileage_unit (mi when omitted). Preserve the labelled native reading; query comparisons and sorting may convert it without changing this value. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.
    */
   mileage?: number;
   /**
@@ -2389,7 +2496,7 @@ export interface Vehicle1 {
   [k: string]: any;
 }
 /**
- * Shared vehicle shape for listings, vehicle_of_interest and trade_in. Inventory and vehicle_of_interest use condition new, used or cpo; trade_in uses excellent, good, fair or poor. Inventory requires an available, intransit or pending status, an identifier and updated_at. Out-of-stock units are omitted. Context schemas enforce these constraints. Prices are integers in whole US dollars. price includes mandatory dealer charges and excludes only government-required consumer charges; fee itemizations are already included. Optional vehicle_type defaults to car; motorcycles, trailers, RVs and other units use relevant fields only. Electric range, battery and charging fields apply across vehicle types. Free-text features are descriptive; feature_evidence supports verified equipment filtering. Additional inventory attributes remain allowed.
+ * Shared vehicle shape for listings, vehicle_of_interest and trade_in. Inventory and vehicle_of_interest use condition new, used or cpo; trade_in uses excellent, good, fair or poor. Inventory requires an available, intransit or pending status, an identifier and updated_at. Out-of-stock units are omitted. Context schemas enforce these constraints. Prices are integers in whole units of currency (USD when omitted); mileage uses mileage_unit (mi when omitted). Neither country nor request context overrides these per-vehicle defaults. price includes mandatory dealer charges and excludes only government-required consumer charges; fee itemizations are already included. Optional vehicle_type defaults to car; motorcycles, trailers, RVs and other units use relevant fields only. Electric range, battery and charging fields apply across vehicle types. Free-text features are descriptive; feature_evidence supports verified equipment filtering. Additional inventory attributes remain allowed.
  */
 export interface Vehicle2 {
   /**
@@ -2428,16 +2535,17 @@ export interface Vehicle2 {
    * Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer.information. Nullable; single-rooftop dealers MAY leave it null.
    */
   rooftop?: string | null;
+  currency?: Currency5;
   /**
-   * Manufacturer's Suggested Retail Price (sticker price), whole US dollars. Inventory context.
+   * Manufacturer's Suggested Retail Price (sticker price), in whole units of this vehicle's currency (USD when omitted). Inventory context.
    */
   msrp?: number;
   /**
-   * Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.
+   * Authoritative advertised vehicle price in whole units of this vehicle's currency (USD when omitted). It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.
    */
   price?: number;
   /**
-   * Dealer's base list price before discounts, rebates, mandatory dealer charges, and required add-ons, in whole US dollars. This is comparison context, not an amount a consumer can necessarily buy the vehicle for. A provider that knows only a base or list amount publishes `list_price` and omits `price`. Inventory context.
+   * Dealer's base list price before discounts, rebates, mandatory dealer charges, and required add-ons, in whole units of this vehicle's currency (USD when omitted). This is comparison context, not an amount a consumer can necessarily buy the vehicle for. A provider that knows only a base or list amount publishes `list_price` and omits `price`. Inventory context.
    */
   list_price?: number;
   /**
@@ -2456,8 +2564,9 @@ export interface Vehicle2 {
    * Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.
    */
   vehicle_id?: string;
+  mileage_unit?: MileageUnit4;
   /**
-   * Known odometer reading in miles. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.
+   * Known odometer reading in this vehicle's mileage_unit (mi when omitted). Preserve the labelled native reading; query comparisons and sorting may convert it without changing this value. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.
    */
   mileage?: number;
   /**

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.1/schemas/dealer-information-request.schema.json",
+  "title": "DealerInformationRequest",
+  "description": "Read the endpoint's public profile, or resolve a listing's dealer_id to its actual seller before obtaining contact consent. Aggregate endpoints must support this lookup. Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.",
+  "type": "object",
+  "examples": [
+    { "type": "dealer.information.request" }
+  ],
+  "properties": {
+    "type": {
+      "const": "dealer.information.request",
+      "description": "AAP message type. Skill ID plus role."
+    },
+    "dealer_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque seller identifier from a listing on this endpoint. Return that seller's profile with the same data.dealer_id, never the aggregate operator or an arbitrary rooftop. Unknown or inaccessible identifiers return DEALER_NOT_FOUND. Omit for the endpoint's default profile."
+    }
+  },
+  "required": ["type"],
+  "additionalProperties": false
+}

@@ -1,0 +1,29 @@
+{
+  "type": "dealer.information.response",
+  "data": {
+    "dealer_id": "dealer_demo_toronto",
+    "name": "Demo Toyota Toronto",
+    "rooftops": [
+      {
+        "name": "Demo Toyota Toronto",
+        "currency": "CAD",
+        "address": {
+          "country": "CA",
+          "state": "ON",
+          "city": "Toronto",
+          "zip": "M5H 2N2"
+        },
+        "geo": {
+          "latitude": 43.6532,
+          "longitude": -79.3832
+        },
+        "fees": [
+          {
+            "name": "Documentation fee",
+            "amount": 500
+          }
+        ]
+      }
+    ]
+  }
+}
