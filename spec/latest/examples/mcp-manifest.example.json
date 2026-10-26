@@ -13,11 +13,11 @@
     {
       "name": "aap_dealer_information",
       "title": "Dealer Information",
-      "description": "Read dealership identity, rooftops, coordinates, hours, contact channels and default fee disclosures.",
+      "description": "Read dealership identity, rooftops, coordinates, hours, contact channels and default fee disclosures. On aggregate inventory, resolve a listing's dealer_id to the actual seller before consent.",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "title": "DealerInformationRequest",
-        "description": "Typed AAP request for the `dealer.information` skill. The request carries no parameters; it asks for the dealer's static profile. Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.",
+        "description": "Read the endpoint's public profile, or resolve a listing's dealer_id to its actual seller before obtaining contact consent. Aggregate endpoints must support this lookup. Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.",
         "type": "object",
         "examples": [
           {
@@ -28,6 +28,11 @@
           "type": {
             "const": "dealer.information.request",
             "description": "AAP message type. Skill ID plus role."
+          },
+          "dealer_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Opaque seller identifier from a listing on this endpoint. Return that seller's profile with the same data.dealer_id, never the aggregate operator or an arbitrary rooftop. Unknown or inaccessible identifiers return DEALER_NOT_FOUND. Omit for the endpoint's default profile."
           }
         },
         "required": [
@@ -75,6 +80,11 @@
             "description": "Public dealership profile. A dealer group has a `name`, an optional `welcome_message`, and one or more `rooftops` (physical locations). Per-location identity, address, geo, contacts, hours, default dealer fees, and service capabilities live on each rooftop. Vehicles reference the rooftop that holds them via `Vehicle.rooftop` = the rooftop's `name`. Rooftop fees are publisher defaults and discovery metadata only: if an inventory publisher emits Vehicle.fees, it materializes the complete effective vehicle itemization, and consumers never join or merge fee arrays. Returned by the `dealer.information` AAP skill, wrapped in `dealer.information.response` and shared by MCP, A2A and PAP.",
             "type": "object",
             "properties": {
+              "dealer_id": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Seller identifier within this endpoint. Required and equal to the requested dealer_id for a selected seller profile. The name and rooftops then describe only that receiving dealership, not the aggregate operator."
+              },
               "name": {
                 "type": "string",
                 "description": "Dealer group / business name shown to buyers (e.g. 'Demo Auto Group').",
@@ -460,6 +470,7 @@
                   "SCHEMA_VALIDATION_FAILED",
                   "MISSING_REQUIRED_FIELD",
                   "INVALID_CONDITION",
+                  "DEALER_NOT_FOUND",
                   "VEHICLE_NOT_FOUND",
                   "VEHICLE_UNAVAILABLE",
                   "CONTACT_CONSENT_REQUIRED",
@@ -1273,6 +1284,7 @@
                   "SCHEMA_VALIDATION_FAILED",
                   "MISSING_REQUIRED_FIELD",
                   "INVALID_CONDITION",
+                  "DEALER_NOT_FOUND",
                   "VEHICLE_NOT_FOUND",
                   "VEHICLE_UNAVAILABLE",
                   "CONTACT_CONSENT_REQUIRED",
@@ -3591,6 +3603,7 @@
                   "SCHEMA_VALIDATION_FAILED",
                   "MISSING_REQUIRED_FIELD",
                   "INVALID_CONDITION",
+                  "DEALER_NOT_FOUND",
                   "VEHICLE_NOT_FOUND",
                   "VEHICLE_UNAVAILABLE",
                   "CONTACT_CONSENT_REQUIRED",
@@ -4556,6 +4569,7 @@
                   "SCHEMA_VALIDATION_FAILED",
                   "MISSING_REQUIRED_FIELD",
                   "INVALID_CONDITION",
+                  "DEALER_NOT_FOUND",
                   "VEHICLE_NOT_FOUND",
                   "VEHICLE_UNAVAILABLE",
                   "CONTACT_CONSENT_REQUIRED",
@@ -6127,6 +6141,7 @@
                   "SCHEMA_VALIDATION_FAILED",
                   "MISSING_REQUIRED_FIELD",
                   "INVALID_CONDITION",
+                  "DEALER_NOT_FOUND",
                   "VEHICLE_NOT_FOUND",
                   "VEHICLE_UNAVAILABLE",
                   "CONTACT_CONSENT_REQUIRED",

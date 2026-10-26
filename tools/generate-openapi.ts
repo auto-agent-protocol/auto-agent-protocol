@@ -373,7 +373,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
           "400": response("Malformed JSON or a request that cannot be processed.", "Error"),
           "401": { description: "Missing, expired or invalid token/proof. For use_dpop_nonce, retry with the DPoP-Nonce value and a fresh proof. No skill execution.", headers: { "WWW-Authenticate": challenge, "DPoP-Nonce": nonce } },
           "403": { description: "PAP authorization or extension_required challenge, or an AAP consent error. Authentication errors need no AAP body. No skill execution.", headers: { "WWW-Authenticate": challenge, "DPoP-Nonce": nonce }, content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
-          "404": response("Vehicle or implemented skill not found.", "Error"),
+          "404": response("Dealer, vehicle or implemented skill not found.", "Error"),
           "409": response("Vehicle/appointment unavailable or idempotency conflict.", "Error"),
           "422": response("Invalid AAP payload or request type, unsupported filter or sort, or an invalid/expired cursor. Read the typed error code, request path and recovery hint.", "Error"),
           "429": { ...response("Rate limited. Honor Retry-After before retrying.", "Error"), headers: { "Retry-After": { schema: { type: "string" } }, "DPoP-Nonce": nonce } },

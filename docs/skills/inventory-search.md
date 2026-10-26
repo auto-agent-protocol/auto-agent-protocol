@@ -54,6 +54,8 @@ Read `params.skills["inventory.search"].capabilities` on the AAP Agent Card exte
 
 The capabilities name the endpoint's `scope` (`dealer` or `aggregate`), supported `filters`, `sort_fields`, `default_sort`, `default_limit`, `max_limit`, and support for an offset entry point. An aggregate endpoint MUST reject `rooftops`: names are not globally unique. Aggregate results MUST include the owning `dealer_id` and a stable `vehicle_id` unique within that endpoint. That ID must resolve the same listing through `inventory.vehicle`; a dealer-local stock number alone is insufficient.
 
+An aggregate endpoint MUST also expose [`dealer.information`](./dealer-information.md#resolve-a-seller-from-aggregate-inventory), accepting the listing's `dealer_id` and returning that actual seller's profile before consent.
+
 A deployment advertising feature filters MUST also expose [`inventory.facets`](./inventory-facets.md). Its `features` facet supplies the feature codes, labels and counts; include supported codes with zero matches when necessary to preserve the vocabulary. An unknown code produces `UNSUPPORTED_FILTER` with its request path and a recovery hint.
 
 ### Equipment needs evidence

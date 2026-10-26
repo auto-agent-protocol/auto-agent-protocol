@@ -56,7 +56,7 @@ Run these before advertising AAP 3.0. Use isolated inventory and a non-deliverin
 | Tenant and credential isolation | Another dealer cannot see private inventory or leads; no token forwarding across redirects, resources or tenants |
 | Search completeness | Every constraint applied; unsupported filters rejected; cursor continuation reaches all matches without hidden caps; changed/expired cursors fail |
 | Features and geography | Known feature vocabulary, source evidence, unknown-data handling, correct radius boundary and stable distance ordering |
-| Aggregate identity | Each result's endpoint-unique vehicle ID resolves the same seller and listing; duplicate VINs/stock numbers never choose an arbitrary dealer; lead consent names the actual recipient |
+| Aggregate identity | Each result's endpoint-unique vehicle ID resolves the same seller and listing; duplicate VINs/stock numbers never choose an arbitrary dealer; `dealer.information` resolves its dealer ID to the actual recipient before consent; unknown IDs fail and mismatched identities stop delivery |
 | Inventory and pricing | Current eligible status, real update timestamp, stable identifier, authoritative fee-inclusive price; unknown price stays unknown |
 | Consent | Missing/invalid/expired grants fail before delivery; every permitted channel has contact data; no unauthorized follow-up |
 | Concurrent retries | Same key and payload creates one lead; changed payload conflicts; Session renewal and securely correlated bindings do not duplicate it |

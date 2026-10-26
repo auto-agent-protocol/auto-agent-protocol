@@ -109,6 +109,7 @@ The AAP payload is a separate standard Any detail with `@type: "type.googleapis.
 | `SCHEMA_VALIDATION_FAILED` | Request body fails JSON Schema validation. | -32602 (Invalid params) | `false` |
 | `MISSING_REQUIRED_FIELD` | A specifically required field is absent. | -32602 (Invalid params) | `false` |
 | `INVALID_CONDITION` | `vehicle_of_interest.condition` is in the trade-in vocabulary, or `trade_in.condition` is in the sale-condition vocabulary. | -32602 (Invalid params) | `false` |
+| `DEALER_NOT_FOUND` | The requested seller is unknown or inaccessible on this endpoint. | -32000 (Server error) | `false` |
 | `VEHICLE_NOT_FOUND` | The supplied `vin` / `stock` / `vehicle_id` does not match any listing. | -32000 (Server error) | `false` |
 | `VEHICLE_UNAVAILABLE` | The vehicle exists but its `status` is no longer one of `available` \| `intransit` \| `pending`. | -32000 (Server error) | `false` |
 | `CONTACT_CONSENT_REQUIRED` | `consent` is missing from a lead submission. | -32000 (Server error) | `false` |

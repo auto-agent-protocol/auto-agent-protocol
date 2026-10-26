@@ -178,6 +178,48 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "skills": {
+            "properties": {
+              "inventory.search": {
+                "properties": {
+                  "capabilities": {
+                    "properties": {
+                      "scope": {
+                        "const": "aggregate"
+                      }
+                    },
+                    "required": [
+                      "scope"
+                    ]
+                  }
+                },
+                "required": [
+                  "capabilities"
+                ]
+              }
+            },
+            "required": [
+              "inventory.search"
+            ]
+          }
+        },
+        "required": [
+          "skills"
+        ]
+      },
+      "then": {
+        "properties": {
+          "skills": {
+            "required": [
+              "dealer.information"
+            ]
+          }
+        }
+      }
     }
   ],
   "additionalProperties": true

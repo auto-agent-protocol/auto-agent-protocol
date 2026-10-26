@@ -252,6 +252,7 @@ A failed skill returns a JSON-RPC error. `error.data` is an array of standard Pr
 | `UNSUPPORTED_FILTER` | -32602 (Invalid params) | Filter or feature code is not supported here. |
 | `UNSUPPORTED_SORT` | -32602 (Invalid params) | Sort field is not advertised. |
 | `INVALID_CURSOR` | -32602 (Invalid params) | Cursor is invalid, expired or bound to another request. |
+| `DEALER_NOT_FOUND` | -32000 | No accessible seller for this dealer ID. |
 | `VEHICLE_NOT_FOUND` | -32000 | Application error. |
 | `VEHICLE_UNAVAILABLE` | -32000 | Application error. |
 | `CONTACT_CONSENT_REQUIRED` | -32000 | Application error. |

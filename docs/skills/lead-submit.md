@@ -63,7 +63,7 @@ See the [vehicle + trade-in example](https://draft.autoagentprotocol.invalid/lat
 
 Before submission, the buyer agent MUST obtain permission to send the selected customer information, inquiry and contact channels to this dealer. It MUST preserve the disclosure in `consent_text` and record `granted_at`. `scope` is exactly `["lead_submission"]`; `allowed_channels` contains at least one of `email`, `phone`, `sms`.
 
-For a listing found through an aggregate endpoint, retain its `dealer_id` and `vehicle_id` in `vehicle_of_interest` and obtain consent for the actual receiving dealership. The operator MUST reject an ambiguous recipient before delivery; it must never broadcast the inquiry to other dealers without their own explicit customer authorization.
+For a listing found through an aggregate endpoint, resolve its `dealer_id` with [`dealer.information`](./dealer-information.md#resolve-a-seller-from-aggregate-inventory) before obtaining consent. Retain its `dealer_id` and `vehicle_id` in `vehicle_of_interest` and name the resolved receiving dealership in the disclosure. The operator MUST reject an ambiguous or changed recipient before delivery; it must never broadcast the inquiry to other dealers without their own explicit customer authorization.
 
 Each permitted channel needs its contact value: `email` requires `customer.email`; `phone` and `sms` require `customer.phone`. A specific `preferred_contact` must be permitted by the grant. `any` means any **permitted** channel. Do not include unrelated customer information.
 

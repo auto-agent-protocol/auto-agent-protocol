@@ -22,7 +22,33 @@ Use the typed request as MCP arguments, an A2A DataPart or a PAP OpenAPI body. N
 { "type": "dealer.information.request" }
 ```
 
-There are no parameters. Unknown request properties are invalid.
+Omit `dealer_id` for the endpoint's default profile. Unknown request properties are invalid.
+
+### Resolve a seller from aggregate inventory
+
+An endpoint advertising `scope: "aggregate"` MUST expose this skill through every binding. Before requesting permission to contact a seller, resolve the listing's opaque `dealer_id` on that same endpoint:
+
+```json
+{ "type": "dealer.information.request", "dealer_id": "d-7" }
+```
+
+```json
+{
+  "type": "dealer.information.response",
+  "data": {
+    "dealer_id": "d-7",
+    "name": "Demo Toyota",
+    "rooftops": [{
+      "name": "Demo Toyota San Francisco",
+      "website": "https://demo-toyota.example.com"
+    }]
+  }
+}
+```
+
+For a selected profile, `data.dealer_id` MUST equal the requested identifier. `data.name` and `rooftops` MUST identify only the actual receiving dealership. An unknown or inaccessible identifier returns `DEALER_NOT_FOUND`; never substitute the marketplace's profile. Clients MUST stop on a mismatched or unresolved identity and MUST NOT infer the recipient from a rooftop name. The seller ID remains stable within this endpoint and MUST NOT be reassigned to another business.
+
+An ordinary dealer-scoped endpoint needs no additional lookup before consent: its discovery already identifies the dealer. The existing parameterless request remains valid. If it accepts a selector, it follows the same exact-match rule.
 
 ## Response
 

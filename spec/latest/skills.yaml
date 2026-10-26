@@ -4,7 +4,7 @@ schema_base_url: https://draft.autoagentprotocol.invalid/latest/schemas/
 skills:
   - id: dealer.information
     name: Dealer Information
-    description: Read dealership identity, rooftops, coordinates, hours, contact channels and default fee disclosures.
+    description: Read dealership identity, rooftops, coordinates, hours, contact channels and default fee disclosures. On aggregate inventory, resolve a listing's dealer_id to the actual seller before consent.
     tags: [dealer, dealership, profile, hours, contact, locations, fees, automotive, motorcycles, powersports]
     request_schema: dealer-information-request.schema.json
     response_schema: dealer-information-response.schema.json
