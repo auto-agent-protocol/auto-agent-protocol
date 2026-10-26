@@ -217,7 +217,8 @@
         "properties": {
           "version": {
             "type": "string",
-            "pattern": "^[1-9][0-9]*$"
+            "minLength": 1,
+            "description": "An extension-defined version string. Readers ignore unknown extensions; the AAP publication profile separately requires bridge version 1."
           }
         },
         "required": [

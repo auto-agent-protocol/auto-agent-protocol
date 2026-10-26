@@ -77,6 +77,25 @@ test("Poppy discovery consumers tolerate unknown fields, extensions and interfac
   assert.equal(validate("poppy", document), false, "publishers advertise only defined PAP API types");
 });
 
+test("unknown Poppy extension versions do not prevent reading the AAP bridge", () => {
+  const upstream = ajv.compile(JSON.parse(readFileSync(resolve(ROOT, "tests/upstream/poppy/poppy.schema.json"), "utf8")));
+  for (const version of ["1", "0", "1.0", "2026-10", "draft-next"]) {
+    const document = read("poppy");
+    document.extensions["example.com/future"] = { version, future: true };
+    assert.equal(upstream(document), true, `upstream permits ${version}`);
+    assert.equal(validate("poppy-document", document), true, `reader must tolerate ${version}`);
+    assert.equal(validate("poppy", document), true, `unrelated extension ${version} does not change AAP publication`);
+    document.extensions["autoagentprotocol.org/aap"].version = "2";
+    assert.equal(validate("poppy", document), false, "the known AAP bridge still requires version 1");
+  }
+  for (const extension of [{}, { version: "" }, { version: 1 }, { version: null }]) {
+    const document = read("poppy");
+    document.extensions["example.com/future"] = extension;
+    assert.equal(upstream(document), false);
+    assert.equal(validate("poppy-document", document), false);
+  }
+});
+
 test("Poppy HTTPS publication rejects credential-bearing and insecure URLs", () => {
   for (const url of ["http://dealer.example/api", "https://user:secret@dealer.example/api", "https:///api", "https://dealer.example/has space"]) {
     const document = read("poppy"); document.apis[0].url = url;
