@@ -59,7 +59,7 @@ Run these before advertising AAP 3.0. Use isolated inventory and a non-deliverin
 | Aggregate identity | Each result's endpoint-unique vehicle ID resolves the same seller and listing; duplicate VINs/stock numbers never choose an arbitrary dealer; `dealer.information` resolves its dealer ID to the actual recipient before consent; unknown IDs fail and mismatched identities stop delivery |
 | Inventory and pricing | Current eligible status, real update timestamp, stable identifier, authoritative fee-inclusive price; unknown price stays unknown |
 | Consent | Missing/invalid/expired grants fail before delivery; every permitted channel has contact data; no unauthorized follow-up |
-| Concurrent retries | Same key and payload creates one lead; changed payload conflicts; Session renewal and securely correlated bindings do not duplicate it |
+| Concurrent retries | Lose the first response, then retry: one delivery and the complete original received/rejected outcome, booking details and message with replayed=true; changed payload conflicts; concurrent calls, Session renewal and correlated bindings share the result |
 | Appointment outcome | `confirmed` has a real booking and time; alternatives are explicit; partial success never hides an accepted lead |
 | Errors and throttling | Correct protocol envelope/status, safe field diagnostics, Retry-After/retry timing and bounded client behavior |
 | Optional surfaces | Every advertised PAP sign-in, native MCP, browser, feedback or conversation feature passes its complete upstream rules |

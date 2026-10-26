@@ -4771,7 +4771,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 128,
-            "description": "Required client-generated key (UUID recommended) for this consented submission. Preserve the key and payload after a timeout or session renewal. Deduplicate for at least 24 hours by dealer and verified caller, including the stable PAP User ID where applicable; anonymous calls use dealer and key. The same caller and key across bindings return the original lead_id; a changed payload returns IDEMPOTENCY_CONFLICT. Deduplication never bypasses authorization or consent."
+            "description": "Required client-generated key (UUID recommended) for this consented submission. Preserve the key and payload after a timeout or session renewal. Deduplicate for at least 24 hours by dealer and verified caller, including the stable PAP User ID where applicable; anonymous calls use dealer and key. The same caller and key across bindings return the complete original result with data.replayed true, including its received/rejected status and appointment details; a changed payload returns IDEMPOTENCY_CONFLICT. Reauthorize the caller before replay; the original consent must have been valid for the initial delivery. A replay creates no new delivery or booking."
           }
         },
         "required": [
@@ -5931,7 +5931,7 @@
         "$defs": {
           "lead_submit_response": {
             "title": "LeadSubmitResponse",
-            "description": "Outcome of a consented lead submission, shared by MCP, A2A and PAP. A received lead is accepted for dealer follow-up. A duplicate repeats the original lead_id for the same key and payload. An appointment is booked only when its status is confirmed and confirmed_at is present.",
+            "description": "Outcome of a consented lead submission, shared by MCP, A2A and PAP. Retries replay the complete original result with data.replayed true, preserving the original received/rejected status and all appointment details. A confirmed appointment requires confirmed_at.",
             "type": "object",
             "properties": {
               "type": {
@@ -5950,10 +5950,9 @@
                     "type": "string",
                     "enum": [
                       "received",
-                      "duplicate",
                       "rejected"
                     ],
-                    "description": "received: the dealer accepted the lead; duplicate: same idempotency key and payload, original lead_id returned; rejected: no accepted lead or booking. Consent/authentication failures use their defined errors before contact data is delivered."
+                    "description": "Original business outcome: received means accepted for dealer follow-up; rejected means no accepted lead or booking. An idempotent replay preserves this value; it never replaces it with duplicate."
                   },
                   "appointment": {
                     "type": "object",
@@ -6059,6 +6058,10 @@
                       }
                     },
                     "additionalProperties": false
+                  },
+                  "replayed": {
+                    "type": "boolean",
+                    "description": "True on an idempotent replay. Every other response field repeats the original business result, including the lead status, appointment outcome and times, dealer details and message. False or absent on the original result. This is the original outcome, not a live lead-status lookup."
                   }
                 },
                 "required": [

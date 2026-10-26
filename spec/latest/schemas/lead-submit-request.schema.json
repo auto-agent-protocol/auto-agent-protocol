@@ -70,7 +70,7 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 128,
-      "description": "Required client-generated key (UUID recommended) for this consented submission. Preserve the key and payload after a timeout or session renewal. Deduplicate for at least 24 hours by dealer and verified caller, including the stable PAP User ID where applicable; anonymous calls use dealer and key. The same caller and key across bindings return the original lead_id; a changed payload returns IDEMPOTENCY_CONFLICT. Deduplication never bypasses authorization or consent."
+      "description": "Required client-generated key (UUID recommended) for this consented submission. Preserve the key and payload after a timeout or session renewal. Deduplicate for at least 24 hours by dealer and verified caller, including the stable PAP User ID where applicable; anonymous calls use dealer and key. The same caller and key across bindings return the complete original result with data.replayed true, including its received/rejected status and appointment details; a changed payload returns IDEMPOTENCY_CONFLICT. Reauthorize the caller before replay; the original consent must have been valid for the initial delivery. A replay creates no new delivery or booking."
     }
   },
   "required": ["type", "customer", "consent", "source_agent", "idempotency_key"],

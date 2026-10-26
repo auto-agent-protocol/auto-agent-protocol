@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-response.schema.json",
   "title": "LeadSubmitResponse",
-  "description": "Outcome of a consented lead submission, shared by MCP, A2A and PAP. A received lead is accepted for dealer follow-up. A duplicate repeats the original lead_id for the same key and payload. An appointment is booked only when its status is confirmed and confirmed_at is present.",
+  "description": "Outcome of a consented lead submission, shared by MCP, A2A and PAP. Retries replay the complete original result with data.replayed true, preserving the original received/rejected status and all appointment details. A confirmed appointment requires confirmed_at.",
   "type": "object",
   "properties": {
     "type": {
@@ -19,8 +19,11 @@
         },
         "status": {
           "type": "string",
-          "enum": ["received", "duplicate", "rejected"],
-          "description": "received: the dealer accepted the lead; duplicate: same idempotency key and payload, original lead_id returned; rejected: no accepted lead or booking. Consent/authentication failures use their defined errors before contact data is delivered."
+          "enum": [
+            "received",
+            "rejected"
+          ],
+          "description": "Original business outcome: received means accepted for dealer follow-up; rejected means no accepted lead or booking. An idempotent replay preserves this value; it never replaces it with duplicate."
         },
         "appointment": {
           "type": "object",
@@ -33,7 +36,12 @@
             },
             "status": {
               "type": "string",
-              "enum": ["requested", "proposed", "confirmed", "rejected"],
+              "enum": [
+                "requested",
+                "proposed",
+                "confirmed",
+                "rejected"
+              ],
               "description": "Appointment status. `requested` = received but not yet scheduled (staff will follow up). `proposed` = dealer cannot honor the requested time but is offering alternatives in `proposed_times`. `confirmed` = dealer scheduled the appointment for `confirmed_at`. `rejected` = dealer cannot host this appointment (e.g. service unavailable)."
             },
             "confirmed_at": {
@@ -45,10 +53,16 @@
               "type": "array",
               "description": "Present iff `status` is `proposed`. Alternative start times the dealer offers, each an ISO 8601 / RFC 3339 timestamp with timezone offset.",
               "minItems": 1,
-              "items": { "type": "string", "format": "date-time" }
+              "items": {
+                "type": "string",
+                "format": "date-time"
+              }
             }
           },
-          "required": ["appointment_id", "status"],
+          "required": [
+            "appointment_id",
+            "status"
+          ],
           "additionalProperties": false,
           "allOf": [
             {
@@ -105,7 +119,9 @@
           "type": "object",
           "description": "Convenience contact summary for the buyer agent to surface follow-up details to the user.",
           "properties": {
-            "name": { "type": "string" },
+            "name": {
+              "type": "string"
+            },
             "phone": {
               "type": "string",
               "pattern": "^\\+[1-9]\\d{1,14}$",
@@ -113,9 +129,16 @@
             }
           },
           "additionalProperties": false
+        },
+        "replayed": {
+          "type": "boolean",
+          "description": "True on an idempotent replay. Every other response field repeats the original business result, including the lead status, appointment outcome and times, dealer details and message. False or absent on the original result. This is the original outcome, not a live lead-status lookup."
         }
       },
-      "required": ["lead_id", "status"],
+      "required": [
+        "lead_id",
+        "status"
+      ],
       "additionalProperties": false
     },
     "message": {
@@ -124,7 +147,10 @@
       "description": "Contextual note from the dealer (e.g. 'A salesperson will call within 1 business hour.', 'We are unable to honor your requested time; please pick from the alternatives.')."
     }
   },
-  "required": ["type", "data"],
+  "required": [
+    "type",
+    "data"
+  ],
   "additionalProperties": false,
   "allOf": [
     {

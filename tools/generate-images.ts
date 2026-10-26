@@ -287,7 +287,7 @@ function renderVisual(name: DiagramName): string {
       + lines(["Consent + contact", "Idempotency key"], 78, 451, 260, 23)
       + arrow(374, 399, 472) + rect(478, 226, 288, 346, C.blueTint, C.blue)
       + icon("shield", 590, 255, 64) + label("Validate + dedupe", 622, 371, 250, 24, C.ink, 650, false, "middle")
-      + lines(["received", "duplicate", "rejected"], 622, 431, 230, 25, C.blueDark, true).replaceAll('text-anchor="start"', 'text-anchor="middle"')
+      + lines(["received", "rejected", "replayed: true"], 622, 431, 230, 23, C.blueDark, true).replaceAll('text-anchor="start"', 'text-anchor="middle"')
       + arrow(772, 399, 858) + rect(864, 226, 288, 346, C.tealTint)
       + icon("clock", 976, 255, 64, C.teal) + label("Appointment", 1008, 371, 248, 28, C.ink, 650, false, "middle")
       + lines(["requested / proposed", "confirmed / rejected", "Separate outcome"], 1008, 431, 248, 21, C.teal).replaceAll('text-anchor="start"', 'text-anchor="middle"');

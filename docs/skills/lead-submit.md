@@ -84,8 +84,9 @@ OAuth authorization, a PAP Session, an MCP tool hint and caller-supplied `source
 | Lead status | Meaning |
 |---|---|
 | `received` | Accepted for dealer follow-up; not a sale or a guaranteed response time. |
-| `duplicate` | Same key and payload; the original `lead_id` is returned without another delivery. |
 | `rejected` | No accepted lead or booking. Explain the reason safely. |
+
+`data.replayed: true` identifies a retry; `data.status` still reports the original `received` or `rejected` outcome. The former `duplicate` status is not valid in AAP 3.0.
 
 An appointment has its own outcome:
 
@@ -102,7 +103,9 @@ The dealer MUST NOT report `confirmed` without a real booking. A rejected lead c
 
 Every request MUST include a client-generated `idempotency_key` (UUID recommended). Preserve the complete payload and key after a timeout, transport error or PAP Session renewal. A corrected or newly authorized inquiry is a new request; first resolve any uncertain outcome of the original.
 
-Dealers MUST retain duplicate detection for at least **24 hours**, scoped to the dealer and verified caller, including the stable PAP User ID when applicable. Anonymous callers use dealer + key. Securely correlated calls across bindings share the same store. The same key and payload returns the original `lead_id`; changed content returns `IDEMPOTENCY_CONFLICT`. Authorization and consent checks still apply.
+Dealers MUST retain duplicate detection for at least **24 hours**, scoped to the dealer and verified caller, including the stable PAP User ID when applicable. Anonymous callers use dealer + key. Securely correlated calls across bindings share the same store. The same key and payload MUST replay the complete original AAP response, changing only `data.replayed` to `true`. Preserve `lead_id`, `status`, the entire appointment (including `confirmed_at` or `proposed_times`), dealer details and `message`. Store rejected business outcomes too. Changed content returns `IDEMPOTENCY_CONFLICT`. Reauthorize the caller before returning stored information. The original grant must have been valid at initial delivery; replaying that result requires no new grant and creates no new contact or booking.
+
+Persist the outcome with the idempotency record. A replay describes the original result, not the current state of a booking. If the initial operation is still running, wait for its outcome or return an explicitly retryable transient error without another delivery; never fabricate `received`, `rejected` or an empty replay.
 
 Use atomic duplicate detection before delivery, including concurrent requests. Do not send twice when the CRM acknowledgement is delayed. Do not switch authentication context or blindly retry after the retention window; first reconcile the earlier outcome. AAP has no lead-status lookup operation.
 

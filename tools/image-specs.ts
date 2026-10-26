@@ -141,7 +141,7 @@ export const imageSpecs = {
   "lead-lifecycle": {
     eyebrow: "LEAD SUBMISSION",
     title: "One inquiry. Explicit business outcomes.",
-    description: "The dealer validates consent and an idempotency key, then reports received, duplicate or rejected. Appointment status is a separate outcome.",
+    description: "The dealer validates consent and an idempotency key, then reports the original received or rejected outcome. Retries preserve it with replayed: true. Appointment status is a separate outcome.",
     takeaway: "Retry with the same key. A confirmed appointment includes its confirmed time.",
   },
   "error-anatomy": {

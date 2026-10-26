@@ -47,11 +47,11 @@ Dealers SHOULD retain the complete ConsentGrant with the lead's audit record. An
 
 ## Outcomes and retries
 
-`received` means accepted for follow-up. `duplicate` returns the original lead for the same key and payload. `rejected` means no accepted lead. Partial vehicle and trade-in details are valid; do not invent missing information.
+`received` means accepted for follow-up. `data.replayed: true` marks a retry while preserving the complete original result, including lead status and appointment details. `duplicate` is not a lead status in AAP 3.0. `rejected` means no accepted lead. Partial vehicle and trade-in details are valid; do not invent missing information.
 
 An appointment is booked only when `data.appointment.status` is `confirmed` with `confirmed_at`. `proposed` requires nonempty `proposed_times`; `requested` awaits scheduling. If a lead is accepted while an appointment is declined, return both actual outcomes in the response. Do not disguise an accepted lead as a failed submission.
 
-Dealers MUST deduplicate atomically for at least 24 hours by dealer, verified caller and key, including the stable PAP User ID where applicable. Anonymous calls use dealer + key. Securely correlated calls across bindings and Session renewals share the same store. A changed payload under the same key returns `IDEMPOTENCY_CONFLICT`. Authorization and consent still apply.
+Dealers MUST deduplicate atomically for at least 24 hours by dealer, verified caller and key, including the stable PAP User ID where applicable. Anonymous calls use dealer + key. Securely correlated calls across bindings and Session renewals share the same store. A changed payload under the same key returns `IDEMPOTENCY_CONFLICT`. Authorize the caller before replaying stored information; the original grant must have been valid at initial delivery. A replay creates no new delivery or booking.
 
 Buyer agents preserve the key and original payload after an uncertain result. They MUST NOT blindly change binding, authentication context or key to retry a write. Reconcile uncertain outcomes before a newly authorized submission. See [lead submission](./skills/lead-submit.md#safe-retries).
 

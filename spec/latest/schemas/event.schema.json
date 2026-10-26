@@ -19,7 +19,7 @@
     },
     "status": {
       "type": "string",
-      "description": "New status value for the entity. For 'lead.status_changed', one of: received | duplicate | rejected | working | sold_to | lost. For 'appointment.status_changed', one of: requested | proposed | confirmed | rejected | completed | no_show. Conditional `if/then` clauses below enforce the right subset for each `event_kind`.",
+      "description": "New status value for the entity. For 'lead.status_changed', one of: received | rejected | working | sold_to | lost. For 'appointment.status_changed', one of: requested | proposed | confirmed | rejected | completed | no_show. Conditional `if/then` clauses below enforce the right subset for each `event_kind`.",
       "examples": ["received", "confirmed"]
     },
     "occurred_at": {
@@ -47,7 +47,7 @@
       "then": {
         "properties": {
           "status": {
-            "enum": ["received", "duplicate", "rejected", "working", "sold_to", "lost"]
+            "enum": ["received", "rejected", "working", "sold_to", "lost"]
           }
         }
       }
