@@ -6,7 +6,7 @@
 
 - [MCP endpoint](https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp): Streamable HTTP; MCP 2026-07-28 and 2025-11-25. Public inventory reads. Run tools/list to discover implemented tools and search capabilities.
 - [A2A Agent Card](https://demo-toyota.example.com/.well-known/agent-card.json): A2A 1.0 JSON-RPC, exact AAP extension, supported skills and search capabilities.
-- [PAP discovery](https://demo-toyota.example.com/.well-known/poppy.json): Personal Agent Protocol draft 0.2, issuer and guest API. Native OpenAPI calls require a PAP Session Token and DPoP.
+- [PAP discovery](https://demo-toyota.example.com/.well-known/poppy.json): Personal Agent Protocol draft 0.3, issuer and guest API. Native OpenAPI calls require a PAP Session Token and DPoP.
 - [Dealer OpenAPI](https://demo-toyota.example.com/poppy/openapi.yaml): Deployment-specific automotive operations and authentication.
 - [AAP contract](https://draft.autoagentprotocol.invalid/latest/schemas/agent-card.schema.json): Selected immutable automotive contract after release preparation.
 

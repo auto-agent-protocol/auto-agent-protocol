@@ -1,7 +1,7 @@
 ---
 sidebar_position: 5
 title: Personal Agent Protocol
-description: Normative AAP 3.0 profile of Poppy draft 0.2, with paired discovery, guest sessions, DPoP, automotive APIs and migration.
+description: Normative AAP 3.0 profile of Poppy draft 0.3, with paired discovery, guest sessions, DPoP, automotive APIs and migration.
 ---
 
 # Personal Agent Protocol
@@ -14,9 +14,9 @@ These requirements describe the editable AAP 3.0.0 candidate. Draft identifiers 
 
 {/* aap-draft-only:end */}
 
-AAP 3.0 combines the [A2A v1.0 profile](./a2a-profile.md) and [MCP](./bindings/mcp.md) with a native [Personal Agent Protocol](https://personalagentprotocol.org/docs/0.2/spec) (PAP, “Poppy”) **draft 0.2** guest API. The automotive payloads, pricing rules, supported skills, consent and lead semantics are the same across all three interfaces. A personal agent that understands Poppy and OpenAPI can use the automotive API without understanding A2A or the AAP discovery extension.
+AAP 3.0 combines the [A2A v1.0 profile](./a2a-profile.md) and [MCP](./bindings/mcp.md) with a native [Personal Agent Protocol](https://personalagentprotocol.org/docs/0.3/spec) (PAP, “Poppy”) **draft 0.3** guest API. The automotive payloads, pricing rules, supported skills, consent and lead semantics are the same across all three interfaces. A personal agent that understands Poppy and OpenAPI can use the automotive API without understanding A2A or the AAP discovery extension.
 
-Poppy is a draft. Compatibility here means this specific upstream revision, not a promise about future drafts, every vendor's client, or optional features that a deployment does not advertise. The baseline is [upstream commit 39b35bd](https://github.com/personal-agent-protocol/personal-agent-protocol/blob/39b35bdf240fc07f157d6ca4e29b5a41d4b36b5d/content/versions/0.2/spec.mdx), reviewed 2026-10-23. The normative A2A baseline is [v1.0.0](https://github.com/a2aproject/A2A/blob/v1.0.0/specification/a2a.proto). These upstream requirements apply in addition to this profile. AAP does not weaken their authentication or authorization rules.
+Poppy 0.3 is an **in-progress upstream draft**, pinned here for reproducible implementation. Compatibility here means this specific upstream revision, not a promise about future drafts, every vendor's client, or optional features that a deployment does not advertise. The baseline is [upstream commit 86f0c8d](https://github.com/personal-agent-protocol/personal-agent-protocol/blob/86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7/content/versions/0.3/spec.mdx), reviewed 2026-10-26. The normative A2A baseline is [v1.0.0](https://github.com/a2aproject/A2A/blob/v1.0.0/specification/a2a.proto). These upstream requirements apply in addition to this profile. AAP does not weaken their authentication or authorization rules.
 
 ![Dealer-domain discovery selects public tools or authenticated PAP access to the same automotive operations](./img/poppy-discovery.svg)
 
@@ -32,7 +32,7 @@ An AAP 3.0 dealer deployment MUST:
 
 Customer accounts, sign-in, account scopes, native PAP authorization for MCP, browser session bridges, feedback, Company Agent conversations and Operations are optional. The AAP MCP endpoint itself is required; its public extension link does not claim PAP token support. If advertised, their complete upstream requirements become mandatory. A Session authenticates the personal agent and identifies a pseudonymous user; “guest” does **not** mean unauthenticated API access.
 
-A website-only Poppy document (`organization`, `web: {}` and an optional AAP extension) is valid discovery and a useful migration stage. It is **not** the complete AAP 3.0 profile: a core Poppy client ignoring the extension can only browse that website. `poppy-document.schema.json` validates PAP `0.2` reader input, retaining unknown fields and interface types. `poppy.schema.json` adds AAP publication requirements and permits only upstream-defined API and conversation types. Before PAP 1.0, a client MUST NOT use an unsupported **major.minor** version. Support for `0.1` does not imply support for `0.2`, or vice versa. Legacy clients use the frozen version-specific contract.
+A website-only Poppy document (`organization`, `web: {}` and an optional AAP extension) is valid discovery and a useful migration stage. It is **not** the complete AAP 3.0 profile: a core Poppy client ignoring the extension can only browse that website. `poppy-document.schema.json` validates PAP `0.3` reader input, retaining unknown fields and interface types. `poppy.schema.json` adds AAP publication requirements and permits only upstream-defined API and conversation types. Before PAP 1.0, a client MUST NOT use an unsupported **major.minor** version. Support for `0.1` or `0.2` does not imply support for `0.3`. Legacy clients use the frozen version-specific contract.
 
 ## 2. Paired discovery
 
@@ -40,7 +40,7 @@ Publish this example at the dealer's `/.well-known/poppy.json`, replacing every 
 
 ```json
 {
-  "protocol_version": "0.2",
+  "protocol_version": "0.3",
   "organization": {
     "name": "Demo Toyota",
     "domain": "demo-toyota.example.com"
@@ -75,12 +75,12 @@ The [Agent Card](./discovery.md) remains an ordinary A2A v1.0 card. Its sole AAP
 | Identifier | Value | Meaning |
 |---|---|---|
 | AAP release / A2A extension URI | `0.0.0-dev` / URI above | Automotive payload and profile contract; preparation resolves the release version |
-| Poppy `protocol_version` | `0.2` | Upstream Poppy draft |
+| Poppy `protocol_version` | `0.3` | Upstream Poppy draft |
 | `extensions["autoagentprotocol.org/aap"].version` | `1` | Major version of the discovery bridge's field contract, independent of AAP SemVer |
 
-Both discovery resources MUST be accessible without session credentials and served as JSON. Discovery starts at the dealer's HTTPS well-known URL. `poppy.json` MAY redirect, but every hop MUST use HTTPS. The document's `organization.domain` MUST match the **final host after redirects**, comparing case only; `www` is a distinct host. An agent MUST verify this identity and the issuer binding before requesting or forwarding credentials. Clients SHOULD honor HTTP cache headers. The AAP bridge's `agent_card` MUST describe the same deployment and skills, even when the card is hosted elsewhere. The dealer-domain well-known card still MUST exist.
+Both discovery resources MUST be accessible without session credentials and served as JSON. Discovery starts at the dealer's HTTPS well-known URL. `poppy.json` MAY redirect, but every hop MUST use HTTPS. The final URL MUST retain exactly `/.well-known/poppy.json` with no query; do not relocate discovery to an arbitrary JSON path. The document's `organization.domain` MUST match the **final host after redirects**, comparing case only; `www` is a distinct host. An agent MUST verify this identity and the issuer binding before requesting or forwarding credentials. Clients SHOULD honor HTTP cache headers. The AAP bridge's `agent_card` MUST describe the same deployment and skills, even when the card is hosted elsewhere. The dealer-domain well-known card still MUST exist.
 
-Each independent Company MUST have its own OAuth issuer. A provider hosting several independent dealers MUST allocate separate issuers, even on shared servers. Domains using one issuer represent one Company and share User IDs, Sessions and Account Tokens; their `auth` objects MUST be identical. For aliases of one Company, publish each final host in its own document and include every such domain in `poppy_domains`. For example, if `dealer.example` redirects discovery to `www.dealer.example`, the returned organization is `www.dealer.example`, and OAuth metadata must authorize that domain.
+Each independent Company MUST have its own OAuth issuer. A provider hosting several independent dealers MUST allocate separate issuers, even on shared servers. Domains using one issuer represent one Company and share User IDs, Sessions and Account Tokens; their `auth` objects MUST be identical. For aliases of one Company, publish each final host in its own document and include `https://{domain}` for every such domain in OAuth metadata `protected_resources`. Each domain entry has no port, path, query, fragment or trailing slash; only hostname case is ignored. Other service resource URLs may appear alongside those domain entries. For example, if `dealer.example` redirects discovery to `www.dealer.example`, the returned organization is `www.dealer.example`, and OAuth metadata must authorize that domain.
 ### Discovery extension version 1
 
 The domain-prefixed name `autoagentprotocol.org/aap` follows Poppy §3.3. It formalizes the existing discovery bridge without changing its field names:
@@ -111,20 +111,22 @@ GET https://demo-toyota.example.com/.well-known/oauth-authorization-server/poppy
   "issuer": "https://demo-toyota.example.com/poppy",
   "token_endpoint": "https://demo-toyota.example.com/poppy/oauth/token",
   "revocation_endpoint": "https://demo-toyota.example.com/poppy/oauth/revoke",
-  "poppy_domains": ["demo-toyota.example.com"],
-  "grant_types_supported": ["urn:ietf:params:oauth:grant-type:jwt-bearer"],
+  "protected_resources": ["https://demo-toyota.example.com"],
+  "grant_types_supported": ["urn:ietf:params:oauth:grant-type:jwt-bearer", "refresh_token"],
   "token_endpoint_auth_methods_supported": ["private_key_jwt"],
   "dpop_signing_alg_values_supported": ["ES256"]
 }
 ```
 
-Before using the document, the personal agent MUST check that metadata `issuer` equals `auth.issuer` **exactly** and `poppy_domains` includes `organization.domain`, ignoring case only. `token_endpoint` and `revocation_endpoint` are mandatory even for the guest profile. An appended-path metadata alias MAY be offered, but it does not replace RFC 8414 discovery. Account-token revocation follows Poppy §4.9/RFC 7009 if accounts are supported; a guest-only issuer has no account tokens to revoke and MUST NOT advertise account grants. It MAY also revoke guest access tokens using RFC 7009, returning success for an unknown token without creating an account capability.
+Before using the document, the personal agent MUST check metadata `issuer` against `auth.issuer` **character for character**, and require `protected_resources` to authorize `https://{organization.domain}` as above. Do not normalize an explicit `:443`, a trailing slash or a percent-encoded host into an accepted domain entry.
 
-Personal agents use an HTTPS `client_id` metadata URL, a matching metadata `client_id`, public `jwks_uri`, and `private_key_jwt` authentication as specified in Poppy §4.1. `jwks_uri` and all `redirect_uris` MUST be HTTPS on the same domain as `client_id`. Companies verify signatures, allowed algorithms, audience, expiry and identity, rather than trusting request-supplied identity fields. The same published identity keys sign the separate client and Session assertions. DPoP keys are separate, are not published in that JWKS, and MUST differ for each User ID; a new key per Session is also allowed. Both assertions use the exact `auth.issuer` as their single-string audience. A token endpoint audience MUST be rejected. See the [client walkthrough](./pap-client-guide.md) for all three JWTs and a complete guest request.
+`token_endpoint`, `revocation_endpoint`, `grant_types_supported` and `protected_resources` are required. The grants MUST include both JWT bearer and `refresh_token`, including for a guest-only issuer; this alone does not advertise a sign-in flow. `authorization_code` advertises Direct Sign-In and requires `authorization_endpoint`; the device-code grant advertises Device Sign-In and requires `device_authorization_endpoint`. `auth.direct` and `auth.device` are removed. A Company that offers neither grant nor `auth.mediated` offers only signed-out Sessions.
 
-When OAuth metadata advertises grant types or token authentication methods, those lists MUST include the JWT bearer grant and `private_key_jwt` used by this profile. Companies MUST accept ES256 DPoP proofs. `dpop_signing_alg_values_supported` is optional, but MUST include `ES256` if present. Clients use ES256 or an advertised algorithm. MCP servers advertise their own DPoP algorithms in protected-resource metadata.
+A personal agent publishes an HTTPS `client_id` metadata URL, an exactly matching metadata `client_id`, HTTPS `jwks_uri` on that domain, `redirect_uris` and `token_endpoint_auth_method: "private_key_jwt"`. JWKS contains only public identity keys. Redirects are HTTPS on the client domain or [RFC 8252 §7.3](https://www.rfc-editor.org/rfc/rfc8252#section-7.3) loopback literals: `http://127.0.0.1:{port}/{path}` or `http://[::1]:{port}/{path}`. Registration and authorization redirects match exactly except for a loopback port. That exception applies to the local user callback, never to remote metadata or JWKS fetches.
 
-Every protocol URL MUST use HTTPS. Outside discovery, clients MUST NOT forward tokens, proofs, assertions or credentials when an endpoint redirects. Both parties MUST reject peer-supplied loopback, private or link-local destinations unless deliberately configured to allow them. This includes URLs from discovery, metadata and responses. Remote client metadata and JWKS fetching MUST defend against SSRF, DNS rebinding and redirects into internal networks. Apply bounded fetch size, timeouts and cache lifetimes without weakening TLS, issuer or domain checks. A Company MAY require registration and reject unknown agents with OAuth `invalid_client`; do not claim unrestricted client onboarding when registration is required.
+Companies MUST verify signatures, allowed algorithms, expiry, replay, identity and both assertions' **single-string exact issuer audience**. The token endpoint is not an accepted assertion audience. Published identity keys sign the distinct client and Session assertions. A separate, unpublished DPoP key pair is created for **each Session**; it cannot rotate within that Session. ES256 proof verification is mandatory. Algorithm metadata is optional, but MUST include ES256 if present. If token authentication methods are advertised, they MUST include `private_key_jwt`.
+
+All remote protocol URLs use HTTPS. Outside discovery, clients MUST NOT forward tokens, proofs, assertions or credentials after redirects. Remote endpoint, metadata and JWKS fetching MUST defend against SSRF, DNS rebinding and redirects into private, loopback or link-local networks unless deliberately configured for a trusted environment. Bound fetch sizes, timeouts and caching without weakening TLS or identity checks. A Company MAY require agent registration and return `invalid_client`; guest shopping requires no customer account but does require a working personal-agent identity.
 
 ## 4. Guest sessions and proof of possession
 
@@ -143,7 +145,7 @@ To start a signed-out Session, send a URL-encoded token request with:
 | `client_assertion` | Separate signed JWT: `iss` = `sub` = client ID, string `aud` = exact `auth.issuer`, `iat`/`exp` at most 300 seconds apart, its own fresh `jti` with at least 128 random bits |
 | `DPoP` header | Fresh RFC 9449 proof for this token endpoint; no `ath` at the token endpoint |
 | `resource` | Required by this AAP profile when an API entry advertises it; use that exact resource URI |
-| `session_id` | Omit to create; include to renew the same signed-out Session |
+| Session identity | The proof key's RFC 7638 JWK thumbprint; no `session_id` parameter |
 
 The Company MUST verify both assertion signatures against the authenticated client's public JWKS, exact issuer audiences, identity and expiry. It MUST reject a reused assertion `jti` from that client until expiry, and a reused token-endpoint DPoP `jti` within its acceptance window. A valid DPoP proof binds the resulting token to its key. Token-endpoint proofs name the **token endpoint** in `htu`, not the assertion audience. A successful request therefore needs two distinct signed assertions and a third, separate proof JWT. A successful response has `Cache-Control: no-store` and:
 
@@ -151,18 +153,17 @@ The Company MUST verify both assertion signatures against the authenticated clie
 {
   "access_token": "example-opaque-session-token-not-a-credential",
   "token_type": "DPoP",
-  "expires_in": 3600,
-  "scope": "",
-  "session_id": "session_example_001",
-  "signed_in": false
+  "expires_in": 3600
 }
 ```
 
-`expires_in` MUST be positive. Session Tokens are opaque to the personal agent; it MUST NOT inspect token claims to implement protocol behavior. Guest tokens have no account scopes and no Account Token. The Company MAY restrict guest actions, but this AAP profile exposes its advertised automotive skills to authorized signed-out Sessions. Customer permission for `lead.submit` is still required.
+`expires_in` MUST be positive. Session Tokens are opaque to the personal agent; it MUST NOT inspect token claims to implement protocol behavior. The JWT bearer grant always returns a signed-out DPoP token with **no `scope` field** and no Account Token. An empty OAuth scope string is invalid. `session_id` and `signed_in` are removed. A sign-in or Account Token grant instead returns a signed-in token, and may omit `scope` only when it equals the requested scopes. Clients determine state from the grant, never from the presence of `scope` alone. The Company MAY restrict guest actions, but this AAP profile exposes its advertised automotive skills to authorized signed-out Sessions. Customer permission for `lead.submit` is still required.
 
-A renewed Session MUST belong to the same verified client and User ID. Do not use an unverified `session_id` as authentication. A signed-in Session, if implemented, is renewed with its Account Token under Poppy §4.8. Clients use the newest token for subsequent requests; Session lifetime and token lifetime are separate.
+Renew with fresh assertions and a fresh proof from the **same Session Key**. The Company finds the Session by its key thumbprint and MUST verify the same client and User ID. A changed owner returns `invalid_grant`. Companies SHOULD retain ended-key tombstones; after `invalid_grant` on a Session Key, the client MUST discard that key and start with a new one. If the server forgets an ended key, renewal can create a new Session; clients MUST tolerate that. Signed-in Sessions renew through their Account Token. Always use the newest token; Session and token lifetimes are separate.
 
-Every native API request MUST carry `Authorization: DPoP <Session Token>` and a fresh `DPoP` proof. The resource server MUST verify signature, token expiry and audience/resource, the bound public key, `htm`, `htu` (without query/fragment), `iat`, `jti`, and `ath` (base64url-encoded SHA-256 access-token hash). The proof header MUST use `typ: "dpop+jwt"`, an accepted asymmetric algorithm and a public `jwk` without private key material. Exactly one DPoP header is allowed. At API endpoints, rejecting a reused proof `jti` is optional under PAP 0.2; token-endpoint replay rejection remains mandatory. Clients always generate fresh proofs. Clients MUST support server nonces and retry with a fresh proof when challenged, keeping nonce state per issuing server. Session tokens MUST NOT be accepted in URLs or require cookies. An Account Token MUST NOT be accepted as an API token. Tokens, assertions, private keys and proofs MUST NOT be logged or placed in model context.
+An optional Session assertion `agent_id` identifies one of a User's agents, not a separate client. It is stable, opaque, pairwise per Company and never derived from personal information. Renewals MUST retain the original value, or its absence. Account Tokens and conversations remain shared by that User. An Account-Token-created Session has no Agent ID; to assign one, start with the JWT grant and then use the Account Token with the same Session Key.
+
+Every native OpenAPI request MUST carry `Authorization: DPoP <Session Token>` and a fresh `DPoP` proof. The resource server MUST verify signature, token expiry and audience/resource, the bound public key, `htm`, `htu` (without query/fragment), `iat`, `jti`, and `ath` (base64url-encoded SHA-256 access-token hash). The proof header MUST use `typ: "dpop+jwt"`, an accepted asymmetric algorithm and a public `jwk` without private key material. Exactly one DPoP header is allowed. At API endpoints, rejecting a reused proof `jti` is optional under PAP 0.3; token-endpoint replay rejection remains mandatory. Clients always generate fresh proofs. Clients MUST support server nonces and retry with a fresh proof when challenged, keeping nonce state per issuing server. Session tokens MUST NOT be accepted in URLs or require cookies. An Account Token MUST NOT be accepted as an API token. Tokens, assertions, private keys and proofs MUST NOT be logged or placed in model context.
 
 Bearer Session Tokens are **only** allowed for an advertised Poppy MCP API whose protected-resource metadata does not advertise DPoP, per §6 below. A Company MUST NOT accept a Bearer Session Token at this OpenAPI interface or an A2A endpoint. An unrelated public A2A endpoint may have its own native A2A security contract; keep those credentials and audiences separate.
 
@@ -193,9 +194,9 @@ Content-Type: application/json
 
 Company content, including API descriptions and responses, MUST be treated as untrusted data. It cannot authorize actions at another Company, supply user consent, or justify sending unrelated user information.
 
-The [skill specifications](./skills/inventory-search.md) remain normative for payloads and business behavior. `lead.submit` does not guarantee a booking, purchase a car, authorize a payment or bypass explicit contact consent. A booking exists only when the response explicitly reports a confirmed appointment and its time. A Session or a `poppy:write` scope is not a substitute for `ConsentGrant`. The verified Poppy client identity is authorization context; caller-supplied `source_agent` is attribution and MUST NOT override it.
+The [skill specifications](./skills/inventory-search.md) remain normative for payloads and business behavior. `lead.submit` does not guarantee a booking, purchase a car, authorize a payment or bypass explicit contact consent. A booking exists only when the response explicitly reports a confirmed appointment and its time. A Session or an account-write scope is not a substitute for `ConsentGrant`. The verified Poppy client identity is authorization context; caller-supplied `source_agent` is attribution and MUST NOT override it.
 
-A client retrying a lead MUST preserve the original business payload and `idempotency_key`. Servers MUST scope deduplication to the dealer, verified client and stable issuer-specific User ID, not the short-lived Session Token or session ID. A same-key retry returns the complete original result with `data.replayed: true`, preserving the original lead status, appointment details and message; a changed payload conflicts. Reauthorize the caller before replaying the stored result. The original consent must have been valid at initial delivery; returning that outcome does not create new contact. Every binding MUST use the same deduplication store for securely correlated callers. Do not infer trusted identity from anonymous attribution fields, or change authentication context after an uncertain write outcome.
+A client retrying a lead MUST preserve the original business payload and `idempotency_key`. Servers MUST scope deduplication to the dealer, verified client and stable issuer-specific User ID, not the short-lived Session Token or Session Key. A same-key retry returns the complete original result with `data.replayed: true`, preserving the original lead status, appointment details and message; a changed payload conflicts. Reauthorize the caller before replaying the stored result. The original consent must have been valid at initial delivery; returning that outcome does not create new contact. Every binding MUST use the same deduplication store for securely correlated callers. Do not infer trusted identity from anonymous attribution fields, or change authentication context after an uncertain write outcome.
 
 ### Errors and retries
 
@@ -206,11 +207,12 @@ Transport authentication is checked before a skill executes. Poppy/OAuth errors 
 | Missing/malformed token-request fields | 400 | OAuth `invalid_request`; no customer sign-in is implied |
 | Invalid client at token endpoint | 401 | OAuth `invalid_client` |
 | Invalid session assertion/grant or expired/replayed session assertion | 400 | OAuth `invalid_grant` |
-| Invalid session / different owner | 400 | OAuth `invalid_session`; do not transfer session ownership |
+| Ended Session Key / different owner | 400 | OAuth `invalid_grant`; do not transfer Session ownership |
+| Wrong MCP resource or grant/token type | 400 | OAuth `invalid_target`; do not retry by omitting DPoP |
 | Token endpoint proof error / nonce challenge | 400 | OAuth `invalid_dpop_proof` / `use_dpop_nonce`; nonce as applicable |
 | Missing/expired API token | 401 | `WWW-Authenticate: DPoP` with `invalid_token` |
 | Invalid API proof / nonce challenge | 401 | DPoP challenge (`invalid_dpop_proof` / `use_dpop_nonce`), `DPoP-Nonce` when applicable |
-| Insufficient account scope, if accounts are offered | 403 | DPoP `insufficient_scope` challenge identifying needed scopes |
+| Insufficient account scope, including signed-out access to an account action | 403 | `insufficient_scope` challenge identifying required scopes; use a covering Account Token or user-approved sign-in |
 | Required extension unsupported | 403 | `extension_required`, naming `extension`; JSON at the token/protocol endpoints, challenge attribute at APIs |
 | Rate limit on any endpoint | 429 | `Retry-After`; client MUST wait at least that long. Token/protocol endpoints return `{"error":"rate_limited"}` |
 
@@ -229,32 +231,84 @@ Malformed JSON MAY return 400 before a skill can be identified. Authentication r
 
 ## 6. Optional Poppy surfaces
 
-Only advertise implemented capabilities. Unknown extension names, fields, API types and conversation types MUST be ignored/skipped by readers as upstream specifies; that rule does not authorize publishers to invent incompatible meanings for known fields.
+Only advertise implemented capabilities. Readers MUST ignore unknown fields and skip unfamiliar API, conversation and alternative reference types. AAP publication schemas reject removed 0.2 fields to catch incomplete migrations; they do not turn reader tolerance into permission to publish old semantics as 0.3.
+
+### Account scopes and sign-in
+
+Companies define their own scopes. PAP defines no built-in read/write scopes, and the entire `poppy:` prefix is reserved. Any sign-in method requires metadata `scopes_supported`. Every offered scope MUST have a description in a listed OpenAPI OAuth scheme or in `auth.scopes`, which replaces `auth.custom_scopes`:
+
+```json
+{
+  "issuer": "https://demo-toyota.example.com/poppy",
+  "scopes": {
+    "saved_searches:read": "Read the customer's saved vehicle searches"
+  },
+  "scope_hints": {
+    "saved_searches:read": { "changes": "none", "personal_data": true }
+  }
+}
+```
+
+This is an optional `auth` object for an account-capable deployment, not a new inventory-search requirement. Each hint MUST include `changes` (`none`, `reversible` or `irreversible`) and `personal_data`; it describes the most consequential operation requiring that scope. Readers MUST treat unknown `changes` values as `irreversible`, ignore unknown fields, and treat missing hints as unknown. Hints describe company claims; they are not customer consent.
 
 | Surface | Obligations when advertised |
 |---|---|
-| Direct Sign-In (`auth.direct`) | Poppy §4.5: authorization endpoint in metadata, authorization code + PKCE, user-controlled sign-in, exact registered redirect URI, state and issuer checks, and `session_id` on exchange |
-| Device Sign-In (`auth.device`) | §4.6: device authorization endpoint, explicit user approval, expiry and polling/slow-down rules |
-| Mediated Sign-In (`auth.mediated`) | §4.7: declared fields/scopes, DPoP, credential secrecy, rate limits and multi-step challenges; never use it to simulate a direct user sign-in |
-| Account authorization | §§4.4, 4.8–4.9: read/write scope ceiling by sign-in method, account ownership checks, secure Account Tokens, optional rotation, revocation and session downgrade; account tokens go only to token/revocation endpoints |
-| Browser session bridge | §5: signed browser assertion via POST body, audience/session/return URL and replay checks; cookie follows current session scopes, lifetime, Secure/HttpOnly and SameSite rules |
-| Native MCP API | §§4.3 and 6: Streamable HTTP MCP 2025-06-18 or later, resource equals the listed MCP URL, protected-resource metadata lists this issuer, enforce scopes; DPoP if advertised by that server, Bearer otherwise; do not promote an anonymous legacy MCP server into `apis` until it supports these requirements |
-| Feedback (`feedback.endpoint`) | §8: authenticated DPoP POST, guest or signed-in Session with no required scope, `kind: "missing"`, task ≤200 and description ≤2,000 characters, no identifiers or secrets, HTTP 202 with no body; receivers accept unknown future kinds |
-| Company Agent conversations | §7 in full: `type: "poppy"`, DPoP, owned conversation IDs, message IDs, sender human/agent, event cursors, polling/streaming, status/responder, direct conversations, sign-in and closing behavior |
-| Operations extension | Follow the upstream extension's own version and discovery contract; it is not required to invoke the five synchronous AAP skills |
+| Direct Sign-In | §4.5: metadata authorization-code grant, user-controlled sign-in, PKCE S256, state and exact response `iss` checks. Bind the code to the Session Key with **`dpop_jkt`**, or a DPoP proof on PAR. Companies MUST support `dpop_jkt`. Code exchange uses the bound key |
+| Device Sign-In | §4.6: metadata device grant/endpoint; follow RFC 10027 risk assessment and mitigations, preferring Direct Sign-In when possible. First token poll binds the device code to the Session Key; a later different key gets `invalid_grant`. Honor expiry, pending, polling interval and slow-down rules |
+| Mediated Sign-In | §4.7: declared fields/scopes, DPoP, credential secrecy, rate limits and multi-step challenges. Scopes are a subset of `scopes_supported`; SHOULD be transitional until direct/device flows cover the same tasks |
+| Account Tokens | §§4.4, 4.8–4.9: every successful sign-in grants at least one requested scope and returns `refresh_token`; zero approved scopes means decline. Optional positive `refresh_token_expires_in` communicates lifetime; refresh may rotate the token. Account Tokens bind client/User/account, not one Session Key |
 
-Poppy 0.2 currently defines **only** `type: "poppy"` for conversations. An A2A `SendMessage` endpoint MUST NOT be labeled `poppy`, and `type: "a2a"` is not an upstream-defined interoperable conversation binding. This profile uses standard OpenAPI APIs instead. A dealer MAY implement real Poppy conversations separately, but must not claim a conversational lifecycle from the synchronous skill API.
+Every sign-in request MUST include a nonempty scope string, and grants MUST NOT exceed the requested and method-allowed scopes. A Session can never switch to a different account, even after sign-out: return `account_mismatch` and start a new Session. A newly generated key with an Account Token creates a Session; an existing key signs in that Session only after ownership checks. On Account Token `invalid_grant`, follow §4.8 to distinguish revoked account authorization from an ended Session before deciding what to discard.
 
-An MCP server advertises DPoP by including `dpop_signing_alg_values_supported` in its protected-resource metadata, with `ES256` in that list. The Company MUST then issue DPoP tokens to PAP clients and reject a missing token-request proof. For a server without that metadata field, it MUST issue Bearer tokens even if a proof was supplied. Such tokens MUST work only at the exact MCP URL used as `resource`, never at another path on the same host. A DPoP token sent with the Bearer scheme MUST be rejected. MCP 401 challenges include `resource_metadata` for every accepted scheme. New MCP servers SHOULD support DPoP.
+Revoking an Account Token signs out the affected Sessions and SHOULD invalidate their issued Session Tokens immediately. State checks and short token lifetimes are fallbacks. Guest browsing may continue, while account actions return `insufficient_scope` with the missing scopes. Do not silently sign the User back in after they signed out or disconnected access. Account Tokens go only to token/revocation endpoints, never to an automotive API. Model context MUST NOT contain tokens, private keys, authorization codes, PKCE verifiers or device codes; credentials stay in trusted signing/sending code.
 
-Feedback describes an unavailable task, not failed authentication or other returned errors. Clients SHOULD send at most one report per task. Companies MUST treat report text as untrusted data. `poppy-feedback-request.schema.json` validates the receiver's shape, including unknown future kinds; PAP 0.2 senders still use only `missing`.
+### Native PAP MCP
+
+![DPoP-capable MCP uses a resource token; non-DPoP MCP requires an authenticated token exchange](./img/poppy-mcp-tokens.svg)
+
+A public MCP URL in the AAP extension does not promise PAP authorization. A native `apis` entry with `type: "mcp"` MUST implement PAP §4.3 and §6: Streamable HTTP MCP 2025-06-18 or later, accept scoped Session Tokens, and publish RFC 9728 metadata with `resource` exactly equal to its advertised URL and `authorization_servers` including the exact `auth.issuer`. AAP additionally requires its [current and compatibility MCP bindings](./bindings/mcp.md).
+
+| MCP resource metadata | Token flow for PAP clients |
+|---|---|
+| Advertises `dpop_signing_alg_values_supported` containing ES256 | Normal JWT bearer or Account Token grant, **with DPoP**, `resource` equal to the MCP URL; use `Authorization: DPoP` plus a fresh resource proof |
+| Does not advertise DPoP | First obtain a normal DPoP Session Token, then use **RFC 8693 token exchange**, still **with DPoP at the token endpoint**; use the returned Bearer token only at that exact MCP URL |
+
+The complete optional fixture pairs [native MCP discovery](https://draft.autoagentprotocol.invalid/latest/examples/poppy.native-mcp.example.json), [issuer metadata](https://draft.autoagentprotocol.invalid/latest/examples/poppy-oauth-metadata.native-mcp.example.json) and [resource metadata](https://draft.autoagentprotocol.invalid/latest/examples/poppy-mcp-resource-metadata.example.json). The default discovery example remains a public MCP pointer plus native PAP OpenAPI.
+
+For non-DPoP MCP the issuer MUST advertise `urn:ietf:params:oauth:grant-type:token-exchange`. Required form fields are `grant_type`, `subject_token`, `subject_token_type: urn:ietf:params:oauth:token-type:access_token`, exact `resource`, `client_id`, `client_assertion_type` and `client_assertion`. The fresh proof uses the Session Key and has no `ath`. The Company MUST verify that the subject DPoP token is current, belongs to that client and is bound to the proof key. The result is a Bearer token with `issued_token_type: urn:ietf:params:oauth:token-type:access_token`, positive `expires_in`, and the same or narrower scopes. A signed-out exchange omits `scope`. See the [request](https://draft.autoagentprotocol.invalid/latest/examples/poppy-token-exchange-request.example.json) and [response](https://draft.autoagentprotocol.invalid/latest/examples/poppy-token-exchange-response.example.json) examples.
+
+A normal grant targeting non-DPoP MCP, or token exchange targeting DPoP-capable MCP, returns `invalid_target`. An invalid subject token returns `invalid_grant`. Missing proof never selects Bearer. On expiry or sign-in/out, exchange a current DPoP token again. Tokens are restricted to the exact resource URL, not its entire host; a DPoP token sent as Bearer MUST be rejected. MCP 401 challenges advertise `resource_metadata` for every accepted scheme. New MCP servers SHOULD support DPoP. Generic MCP clients retain standard MCP OAuth; native PAP clients always send their Session Token.
+
+### Browser sessions
+
+![A short-lived browser code is bound to its cookie and a Session-key proof before the browser joins](./img/poppy-browser-join.svg)
+
+PAP §5 replaces the old browser assertion with this flow:
+
+1. The agent's own browser GETs `web.browser_session_endpoint`. The response contains a form with hidden `code`, empty `proof`, and a cookie tying the code to that browser. The code MUST contain at least 128 random bits, expire within 60 seconds and be single-use. The join cookie MUST use `__Host-`, `Secure`, `HttpOnly` and `SameSite=Strict`. Loading the page MUST NOT change the Session or other browser cookies.
+2. The agent reads the code only from that endpoint in its own browser, outside model context. It signs a Session-key DPoP proof with `htm: POST`, `htu` equal to the endpoint, `nonce` equal to the code, and **no `ath`**. Its browser submits `code` and `proof`; the browser supplies the join cookie. Never sign a code from a message, another page or another browser.
+3. The Company consumes the code on the **first submission, even when verification fails**, verifies cookie/code/expiry/proof and an already-active Session Key, then sets the Session cookie, clears the join cookie and returns 303 to its own website. Failure sets no Session cookie and returns 400 or 429; restart from GET. An unknown key cannot create a Session here.
+
+The bootstrap response MUST send `Cache-Control: no-store`, `Content-Security-Policy: frame-ancestors 'none'`, and `Cross-Origin-Opener-Policy: same-origin`. The resulting Session cookie MUST be Secure and HttpOnly, SHOULD use `__Host-`, MUST NOT outlive the Session, and MUST reflect its current state/scopes on the next request. It takes precedence over other signed-in website cookies. Website access uses this cookie, never URL tokens. See the [form schema](https://draft.autoagentprotocol.invalid/latest/schemas/poppy-browser-session-request.schema.json); cryptography and browser binding require runtime verification.
+
+### Conversations, excluded tasks and feedback
+
+| Surface | PAP 0.3 behavior |
+|---|---|
+| Company Agent conversations | §7 in full, `type: "poppy"` only. Messages use **`author: {type: "agent" \| "human"}`**, replacing `sender`; Company authors may also include `id`, `name`, `image`. Preserve ownership, message IDs, cursors, streaming, human handoff, direct conversations and closing. Authorization events use `error: "insufficient_scope"` and required `scope` |
+| `excluded_tasks.url` | §8.1: public JSON `tasks` list, same for all Users, with task phrases ≤200 characters and optional alternatives. Clients SHOULD fetch it before starting and honor caching. Do not put account-specific limitations in this list |
+| Alternatives | §8.2: `instructions` (≤2,000 characters), `references`, or both. References select a listed OpenAPI URL + `operation_id`, listed MCP URL + `tool`, or a company web/app HTTPS page. Ignore references to unadvertised APIs and unknown types |
+| `feedback.endpoint` | §8.3: DPoP POST with a guest or signed-in token, no required scope. Send `kind: "missing"`, task ≤200 and description ≤2,000 characters, without identifiers or secrets. Receivers accept unknown kinds. Clients MUST accept **202 with no body or 200 with an alternative** |
+| Operations extension | Follow its own version and discovery contract; it is optional for the five synchronous automotive skills |
+
+An A2A `SendMessage` endpoint is not a PAP conversation endpoint. Do not invent `type: "a2a"` or claim a conversational lifecycle from the synchronous skill API. Conversations belong to the verified client and User, or to the account once used, not to a Session Key or Agent ID. They can continue across matching Sessions; sending a message does not authorize an account action.
+
+Feedback describes an unavailable task, not an ordinary API error. Clients SHOULD report once per task and SHOULD NOT report an excluded task. Excluded-task text, alternatives, conversation messages and feedback are untrusted content, not agent instructions or customer approval. The [alternative](https://draft.autoagentprotocol.invalid/latest/schemas/poppy-alternative.schema.json), [excluded-task](https://draft.autoagentprotocol.invalid/latest/schemas/poppy-excluded-tasks.schema.json) and feedback schemas retain unknown fields for readers.
 
 ## 7. Migration and verification
 
-AAP 3.0 retains PAP draft 0.2 authentication and discovery bridge version `1`. An upgrade from AAP 2.1 adds MCP, links it from both discovery documents, publishes `llms.txt`, and updates the shared automotive schemas and search capability declarations. Apply the [v3 migration checklist](./versioning.md#for-implementers) before switching discovery.
+AAP 3.0 upgrades AAP 2.1's PAP 0.2 profile to **draft 0.3** while retaining discovery bridge `1`. Follow the [PAP 0.3 migration matrix](./versioning.md#pap-03-migration) and the full [v3 checklist](./versioning.md#for-implementers). An older deployment can migrate directly to this final contract; it need not deploy 0.2 first. Published AAP 2.1/PAP 0.2 artifacts remain historical and immutable.
 
-An older PAP 0.1 implementation also needs the [PAP 0.2 migration](./versioning.md#pap-02-migration): exact issuer audiences, final-host identity, ES256 and proof handling, and correct native MCP token selection. Never weaken guest authentication to accommodate a client without signing capability.
+Exercise a real client through discovery → signed guest token → inventory search → same-key renewal, then verify each optional flow actually advertised. Record safe status/error stages as described in the [client guide](./pap-client-guide.md#diagnosing-an-integration). Fetching documentation or submitting unsigned placeholder JWTs does not establish PAP interoperability.
 
-Exercise a real client identity through discovery → signed guest token → inventory search → renewal. Record status/error stages safely as described in the [client guide](./pap-client-guide.md#diagnosing-an-integration). A documentation fetch or a hand-crafted request with unverifiable credentials does not establish PAP API interoperability.
-
-See [conformance](./conformance.md) for runtime acceptance. Publishing this specification does not provision a personal agent's identity keys or upgrade a dealer runtime.
+See [conformance](./conformance.md) for runtime acceptance. The pinned draft, schemas, cross-document checks and package tests establish a reviewable contract; each operator must deploy and verify its implementation.

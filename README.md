@@ -18,7 +18,7 @@
 |---|---|---|
 | **[MCP](docs/bindings/mcp.md)** | Streamable HTTP tools; current `2026-07-28` and `2025-11-25` compatibility | Typed arguments, complete schemas and structured results |
 | **[A2A 1.0](docs/bindings/json-rpc.md)** | `SendMessage` with the required AAP extension | The same payload in `DataPart.data` |
-| **[PAP 0.2](docs/personal-agent-protocol.md)** | Verified guest Sessions, DPoP and native OpenAPI | The same request and response bodies |
+| **[PAP 0.3](docs/personal-agent-protocol.md)** | Verified guest Sessions, DPoP and native OpenAPI | The same request and response bodies |
 
 A full AAP 3.0 dealer deployment serves its implemented skill subset through all three. A buyer client needs only its chosen binding. AAP does not require a dealer-side language model or a new CRM.
 
@@ -49,6 +49,7 @@ Browse without shopper contact details. Submit a lead only with explicit consent
 ## What is new in 3.0
 
 - **Native MCP:** real tool discovery and calls, self-contained schemas, structured successes and failures, current and legacy clients.
+- **PAP draft 0.3:** per-Session keys, explicit MCP token exchange and a complete [0.2 → 0.3 migration](docs/versioning.md#pap-03-migration), pinned to a reviewed upstream revision.
 - **Unified discovery:** exact MCP URL, A2A card, PAP API and `llms.txt` on the dealer domain.
 - **Evidence-based search:** supported feature codes, verified equipment, rooftop radius and distance, explicit applied filters and complete cursor pagination.
 - **Clear outcomes:** current availability, source timestamps, authoritative prices, channel-specific consent and unambiguous appointment states.

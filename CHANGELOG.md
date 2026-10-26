@@ -11,6 +11,7 @@ versioning policy is described in the
 
 AAP becomes a shared automotive contract with native MCP, A2A and PAP interfaces. This major release requires an explicit deployment migration; previous releases remain immutable.
 
+- Upgrade PAP to draft **0.3**, pinned to upstream `86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7`. Replace custom Session IDs with per-Session DPoP keys, old domain metadata with protected resources, and built-in scopes with company scopes. Add explicit MCP token exchange, browser-code joins, alternatives and excluded tasks; migrate sign-in, callbacks, token responses and conversation authors.
 - Require a working MCP Streamable HTTP endpoint, with current `2026-07-28` and legacy `2025-11-25` interoperability, complete bundled tool schemas, standard annotations and typed success/error results.
 - Cross-link dealer-domain Agent Cards, PAP discovery and `llms.txt`; declare the actual skill subset and search capabilities consistently across all three interfaces.
 - Add feature filters with source-backed equipment evidence, rooftop-radius search and distance sorting, explicit applied filters, exact-or-unknown totals and complete cursor continuation.
@@ -25,7 +26,7 @@ AAP becomes a shared automotive contract with native MCP, A2A and PAP interfaces
 - Clarify fee-inclusive price semantics and ADF receiver mappings with separate retained consent and idempotency records.
 - Verify official current and legacy MCP clients, official A2A wire exchanges, pinned upstream MCP schemas, PAP discovery and authentication contracts, and copyable documentation examples.
 - Generate complete TypeScript declarations in one shared naming scope; preserve nested result fields and required inventory listing identifiers, availability and timestamps.
-- Rebuild the website, README and all 32 current explanatory diagrams, including five new discovery/search visuals. Add readable Markdown representations and keep frozen artwork unchanged.
+- Rebuild the website, README and all 34 current explanatory diagrams, including five discovery/search visuals and two PAP 0.3 token/browser flows. Add readable Markdown representations and keep frozen artwork unchanged.
 
 See the [migration matrix](docs/versioning.md#for-implementers) and [deployment acceptance cases](docs/conformance.md#required-deployment-acceptance-cases). Contract fixtures do not certify a live dealership implementation.
 

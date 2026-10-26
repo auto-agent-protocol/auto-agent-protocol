@@ -73,7 +73,7 @@ The command never commits, tags, pushes, publishes npm packages, changes GitHub 
 
 ## Approved PAP 0.2 transition
 
-AAP 2.1.0 retains the AAP 2.0 automotive payloads, A2A v1.0 behavior and bridge version `1`, while upgrading the PAP profile from 0.1 to 0.2. The maintainer selected 2.1.0 as an explicit exception to the normal major-release policy. This does not make PAP 0.1 clients compatible: discovery and authentication require the [documented migration](docs/versioning.md#pap-02-migration).
+AAP 2.1.0 retains the AAP 2.0 automotive payloads, A2A v1.0 behavior and bridge version `1`, while upgrading the PAP profile from 0.1 to 0.2. The maintainer selected 2.1.0 as an explicit exception to the normal major-release policy. This does not make PAP 0.1 clients compatible: discovery and authentication require the [frozen migration](https://autoagentprotocol.org/docs/v2.1/versioning#pap-02-migration).
 
 `tools/release-prepare.ts` pins this exception to the exact reviewed specification SHA-256 and the 2.0.0 → 2.1.0 version pair. It cannot permit other specification changes or future breaking minor releases. The generated compatibility report records the exception and retains every detected breaking change. Rehearse with `pnpm release:prepare 2.1.0 --dry-run`, then prepare the committed source with `pnpm release:prepare 2.1.0`.
 

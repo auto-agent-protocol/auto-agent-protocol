@@ -24,7 +24,7 @@ AAP 3.0 defines three native interfaces. Each carries the same typed request and
 |---|---|---|
 | [MCP](./bindings/mcp.md) | Discover and call automotive tools | Streamable HTTP, 2026-07-28 + 2025-11-25 compatibility |
 | [A2A](./bindings/json-rpc.md) | `SendMessage` with an automotive DataPart | A2A 1.0, JSON-RPC 2.0 |
-| [PAP](./personal-agent-protocol.md) | Native OpenAPI operation with Session + DPoP | Personal Agent Protocol draft 0.2 |
+| [PAP](./personal-agent-protocol.md) | Native OpenAPI operation with Session + DPoP | Personal Agent Protocol draft 0.3 |
 
 A full AAP 3.0 dealer deployment implements all three with the same skill subset and business behavior. A client needs only its chosen interface. A partial implementation can describe the binding it supports, but cannot claim the full deployment profile. [Conformance](./conformance.md) defines the exact boundary.
 

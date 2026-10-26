@@ -28,7 +28,7 @@ AAP makes those answers consistent across dealerships and protocols.
 |---|---|
 | [MCP](https://modelcontextprotocol.io/) | Native, self-describing tools with complete schemas and structured results |
 | [A2A](https://a2a-protocol.org/) | Agent Card discovery and typed automotive messages |
-| [Personal Agent Protocol](https://personalagentprotocol.org/docs/0.2/spec) | Company identity, guest Sessions, DPoP and native APIs |
+| [Personal Agent Protocol](https://personalagentprotocol.org/docs/0.3/spec) | Company identity, guest Sessions, DPoP and native APIs |
 | [ADF/XML](./compatibility/adf-mapping.md) | A practical delivery bridge to existing dealer lead systems |
 
 AAP supplies automotive semantics and uses each protocol's own transport and authentication rules. An operator can route all three interfaces to the same inventory, pricing and lead services.

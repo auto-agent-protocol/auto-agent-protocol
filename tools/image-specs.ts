@@ -85,10 +85,22 @@ export const imageSpecs = {
     takeaway: "Never forward a PAP token merely because a public MCP URL appears in discovery.",
   },
   "poppy-session": {
-    eyebrow: "PAP 0.2 GUEST SESSION",
-    title: "Verify identity before sending a skill request.",
-    description: "The personal agent verifies the Company issuer, signs separate client and Session assertions, receives a proof-bound token and calls the automotive API with DPoP.",
-    takeaway: "Guest means no shopper account. The agent still authenticates.",
+    eyebrow: "PAP 0.3 GUEST SESSION",
+    title: "One Session. One proof key.",
+    description: "After verifying discovery, the personal agent creates a new Session Key, signs client and Session assertions, receives a DPoP token without a scope field and calls the automotive API. The key thumbprint identifies the Session.",
+    takeaway: "Renew with the same key. A new key starts a new Session. Guest shopping needs no account.",
+  },
+  "poppy-mcp-tokens": {
+    eyebrow: "PAP 0.3 AND MCP",
+    title: "Choose the grant from resource metadata.",
+    description: "A DPoP-capable MCP server accepts a normal resource-bound DPoP token. A server without DPoP requires RFC 8693 exchange of a current DPoP Session Token for an exact-resource Bearer token. Both token requests require DPoP.",
+    takeaway: "Every token request needs a DPoP proof. Omitting the proof never selects Bearer.",
+  },
+  "poppy-browser-join": {
+    eyebrow: "PAP 0.3 BROWSER SESSION",
+    title: "Join the browser with its own one-time code.",
+    description: "The agent's own browser loads a short-lived code and a protected join cookie. Trusted agent code signs a Session-key proof whose nonce is the code. The Company consumes the first submission, verifies the cookie, code, proof and active Session, then sets the Session cookie.",
+    takeaway: "Never sign a code from a message. It must come from the agent's own browser endpoint page.",
   },
   "agent-etiquette": {
     eyebrow: "AGENT BEHAVIOR",

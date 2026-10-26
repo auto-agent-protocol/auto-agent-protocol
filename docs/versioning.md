@@ -17,9 +17,9 @@ description: AAP 3.0 migration, independent upstream versions, and immutable rel
 | AAP `3.0.0` / contract `v3.0` | Automotive schemas, bindings and behavior |
 | MCP `2026-07-28` + `2025-11-25` | Current wire protocol and explicit compatibility path |
 | A2A `1.0` | Agent Card, Message and JSON-RPC protocol |
-| PAP `0.2` | Upstream Poppy draft; discovery bridge remains `version: "1"` |
+| PAP `0.3` | Pinned in-progress Poppy draft; discovery bridge remains `version: "1"` |
 
-A server's software version is separate. A PAP 0.2 client is not automatically an AAP 3.0 client, and MCP version negotiation does not choose an automotive schema version.
+A server's software version is separate. A PAP 0.2 client must migrate its authentication flow; a PAP 0.3 client is not automatically an AAP 3.0 client, and MCP version negotiation does not choose an automotive schema version.
 
 ## For implementers
 
@@ -28,6 +28,7 @@ Migrate the implementation and its clients before switching discovery. Keep each
 | Area | AAP 2.1 | AAP 3.0 action |
 |---|---|---|
 | MCP | Reference manifest/optional adapter | Implement native Streamable HTTP for both required revisions, actual tools/list and typed success/error results |
+| PAP | Draft 0.2 authentication and discovery | Migrate to draft 0.3 as detailed [below](#pap-03-migration); changing the version label is insufficient |
 | Discovery | A2A + PAP pair | Add complete AAP params, exact MCP URL, search capabilities, release metadata and dealer `/llms.txt` |
 | Search filters | Empty arrays, repeated values and empty queries can validate | Advertise supported keys/sorts; deduplicate arrays and omit empty optional filters. Reject `make: []`, `make: ["Honda", "Honda"]`, empty/whitespace-only `query`, unknown keys and unsupported constraints; implement explicit query token rules |
 | Features | Free-text attributes | Add `features_all` (AND), `features_any` (OR), advertised feature vocabulary and source-backed `feature_evidence`; unknown is not absent |
@@ -44,7 +45,7 @@ Migrate the implementation and its clients before switching discovery. Keep each
 
 The public `DayHours` and `WeeklyHours` TypeScript exports are retained. `DayHours` remains `{open, close} | null`; consumers keep their existing imports.
 
-Pricing semantics, five canonical skill IDs, A2A 1.0 wire form, PAP 0.2 identity/DPoP and discovery bridge `1` remain. Do not weaken authentication to make a client with missing credentials appear compatible.
+Pricing semantics, five canonical skill IDs, A2A 1.0 wire form and discovery bridge `1` remain. PAP upgrades to 0.3, including its breaking Session, metadata and optional-flow changes. Do not weaken authentication to make a client with missing credentials appear compatible.
 
 ### Release order and version discovery
 
@@ -59,21 +60,40 @@ For coexistence, retain separate version-specific cards and endpoints. One origi
 
 Do not retry an uncertain lead through an older contract with a new key. Preserve its identity and reconcile the earlier outcome.
 
+### PAP 0.3 migration
+
+The target is the [0.3 draft at upstream commit `86f0c8d`](https://github.com/personal-agent-protocol/personal-agent-protocol/blob/86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7/content/versions/0.3/spec.mdx), reviewed 2026-10-26. This is not an upstream final release. Re-review later draft changes explicitly; do not silently follow a moving `main`.
+
+| Surface | PAP 0.2 | PAP 0.3 action |
+|---|---|---|
+| Discovery | `protocol_version: "0.2"` | Advertise `"0.3"` only after implementing it; unsupported pre-1.0 minors are incompatible |
+| Redirected discovery | Final-host identity | Also retain exact final `/.well-known/poppy.json` path without query |
+| Issuer authorization | `poppy_domains: ["dealer.example"]` | Replace with `protected_resources: ["https://dealer.example"]`; no domain-entry port, path or slash; ignore hostname case only |
+| Grant metadata | JWT grant advertisement optional | Require `grant_types_supported`, including JWT bearer **and `refresh_token`**, even for guest-only issuers |
+| Sign-in discovery | `auth.direct` and `auth.device` | Remove both; use authorization-code/device grants and their required metadata endpoints; any sign-in requires `scopes_supported` |
+| Scopes | Built-in `poppy:read` / `poppy:write`, plus `auth.custom_scopes` | Define company scopes; reserve all `poppy:` names. Replace with `auth.scopes` or listed OpenAPI OAuth descriptions; mediated scopes must be a supported subset |
+| Scope hints | No standard hints | Optional `auth.scope_hints` includes both `changes` and `personal_data`; unknown changes means irreversible, absent hints means unknown |
+| Session identity | Custom `session_id` in requests/responses; DPoP key could span Sessions for one User | Remove `session_id`. Create a new DPoP key per Session; key thumbprint identifies it. Renew with the same key, client, User and optional Agent ID |
+| Session errors | `invalid_session` | Use `invalid_grant`; keep ended-key tombstones when possible; clients discard rejected ended keys and tolerate forgotten-key renewal creating a new Session |
+| Token state | `signed_in`, guest `scope: ""` | Remove both. Guest JWT grant always returns DPoP with scope omitted. Sign-in/Account Token grants are signed in; omitted scope means exactly as requested. Never infer state from scope presence |
+| Agent identity within a User | No Agent ID | Optional pairwise opaque `agent_id` in Session assertion; unchanged or absent on renewal, no separate account/conversation ownership |
+| Native MCP without DPoP | Token issuance could return Bearer without a token-endpoint proof | Require RFC 8693 **token exchange** from a current DPoP Session Token; fresh token-endpoint DPoP still mandatory; return exact-resource Bearer and `issued_token_type`; never widen scopes |
+| Native MCP with DPoP | Resource-bound DPoP | Continue normal grants with DPoP and exact MCP resource. Wrong grant/token target gets `invalid_target`; never exchange to a DPoP-capable server |
+| Direct Sign-In | PKCE and Session ID | Bind code to Session Key via mandatory `dpop_jkt` support or proof on PAR; keep PKCE, state and response-issuer checks. Exchange with the same key |
+| Native client redirects | Same-domain HTTPS only | Also permit RFC 8252 HTTP loopback IP literals, matching exactly except for port; remote identity fetches stay HTTPS |
+| Device Sign-In | Device flow | Apply RFC 10027 protections; bind device code on first token poll, reject key changes |
+| Browser join | Signed browser assertion and return URL | Replace with browser-issued ≤60-second code, `__Host-` join cookie, Session-key DPoP `nonce=code`, one-use verification and required browser isolation headers |
+| Account access error | `sign_in_required` | Use `insufficient_scope`, including for signed-out requests; name required scopes and honor explicit sign-out |
+| Token lifetime / revocation | Account Token expiry implicit | Optional positive `refresh_token_expires_in`; revocation SHOULD invalidate issued Session Tokens; otherwise enforce state/short lifetime |
+| Conversation messages | `sender` | Use `author: {type: "agent" or "human"}`; Company authors may include id/name/image; authorization events require scope |
+| Unavailable tasks | Feedback only, 202 | Optional public `excluded_tasks.url` and alternatives; feedback clients accept **200 + alternative or 202 + no body**; ignore references to unadvertised APIs |
+| Secrets | Credential protection | Keep tokens, private keys, authorization codes, PKCE verifiers and device codes outside model context; use trusted signing/sending code |
+
+Regenerate client/tool schemas and update TypeScript constructors with the new Poppy metadata and token shapes; the old fields are intentionally incompatible. The automotive request/response bodies and bridge `1` are independent of this change. Do not reset a lead's idempotency key during protocol migration or scope deduplication to a changing Session Key. Keep a stable verified caller/User identity and reconcile uncertain writes before changing authentication context.
+
 ### PAP 0.2 migration
 
-Upgrading from AAP 2.0/PAP 0.1 also requires these security changes:
-
-| Surface | PAP 0.2 requirement |
-|---|---|
-| Supported draft | Explicit major/minor `0.2`; reject an unsupported pre-1.0 minor |
-| Organization | Final HTTPS discovery host, case-only comparison; `www` is distinct |
-| Company identity | One issuer per independent Company; aliases share auth and are all authorized in `poppy_domains` |
-| Assertions | Two distinct signed assertions, exact issuer-string audience, at most 300 seconds, replay checks |
-| DPoP | ES256 support, separate per-User-ID keys, nonce handling and token-endpoint replay checks |
-| Native MCP authorization | DPoP when advertised; otherwise Bearer restricted to the exact MCP resource URL |
-| Redirects | Never forward secrets after endpoint redirects; validate peer-supplied destinations |
-
-See the [PAP client guide](./pap-client-guide.md) and the [frozen 2.1 migration record](https://autoagentprotocol.org/docs/v2.1/versioning#pap-02-migration) for the complete transition. The historical 2.0→2.1 minor-version exception was approved for one exact specification hash. It does not relax the major-version policy for later releases.
+This heading remains as a historical link. AAP 2.1 used PAP 0.2; its [frozen migration record](https://autoagentprotocol.org/docs/v2.1/versioning#pap-02-migration) documents the earlier 0.1 → 0.2 transition. New AAP 3.0 implementations target **0.3 directly** and apply all final identity, issuer-audience and proof requirements. They do not need an intermediate 0.2 deployment. The historical 2.0 → 2.1 minor-release exception was approved for one specification hash and does not relax the major-version policy.
 
 ### Breaking migration checklist
 

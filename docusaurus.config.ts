@@ -238,7 +238,7 @@ const config: Config = {
           items: [
             { label: "MCP specification", href: "https://modelcontextprotocol.io/specification/2026-07-28" },
             { label: "A2A 1.0 specification", href: "https://a2a-protocol.org/v1.0.0/specification/" },
-            { label: "PAP draft 0.2 specification", href: "https://personalagentprotocol.org/docs/0.2/spec" },
+            { label: "PAP draft 0.3 specification", href: "https://personalagentprotocol.org/docs/0.3/spec" },
           ],
         },
         {

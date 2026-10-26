@@ -267,7 +267,7 @@ const protocols = [
     subtitle: "Personal agents",
     title: "A native API for a verified personal agent.",
     description:
-      "Personal Agent Protocol draft 0.2 discovery, guest Sessions and DPoP. Automotive skills without a shopper account.",
+      "Personal Agent Protocol draft 0.3 discovery, guest Sessions and DPoP. Automotive skills without a shopper account.",
     path: "personal-agent-protocol",
     steps: [
       "Read poppy.json",
@@ -752,7 +752,7 @@ const structuredData = {
   isBasedOn: [
     "https://modelcontextprotocol.io/specification/2026-07-28",
     "https://a2a-protocol.org/v1.0.0/specification/",
-    "https://personalagentprotocol.org/docs/0.2/spec",
+    "https://personalagentprotocol.org/docs/0.3/spec",
   ],
   isPartOf: { "@id": "https://autoagentprotocol.org/#website" },
   publisher: { "@id": "https://autoagentprotocol.org/#organization" },

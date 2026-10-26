@@ -23,7 +23,7 @@ Draft identifiers are not production identifiers. Release preparation replaces t
 | Dealer URL | What an agent learns |
 |---|---|
 | `/.well-known/agent-card.json` | A2A endpoint, selected AAP version, implemented skills, MCP URL and search capabilities |
-| `/.well-known/poppy.json` | PAP 0.2 organization, issuer, native OpenAPI and links to A2A/MCP |
+| `/.well-known/poppy.json` | PAP 0.3 organization, issuer, native OpenAPI and links to A2A/MCP |
 | `/llms.txt` | A short, readable index of those interfaces and their access requirements |
 
 All three MUST be public over HTTPS. The two discovery documents MUST return JSON. `llms.txt` MUST return UTF-8 Markdown as `text/plain` or `text/markdown`. None of these requests submits a lead or needs a shopper's personal information.
@@ -64,11 +64,11 @@ The card's software `version` is independent of AAP `params.version`. The A2A ex
 
 ## Poppy: an authenticated native API
 
-The [Poppy example](https://draft.autoagentprotocol.invalid/latest/examples/poppy.example.json) publishes PAP `0.2`, an issuer and a native OpenAPI interface. Its `extensions["autoagentprotocol.org/aap"]` links the paired Agent Card, the **same MCP URL**, AAP release and `llms.txt`.
+The [Poppy example](https://draft.autoagentprotocol.invalid/latest/examples/poppy.example.json) publishes PAP `0.3`, an issuer and a native OpenAPI interface. Its `extensions["autoagentprotocol.org/aap"]` links the paired Agent Card, the **same MCP URL**, AAP release and `llms.txt`.
 
 The public MCP pointer belongs in that AAP extension. A top-level `apis` entry with `type: "mcp"` additionally promises PAP Session Tokens, protected-resource metadata and scope enforcement. Only advertise it when those behaviors exist. See [native PAP MCP](./personal-agent-protocol.md#6-optional-poppy-surfaces).
 
-For redirects, PAP organization identity follows the **final HTTPS discovery host**, comparing case only; `www` is a distinct host. The issuer must authorize that domain through `poppy_domains`. Keep canonical links consistent after redirects and use one issuer per independent Company. Full rules are in [PAP discovery](./personal-agent-protocol.md#2-paired-discovery).
+For redirects, PAP organization identity follows the **final HTTPS discovery host**, comparing case only; `www` is a distinct host. The final URL keeps exactly `/.well-known/poppy.json` without a query. The issuer must authorize that domain through `protected_resources`, with an entry exactly `https://{domain}` (hostname case ignored; no port, path or trailing slash). Keep canonical links consistent after redirects and use one issuer per independent Company. Full rules are in [PAP discovery](./personal-agent-protocol.md#2-paired-discovery).
 
 ## llms.txt: a useful index, not registration
 

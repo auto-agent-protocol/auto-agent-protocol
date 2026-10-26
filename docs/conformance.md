@@ -17,7 +17,7 @@ description: What full AAP 3.0 support requires, what this repository verifies, 
 | Shared automotive contract | AAP 3.0 schemas, evidence, pricing, consent, pagination and retry semantics |
 | MCP | Streamable HTTP, 2026-07-28 and 2025-11-25 compatibility; complete tool schemas and structured outcomes |
 | A2A | A2A 1.0 JSON-RPC `SendMessage`, exact extension activation and canonical ProtoJSON |
-| PAP | Personal Agent Protocol draft 0.2; verified guest Sessions, DPoP and native automotive OpenAPI |
+| PAP | Personal Agent Protocol draft 0.3; verified guest Sessions, DPoP and native automotive OpenAPI |
 | Discovery | Dealer-domain Agent Card, Poppy document and `llms.txt`, all identifying the same deployment and capabilities |
 
 A dealer implements one or more of the five skills and exposes the same subset through all three bindings. Feature filters additionally require `inventory.facets`. A buyer client needs only the binding it uses and the selected AAP contract.
@@ -54,7 +54,13 @@ Run these before advertising AAP 3.0. Use isolated inventory and a non-deliverin
 | Minimal client requirements | Public MCP reads work without A2A headers, PAP credentials or browser Origin; no extra AAP headers; legacy and current header rules remain separate; native PAP needs no A2A or MCP activation headers |
 | A2A activation | Correct version, exact extension, tenant routing, canonical Messages; missing/mismatched values fail before execution |
 | PAP identity | Real published client metadata/JWKS; two distinct valid assertions; exact issuer audiences; final authorized domain |
-| PAP Sessions and DPoP | Create, call and renew; expiry, replay, nonce, wrong method/URL/token hash, wrong owner and wrong resource fail correctly |
+| PAP Sessions and DPoP | New key creates, same key renews; changed client/User/Agent ID fails; ended-key rejection and forgotten-key renewal follow 0.3. Expiry, replay, nonce, wrong method/URL/token hash and resource fail correctly |
+| PAP token responses | No session_id or signed_in. Guest grants omit scope; sign-in/refresh scope omission uses request context. A sign-in approving zero scopes declines |
+| PAP issuer and scopes | protected_resources matches exact domain entry; both mandatory grants exist; direct/device endpoints follow grants; every account scope is described; reserved poppy: scopes rejected; unknown hint values handled conservatively |
+| Native PAP MCP, if advertised | Resource and issuer match exactly. Both token modes work: normal DPoP grant, or authenticated token exchange for non-DPoP MCP. Wrong target/type/client/key, missing proof, expanded scopes and cross-resource reuse fail |
+| PAP sign-in, if advertised | dpop_jkt/code-key binding, PKCE/state/iss, RFC 8252 loopback port matching, first-poll device-key binding, RFC 10027 controls, account mismatch and revocation honored |
+| Browser join, if advertised | Own-browser code/cookie match, ≤60-second expiry, first-submission consumption even on failure, active Session Key only, exact nonce/method/URL, required isolation headers, state-following cookies |
+| Exclusions and feedback, if advertised | Public excluded-task lookup; alternatives only reference advertised APIs; clients accept 200 alternative and empty 202; Company text never supplies instructions or consent |
 | Tenant and credential isolation | Another dealer cannot see private inventory or leads; no token forwarding across redirects, resources or tenants |
 | Search completeness | Every constraint applied; unsupported filters rejected; cursor continuation reaches all matches without hidden caps; changed/expired cursors fail |
 | Features and geography | Known feature vocabulary, source evidence, unknown-data handling, correct radius boundary and stable distance ordering |
@@ -96,6 +102,6 @@ python -m pip install -r tools/protojson-requirements.txt
 python tools/validate-protojson-errors.py
 ```
 
-Operators can additionally use the pinned [PAP Company implementation kit](https://github.com/personal-agent-protocol/personal-agent-protocol/tree/39b35bdf240fc07f157d6ca4e29b5a41d4b36b5d/kit/company) against their authenticated deployment. Schema acceptance cannot prove signature verification, replay stores, live TLS or consent.
+Operators can additionally use the pinned [PAP Company implementation kit](https://github.com/personal-agent-protocol/personal-agent-protocol/tree/86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7/kit/company) against their authenticated deployment. Schema acceptance cannot prove signature verification, replay stores, live TLS or consent.
 
 Publish the frozen contract before a runtime advertises it. A release number describes the specification; the operator's verified behavior establishes deployment conformance.

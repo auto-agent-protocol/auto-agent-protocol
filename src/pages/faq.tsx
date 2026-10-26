@@ -18,7 +18,7 @@ const questions = [
   {
     title: "What changes in AAP 3.0?",
     answer:
-      "MCP becomes a native interface alongside A2A and PAP. Dealer-domain discovery links all three. Search adds source-backed equipment, radius and distance, explicit capabilities, applied filters and complete cursor pagination. AAP 3.0 is a major-version migration.",
+      "MCP becomes a native interface alongside A2A and PAP draft 0.3. PAP gains per-Session keys, explicit MCP token exchange and browser-code joins. Dealer-domain discovery links all three. Search adds source-backed equipment, radius and distance, explicit capabilities, applied filters and complete cursor pagination. AAP 3.0 is a major-version migration.",
     link: "versioning",
     label: "Read the migration guide",
   },
@@ -32,7 +32,7 @@ const questions = [
   {
     title: "How do the three interfaces fit together?",
     answer:
-      "MCP carries tool calls. A2A 1.0 carries typed automotive DataParts through SendMessage. Poppy draft 0.2 guest OpenAPI uses verified Sessions and DPoP for personal agents. The same automotive payloads and behavior apply to all three.",
+      "MCP carries tool calls. A2A 1.0 carries typed automotive DataParts through SendMessage. Poppy draft 0.3 guest OpenAPI uses verified Sessions and DPoP for personal agents. The same automotive payloads and behavior apply to all three.",
     link: "personal-agent-protocol",
     label: "Read the PAP profile",
   },

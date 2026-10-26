@@ -208,16 +208,43 @@ function renderVisual(name: DiagramName): string {
       + pill('Native PAP apis: "mcp"', 636, 238, 488, C.teal, C.paper, 24)
       + icon("key", 845, 312, 70, C.teal)
       + label("PAP-authorized MCP", 880, 431, 488, 33, C.ink, 650, false, "middle")
-      + lines(["Session token + resource metadata", "Exact resource URL + scopes"], 880, 480, 488, 23).replaceAll('text-anchor="start"', 'text-anchor="middle"');
+      + lines(["DPoP or explicit token exchange", "Exact resource URL + scopes"], 880, 480, 488, 23).replaceAll('text-anchor="start"', 'text-anchor="middle"');
     case "poppy-session": {
       const xs = [158, 600, 1042];
       return ["Personal agent", "Company issuer", "Automotive API"].map((v, i) => pill(v, xs[i] - 110, 198, 220, i === 2 ? C.teal : C.blueDark, i === 2 ? C.tealTint : C.blueTint, 21) + line(xs[i], 252, xs[i], 611, C.line, true)).join("")
         + label("Discover and verify the issuer", 193, 293, 407, 23, C.ink, 500)
         + arrow(158, 315, 600) + label("Client JWT + Session JWT + DPoP", 193, 365, 830, 23, C.ink, 500)
-        + arrow(158, 387, 600) + label("Proof-bound Session Token", 193, 437, 830, 23, C.blueDark, 500)
+        + arrow(158, 387, 600) + label("DPoP token · no scope field", 193, 437, 830, 23, C.blueDark, 500)
         + arrow(600, 459, 158) + label("AAP request + token + fresh DPoP", 193, 509, 830, 23, C.teal, 500)
         + arrow(158, 531, 1042, 531, C.teal) + label("Typed automotive result", 632, 582, 370, 22, C.teal, 500)
         + arrow(1042, 603, 158, 603, C.teal);
+    }
+    case "poppy-mcp-tokens": return rect(48, 192, 1104, 68, C.blueTint, C.blue)
+      + label("Read the advertised MCP server's resource metadata", 600, 235, 1040, 28, C.blueDark, 650, false, "middle")
+      + arrow(310, 264, 310, 302) + arrow(890, 264, 890, 302, C.teal)
+      + rect(48, 310, 530, 296) + rect(622, 310, 530, 296, C.tealTint)
+      + pill("DPoP supported", 76, 334, 474, C.blueDark, C.blueTint, 25)
+      + pill("No DPoP support", 650, 334, 474, C.teal, C.paper, 25)
+      + lines(["JWT / Account Token grant", "resource = exact MCP URL", "Token endpoint: DPoP proof"], 80, 414, 466, 23)
+      + lines(["Token exchange grant", "Subject = current DPoP token", "Token endpoint: DPoP proof"], 654, 414, 466, 23)
+      + arrow(310, 505, 310, 538) + arrow(890, 505, 890, 538, C.teal)
+      + label("DPoP token + fresh proof", 313, 576, 474, 26, C.blueDark, 650, false, "middle")
+      + label("Bearer · exact MCP resource", 887, 576, 474, 25, C.teal, 650, false, "middle");
+    case "poppy-browser-join": {
+      const steps: [string, Icon, string[]][] = [
+        ["Browser gets code", "globe", ["Own endpoint page", "Code expires within 60s", "__Host- join cookie"]],
+        ["Agent signs proof", "key", ["Same Session Key", "nonce = browser code", "POST proof · no ath"]],
+        ["Company verifies", "shield", ["Match cookie + code", "Consume first attempt", "Active Session only"]],
+      ];
+      return steps.map(([title, glyph, detail], i) => {
+        const x = 48 + i * 378;
+        return rect(x, 210, 348, 336) + pill(`0${i + 1}`, x + 24, 230, 64)
+          + icon(glyph, x + 140, 284, 68, i === 2 ? C.teal : C.blue)
+          + label(title, x + 174, 400, 312, 27, C.ink, 650, false, "middle")
+          + lines(detail, x + 174, 446, 306, 21).replaceAll('text-anchor="start"', 'text-anchor="middle"')
+          + (i < 2 ? arrow(x + 350, 378, x + 372) : "");
+      }).join("") + rect(48, 568, 1104, 48, C.tealTint, C.tealTint)
+        + label("303 + Session cookie only after verification", 600, 600, 1040, 25, C.teal, 650, false, "middle");
     }
     case "consent-gate": return tile("Browse", "Dealer + inventory skills", "search", 48, 257, 370)
       + tile("Inspect", "Price + equipment evidence", "car", 48, 416, 370)
@@ -325,7 +352,7 @@ function renderVisual(name: DiagramName): string {
           + label(detail, x + 174, 560, 312, 22, C.ink, 500, false, "middle");
       }).join("");
     case "interop-clients": {
-      const rows: [string, string][] = [["MCP current", "Per-request metadata"], ["MCP legacy", "Initialize lifecycle"], ["A2A 1.0", "Activated DataPart"], ["PAP 0.2", "Session + DPoP"]];
+      const rows: [string, string][] = [["MCP current", "Per-request metadata"], ["MCP legacy", "Initialize lifecycle"], ["A2A 1.0", "Activated DataPart"], ["PAP 0.3", "Session key + DPoP"]];
       return rows.map(([title, detail], i) => tile(title, detail, i === 3 ? "key" : "agent", 48, 192 + i * 108, 386) + arrow(440, 240 + i * 108, 592)).join("")
         + rect(598, 192, 554, 420, C.blueTint, C.blue) + icon("shield", 831, 225, 88)
         + label("One AAP contract", 875, 386, 490, 36, C.ink, 650, false, "middle")
