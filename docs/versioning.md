@@ -40,7 +40,7 @@ Migrate the implementation and its clients before switching discovery. Keep each
 | Inventory listings | Some guarantees only in prose | Require eligible `status`, `updated_at` and a stable identifier in search/detail responses |
 | Lead retries | Optional key; `duplicate` is a lead status | Require `idempotency_key`; retain atomic deduplication for at least 24 hours. Replay the complete original result with `data.replayed: true`, preserving `received`/`rejected`, appointment details and message. `status: "duplicate"` is removed |
 | Contact channels | Consent declaration | Require matching contact data and an authorized preferred channel; reject unusable grants before delivery |
-| Appointment outcome | Some conditions only described | Enforce time on `confirmed`, alternatives on `proposed`, and no booking on a rejected lead |
+| Appointment outcome | Some conditions only described | Enforce time on `confirmed` and alternatives on `proposed`. Any appointment included on a rejected lead must also be `rejected` |
 | Errors | Existing automotive vocabulary; retry timing optional and may use seconds | Add `DEALER_NOT_FOUND`, `UNSUPPORTED_FILTER`, `UNSUPPORTED_SORT`, `INVALID_CURSOR`. `RATE_LIMITED` requires `details.retry_after_ms`; multiply seconds by 1,000. `retry_after_seconds` alone is insufficient. HTTP 429 also requires `Retry-After` |
 | Error details | `aap.error.details` accepts unrestricted JSON, including strings, arrays and null | When present, `details` must be an object. Convert custom diagnostics to `details.errors[]`, where each item requires a JSON Pointer `instanceLocation`, a nonempty `keyword` and a nonempty `error`; additional detail fields remain allowed |
 

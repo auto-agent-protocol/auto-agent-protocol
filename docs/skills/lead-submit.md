@@ -97,7 +97,7 @@ An appointment has its own outcome:
 | `confirmed` | Booked at the required `confirmed_at` timestamp. |
 | `rejected` | This appointment was declined; the lead may still be accepted. |
 
-The dealer MUST NOT report `confirmed` without a real booking. A rejected lead cannot contain a confirmed appointment. If the lead was accepted but the appointment failed, return the accepted lead with the appointment's actual status; do not hide acceptance inside an `aap.error`. `APPOINTMENT_TIME_UNAVAILABLE` means the entire submission was rejected because no requested or alternative time could be accepted.
+The dealer MUST NOT report `confirmed` without a real booking. When the lead is `rejected`, any included appointment MUST also have status `rejected`; `requested`, `proposed` and `confirmed` are invalid for that lead. If the lead was accepted but the appointment failed, return the accepted lead with the appointment's actual status; do not hide acceptance inside an `aap.error`. `APPOINTMENT_TIME_UNAVAILABLE` means the entire submission was rejected because no requested or alternative time could be accepted.
 
 ## Safe retries
 
