@@ -141,6 +141,14 @@ The output schema's success/error union keeps structured failures valid. `isErro
 
 In the current revision, mismatched or missing required metadata headers return HTTP 400 with `HeaderMismatch` (`-32020`). An unsupported protocol date returns HTTP 400 with `UnsupportedProtocolVersionError` (`-32022`) and supported versions. The body and mirrored headers MUST agree. Correct the request instead of interpreting these errors as a signal to drop into an older protocol.
 
+## Host schema compatibility
+
+MCP permits JSON Schema 2020-12 composition and conditionals. Some Claude Code builds have been reported to drop tools with these keywords at the **input schema root**, or to receive an Anthropic API error: [current report](https://github.com/anthropics/claude-code/issues/95504), [earlier API error](https://github.com/anthropics/claude-code/issues/27337). This is a host limitation, not an invalid MCP contract, and does not establish failure in every Claude product or Instinct.
+
+The generated catalog places root input constraints under `dependentSchemas.type`. Every AAP request already requires its `type` discriminator, so those constraints still validate the **whole request object** whenever it can be valid. The arguments, property descriptions, examples and accepted/rejected payloads stay the same; no wrapper, alternate skill name or second automotive schema is introduced. The generator refuses this transformation if the required discriminator is absent. Servers MUST retain complete canonical request validation, including consent, identifiers and geography.
+
+Repository checks compare the generated and canonical validators on valid and malformed requests and exercise both pinned official MCP clients. These are not a Claude-host certification. Before advertising a supported host, verify that all implemented tools appear and that search, vehicle detail and consented lead calls reach the server. If a host still rejects `dependentSchemas`, `$defs` or other standard keywords, use a client supporting the complete schema (the pinned official clients are covered), or a separately tested host adapter that preserves the arguments and canonical server validation. Report the unsupported host/build explicitly; never silently remove tools or weaken the automotive contract.
+
 ## Existing clients
 
 For 2025-11-25, accept `initialize` with `protocolVersion`, `clientInfo` and `capabilities`; return that supported version, `serverInfo` and `capabilities.tools`. Accept `notifications/initialized` with HTTP 202 and no body. Subsequent requests send the negotiated protocol header. Keep tool arguments, schemas and AAP results identical to the current binding.

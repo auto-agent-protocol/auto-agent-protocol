@@ -60,6 +60,46 @@ test("bundled MCP schemas validate every typed example without external schema r
   assert.equal(lead.annotations.idempotentHint, false);
 });
 
+test("MCP input schemas avoid the reported host root-keyword restriction without losing validation", () => {
+  const canonical = new Ajv2020({ strict: false, allErrors: true });
+  addFormats(canonical);
+  for (const file of globSync("spec/latest/schemas/**/*.schema.json", { cwd: ROOT })) canonical.addSchema(JSON.parse(readFileSync(resolve(ROOT, file), "utf8")));
+  let comparisons = 0;
+  for (const tool of tools) {
+    for (const keyword of ["allOf", "anyOf", "oneOf", "not", "if", "then", "else"]) {
+      assert.equal(Object.hasOwn(tool.inputSchema, keyword), false, `${tool.name}: unsupported root ${keyword}`);
+    }
+    const validate = canonical.getSchema(tool._meta[AAP_MCP_META].request_schema)!;
+    const stem = exampleFile(tool._meta[AAP_MCP_META].request_schema).replace(".example.json", "");
+    const variants: unknown[] = [{}, null, [], { type: tool._meta[AAP_MCP_META].request_type }];
+    for (const file of globSync(`${stem}*.example.json`, { cwd: examples }).filter(file => !file.includes(".jsonrpc."))) {
+      const original = read(file);
+      variants.push(original);
+      function mutate(node: any, path: string[] = []): void {
+        if (!node || typeof node !== "object" || Array.isArray(node)) return;
+        for (const key of Object.keys(node)) {
+          for (const replacement of [undefined, null, "", [], {}, false, 0, "unexpected"]) {
+            const candidate = structuredClone(original);
+            const parent = path.reduce((value, segment) => value[segment], candidate);
+            if (replacement === undefined) delete parent[key];
+            else parent[key] = replacement;
+            variants.push(candidate);
+          }
+          mutate(node[key], [...path, key]);
+        }
+      }
+      mutate(original);
+    }
+    if (tool.name === "aap_inventory_search") variants.push({ type: "inventory.search.request", sort: { field: "distance_mi", order: "asc" } });
+    if (tool.name === "aap_inventory_vehicle") variants.push({ type: "inventory.vehicle.request", vehicle_id: "listing-42" });
+    for (const value of variants) {
+      assert.equal(tool.input(value), validate(value), `${tool.name}: validation differs for ${JSON.stringify(value)}`);
+      comparisons++;
+    }
+  }
+  assert.ok(comparisons > 500, "exercise missing, malformed and valid fields across every skill");
+});
+
 for (const modern of [true, false]) {
   test(`official MCP ${modern ? "2.4.0 current" : "1.32.2 legacy"} client discovers and calls all five tools`, { timeout: 15000 }, async () => {
     const calls: Array<{ request: any; headers: Record<string, unknown>; result?: any }> = [];

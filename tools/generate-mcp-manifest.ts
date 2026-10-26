@@ -25,6 +25,21 @@ interface SkillsManifest {
 export const MCP_VERSIONS = ["2026-07-28", "2025-11-25"] as const;
 export const AAP_MCP_META = "autoagentprotocol.org/aap";
 
+function nestInputConstraints(schema: Schema): Schema {
+  const keywords = ["allOf", "anyOf", "oneOf", "not", "if", "then", "else"];
+  const constraints = Object.fromEntries(keywords.filter(key => key in schema).map(key => [key, schema[key]]));
+  if (!Object.keys(constraints).length) return schema;
+  if (!Array.isArray(schema.required) || !schema.required.includes("type")) throw new Error("MCP constraint nesting requires the AAP type discriminator");
+  const dependencies = (schema.dependentSchemas ?? {}) as Schema;
+  return {
+    ...Object.fromEntries(Object.entries(schema).filter(([key]) => !keywords.includes(key))),
+    dependentSchemas: {
+      ...dependencies,
+      type: dependencies.type ? { allOf: [dependencies.type, constraints] } : constraints,
+    },
+  };
+}
+
 function bundleSchemas(schemasDir: string, files: string[]): Schema {
   const documents = new Map<string, Schema>();
   const definitions: Record<string, unknown> = {};
@@ -86,7 +101,7 @@ export function generateMcp(specDir: string, outDir: string, version: string): v
   const tools = manifest.skills.map(skill => {
     const readOnly = ["dealer.information", "inventory.facets", "inventory.search", "inventory.vehicle"].includes(skill.id);
     if (!readOnly && skill.id !== "lead.submit") throw new Error(`MCP behavior annotations are not defined for ${skill.id}`);
-    const inputSchema = bundleSchemas(schemasDir, [skill.request_schema]);
+    const inputSchema = nestInputConstraints(bundleSchemas(schemasDir, [skill.request_schema]));
     return {
       name: `aap_${skill.id.replaceAll(".", "_")}`,
       title: skill.name,

@@ -1541,39 +1541,6 @@
           "type"
         ],
         "additionalProperties": false,
-        "allOf": [
-          {
-            "if": {
-              "properties": {
-                "sort": {
-                  "properties": {
-                    "field": {
-                      "const": "distance_mi"
-                    }
-                  },
-                  "required": [
-                    "field"
-                  ]
-                }
-              },
-              "required": [
-                "sort"
-              ]
-            },
-            "then": {
-              "properties": {
-                "filters": {
-                  "required": [
-                    "near"
-                  ]
-                }
-              },
-              "required": [
-                "filters"
-              ]
-            }
-          }
-        ],
         "$defs": {
           "inventory_search_request__defs_filters": {
             "type": "object",
@@ -1990,6 +1957,43 @@
               }
             },
             "additionalProperties": false
+          }
+        },
+        "dependentSchemas": {
+          "type": {
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "sort": {
+                      "properties": {
+                        "field": {
+                          "const": "distance_mi"
+                        }
+                      },
+                      "required": [
+                        "field"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "sort"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "filters": {
+                      "required": [
+                        "near"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filters"
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -3765,24 +3769,28 @@
         "required": [
           "type"
         ],
-        "anyOf": [
-          {
-            "required": [
-              "vin"
-            ]
-          },
-          {
-            "required": [
-              "stock"
-            ]
-          },
-          {
-            "required": [
-              "vehicle_id"
+        "additionalProperties": false,
+        "dependentSchemas": {
+          "type": {
+            "anyOf": [
+              {
+                "required": [
+                  "vin"
+                ]
+              },
+              {
+                "required": [
+                  "stock"
+                ]
+              },
+              {
+                "required": [
+                  "vehicle_id"
+                ]
+              }
             ]
           }
-        ],
-        "additionalProperties": false
+        }
       },
       "outputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -4782,259 +4790,6 @@
           "idempotency_key"
         ],
         "additionalProperties": false,
-        "allOf": [
-          {
-            "description": "vehicle_of_interest.condition (when set) must be in the sale-condition vocabulary",
-            "if": {
-              "type": "object",
-              "required": [
-                "vehicle_of_interest"
-              ],
-              "properties": {
-                "vehicle_of_interest": {
-                  "type": "object",
-                  "required": [
-                    "condition"
-                  ]
-                }
-              }
-            },
-            "then": {
-              "properties": {
-                "vehicle_of_interest": {
-                  "properties": {
-                    "condition": {
-                      "enum": [
-                        "new",
-                        "used",
-                        "cpo"
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          {
-            "description": "trade_in.condition (when set) must be in the wear-condition vocabulary",
-            "if": {
-              "type": "object",
-              "required": [
-                "trade_in"
-              ],
-              "properties": {
-                "trade_in": {
-                  "type": "object",
-                  "required": [
-                    "condition"
-                  ]
-                }
-              }
-            },
-            "then": {
-              "properties": {
-                "trade_in": {
-                  "properties": {
-                    "condition": {
-                      "enum": [
-                        "excellent",
-                        "good",
-                        "fair",
-                        "poor"
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "consent": {
-                  "properties": {
-                    "allowed_channels": {
-                      "contains": {
-                        "const": "email"
-                      }
-                    }
-                  },
-                  "required": [
-                    "allowed_channels"
-                  ]
-                }
-              },
-              "required": [
-                "consent"
-              ]
-            },
-            "then": {
-              "properties": {
-                "customer": {
-                  "required": [
-                    "email"
-                  ]
-                }
-              }
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "customer": {
-                  "properties": {
-                    "preferred_contact": {
-                      "const": "email"
-                    }
-                  },
-                  "required": [
-                    "preferred_contact"
-                  ]
-                }
-              },
-              "required": [
-                "customer"
-              ]
-            },
-            "then": {
-              "properties": {
-                "consent": {
-                  "properties": {
-                    "allowed_channels": {
-                      "contains": {
-                        "const": "email"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "consent": {
-                  "properties": {
-                    "allowed_channels": {
-                      "contains": {
-                        "const": "phone"
-                      }
-                    }
-                  },
-                  "required": [
-                    "allowed_channels"
-                  ]
-                }
-              },
-              "required": [
-                "consent"
-              ]
-            },
-            "then": {
-              "properties": {
-                "customer": {
-                  "required": [
-                    "phone"
-                  ]
-                }
-              }
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "customer": {
-                  "properties": {
-                    "preferred_contact": {
-                      "const": "phone"
-                    }
-                  },
-                  "required": [
-                    "preferred_contact"
-                  ]
-                }
-              },
-              "required": [
-                "customer"
-              ]
-            },
-            "then": {
-              "properties": {
-                "consent": {
-                  "properties": {
-                    "allowed_channels": {
-                      "contains": {
-                        "const": "phone"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "consent": {
-                  "properties": {
-                    "allowed_channels": {
-                      "contains": {
-                        "const": "sms"
-                      }
-                    }
-                  },
-                  "required": [
-                    "allowed_channels"
-                  ]
-                }
-              },
-              "required": [
-                "consent"
-              ]
-            },
-            "then": {
-              "properties": {
-                "customer": {
-                  "required": [
-                    "phone"
-                  ]
-                }
-              }
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "customer": {
-                  "properties": {
-                    "preferred_contact": {
-                      "const": "sms"
-                    }
-                  },
-                  "required": [
-                    "preferred_contact"
-                  ]
-                }
-              },
-              "required": [
-                "customer"
-              ]
-            },
-            "then": {
-              "properties": {
-                "consent": {
-                  "properties": {
-                    "allowed_channels": {
-                      "contains": {
-                        "const": "sms"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        ],
         "$defs": {
           "customer": {
             "title": "Customer",
@@ -5914,6 +5669,263 @@
               "appointment_type"
             ],
             "additionalProperties": false
+          }
+        },
+        "dependentSchemas": {
+          "type": {
+            "allOf": [
+              {
+                "description": "vehicle_of_interest.condition (when set) must be in the sale-condition vocabulary",
+                "if": {
+                  "type": "object",
+                  "required": [
+                    "vehicle_of_interest"
+                  ],
+                  "properties": {
+                    "vehicle_of_interest": {
+                      "type": "object",
+                      "required": [
+                        "condition"
+                      ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "vehicle_of_interest": {
+                      "properties": {
+                        "condition": {
+                          "enum": [
+                            "new",
+                            "used",
+                            "cpo"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "description": "trade_in.condition (when set) must be in the wear-condition vocabulary",
+                "if": {
+                  "type": "object",
+                  "required": [
+                    "trade_in"
+                  ],
+                  "properties": {
+                    "trade_in": {
+                      "type": "object",
+                      "required": [
+                        "condition"
+                      ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "trade_in": {
+                      "properties": {
+                        "condition": {
+                          "enum": [
+                            "excellent",
+                            "good",
+                            "fair",
+                            "poor"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "consent": {
+                      "properties": {
+                        "allowed_channels": {
+                          "contains": {
+                            "const": "email"
+                          }
+                        }
+                      },
+                      "required": [
+                        "allowed_channels"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "consent"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "customer": {
+                      "required": [
+                        "email"
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "customer": {
+                      "properties": {
+                        "preferred_contact": {
+                          "const": "email"
+                        }
+                      },
+                      "required": [
+                        "preferred_contact"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "customer"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "consent": {
+                      "properties": {
+                        "allowed_channels": {
+                          "contains": {
+                            "const": "email"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "consent": {
+                      "properties": {
+                        "allowed_channels": {
+                          "contains": {
+                            "const": "phone"
+                          }
+                        }
+                      },
+                      "required": [
+                        "allowed_channels"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "consent"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "customer": {
+                      "required": [
+                        "phone"
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "customer": {
+                      "properties": {
+                        "preferred_contact": {
+                          "const": "phone"
+                        }
+                      },
+                      "required": [
+                        "preferred_contact"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "customer"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "consent": {
+                      "properties": {
+                        "allowed_channels": {
+                          "contains": {
+                            "const": "phone"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "consent": {
+                      "properties": {
+                        "allowed_channels": {
+                          "contains": {
+                            "const": "sms"
+                          }
+                        }
+                      },
+                      "required": [
+                        "allowed_channels"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "consent"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "customer": {
+                      "required": [
+                        "phone"
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "customer": {
+                      "properties": {
+                        "preferred_contact": {
+                          "const": "sms"
+                        }
+                      },
+                      "required": [
+                        "preferred_contact"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "customer"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "consent": {
+                      "properties": {
+                        "allowed_channels": {
+                          "contains": {
+                            "const": "sms"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
           }
         }
       },
