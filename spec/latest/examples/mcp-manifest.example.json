@@ -187,7 +187,7 @@
               },
               "schedules": {
                 "type": "array",
-                "description": "Named weekly schedules for this rooftop (e.g. a 'sales' schedule and a 'service' schedule).",
+                "description": "Named weekly schedules for this rooftop (e.g. separate 'sales', 'service', and 'parts' schedules). Each department can have its own weekly hours.",
                 "items": {
                   "$ref": "#/$defs/dealer_information__defs_schedule"
                 }
@@ -333,14 +333,15 @@
           },
           "dealer_information__defs_schedule": {
             "type": "object",
-            "description": "A named weekly schedule (e.g. name 'sales' or 'service' with its own weekly hours).",
+            "description": "A named weekly schedule (e.g. name 'sales', 'service', or 'parts' with its own weekly hours).",
             "properties": {
               "name": {
                 "type": "string",
-                "description": "Schedule label (e.g. 'sales', 'service').",
+                "description": "Schedule label (e.g. 'sales', 'service', 'parts'). 'parts' identifies the parts department's hours. Labels are free text; other names are allowed.",
                 "examples": [
                   "sales",
-                  "service"
+                  "service",
+                  "parts"
                 ]
               },
               "value": {

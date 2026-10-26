@@ -1,6 +1,6 @@
 {
   "name": "@autoagentprotocol/schemas",
-  "version": "3.0.0",
+  "version": "2.1.0",
   "description": "JSON Schema 2020-12 files for the Auto Agent Protocol",
   "license": "Apache-2.0",
   "main": "./dist/index.js",
