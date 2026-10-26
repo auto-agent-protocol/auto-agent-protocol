@@ -96,3 +96,36 @@ test("general first-page examples do not require optional offset support", () =>
     assert.equal(Object.hasOwn(request.pagination ?? {}, "cursor"), false);
   }
 });
+
+test("the standardized geographic request rejects deployed short coordinate names", () => {
+  const request = read("examples/inventory-search-request.features-near.example.json");
+  assert.equal(validate("inventory-search-request", request), true);
+  const { latitude, longitude, radius_mi } = request.filters.near;
+  for (const near of [
+    { lat: latitude, lng: longitude, radius_mi },
+    { latitude, lng: longitude, radius_mi },
+    { lat: latitude, longitude, radius_mi },
+    { latitude, longitude, radius_mi, lat: latitude, lng: longitude },
+  ]) {
+    assert.equal(validate("inventory-search-request", { ...request, filters: { ...request.filters, near } }), false);
+  }
+});
+
+test("both AND and OR equipment constraints require nonempty distinct codes and result evidence", () => {
+  for (const key of ["features_all", "features_any"]) {
+    const request = { type: "inventory.search.request", filters: { [key]: ["sunroof", "leather_seats"] } };
+    assert.equal(validate("inventory-search-request", request), true);
+    for (const values of [[], ["sunroof", "sunroof"]]) {
+      assert.equal(validate("inventory-search-request", { ...request, filters: { [key]: values } }), false);
+    }
+    const response = read("examples/inventory-search-response.features-near.example.json");
+    response.data.applied_filters = { [key]: ["adaptive_cruise_control", "heated_front_seats"] };
+    response.data.sort = { field: "price", order: "asc" };
+    assert.equal(validate("inventory-search-response", response), true);
+    delete response.data.vehicles[0].feature_evidence;
+    assert.equal(validate("inventory-search-response", response), false);
+  }
+  assert.equal(validate("inventory-search-request", { type: "inventory.search.request", filters: {
+    features_all: ["apple_carplay"], features_any: ["sunroof", "leather_seats"],
+  } }), true);
+});

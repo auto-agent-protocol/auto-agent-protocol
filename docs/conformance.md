@@ -48,6 +48,7 @@ Run these before advertising AAP 3.0. Use isolated inventory and a non-deliverin
 | Area | Verify |
 |---|---|
 | Dealer discovery | All three entry points resolve over HTTPS; redirects preserve final PAP identity; linked endpoints and versioned schemas exist |
+| Fresh agent onboarding | Give a supported agent only the dealer hostname. It discovers the exact advertised MCP endpoint, lists implemented tools and completes a public inventory search without private setup instructions. Target under one minute; record elapsed time, host/build and the actual transport used |
 | Capability truth | Same implemented subset and search capabilities on all bindings; no template servers or unimplemented filters |
 | MCP versions | Current metadata/header agreement, `server/discover`, caching and tools; current calls without optional `clientInfo` work; legacy initialize/initialized flow; no legacy Session requirement on current calls |
 | Minimal client requirements | Public MCP reads work without A2A headers, PAP credentials or browser Origin; no extra AAP headers; legacy and current header rules remain separate; native PAP needs no A2A or MCP activation headers |
