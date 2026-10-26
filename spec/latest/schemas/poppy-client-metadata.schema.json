@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-client-metadata.schema.json",
+  "title": "PoppyClientMetadata",
+  "description": "PAP 0.2 personal-agent identity. Verify client_id against the fetched URL and JWKS/redirect domains separately. The JWKS must contain only public identity keys; DPoP keys are separate.",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+    },
+    "client_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "logo_uri": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+    },
+    "jwks_uri": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+    },
+    "redirect_uris": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri",
+        "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+      },
+      "uniqueItems": true
+    },
+    "token_endpoint_auth_method": {
+      "const": "private_key_jwt"
+    },
+    "extensions": {
+      "$ref": "./poppy-document.schema.json#/properties/extensions"
+    }
+  },
+  "required": [
+    "client_id",
+    "client_name",
+    "jwks_uri",
+    "redirect_uris",
+    "token_endpoint_auth_method"
+  ],
+  "additionalProperties": true
+}

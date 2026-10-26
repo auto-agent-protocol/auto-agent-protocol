@@ -8,7 +8,7 @@ description: How editable latest work becomes an immutable, version-pinned AAP r
 
 ![Versioning workflow: edit latest, verify, snapshot a frozen release, then advance the stable contract-artifact alias](./img/versioning-timeline.svg)
 
-Auto Agent Protocol uses [Semantic Versioning](https://semver.org/) for approved releases. The repository deliberately separates editable work from public releases:
+Auto Agent Protocol normally follows [Semantic Versioning](https://semver.org/) for approved releases. The repository deliberately separates editable work from public releases:
 
 - `spec/latest/` is the only editable specification source.
 - `spec/v{major}.{minor}/` is an immutable release snapshot.
@@ -29,7 +29,7 @@ Every release is represented by a full SemVer such as `1.3.0` and a public major
 | Changed required-field meaning | Major |
 | Documentation or example changes included in a snapshot | Next minor or major snapshot |
 
-The automated compatibility report is conservative and structural. A minor candidate is refused when it detects a validation-affecting change. Passing that check does not replace maintainer review of semantics, security, legal text, or interoperability.
+The automated compatibility report is conservative and structural. A minor candidate is refused when it detects a validation-affecting change, except for the explicitly approved 2.0.0 → 2.1.0 PAP transition below. Passing that check does not replace maintainer review of semantics, security, legal text, or interoperability.
 
 ## Stable identifiers
 
@@ -77,7 +77,7 @@ pnpm release:prepare 2.0.0 --dry-run
 
 After reviewing the compatibility report and committing the approved draft, the maintainer runs the command without `--dry-run`. It copies the working source into new pinned directories, transforms draft identifiers, validates schemas and examples, generates artifacts, records provenance and hashes, updates the stable registry, and leaves `spec/latest/` unchanged.
 
-The command refuses an existing destination, a dirty working tree, a skipped version, a patch contract, or a breaking minor candidate. It does not commit, tag, push, publish packages, or deploy the site. Those remain explicit review steps. See [RELEASING.md](https://github.com/auto-agent-protocol/auto-agent-protocol/blob/main/RELEASING.md) for the maintainer checklist.
+The command refuses an existing destination, a dirty working tree, a skipped version, a patch contract, or a breaking minor candidate outside that single approved transition. It does not commit, tag, push, publish packages, or deploy the site. Those remain explicit review steps. See [RELEASING.md](https://github.com/auto-agent-protocol/auto-agent-protocol/blob/main/RELEASING.md) for the maintainer checklist.
 
 ## A2A protocol version
 
@@ -94,7 +94,30 @@ AAP requires `A2A-Version` and `A2A-Extensions` as HTTP headers on JSON-RPC requ
 
 ## For implementers
 
-This migration targets **2.0.0**. It changes the accepted card/schema set, response envelopes, and request processing, even where the changes correct A2A conformance rather than introduce a new AAP feature. The frozen v1.3.0 contract, documentation, and versioned packages remain unchanged. New wire behavior MUST NOT be deployed behind the existing v1.3 extension URI.
+AAP **2.1.0** upgrades the PAP profile from draft 0.1 to draft 0.2. Automotive payloads and A2A behavior remain as released in 2.0.0. The 2.1.0 label is a deliberate exception to the major-release policy for this PAP transition. PAP 0.1 clients are **not** compatible with the new profile: the security and identity changes below require migration and MUST NOT be deployed under an existing AAP v2.0 contract URI. The release tool limits the exception to the exact reviewed specification hash and preserves all detected breaking changes in the compatibility report. Any changed specification or later release remains subject to the normal guard. Bridge version `1` is unchanged because its fields retain their meaning.
+
+### PAP 0.2 migration
+
+| Surface | AAP 2.0 / PAP 0.1 | AAP 2.1 / PAP 0.2 | Required action |
+|---|---|---|---|
+| Version support | Reader accepted newer `0.x` minors; publication pinned `0.1` | Explicit `0.2` support required | Reject unsupported pre-1.0 major.minor versions; keep legacy parsers separate |
+| Discovery identity | Original requested host with `www` normalization | Final host after HTTPS redirects, ignoring case only | Update each document and its metadata; `dealer.example` and `www.dealer.example` are distinct |
+| Company identity | Distinct dealer issuers recommended | Exactly one Company per issuer; aliases share identical `auth` | Split independent tenants' issuers and keep User IDs/Sessions/tokens isolated |
+| JWT audiences | Token endpoint | Exact issuer string for both client and session assertions | Reject endpoint and array audiences; do not change proof `htu` to the issuer |
+| Agent identity and keys | Mandatory, incompletely illustrated in AAP examples | Same mandatory identity, with metadata, both claims and form-field schemas | Publish metadata/public JWKS, sign two separate assertions and a DPoP proof in client code |
+| Assertion lifetime and replay | Short-lived assertions | At most 300 seconds, ≥128 random bits per assertion ID, replay rejection per client until expiry | Validate both assertions; use new IDs for retries and renewal |
+| DPoP | AAP required API replay rejection and did not enforce advertised ES256 in metadata | ES256 mandatory; different keys per User ID; token replay rejection mandatory, API proof replay check optional | Support server nonces, verify proof/token binding, retain mutation idempotency |
+| Native MCP | Bearer-only description | DPoP when advertised by protected-resource metadata; Bearer otherwise | Choose by server capability, require exact MCP `resource`, reject scheme downgrades and tokens at other paths |
+| Redirects and addresses | Incomplete client transport guidance | Never forward protocol secrets after endpoint redirects; reject peer-supplied internal addresses unless configured | Disable authenticated auto-redirects and validate resolved destinations on both sides |
+| Resource identifiers | General RFC 8707 absolute URIs | HTTPS without fragments | Replace non-HTTPS resource identifiers and enforce their exact scope |
+| Feedback | Undefined | Optional authenticated report endpoint | Advertise only if implemented; validate report limits, accept future kinds, return 202; no auth-error reports |
+| Errors | Missing extension/auth diagnostics | Explicit token errors, extension challenges and safe trace guidance | Preserve status/challenges and correlate token/API requests without recording credentials |
+
+Publish the new artifacts first, then migrate clients and servers together. A discovery-only version bump does not upgrade authorization. Use the [client walkthrough](./pap-client-guide.md) and [runtime acceptance cases](./conformance.md#required-deployment-acceptance-cases).
+
+### Earlier upgrades
+
+An upgrade from v1.x must also satisfy the AAP 2.0 changes below. These obligations remain in 2.1; old snapshots are immutable.
 
 ### Breaking migration checklist
 
@@ -102,7 +125,7 @@ This matrix covers the 2.0.0 changes relative to v1.3.0. Schema validation alone
 
 | Surface | Earlier contract / accepted form | 2.0.0 form | Required migration action |
 |---|---|---|---|
-| Paired discovery and native Poppy API | Only the A2A Agent Card was required. | Both well-known files, Poppy guest Sessions and a native OpenAPI skill interface are required. | Follow the [Poppy migration](./personal-agent-protocol.md#7-migration-and-verification); website-only discovery is a transition stage. Keep Poppy `0.1`, bridge `1` and AAP `2.0.0` versions distinct. |
+| Paired discovery and native Poppy API | Only the A2A Agent Card was required. | Both well-known files, Poppy guest Sessions and a native OpenAPI skill interface are required. | Implement the [native PAP guest API](./personal-agent-protocol.md); website-only discovery is a transition stage. The original 2.0 profile pinned PAP `0.1`; 2.1 pins `0.2`, with bridge `1` in both. |
 | Server response `Message.contextId` | Published response examples omitted it. | Every server `Message` includes a non-empty `contextId`, as the normative A2A `Message.context_id` description requires. | Include it in every successful response; preserve a valid request context when continuing it, otherwise create a context. Update response validators and tests. No Task or Artifact is required by this message-only pattern. |
 | JSON-RPC `error.data` | A bare `aap.error` object. | An array of `@type`-tagged detail objects, leading with `google.rpc.ErrorInfo` and carrying the typed AAP payload inside `google.protobuf.Struct.value`. | Change server serialization and parse the form for the advertised contract; retain the raw envelope before a lossy SDK converts it. |
 | AAP error detail encoding | The standalone JSON payload was also the JSON-RPC `error.data` object. | On A2A, a standard Any with `@type: "type.googleapis.com/google.protobuf.Struct"` and the AAP payload in `value`. Standalone Poppy errors have no Any wrapper. | Locate a Struct whose `value.type` is `aap.error`, never rely on its array position, and ignore unrelated details. Use real Protobuf Any types so strict ProtoJSON clients can decode the response. |

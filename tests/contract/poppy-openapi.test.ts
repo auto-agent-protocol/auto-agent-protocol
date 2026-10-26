@@ -20,6 +20,7 @@ test("Poppy OpenAPI carries every AAP skill unchanged and requires DPoP", async 
     const ajv = new Ajv2020({ strict: false, allErrors: true }); addFormats(ajv);
     ajv.addSchema({ $id: "https://test.example/poppy", components: api.components });
     assert.equal(api.openapi, "3.1.0");
+    assert.equal(api["x-poppy-protocol-version"], "0.2");
     assert.equal(api["x-aap-extension"], manifest.extension_uri);
     assert.equal(Object.keys(api.paths).length, manifest.skills.length);
     assert.equal(api.components.securitySchemes.poppySession.scheme, "DPoP");
@@ -29,6 +30,7 @@ test("Poppy OpenAPI carries every AAP skill unchanged and requires DPoP", async 
       assert.deepEqual(op.security, [{ poppySession: [] }]);
       assert.ok(op.parameters.some((p: any) => p.name === "DPoP" && p.required));
       assert.ok(op.responses["401"].headers["WWW-Authenticate"]);
+      assert.ok(op.responses["200"].headers["DPoP-Nonce"]);
       assert.ok(op.responses["429"].headers["Retry-After"]);
       for (const [schemaUrl, schema] of [
         [skill.request_schema, op.requestBody.content["application/json"].schema],
@@ -41,6 +43,8 @@ test("Poppy OpenAPI carries every AAP skill unchanged and requires DPoP", async 
         assert.equal(validate(example), true, JSON.stringify(validate.errors));
         assert.equal(validate({ type: "unrelated.request" }), false);
       }
+      assert.equal(ajv.validate({ $ref: `https://test.example/poppy${op.requestBody.content["application/json"].schema.$ref}` }, op.requestBody.content["application/json"].example), true);
+      assert.equal(ajv.validate({ $ref: `https://test.example/poppy${op.responses["200"].content["application/json"].schema.$ref}` }, op.responses["200"].content["application/json"].example), true);
     }
   } finally { rmSync(out, { recursive: true, force: true }); }
 });

@@ -9,6 +9,11 @@
           "title": "AAP JSON-RPC OpenAPI 3.1 description"
         },
         {
+          "href": "https://autoagentprotocol.org/latest/openapi-poppy.yaml",
+          "type": "application/vnd.oai.openapi",
+          "title": "AAP native Poppy OpenAPI 3.1 description"
+        },
+        {
           "href": "https://autoagentprotocol.org/latest/mcp.json",
           "type": "application/json",
           "title": "AAP MCP manifest (skills as MCP tools)"

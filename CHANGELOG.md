@@ -11,6 +11,17 @@ versioning policy is described in the
 
 - Documented `parts` department schedules alongside `sales` and `service` in the `dealer.information` schema and documentation, with separate weekly hours in the sample response. Schedule names remain free text and schedules remain optional; payload validation is unchanged.
 
+## [2.1.0] — 2026-10-23
+
+This release upgrades the PAP profile to draft 0.2, pinned to upstream commit `39b35bdf240fc07f157d6ca4e29b5a41d4b36b5d`. It changes discovery and authentication semantics; deployments must migrate before advertising the new contract. A2A v1.0 behavior, automotive payloads and bridge version `1` are unchanged. The 2.1.0 label is an explicit exception to the major-release policy for this PAP transition; it does not imply PAP 0.1 compatibility. The compatibility report retains every detected breaking change.
+
+- Bind discovery to the final HTTPS host with case-only domain comparison, isolate independent Companies by issuer, and reject unsupported pre-1.0 PAP versions.
+- Require exact issuer audiences for both client and session assertions, a maximum five-minute lifetime, mandatory ES256 support and separate DPoP keys per User ID.
+- Add client metadata, decoded assertion, guest token-request and feedback schemas with consistent examples and cross-document validation.
+- Describe DPoP-aware MCP token selection, optional feedback, nonce handling, extension errors and safe integration diagnostics.
+- Generate version-aware OpenAPI with complete skill examples and nonce/challenge headers; retain identical automotive schemas across bindings.
+- Add the PAP client walkthrough and the AAP 2.0 → 2.1 migration matrix. Contract validation does not certify live dealer or personal-agent interoperability.
+
 ## [2.0.0] — 2026-10-14
 
 This major release adds Personal Agent Protocol (Poppy draft 0.1) support and the A2A conformance corrections below. It requires a runtime migration; publishing discovery alone is insufficient. Earlier releases remain immutable.

@@ -241,10 +241,10 @@ const config: Config = {
           position: "right",
         },
         {
-          href: "https://personalagentprotocol.org/docs/spec",
+          href: "https://personalagentprotocol.org/docs/0.2/spec",
           label: "PAP spec",
-          title: "Personal Agent Protocol (Poppy) specification — draft 0.1",
-          "aria-label": "PAP spec: Personal Agent Protocol (Poppy), draft 0.1",
+          title: "Personal Agent Protocol (Poppy) specification — draft 0.2",
+          "aria-label": "PAP spec: Personal Agent Protocol (Poppy), draft 0.2",
           position: "right",
         },
         {

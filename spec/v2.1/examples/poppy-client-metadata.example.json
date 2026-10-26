@@ -1,0 +1,7 @@
+{
+  "client_id": "https://buyer-agent.example/client.json",
+  "client_name": "Example Buyer Agent",
+  "jwks_uri": "https://buyer-agent.example/jwks.json",
+  "redirect_uris": [],
+  "token_endpoint_auth_method": "private_key_jwt"
+}

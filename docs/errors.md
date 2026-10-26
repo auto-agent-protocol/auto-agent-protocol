@@ -8,7 +8,7 @@ description: The 12 AAP error codes — meaning, suggested JSON-RPC mapping, and
 
 {/* aap-draft-only:start */}
 
-This editable page describes the planned **2.0.0** contract, not the frozen v1.3.0 contract. Existing v1.3 endpoints retain their released error shape and activation behavior; see [migration guidance](./versioning.md#for-implementers). Draft extension identifiers below are illustrative and MUST NOT be deployed; release preparation replaces them with the approved version URI.
+This editable page describes the unreleased **2.1.0** contract. A2A error behavior is unchanged from AAP 2.0; older endpoints retain their released contract; see [migration guidance](./versioning.md#for-implementers). Draft extension identifiers below are illustrative and MUST NOT be deployed; release preparation replaces them with the approved version URI.
 
 {/* aap-draft-only:end */}
 

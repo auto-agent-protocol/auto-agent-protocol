@@ -7,6 +7,7 @@ const sidebars: SidebarsConfig = {
     "a2a-profile",
     "discovery",
     "personal-agent-protocol",
+    "pap-client-guide",
     "conformance",
     "pricing-and-ftc",
     {
