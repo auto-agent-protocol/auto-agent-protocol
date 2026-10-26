@@ -29,6 +29,7 @@ test("Poppy OpenAPI carries every AAP skill unchanged and requires DPoP", async 
       assert.equal(op["x-aap-skill"], skill.id);
       assert.deepEqual(op.security, [{ poppySession: [] }]);
       assert.ok(op.parameters.some((p: any) => p.name === "DPoP" && p.required));
+      assert.deepEqual(op.parameters.filter((p: any) => p.in === "header").map((p: any) => p.name), ["DPoP"], "native PAP must not inherit A2A or MCP headers");
       assert.ok(op.responses["401"].headers["WWW-Authenticate"]);
       assert.ok(op.responses["200"].headers["DPoP-Nonce"]);
       assert.ok(op.responses["429"].headers["Retry-After"]);

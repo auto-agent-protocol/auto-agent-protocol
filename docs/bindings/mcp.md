@@ -22,12 +22,14 @@ An AAP 3.0 MCP endpoint MUST implement Streamable HTTP for **MCP 2026-07-28** an
 | | MCP 2026-07-28 | MCP 2025-11-25 compatibility |
 |---|---|---|
 | Start | Optional client call to mandatory `server/discover` | `initialize`, then `notifications/initialized` |
-| Version and client identity | Required metadata on every request | Negotiated during initialization |
+| Request metadata | Protocol version and client capabilities required; client info recommended, optional | Version, capabilities and client info supplied during initialization |
 | HTTP headers | `MCP-Protocol-Version`, `Mcp-Method`, and `Mcp-Name` for tool calls | Negotiated `MCP-Protocol-Version` after initialization |
 | Completed results | `resultType: "complete"` | No `resultType` field required |
 | Protocol sessions | None | Optional `Mcp-Session-Id` |
 
 The current binding follows the [2026-07-28 specification](https://modelcontextprotocol.io/specification/2026-07-28), pinned for review to [upstream commit `dae694f`](https://github.com/modelcontextprotocol/modelcontextprotocol/tree/dae694f61a31f7a3ec2af3aff709e11f70f61e48). The compatibility path follows the [2025-11-25 lifecycle](https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle) and [transport](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports). Optional upstream features are required only when advertised.
+
+Under the current [per-request metadata rules](https://modelcontextprotocol.io/specification/2026-07-28/basic/index#_meta), clients MUST send `io.modelcontextprotocol/protocolVersion` and `io.modelcontextprotocol/clientCapabilities` (an empty object is sufficient when no optional capabilities apply). `io.modelcontextprotocol/clientInfo` is recommended but MAY be omitted. Servers MUST NOT reject an otherwise valid request solely because this software-identification field is absent, or use it as authenticated identity. This optionality does not change the legacy initialization fields.
 
 ## Publish a reachable endpoint
 
@@ -62,7 +64,6 @@ Mcp-Method: server/discover
   "params": {
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",
-      "io.modelcontextprotocol/clientInfo": { "name": "example-buyer", "version": "1.0.0" },
       "io.modelcontextprotocol/clientCapabilities": {}
     }
   }
@@ -71,7 +72,7 @@ Mcp-Method: server/discover
 
 The result declares `supportedVersions`, `capabilities.tools`, and server identity under `_meta["io.modelcontextprotocol/serverInfo"]`. Both `server/discover` and `tools/list` results MUST include `ttlMs` (a nonnegative integer) and `cacheScope` (`public` or `private`). Use `private` when visibility depends on authorization, and never share those cached results between authorization contexts. Use `ttlMs: 0` when the result should be immediately stale. The server MUST implement this method; clients may proceed directly to another method with the same required request metadata.
 
-Then call `tools/list`, keeping the version/client metadata and changing `Mcp-Method` to `tools/list`. Follow MCP `nextCursor` until the entire tool list is retrieved. This cursor is distinct from an inventory result's `next_cursor`.
+This minimal discovery request omits optional client software identification. Then call `tools/list`, keeping the version/capability metadata and changing `Mcp-Method` to `tools/list`. Follow MCP `nextCursor` until the entire tool list is retrieved. This cursor is distinct from an inventory result's `next_cursor`.
 
 | AAP skill | MCP tool | Side effect |
 |---|---|---|
@@ -156,6 +157,12 @@ For 2025-11-25, accept `initialize` with `protocolVersion`, `clientInfo` and `ca
 A legacy server may issue an MCP session ID. It is transport state, never a replacement for authorization or a PAP Session Token. If issued, enforce its lifecycle under the legacy specification. The current 2026-07-28 path does not create protocol sessions. Do not require legacy initialization or a session ID on a current request.
 
 Use the upstream [HTTP compatibility rules](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http#backward-compatibility) when supporting both client generations. Do not retry a consented write on a different binding with a new idempotency key after an uncertain result.
+
+## Keep the client requirements small
+
+Public MCP reads need no A2A activation headers, PAP Session, DPoP proof or customer sign-in. Require authorization only when the endpoint advertises it. Validate `Origin` when supplied; non-browser clients need not invent it. For legacy clients, prefer stateless operation without issuing `Mcp-Session-Id` unless a deployment actually needs transport sessions. Modern MCP has no protocol session ID.
+
+The [modern HTTP rules](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http#standard-request-headers) require `MCP-Protocol-Version`, `Mcp-Method`, and `Mcp-Name` on tool calls; `Mcp-Name` is unnecessary for `tools/list` and `server/discover`. These required headers cannot be made optional while claiming that revision. `Content-Type: application/json` and an `Accept` header supporting both JSON and SSE complete the ordinary POST. AAP adds no custom header or `x-mcp-header` parameter mirroring requirement. Version negotiation selects the applicable modern or legacy rules; never apply modern header requirements to a valid legacy request.
 
 ## Public reads and PAP sessions
 

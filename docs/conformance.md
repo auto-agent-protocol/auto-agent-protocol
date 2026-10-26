@@ -49,7 +49,8 @@ Run these before advertising AAP 3.0. Use isolated inventory and a non-deliverin
 |---|---|
 | Dealer discovery | All three entry points resolve over HTTPS; redirects preserve final PAP identity; linked endpoints and versioned schemas exist |
 | Capability truth | Same implemented subset and search capabilities on all bindings; no template servers or unimplemented filters |
-| MCP versions | Current metadata/header agreement, `server/discover`, caching and tools; legacy initialize/initialized flow; no legacy Session requirement on current calls |
+| MCP versions | Current metadata/header agreement, `server/discover`, caching and tools; current calls without optional `clientInfo` work; legacy initialize/initialized flow; no legacy Session requirement on current calls |
+| Minimal client requirements | Public MCP reads work without A2A headers, PAP credentials or browser Origin; no extra AAP headers; legacy and current header rules remain separate; native PAP needs no A2A or MCP activation headers |
 | A2A activation | Correct version, exact extension, tenant routing, canonical Messages; missing/mismatched values fail before execution |
 | PAP identity | Real published client metadata/JWKS; two distinct valid assertions; exact issuer audiences; final authorized domain |
 | PAP Sessions and DPoP | Create, call and renew; expiry, replay, nonce, wrong method/URL/token hash, wrong owner and wrong resource fail correctly |

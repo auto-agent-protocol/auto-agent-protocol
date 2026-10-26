@@ -34,6 +34,21 @@ function exampleFile(schema: string): string {
   return schema.split("/").at(-1)!.replace(".schema.json", ".example.json");
 }
 
+test("current MCP metadata requires version and capabilities but permits omitted clientInfo", () => {
+  const metadata = {
+    "io.modelcontextprotocol/protocolVersion": MCP_VERSIONS[0],
+    "io.modelcontextprotocol/clientCapabilities": {},
+  };
+  const request = { jsonrpc: "2.0", id: "minimal", method: "tools/list", params: { _meta: metadata } };
+  validateMcp("ListToolsRequest", request);
+  const validate = ajv.getSchema("mcp-upstream#/$defs/ListToolsRequest")!;
+  for (const key of Object.keys(metadata)) {
+    const missing = structuredClone(request);
+    delete (missing.params._meta as Record<string, unknown>)[key];
+    assert.equal(validate(missing), false, `${key} remains required by MCP`);
+  }
+});
+
 test("bundled MCP schemas validate every typed example without external schema registration", () => {
   for (const tool of tools) {
     validateMcp("Tool", tool);
@@ -115,6 +130,12 @@ for (const modern of [true, false]) {
       if (request.method === "notifications/initialized") { res.writeHead(202).end(); return; }
       res.setHeader("Content-Type", "application/json");
       const current = request.params?._meta?.["io.modelcontextprotocol/protocolVersion"] === MCP_VERSIONS[0];
+      if (current) {
+        validateMcp("RequestMetaObject", request.params._meta);
+        assert.equal(req.headers["mcp-protocol-version"], MCP_VERSIONS[0]);
+        assert.equal(req.headers["mcp-method"], request.method);
+        if (request.method === "tools/call") assert.equal(req.headers["mcp-name"], request.params.name);
+      }
       let result: any;
       if (request.method === "server/discover") {
         result = { resultType: "complete", ttlMs: 300000, cacheScope: "public", supportedVersions: MCP_VERSIONS, capabilities: { tools: {} }, _meta: { "io.modelcontextprotocol/serverInfo": { name: "aap-contract-fixture", version: "1.0.0" } } };
@@ -172,7 +193,25 @@ for (const modern of [true, false]) {
           assert.equal(request.params._meta["io.modelcontextprotocol/protocolVersion"], MCP_VERSIONS[0]);
           assert.equal(result.resultType, "complete");
         } else assert.equal(result.resultType, undefined);
+        for (const name of ["authorization", "dpop", "a2a-version", "a2a-extensions", "mcp-session-id", "origin"]) {
+          assert.equal(headers[name], undefined, `public MCP needs no ${name} header`);
+        }
         if (result.content) assert.deepEqual(JSON.parse(result.content[0].text), result.structuredContent);
+      }
+      if (modern) {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json, text/event-stream", "MCP-Protocol-Version": MCP_VERSIONS[0], "Mcp-Method": "tools/list" },
+          body: JSON.stringify({ jsonrpc: "2.0", id: "without-client-info", method: "tools/list", params: { _meta: {
+            "io.modelcontextprotocol/protocolVersion": MCP_VERSIONS[0],
+            "io.modelcontextprotocol/clientCapabilities": {},
+          } } }),
+        });
+        assert.equal(response.status, 200);
+        const body = await response.json() as any;
+        validateMcp("ListToolsResult", body.result);
+        assert.deepEqual(body.result.tools, servedTools);
+        assert.equal(calls.at(-1)!.headers["mcp-name"], undefined, "tool name is unnecessary when listing tools");
       }
     } finally {
       await client.close();
