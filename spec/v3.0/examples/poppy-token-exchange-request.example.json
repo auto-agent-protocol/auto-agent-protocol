@@ -1,9 +1,0 @@
-{
-  "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
-  "client_id": "https://buyer-agent.example/client.json",
-  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-  "client_assertion": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImV4YW1wbGUtaWRlbnRpdHkta2V5In0.eyJpc3MiOiJodHRwczovL2J1eWVyLWFnZW50LmV4YW1wbGUvY2xpZW50Lmpzb24iLCJzdWIiOiJodHRwczovL2J1eWVyLWFnZW50LmV4YW1wbGUvY2xpZW50Lmpzb24iLCJhdWQiOiJodHRwczovL2RlbW8tdG95b3RhLmV4YW1wbGUuY29tL3BvcHB5IiwiaWF0IjoxNzkyNzQyNDAwLCJleHAiOjE3OTI3NDI0NjAsImp0aSI6ImZhNGViYzgyYjk1OGE1Y2Q3NWRhOTliMDMxYTNjNjQ3In0.example-signature-not-valid",
-  "resource": "https://api.provider.example/aap/3.0.0/demo-toyota/mcp",
-  "subject_token": "example-opaque-dpop-token-not-a-credential",
-  "subject_token_type": "urn:ietf:params:oauth:token-type:access_token"
-}
