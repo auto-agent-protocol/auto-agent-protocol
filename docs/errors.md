@@ -119,7 +119,7 @@ The AAP payload is a separate standard Any detail with `@type: "type.googleapis.
 | `RATE_LIMITED` | Client has exceeded the dealer's rate limit. | -32000 (Server error) | **`true`** |
 | `INTERNAL_ERROR` | Unhandled dealer-side error. | -32603 (Internal error) | `true` |
 
-These are the A2A numeric mappings. MCP keeps them as typed tool errors; PAP maps unsupported skill/unknown vehicle to 404, schema/filter/sort/cursor problems to 422, consent to 403, availability/appointment/idempotency conflict to 409, throttling to 429 and internal failure to 500.
+These are the A2A numeric mappings. MCP keeps them as typed tool errors; PAP maps unsupported skill, unknown vehicle and unknown or inaccessible dealer (`DEALER_NOT_FOUND`) to 404, schema/filter/sort/cursor problems to 422, consent to 403, availability/appointment/idempotency conflict to 409, throttling to 429 and internal failure to 500.
 
 ### Important distinctions
 
