@@ -7,7 +7,7 @@ versioning policy is described in the
 
 ## [Unreleased]
 
-## [3.0.0] — release candidate
+## [3.0.0] — 2026-10-26
 
 AAP becomes a shared automotive contract with native MCP, A2A and PAP interfaces. This major release requires an explicit deployment migration; previous releases remain immutable.
 
