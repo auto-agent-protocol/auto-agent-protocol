@@ -60,13 +60,25 @@ export async function validateExamples(specDir: string, label: string): Promise<
       const client = read("poppy-client-metadata");
       const request = read("poppy-session-request");
       const identityErrors = checkPoppyClientIdentity(client, request.client_id);
+      const assertionIds = new Set<string>();
       for (const kind of ["client", "session"] as const) {
         const claims = read(`poppy-${kind}-assertion`);
         identityErrors.push(...checkPoppyAssertion(claims, client.client_id, document.auth.issuer, kind));
+        if (assertionIds.has(claims.jti)) identityErrors.push("Guest client and Session assertions must use distinct jti values");
+        assertionIds.add(claims.jti);
         const jwt = kind === "client" ? request.client_assertion : request.assertion;
         if (JSON.stringify(JSON.parse(Buffer.from(jwt.split(".")[1], "base64url").toString())) !== JSON.stringify(claims)) {
           identityErrors.push(`${kind} assertion example must match the token request payload`);
         }
+      }
+      if (document.protocol_version === "0.3") {
+        const exchange = read("poppy-token-exchange-request");
+        const claims = JSON.parse(Buffer.from(exchange.client_assertion.split(".")[1], "base64url").toString());
+        const assertionSchema = ajv.getSchema((schemas.get("poppy-client-assertion") as { $id: string }).$id)!;
+        if (!assertionSchema(claims)) identityErrors.push(`Exchange client assertion: ${ajv.errorsText(assertionSchema.errors)}`);
+        identityErrors.push(...checkPoppyAssertion(claims, client.client_id, document.auth.issuer, "client"));
+        if (exchange.client_id !== client.client_id) identityErrors.push("Exchange client_id must match the authenticated client metadata");
+        if (assertionIds.has(claims.jti)) identityErrors.push("Token exchange must use a fresh client assertion jti, distinct from both guest assertions");
       }
       if (identityErrors.length) throw new Error(`${label}/PAP handshake examples: ${identityErrors.join("; ")}`);
     }

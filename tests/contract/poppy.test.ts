@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import test from "node:test";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { globSync } from "glob";
 import { ROOT } from "../../tools/lib/releases.js";
+import { validateExamples } from "../../tools/validate-examples.js";
 import { checkPoppyAssertion, checkPoppyClientIdentity, checkPoppyIdentity, checkPoppyMcpResource, checkPoppyTokenResponse, poppyRedirectMatches, poppyScopeChanges, poppyAlternativeReferences, oauthMetadataUrl } from "../../tools/lib/poppy.js";
 
 const ajv = new Ajv2020({ strict: false, allErrors: true });
@@ -215,6 +217,31 @@ test("PAP 0.3 handshake binds both assertions to the verified client and issuer"
   assert.equal(validate("poppy-session-request", request), true);
   delete request.client_assertion;
   assert.equal(validate("poppy-session-request", request), false);
+});
+
+test("release validation rejects replayed or invalid token-exchange client assertions", async t => {
+  const spec = mkdtempSync(resolve(tmpdir(), "aap-assertions-"));
+  t.after(() => rmSync(spec, { recursive: true, force: true }));
+  cpSync(resolve(ROOT, "spec/latest"), spec, { recursive: true });
+  const request = read("poppy-token-exchange-request");
+  const guest = read("poppy-session-request");
+  const claims = (jwt: string) => JSON.parse(Buffer.from(jwt.split(".")[1], "base64url").toString());
+  const exchangeClaims = claims(request.client_assertion);
+  assert.notEqual(exchangeClaims.jti, claims(guest.client_assertion).jti, "exchange must not replay guest client authentication");
+  assert.notEqual(exchangeClaims.jti, claims(guest.assertion).jti, "exchange must not reuse the Session assertion ID");
+  await validateExamples(spec, "assertion regression");
+  for (const patch of [
+    { jti: claims(guest.client_assertion).jti },
+    { jti: claims(guest.assertion).jti },
+    { aud: read("poppy-oauth-metadata").token_endpoint },
+    { sub: "https://different-agent.example/client.json" },
+    { jti: "" },
+  ]) {
+    const parts = request.client_assertion.split(".");
+    parts[1] = Buffer.from(JSON.stringify({ ...exchangeClaims, ...patch })).toString("base64url");
+    writeFileSync(resolve(spec, "examples/poppy-token-exchange-request.example.json"), JSON.stringify({ ...request, client_assertion: parts.join(".") }));
+    await assert.rejects(validateExamples(spec, "assertion regression"), /PAP handshake examples/, JSON.stringify(patch));
+  }
 });
 
 test("PAP 0.3 removes legacy discovery fields and reserves poppy scope names", () => {
