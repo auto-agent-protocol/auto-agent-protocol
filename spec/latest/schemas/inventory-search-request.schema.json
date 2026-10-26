@@ -14,7 +14,7 @@
         "price_max": 40000,
         "year_min": 2023
       },
-      "pagination": { "skip": 0, "limit": 25 },
+      "pagination": { "limit": 25 },
       "sort": { "field": "price", "order": "asc" },
       "privacy": { "anonymous": true }
     }

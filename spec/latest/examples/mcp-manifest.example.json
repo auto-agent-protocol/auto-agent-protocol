@@ -1424,7 +1424,6 @@
               "year_min": 2023
             },
             "pagination": {
-              "skip": 0,
               "limit": 25
             },
             "sort": {

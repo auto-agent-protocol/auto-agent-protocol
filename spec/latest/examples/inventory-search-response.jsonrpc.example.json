@@ -12,7 +12,6 @@
             "type": "inventory.search.response",
             "data": {
               "total": 2,
-              "skip": 0,
               "limit": 100,
               "vehicles": [
                 {

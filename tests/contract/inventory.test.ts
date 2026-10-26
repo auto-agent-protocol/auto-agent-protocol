@@ -78,3 +78,21 @@ test("published search examples agree with their constraints and price ordering"
     }
   }
 });
+
+test("general first-page examples do not require optional offset support", () => {
+  const capabilities = { ...read("examples/inventory-capabilities.example.json"), offset: false };
+  assert.equal(validate("inventory-capabilities", capabilities), true);
+  const requestSchema = read("schemas/inventory-search-request.schema.json");
+  const mcp = read("examples/mcp-manifest.example.json").tools.find((tool: any) => tool.name === "aap_inventory_search");
+  const requests = [
+    ...requestSchema.examples,
+    ...mcp.inputSchema.examples,
+    ...["", ".motorcycle", ".electric-motorcycle", ".features-near"].map(suffix => read(`examples/inventory-search-request${suffix}.example.json`)),
+    read("examples/inventory-search-request.jsonrpc.example.json").params.message.parts[0].data,
+  ];
+  for (const request of requests) {
+    assert.equal(validate("inventory-search-request", request), true);
+    assert.equal(Object.hasOwn(request.pagination ?? {}, "skip"), false);
+    assert.equal(Object.hasOwn(request.pagination ?? {}, "cursor"), false);
+  }
+});

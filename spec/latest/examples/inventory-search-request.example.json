@@ -10,7 +10,7 @@
     "transmission": ["automatic"],
     "rooftops": ["Demo Toyota San Francisco"]
   },
-  "pagination": { "skip": 0, "limit": 100 },
+  "pagination": { "limit": 100 },
   "sort": { "field": "price", "order": "asc" },
   "privacy": { "anonymous": true }
 }
