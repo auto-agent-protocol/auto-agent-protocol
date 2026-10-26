@@ -78,7 +78,8 @@ test("every documented or published server Message includes its context even wit
     const message = value.result?.message ?? (value.role === "ROLE_AGENT" ? value : undefined);
     return message ? [{ file, message }] : [];
   });
-  assert.ok(responses.length >= 9, "response examples are missing from the audit");
+  assert.ok(responses.some(({ file }) => file === "docs/bindings/json-rpc.md"), "missing documented server response");
+  assert.ok(responses.some(({ file }) => file.endsWith(".jsonrpc.example.json")), "missing published server response");
   for (const { file, message } of responses) {
     assert.equal(message.role, "ROLE_AGENT", file);
     assert.ok(typeof message.contextId === "string" && message.contextId.length > 0, `${file}: server contextId required`);
@@ -87,8 +88,8 @@ test("every documented or published server Message includes its context even wit
 
 test("both documented mapping tables preserve the reviewed numeric code for every AAP condition", () => {
   const mappings = {
-    UNSUPPORTED_SKILL: -32602, SCHEMA_VALIDATION_FAILED: -32602, MISSING_REQUIRED_FIELD: -32602,
-    INVALID_CONDITION: -32602, VEHICLE_NOT_FOUND: -32000, VEHICLE_UNAVAILABLE: -32000,
+    UNSUPPORTED_SKILL: -32602, UNSUPPORTED_FILTER: -32602, UNSUPPORTED_SORT: -32602, INVALID_CURSOR: -32602, SCHEMA_VALIDATION_FAILED: -32602, MISSING_REQUIRED_FIELD: -32602,
+    INVALID_CONDITION: -32602, DEALER_NOT_FOUND: -32000, VEHICLE_NOT_FOUND: -32000, VEHICLE_UNAVAILABLE: -32000,
     CONTACT_CONSENT_REQUIRED: -32000, INVALID_CONSENT: -32000, APPOINTMENT_TIME_UNAVAILABLE: -32000,
     IDEMPOTENCY_CONFLICT: -32000, RATE_LIMITED: -32000, INTERNAL_ERROR: -32603,
   };
@@ -244,10 +245,17 @@ test("generated error details validate the reachable AAP component without swall
   assert.ok(response(envelope), "unknown non-AAP error details stay forward compatible");
 });
 
-test("generated extension headers accept exact list members and reject lookalikes", async () => {
+test("generated A2A headers are optional at AAP ingress but supplied values must select the exact contract", async () => {
   const doc = await openapi();
   const uri = parseYaml(readFileSync(resolve(ROOT, "spec/latest/skills.yaml"), "utf8")).extension_uri as string;
-  const schema = doc.paths["/"].post.parameters.find((p: any) => p.name === "A2A-Extensions").schema;
+  const parameters = doc.paths["/"].post.parameters;
+  for (const name of ["A2A-Version", "A2A-Extensions"]) {
+    assert.equal(parameters.find((p: any) => p.name === name).required, false, `${name} is inferred only when omitted`);
+  }
+  const version = new Ajv2020().compile(parameters.find((p: any) => p.name === "A2A-Version").schema);
+  assert.equal(version("1.0"), true);
+  for (const value of ["", "0.3", "2.0"]) assert.equal(version(value), false);
+  const schema = parameters.find((p: any) => p.name === "A2A-Extensions").schema;
   const validate = new Ajv2020().compile(schema);
   for (const value of [uri, ` ${uri} `, `https://example.com/ext, ${uri}`, `${uri},https://example.com/ext`]) {
     assert.equal(validate(value), true, value);
@@ -277,8 +285,8 @@ test("the standalone typed AAP error payload has no ProtoJSON Any tag", () => {
 test("editable discovery and activation examples use the same draft contract rather than the frozen URI", () => {
   const example = JSON.parse(readFileSync(resolve(examplesDir, "agent-card.example.json"), "utf8"));
   const discovery = readFileSync(resolve(ROOT, "docs/discovery.md"), "utf8");
-  const card = JSON.parse(discovery.match(/```json\n([\s\S]*?)\n```/)![1]);
-  assert.deepEqual(card, example);
+  assert.ok(discovery.includes(`${example.capabilities.extensions[0].params.schema_base_url.replace("schemas/", "examples/")}agent-card.example.json`));
+  assert.ok(discovery.includes(example.capabilities.extensions[0].uri));
   for (const file of ["docs/intro.md", "docs/a2a-profile.md", "docs/bindings/json-rpc.md", "docs/discovery.md", "docs/errors.md", "docs/compatibility/mcp.md"]) {
     const text = readFileSync(resolve(ROOT, file), "utf8");
     assert.doesNotMatch(text, /A2A-Extensions:\s*https:\/\/autoagentprotocol\.org\/extensions\/aap\/v1\.3\b/, `${file}: new activation rules must not use the frozen URI`);
@@ -295,9 +303,6 @@ test("the published MCP manifest example matches what the generator produces", a
     const generated = JSON.parse(readFileSync(resolve(out, "mcp.json"), "utf8"));
     const published = JSON.parse(readFileSync(resolve(examplesDir, "mcp-manifest.example.json"), "utf8"));
     assert.deepEqual(published, generated, "spec/latest/examples/mcp-manifest.example.json has drifted from tools/generate-mcp-manifest.ts");
-    const docs = readFileSync(resolve(ROOT, "docs/compatibility/mcp.md"), "utf8");
-    const documented = JSON.parse(docs.match(/```json\n([\s\S]*?)\n```/)![1]);
-    assert.deepEqual(documented, generated, "the documented MCP manifest has drifted from the generator");
   } finally {
     rmSync(out, { recursive: true, force: true });
   }

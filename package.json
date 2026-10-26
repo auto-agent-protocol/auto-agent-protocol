@@ -1,16 +1,17 @@
 {
   "name": "autoagentprotocol",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "private": true,
   "description": "Auto Agent Protocol — the open contract for AI agents to talk to car dealerships",
   "license": "Apache-2.0",
+  "packageManager": "pnpm@10.34.9",
   "engines": {
     "node": ">=22",
     "pnpm": ">=10"
   },
   "scripts": {
-    "start": "tsx tools/start-docs.ts",
-    "build": "pnpm run validate && pnpm run check:releases && pnpm run check:images && pnpm run generate && pnpm run copy-static && docusaurus build && pnpm run check:build",
+    "start": "pnpm run generate && pnpm run copy-static && tsx tools/start-docs.ts",
+    "build": "pnpm run validate && pnpm run check:releases && pnpm run check:images && pnpm run generate && pnpm run copy-static && tsx tools/build-docs.ts && pnpm run check:build",
     "serve": "docusaurus serve",
     "clear": "docusaurus clear",
     "generate": "pnpm run generate:draft && pnpm run generate:llms",
@@ -41,7 +42,9 @@
   "dependencies": {
     "@docusaurus/core": "^3.7.0",
     "@docusaurus/plugin-client-redirects": "^3.10.0",
+    "@docusaurus/plugin-content-docs": "^3.10.0",
     "@docusaurus/preset-classic": "^3.7.0",
+    "@docusaurus/theme-common": "^3.10.0",
     "@docusaurus/theme-mermaid": "^3.10.0",
     "@easyops-cn/docusaurus-search-local": "^0.55.1",
     "@mdx-js/react": "^3.0.0",
@@ -55,20 +58,17 @@
     "@docusaurus/module-type-aliases": "^3.7.0",
     "@docusaurus/tsconfig": "^3.7.0",
     "@docusaurus/types": "^3.7.0",
+    "@modelcontextprotocol/client": "2.4.0",
+    "@modelcontextprotocol/sdk": "1.32.2",
     "@types/react": "^18",
     "ajv": "^8.17.0",
     "ajv-formats": "^3.0.0",
     "glob": "^11.0.0",
-    "json-schema-to-typescript": "^15.0.0",
+    "json-schema-to-typescript": "^16.0.0",
     "sharp": "0.34.5",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0",
     "yaml": "^2.6.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "webpack": "5.97.1"
-    }
   },
   "browserslist": {
     "production": [

@@ -2,14 +2,14 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/event.schema.json",
   "title": "Event",
-  "description": "RESERVED. Minimal AAP event envelope, defined for forward compatibility only. AAP specifies no delivery mechanism for it: the profile uses SendMessage alone, and streaming, tasks and push notification configs are out of scope. A dealer agent MUST NOT emit this envelope and a buyer agent MUST NOT expect it until a future AAP version defines how it is delivered.",
+  "description": "RESERVED. AAP event envelope for future compatibility. AAP 3.0 defines no event subscription or delivery mechanism. Implementations MUST NOT emit or expect this envelope through any AAP binding.",
   "type": "object",
   "properties": {
     "type": { "const": "aap.event" },
     "event_kind": {
       "type": "string",
       "enum": ["lead.status_changed", "appointment.status_changed"],
-      "description": "Concrete event kind. v1.0 defines two kinds; future versions may add more.",
+      "description": "Reserved event kinds. A future AAP version may define their delivery and add more kinds.",
       "examples": ["lead.status_changed", "appointment.status_changed"]
     },
     "entity_id": {
@@ -19,7 +19,7 @@
     },
     "status": {
       "type": "string",
-      "description": "New status value for the entity. For 'lead.status_changed', one of: received | duplicate | rejected | working | sold_to | lost. For 'appointment.status_changed', one of: requested | proposed | confirmed | rejected | completed | no_show. Conditional `if/then` clauses below enforce the right subset for each `event_kind`.",
+      "description": "New status value for the entity. For 'lead.status_changed', one of: received | rejected | working | sold_to | lost. For 'appointment.status_changed', one of: requested | proposed | confirmed | rejected | completed | no_show. Conditional `if/then` clauses below enforce the right subset for each `event_kind`.",
       "examples": ["received", "confirmed"]
     },
     "occurred_at": {
@@ -47,7 +47,7 @@
       "then": {
         "properties": {
           "status": {
-            "enum": ["received", "duplicate", "rejected", "working", "sold_to", "lost"]
+            "enum": ["received", "rejected", "working", "sold_to", "lost"]
           }
         }
       }

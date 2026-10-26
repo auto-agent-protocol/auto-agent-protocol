@@ -1,6 +1,9 @@
 packages:
   - packages/*
 
+overrides:
+  webpack: 5.97.1
+
 ignoredBuiltDependencies:
   - core-js
   - esbuild

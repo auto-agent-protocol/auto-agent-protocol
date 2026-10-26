@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/inventory-facets-request.schema.json",
   "title": "InventoryFacetsRequest",
-  "description": "Typed AAP request for the `inventory.facets` skill. An optional `filters` block scopes the facets to a subset of inventory (e.g. `condition: ['used']`). Carried as a typed DataPart on the A2A interface or directly as the native Poppy API request body.",
+  "description": "Typed AAP request for the `inventory.facets` skill. An optional `filters` block scopes the facets to a subset of inventory (e.g. `condition: ['used']`). Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.",
   "type": "object",
   "examples": [
     {

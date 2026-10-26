@@ -15,10 +15,12 @@ of coordinated disclosure before publishing details.
 
 ## Scope notes for implementers
 
-- AAP agents are **public by default**; `lead.submit` carries customer PII
-  behind an explicit consent grant. Implementations MUST validate consent
-  exactly as specified (`granted_at`, `allowed_channels`, `scope`) and SHOULD
-  rate-limit and monitor lead endpoints.
-- Authentication is delegated to A2A's native `securitySchemes` /
-  `securityRequirements` on the agent card; report weaknesses in that guidance
-  here as well.
+- Public inventory reads should work without shopper contact details. Access
+  follows the selected binding: [MCP](docs/bindings/mcp.md) declares public reads
+  or standard OAuth protection; [A2A](docs/a2a-profile.md) uses the Agent Card's
+  `securitySchemes` / `securityRequirements`; [PAP](docs/personal-agent-protocol.md)
+  requires verified Sessions and DPoP even for signed-out OpenAPI access.
+- `lead.submit` requires explicit customer contact consent, permitted channels,
+  matching contact details and an idempotency key. Authentication or tool
+  selection does not grant contact consent. Follow the shared
+  [consent, retry and monitoring rules](docs/behavior-rules.md) on every binding.

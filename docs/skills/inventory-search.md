@@ -1,263 +1,139 @@
 ---
 sidebar_position: 3
 title: inventory.search
-description: Search vehicle inventory with a flat filter block, pagination, sort, and privacy hints. The primary skill for discovery and comparison.
+description: Find matching vehicles with verified equipment, geographic distance, explicit filters and cursor pagination.
 ---
 
 # `inventory.search`
 
-![An inventory.search request carried by A2A SendMessage and returned as a paginated set of vehicles with authoritative prices and optional fee itemization](../img/inventory-search-flow.svg)
+![An agent submits constraints and receives priced, paginated vehicle results](../img/inventory-search-flow.svg)
 
-:::info Invocation
-On the A2A interface, this skill uses `SendMessage` over the [JSON-RPC binding](../bindings/json-rpc.md), with its typed payload in `Message.parts[].data`. The native [Poppy OpenAPI binding](../personal-agent-protocol.md#5-automotive-openapi-binding) carries the same request and response payloads directly, using guest Sessions and DPoP. The removed A2A HTTP+JSON binding remains out of scope.
-:::
+**One request shape across MCP, A2A and PAP.** Search without sharing customer contact details. Results state what was filtered, what is known about each vehicle, and how to continue.
 
-The `inventory.search` skill is the primary inventory discovery surface. A buyer agent submits a flat filter block, optional pagination, optional sort, and optional privacy hints; the dealer agent returns matching `Vehicle` listings together with a total count and OPTIONAL aggregated facets.
-
-| Property | Value |
+| MCP tool | AAP request → response |
 |---|---|
-| Skill id | `inventory.search` |
-| Request type | `inventory.search.request` |
-| Response type | `inventory.search.response` |
-| Anonymous allowed | yes |
-| Consent required | no |
-| ADF compatible | no |
+| `aap_inventory_search` | `inventory.search.request` → `inventory.search.response` |
 
-## Filter design
-
-AAP keeps filters flat: there is no nested `make → model → trim` tree. Multi-value filters are arrays. Range filters use `*_min` / `*_max` pairs. All fields are optional; absence means "no constraint."
-
-| Filter | Type | Multi-value? | Range? | Description |
-|---|---|---|---|---|
-| `make` | string[] | yes | — | Vehicle makes (e.g. `["Honda", "BMW"]`). |
-| `model` | string[] | yes | — | Vehicle models. |
-| `trim` | string[] | yes | — | Trim levels. |
-| `condition` | enum[] | yes | — | Subset of `["new", "used", "cpo"]`. |
-| `vehicle_type` | enum[] | yes | — | Subset of `["car", "motorcycle", "trailer", "rv", "other"]`. Omit to search all types; a listing without `vehicle_type` is treated as `car`. |
-| `transmission` | string[] | yes | — | Free-text transmission types. |
-| `fuel` | string[] | yes | — | Free-text fuel types (e.g. `gas`, `hybrid`, `bev`). |
-| `electric_range_mi_min` / `electric_range_mi_max` | integer | — | yes | Inclusive electric-range range in miles, applied against `electric_range_mi`. Generic electric filter (EV cars and electric motorcycles). |
-| `dc_fast_charge` | boolean | — | — | When true, include only units supporting DC fast charging. Generic electric filter. |
-| `charge_port` | string[] | yes | — | EV charge/plug connectors to include (e.g. `['nacs','ccs']`), matching `Vehicle.charge_port`. Generic electric filter. |
-| `driveline` | string[] | yes | — | Drivetrain layouts (car context). |
-| `body` | string[] | yes | — | Body styles / segments, applicable to any `vehicle_type` (e.g. `sedan`, `suv` for cars; `cruiser`, `touring` for motorcycles). |
-| `displacement_cc_min` / `displacement_cc_max` | integer | — | yes | Inclusive engine-displacement range in cc, applied against `displacement_cc`. |
-| `exterior_color` | string[] | yes | — | Free-text colors. |
-| `interior_color` | string[] | yes | — | Free-text colors (car context). |
-| `rooftops` | string[] | yes | — | Rooftop names to include, matching `Vehicle.rooftop` and the rooftop `name` from [`dealer.information`](./dealer-information.md). For multi-rooftop dealerships; omit to search across all rooftops. |
-| `year_min` / `year_max` | integer | — | yes | Inclusive year range. |
-| `price_min` / `price_max` | integer | — | yes | Inclusive range applied to the authoritative advertised `price`, including mandatory dealer charges and excluding government charges. Vehicles without `price` do not match. See [Pricing and fee disclosure](../pricing-and-ftc.md). |
-| `mileage_max` | integer | — | — | Maximum odometer reading. |
-| `vin` | string | — | — | Exact VIN match (17 chars, ISO 3779). |
-| `stock` | string | — | — | Exact dealer stock number. |
-| `query` | string | — | — | Optional free-text query (max 200 chars). |
-
-`additionalProperties: false` on `filters`. A request with an unknown filter key is invalid.
-
-## Pagination, sort, privacy
-
-```json
-{
-  "pagination": { "skip": 0, "limit": 20 },
-  "sort":       { "field": "price", "order": "asc" },
-  "privacy":    { "anonymous": true }
-}
-```
-
-- `pagination.skip` and `pagination.limit` are integers. AAP recommends defaults of `skip=0`, `limit=20`, and a hard cap of `100`.
-- `sort.field` accepts: `price`, `list_price`, `msrp`, `mileage`, `year`, `make`, `model`, `stock`, `updated_at`. `sort.order` is `asc` or `desc`. Sorting by `price` uses the authoritative advertised price; vehicles without it sort after vehicles with a price.
-- `privacy.anonymous: true` indicates the buyer agent is not attaching user identity to this search. AAP RECOMMENDS anonymous searches by default; user identity is attached only when a lead is submitted.
-
-## Request shape
-
-```json
-{
-  "type": "inventory.search.request",
-  "filters":    { "...": "see filter table" },
-  "pagination": { "skip": 0, "limit": 20 },
-  "sort":       { "field": "price", "order": "asc" },
-  "privacy":    { "anonymous": true }
-}
-```
-
-| Field | Type | Required |
-|---|---|---|
-| `type` | const | yes |
-| `filters` | object | no |
-| `pagination` | object | no |
-| `sort` | object | no |
-| `privacy` | object | no |
-
-## Response shape
-
-```json
-{
-  "type": "inventory.search.response",
-  "data": {
-    "total":    0,
-    "skip":     0,
-    "limit":    0,
-    "vehicles": [{ "...Vehicle..." }],
-    "facets":   { "...Facets... (optional)" }
-  },
-  "message": "Optional contextual note."
-}
-```
-
-| Field | Type | Required | Notes |
-|---|---|---|---|
-| `data.total` | integer | yes | Total number of matching vehicles across all pages. |
-| `data.skip` | integer | no | Echo of request `pagination.skip`. |
-| `data.limit` | integer | no | Echo of effective `pagination.limit`. |
-| `data.vehicles[]` | `Vehicle[]` | yes | Listings in the requested order. |
-| `data.facets` | `Facets` | no | OPTIONAL embedded aggregation over the matching set. |
-
-Each `Vehicle` MAY include `dealer_id`, `vehicle_id`, `vin`, `stock`, `year`, `make`, `model`, `trim`, `condition` (`new` | `used` | `cpo` for inventory contexts), `vehicle_type` (`car` | `motorcycle` | `trailer` | `rv` | `other`, defaulting to `car` when absent), `rooftop`, `body`, `transmission`, `mileage`, `msrp`, `list_price`, `price`, `fees`, and `status`. `price` is the authoritative all-in advertised amount and may stand alone. When `fees` is present with `price`, it is the complete effective fee itemization already included in that amount; buyer agents never add it again or join fees from the rooftop. `list_price` and `fees` without `price` are informational components and MUST NOT be treated as a computed offer. The unified Vehicle schema declares the remaining fields as optional and `additionalProperties: true`, so inventory responses MAY also include rich fields like `photos`, `vdp_url`, `driveline`, `engine`, `fuel`, `city_mpg`, `highway_mpg`, `electric_range_mi`, `exterior_color`, `interior_color`, `features`, `description`, `notes`, `inventory_date`, and `updated_at`. Motorcycle listings (`vehicle_type: "motorcycle"`) carry the class-agnostic `body`/segment and `displacement_cc`, with niche specs (`final_drive`, `engine_stroke`, `wheel_count`, `abs`) in the free-form `other_attributes` map, in place of the car-oriented `driveline`, `interior_color`, and MPG fields. `updated_at` MUST be present whenever the dealer is making availability claims — see [Behavior rules](../behavior-rules.md). Vehicle `status` is **REQUIRED** on inventory listings and is a controlled enum: exactly `available` | `intransit` | `pending`. Only these three statuses appear in inventory feeds; a vehicle in any other state is OUT OF STOCK and MUST be omitted by the dealer (and ignored by the buyer if encountered).
-
-## Full example
-
-A buyer agent searches for certified or used Hondas from 2020 onward, under $30,000 final price, sorted ascending by price.
-
-### Request
+## Ask for constraints explicitly
 
 ```json
 {
   "type": "inventory.search.request",
   "filters": {
-    "make": ["Honda"],
-    "condition": ["used", "cpo"],
-    "year_min": 2020,
-    "price_max": 30000
+    "body": ["suv"],
+    "price_max": 35000,
+    "status": ["available"],
+    "features_all": ["adaptive_cruise_control", "heated_front_seats"],
+    "near": { "latitude": 37.7749, "longitude": -122.4194, "radius_mi": 50 }
   },
-  "pagination": { "skip": 0, "limit": 20 },
-  "sort": { "field": "price", "order": "asc" },
+  "pagination": { "limit": 20 },
+  "sort": { "field": "distance_mi", "order": "asc" },
   "privacy": { "anonymous": true }
 }
 ```
 
-### Response
+The coordinates above are an illustrative San Francisco origin. A client resolves the user's place name before calling; the server MUST NOT guess a location from an ambiguous string.
+
+| Constraint | Fields | Meaning |
+|---|---|---|
+| Vehicle | `make`, `model`, `trim`, `condition`, `vehicle_type`, `body` | Arrays of accepted values; sale condition is `new`, `used` or `cpo`. |
+| Powertrain | `transmission`, `fuel`, `driveline`, `charge_port`, `dc_fast_charge` | The listing must contain the requested value. Both `true` and `false` are constraints. |
+| Ranges | `year_min/max`, `price_min/max`, `electric_range_mi_min/max`, `displacement_cc_min/max`, `mileage_max` | Inclusive bounds. Inverted ranges are invalid. Prices are whole US dollars. |
+| Equipment | `features_all`, `features_any` | Advertised feature codes with verified, vehicle-specific evidence. |
+| Location | `near`, `rooftops` | Radius around a point, or exact rooftop names on a dealer-scoped endpoint. |
+| Availability | `status` | `available`, `intransit`, `pending`; no sold or out-of-stock units. |
+| Identity | `vin`, `stock` | Exact identifiers. |
+| Appearance | `exterior_color`, `interior_color` | Arrays of accepted color values. |
+| Keywords | `query` | Explicit keyword matching, described below. |
+
+Filter fields combine with **AND**. Values in an array combine with **OR**, except `features_all`, which requires every value. Empty arrays are invalid. Missing listing values never satisfy a constraint. Free-text array values match facet values without case sensitivity; schema enums, feature codes and rooftop names are exact. Providers MUST reject unsupported filters with `UNSUPPORTED_FILTER`, unsupported ordering with `UNSUPPORTED_SORT`, and unknown keys or invalid values with `SCHEMA_VALIDATION_FAILED`. They MUST NOT silently remove, broaden or reinterpret constraints.
+
+### Know what this endpoint supports
+
+Read `params.skills["inventory.search"].capabilities` on the AAP Agent Card extension, or `tools/list` → the search tool's `_meta["autoagentprotocol.org/aap"].capabilities`. Both follow `inventory-capabilities.schema.json` and MUST agree. PAP clients can follow their discovery document's Agent Card link.
+
+The capabilities name the endpoint's `scope` (`dealer` or `aggregate`), supported `filters`, `sort_fields`, `default_sort`, `default_limit`, `max_limit`, and support for an offset entry point. An aggregate endpoint MUST reject `rooftops`: names are not globally unique. Aggregate results MUST include the owning `dealer_id` and a stable `vehicle_id` unique within that endpoint. That ID must resolve the same listing through `inventory.vehicle`; a dealer-local stock number alone is insufficient.
+
+An aggregate endpoint MUST also expose [`dealer.information`](./dealer-information.md#resolve-a-seller-from-aggregate-inventory), accepting the listing's `dealer_id` and returning that actual seller's profile before consent.
+
+A deployment advertising feature filters MUST also expose [`inventory.facets`](./inventory-facets.md). Its `features` facet supplies the feature codes, labels and counts; include supported codes with zero matches when necessary to preserve the vocabulary. An unknown code produces `UNSUPPORTED_FILTER` with its request path and a recovery hint.
+
+### Equipment needs evidence
+
+![Present and absent equipment require a source; unknown equipment never satisfies a feature filter](../img/feature-evidence.svg)
+
+`features` remains a readable equipment list. `feature_evidence` records a code, label, status, source and a short source excerpt for a specific vehicle. Only `status: "present"` satisfies feature filters. Every matching result MUST include evidence for all `features_all` codes and at least one matching `features_any` code.
+
+A trim name or a model-year default is insufficient. Missing or `unknown` evidence does not prove presence or absence. A verified `absent` claim also needs a source. Clients SHOULD show the evidence when explaining why a vehicle matches.
+
+### Distance is to the vehicle's rooftop
+
+![A geographic radius includes rooftops inside the boundary and reports actual distance to each matching listing](../img/geo-search.svg)
+
+`near` contains `latitude`, `longitude` and `radius_mi`. Use straight-line distance on a sphere with mean Earth radius **3958.7613 miles** and the haversine formula. Coordinates are WGS84 latitude/longitude. Apply the inclusive radius using the unrounded distance; report `distance_mi` with precision of 0.001 miles or better. JSON numbers need no trailing zeros. This is not driving distance or a delivery promise.
+
+Each result MUST include `distance_mi` when `near` is present. Listings without known physical rooftop coordinates do not match. `sort.field: "distance_mi"` requires `near`; a deployment default sort cannot depend on a missing origin.
+
+### Keywords do not invent filters
+
+Trim `query`, split on whitespace, and match each token case-insensitively as a substring in at least one of `make`, `model`, `trim`, `vin`, `stock` or `features`. All tokens must match somewhere in those fields. Quotes and operators have no special meaning. An all-whitespace query is invalid.
+
+For “hybrid SUV under $35k,” send `fuel`, `body` and `price_max`. Do not rely on the string `"hybrid SUV under 35k"` to create them. The response echoes the effective query in `applied_filters` and lists its actual `query_terms`.
+
+## Read a result without guessing
 
 ```json
 {
   "type": "inventory.search.response",
   "data": {
-    "total": 2,
-    "skip": 0,
+    "total": 1,
     "limit": 20,
-    "vehicles": [
-      {
-        "dealer_id": "dealer_demo_toyota",
-        "vin": "1HGCV1F30KA000001",
-        "stock": "T12345",
-        "year": 2022,
-        "make": "Honda",
-        "model": "Civic",
-        "trim": "EX",
-        "condition": "cpo",
-        "rooftop": "Demo Toyota San Francisco",
-        "transmission": "automatic",
-        "fuel": "gas",
-        "driveline": "fwd",
-        "body": "sedan",
-        "exterior_color": "Crystal Black Pearl",
-        "mileage": 22150,
-        "list_price": 24990,
-        "price": 26780,
-        "fees": [
-          { "name": "Documentation fee", "amount": 500 },
-          { "name": "Pre-installed theft protection", "amount": 1290 }
-        ],
-        "photos": [
-          "https://demo-toyota.example.com/photos/T12345-1.jpg"
-        ],
-        "vdp_url": "https://demo-toyota.example.com/inventory/T12345",
-        "status": "available",
-        "inventory_date": "2026-04-12",
-        "updated_at": "2026-04-30T10:15:00Z"
-      },
-      {
-        "dealer_id": "dealer_demo_toyota",
-        "stock": "T12399",
-        "vehicle_id": "veh_inbound_civic_2024_001",
-        "year": 2024,
-        "make": "Honda",
-        "model": "Civic",
-        "trim": "Touring",
-        "condition": "new",
-        "rooftop": "Demo Toyota San Francisco",
-        "transmission": "automatic",
-        "fuel": "hybrid",
-        "driveline": "fwd",
-        "body": "sedan",
-        "list_price": 27990,
-        "price": 29990,
-        "fees": [
-          { "name": "Documentation fee", "amount": 500 },
-          { "name": "Dealer preparation fee", "amount": 1500 }
-        ],
-        "status": "intransit",
-        "inventory_date": "2026-04-28",
-        "updated_at": "2026-04-30T08:00:00Z"
-      }
-    ]
+    "next_cursor": null,
+    "applied_filters": { "price_max": 35000 },
+    "sort": { "field": "price", "order": "asc" },
+    "vehicles": [{
+      "dealer_id": "demo-dealer",
+      "vehicle_id": "vehicle-1042",
+      "year": 2024,
+      "make": "Example Motors",
+      "model": "Tourer",
+      "condition": "used",
+      "status": "available",
+      "price": 32995,
+      "updated_at": "2026-10-24T10:00:00Z"
+    }]
   }
 }
 ```
 
-Note that vehicle 2 has only `stock` and `vehicle_id` (no VIN yet, since it is in transit), and its `status` is the enum value `intransit`. Both listings include `updated_at`.
+This compact response illustrates a price-only request. The complete [feature-and-radius request](https://draft.autoagentprotocol.invalid/latest/examples/inventory-search-request.features-near.example.json) and [matching response](https://draft.autoagentprotocol.invalid/latest/examples/inventory-search-response.features-near.example.json) include evidence and distance.
 
-## Motorcycle search
+| Result field | Contract |
+|---|---|
+| `applied_filters` | Every effective constraint, including any documented defaults. No hidden relaxation. |
+| `sort` | Effective field and direction. Missing values sort last in either direction. |
+| `total` | Exact count across all pages, or `null` when unavailable. Never a capped count or estimate. |
+| `limit` | Effective page size, from 1 through the advertised maximum, at most 100. |
+| `next_cursor` | Opaque next-page token; `null` only when the matching set is exhausted. |
+| `vehicles` | Current listings with `status`, `updated_at` and at least one of `vin`, `vehicle_id` or `stock`. |
+| `facets` | Optional counts and ranges across the full matching set, before pagination. |
 
-Searching a powersports dealer uses the same skill with `vehicle_type: ["motorcycle"]` plus the shared filters (`body` for the motorcycle segment, `displacement_cc_min` / `displacement_cc_max`).
+`price` includes mandatory dealer charges and excludes government-required consumer charges. Any `fees` are already included. An omitted price is unknown: do not reconstruct it from `list_price` and fees. See [pricing](../pricing-and-ftc.md).
 
-```json
-{
-  "type": "inventory.search.request",
-  "filters": {
-    "vehicle_type": ["motorcycle"],
-    "make": ["Acme Moto"],
-    "condition": ["new"],
-    "body": ["cruiser", "touring"],
-    "displacement_cc_min": 1200,
-    "price_max": 30000
-  },
-  "pagination": { "skip": 0, "limit": 25 },
-  "sort": { "field": "price", "order": "asc" },
-  "privacy": { "anonymous": true }
-}
-```
+`available`, `intransit` and `pending` are different states. A result is not a reservation. `updated_at` reflects the source's last relevant update; servers MUST NOT invent a fresh timestamp merely because an agent requested the listing.
 
-Each returned `Vehicle` carries `vehicle_type: "motorcycle"` and the class-agnostic `body`/segment and `displacement_cc` (with niche specs such as `final_drive`, `wheel_count`, or `abs` in `other_attributes`) in place of the car-oriented `driveline`, `interior_color`, and MPG fields.
+## Continue through the full inventory
 
-### Electric motorcycles
+![Keep query, filters, sort and page size fixed while following opaque cursors until next_cursor is null](../img/cursor-pagination.svg)
 
-Electric motorcycles have no displacement, so shoppers compare them on range, battery, and charging instead. Combine `vehicle_type` and `fuel` with the generic electric filters `electric_range_mi_min` / `electric_range_mi_max`, `dc_fast_charge`, and `charge_port`:
+For the first page, omit `cursor` and `skip`. Pass the returned `next_cursor` in `pagination.cursor` for the next page, keeping effective filters, sort and limit unchanged. If the first request omitted defaults, carry the returned `applied_filters`, `sort` and `limit` forward explicitly. Stop only when `next_cursor` is `null`. A page-size limit MUST NOT become a limit on the entire traversable matching set.
 
-```json
-{
-  "type": "inventory.search.request",
-  "filters": {
-    "vehicle_type": ["motorcycle"],
-    "make": ["Acme Moto"],
-    "fuel": ["bev"],
-    "electric_range_mi_min": 100,
-    "charge_port": ["nacs"],
-    "price_max": 15000
-  },
-  "pagination": { "skip": 0, "limit": 25 },
-  "sort": { "field": "price", "order": "asc" },
-  "privacy": { "anonymous": true }
-}
-```
+- Cursor and `skip` are mutually exclusive. A deployment may accept `skip` as an advertised entry point; its response still supplies cursor continuation. If `offset` is false, a supplied `skip` returns `SCHEMA_VALIDATION_FAILED` at `/pagination/skip`, with a hint to start without an offset. A limit above the advertised `max_limit` also returns `SCHEMA_VALIDATION_FAILED`; it is never silently clamped.
+- Bind cursors to the endpoint tenant, authorization scope, normalized filters, sort and page size. Do not put customer information in a cursor. Verify scope on every request; a cursor is not authorization.
+- Use a stable identifier (dealer + vehicle for aggregate scope) to break sort ties, and preserve ordering for the cursor's lifetime. Document cursor expiry. An expired, altered or mismatched cursor returns `INVALID_CURSOR` with a hint to restart the search.
+- Concurrent changes may remove listings. Do not return stale or unavailable vehicles merely to fill a snapshot page. An empty page with a non-null cursor can occur; clients may continue. Clients SHOULD detect repeated cursors and bound retries.
+- `privacy.anonymous: true` means no customer contact information is attached. It does not disable server authentication or make a PAP session unidentifiable.
 
-Returned electric units carry the generic electric-powertrain group (`electric_range_mi`, `battery_kwh`, `motor_power_hp`, `dc_fast_charge`, `charge_port`) and omit combustion fields like `displacement_cc`. These same electric fields apply to electric cars.
+## Cars, motorcycles and other inventory
 
-## Sort considerations
-
-- Sorting by `price` (default for price-comparison flows) sorts on the authoritative advertised vehicle price, including mandatory dealer charges and excluding government charges. This is what buyer agents SHOULD use to compare offers.
-- Sorting by `list_price` or `msrp` is allowed for users who want a different perspective; neither field should be presented as the payable advertised price.
-- Sorting by `updated_at desc` is the recommended freshness ordering when buyers care about which listings the dealer has most recently re-confirmed.
-
-## Anonymous search by default
-
-AAP RECOMMENDS that buyer agents send `privacy.anonymous: true` on every `inventory.search` call. User identity is reserved for the moment a lead is actually submitted (see [`lead.submit`](./lead-submit.md)). Dealers MUST support anonymous `inventory.search` unless their agent card explicitly states otherwise.
+The same contract covers `car`, `motorcycle`, `trailer`, `rv` and `other`; omitted `vehicle_type` means `car`. Use `body` and displacement for motorcycles, and electric range, battery and charging fields for EVs of any vehicle type. Populate only relevant fields. See [`inventory.vehicle`](./inventory-vehicle.md) for the shared vehicle shape.

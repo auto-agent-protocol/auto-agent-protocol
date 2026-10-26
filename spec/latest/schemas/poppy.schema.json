@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy.schema.json",
   "title": "AAPPoppyDiscovery",
-  "description": "AAP 2.1 PAP draft 0.2 publication profile. Paired discovery, a guest OAuth issuer, an OpenAPI API, and the AAP extension linking the matching A2A Agent Card are required. Website-only discovery is a migration stage.",
+  "description": "AAP 3.0 PAP draft 0.3 publication profile. Requires a guest OAuth issuer, native OpenAPI API and an AAP bridge linking the matching Agent Card, public MCP endpoint and llms.txt. Native PAP MCP session support remains conditional on advertising an MCP API entry.",
   "allOf": [
     {
       "$ref": "./poppy-document.schema.json"
@@ -11,13 +11,31 @@
       "type": "object",
       "properties": {
         "protocol_version": {
-          "const": "0.2"
+          "const": "0.3"
         },
         "auth": {
           "type": "object",
           "properties": {
             "issuer": {
               "type": "string"
+            },
+            "direct": false,
+            "device": false,
+            "custom_scopes": false,
+            "scope_hints": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "changes": {
+                    "enum": [
+                      "none",
+                      "reversible",
+                      "irreversible"
+                    ]
+                  }
+                }
+              }
             }
           },
           "required": [
@@ -55,7 +73,28 @@
           "type": "object",
           "properties": {
             "autoagentprotocol.org/aap": {
-              "$ref": "./poppy-aap-extension.schema.json"
+              "allOf": [
+                {
+                  "$ref": "./poppy-aap-extension.schema.json"
+                },
+                {
+                  "properties": {
+                    "aap_version": {
+                      "const": "0.0.0-dev"
+                    },
+                    "mcp": {
+                      "type": "string",
+                      "format": "uri",
+                      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:/[^?#\\s]*)?$"
+                    }
+                  },
+                  "required": [
+                    "aap_version",
+                    "mcp",
+                    "llms_txt"
+                  ]
+                }
+              ]
             }
           },
           "required": [

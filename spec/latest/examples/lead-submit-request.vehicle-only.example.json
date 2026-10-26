@@ -28,8 +28,9 @@
   },
   "message": "I'd like the out-the-door price for VIN 1HGCY2F57RA000001 delivered to ZIP 94107 and confirmation it's still available.",
   "source_agent": {
-    "name": "gemini-assistant",
-    "agent_card_url": "https://gemini.example.com/.well-known/agent-card.json"
+    "name": "example-buyer",
+    "url": "https://buyer.example"
   },
-  "submitted_at": "2026-04-30T11:00:08Z"
+  "submitted_at": "2026-04-30T11:00:08Z",
+  "idempotency_key": "demo-lead-submit-request.vehicle-only"
 }

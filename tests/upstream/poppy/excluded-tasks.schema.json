@@ -1,0 +1,21 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "excluded-tasks.schema.json",
+    "title": "Excluded tasks",
+    "description": "The document at excluded_tasks.url in poppy.json, listing the tasks a Company chose not to offer through the protocol. Spec 8.1 (Excluded tasks).",
+    "type": "object",
+    "required": ["tasks"],
+    "properties": {
+        "tasks": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["task"],
+                "properties": {
+                    "task": { "type": "string", "minLength": 1, "maxLength": 200 },
+                    "alternative": { "$ref": "alternative.schema.json" }
+                }
+            }
+        }
+    }
+}

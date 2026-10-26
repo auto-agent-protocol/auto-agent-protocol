@@ -10,7 +10,7 @@ import { freezeCheck } from "../../tools/freeze-check.js";
 import { generateMcp } from "../../tools/generate-mcp-manifest.js";
 import { generateOpenapi } from "../../tools/generate-openapi.js";
 import { generateTypes } from "../../tools/generate-types.js";
-import { contractFor, DRAFT_SITE, DRAFT_VERSION, filesIn, hash, loadRegistry, parseVersion, releasePrefixes, ROOT, readJson, SITE, writeJson } from "../../tools/lib/releases.js";
+import { contractFor, createIntegrity, DRAFT_SITE, DRAFT_VERSION, filesIn, hash, loadRegistry, parseVersion, releasePrefixes, ROOT, readJson, SITE, writeJson } from "../../tools/lib/releases.js";
 import { prepareRelease } from "../../tools/release-prepare.js";
 
 function snapshot(directory: string): string {
@@ -60,6 +60,40 @@ test("release version labels reject ambiguous patch contracts", () => {
   assert.equal(contractFor("1.3.0"), "v1.3");
   assert.throws(() => contractFor("1.3.1"), /patch/i);
   assert.throws(() => parseVersion("01.3.0"), /invalid/i);
+});
+
+test("release checks reject broken MCP metadata links even when snapshot hashes agree", async () => {
+  const context = fixture();
+  try {
+    const registry = loadRegistry(context.root);
+    const release = registry.releases.find(entry => Number(entry.version.split(".")[0]) >= 3)!;
+    assert.ok(release, "a native MCP release is required for this regression");
+    const file = join(context.root, "releases", release.contract, "artifacts/mcp.json");
+    const original = readJson<any>(file);
+    for (const field of ["request_schema", "response_schema", "error_schema", "capabilities_schema"]) {
+      for (const missing of [false, true]) {
+        const catalog = structuredClone(original);
+        const metadata = catalog.tools.find((tool: any) => tool.name === "aap_inventory_search")._meta["autoagentprotocol.org/aap"];
+        if (missing) delete metadata[field];
+        else metadata[field] = `${SITE}/${release.contract}/schemas/does-not-exist.schema.json`;
+        writeJson(file, catalog);
+        writeJson(join(context.root, "releases", release.contract, "integrity.json"), createIntegrity(context.root, release));
+        await assert.rejects(() => checkAllReleases(context.root), /MCP metadata|unresolved schema reference/, `${field}: missing=${missing}`);
+      }
+    }
+    writeJson(file, original);
+    writeJson(join(context.root, "releases", release.contract, "integrity.json"), createIntegrity(context.root, release));
+    await checkAllReleases(context.root);
+    const legacy = registry.releases.find(entry => entry.contract === "v2.1")!;
+    const legacyFile = join(context.root, "releases", legacy.contract, "artifacts/mcp.json");
+    const catalog = readJson<any>(legacyFile);
+    catalog.tools[0].inputSchema.$ref = `${SITE}/${legacy.contract}/schemas/does-not-exist.schema.json`;
+    writeJson(legacyFile, catalog);
+    writeJson(join(context.root, "releases", legacy.contract, "integrity.json"), createIntegrity(context.root, legacy));
+    await assert.rejects(() => checkAllReleases(context.root), /unresolved schema reference/);
+  } finally {
+    context.cleanup();
+  }
 });
 
 test("draft generation is isolated from frozen releases and stable package types", async () => {
@@ -180,6 +214,11 @@ test("the PAP 0.2 exception permits only the reviewed 2.0.0 to 2.1.0 specificati
 test("release preparation snapshots latest once and refuses overwrite", async () => {
   const context = fixture();
   try {
+    const bindingFile = join(context.root, "docs/bindings/json-rpc.md");
+    const substantiveNotice = ":::info Protocol guidance\nKeep required transport headers.\n:::";
+    writeFileSync(bindingFile, `${readFileSync(bindingFile, "utf8")}\n${substantiveNotice}\n`);
+    git(context.root, ["add", "docs/bindings/json-rpc.md"]);
+    git(context.root, ["commit", "-qm", "feat: add substantive release fixture guidance"]);
     const candidate = nextRelease(context.root);
     const latestBefore = snapshot(join(context.root, "spec/latest"));
     const docsBefore = snapshot(join(context.root, "docs"));
@@ -202,20 +241,22 @@ test("release preparation snapshots latest once and refuses overwrite", async ()
     assert.ok(new RegExp(header.schema.pattern).test(extensionUri), "released header must accept the pinned extension URI");
     assert.equal(new RegExp(header.schema.pattern).test(extensionUri.replace("autoagentprotocol.", "autoagentprotocolX")), false);
     const releasedDocs = join(context.root, "versioned_docs", `version-${candidate.contract}`);
-    for (const file of ["intro.md", "a2a-profile.md", "discovery.md", "bindings/json-rpc.md", "errors.md", "compatibility/mcp.md"]) {
+    for (const file of ["intro.md", "a2a-profile.md", "discovery.md", "bindings/json-rpc.md", "bindings/mcp.md", "errors.md", "compatibility/mcp.md"]) {
       const editable = readFileSync(join(context.root, "docs", file), "utf8");
       const frozen = readFileSync(join(releasedDocs, file), "utf8");
       assert.match(editable, /aap-draft-only:start/, `${file}: editable scope warning must remain`);
       assert.doesNotMatch(frozen, /aap-draft-only:|Unreleased contract|This editable page describes the planned|draft\.autoagentprotocol\.invalid/, `${file}: draft-only warning leaked into the frozen release`);
-      assert.ok(frozen.includes(extensionUri), `${file}: examples must identify the approved release`);
+      if (editable.includes(`${DRAFT_SITE}/extensions/aap/latest`)) {
+        assert.ok(frozen.includes(extensionUri), `${file}: examples must identify the approved release`);
+      }
     }
     const binding = readFileSync(join(releasedDocs, "bindings/json-rpc.md"), "utf8");
-    assert.ok(binding.includes(":::info A2A v1.0 wire format — the ProtoJSON form"), "unmarked substantive admonitions must not be stripped");
+    assert.ok(binding.includes(substantiveNotice), "unmarked substantive admonitions must not be stripped");
     const discovery = readFileSync(join(releasedDocs, "discovery.md"), "utf8");
     assert.ok(discovery.includes(`https://autoagentprotocol.org/${candidate.contract}/schemas/`), "released schema URLs must be pinned to the approved contract");
     const versioning = readFileSync(join(releasedDocs, "versioning.md"), "utf8");
     const historicalReferences = [...readFileSync(join(context.root, "docs/versioning.md"), "utf8")
-      .matchAll(/https:\/\/autoagentprotocol\.org\/(?:v\d+\.\d+\/schemas\/[a-z.-]+|extensions\/aap\/v\d+\.\d+)/g)]
+      .matchAll(/https:\/\/autoagentprotocol\.org\/(?:v\d+\.\d+\/schemas\/|docs\/v\d+\.\d+\/|extensions\/aap\/v\d+\.\d+)[^\s)]+/g)]
       .map(match => match[0]);
     assert.ok(historicalReferences.length > 0, "historical version references are missing from the audit");
     for (const url of historicalReferences) assert.ok(versioning.includes(url), `historical pinned URL was silently rewritten: ${url}`);

@@ -31,7 +31,6 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
           run_install: false
 
       - name: Setup Node
@@ -74,6 +73,7 @@ jobs:
       - name: Packages track the stable release
         run: |
           pnpm --filter @autoagentprotocol/schemas run build
+          pnpm --filter @autoagentprotocol/types run build
           pnpm --filter @autoagentprotocol/validator run build
           pnpm run check:packages
 

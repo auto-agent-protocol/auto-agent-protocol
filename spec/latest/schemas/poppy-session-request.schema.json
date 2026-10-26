@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-session-request.schema.json",
   "title": "PoppySessionRequest",
-  "description": "Form fields for the PAP 0.2 JWT bearer guest grant, encoded as application/x-www-form-urlencoded. Send a fresh DPoP header separately. The only proof exception is a resource-bound token for an MCP server without DPoP support.",
+  "description": "PAP 0.3 JWT bearer grant form fields, encoded as application/x-www-form-urlencoded. Every token request requires a fresh DPoP header with the Session key, including token exchange. Omit scope for a guest grant; a successful guest response has no scope. The key identifies the Session; session_id is removed.",
   "type": "object",
   "properties": {
     "grant_type": {
@@ -28,17 +28,15 @@
       "pattern": "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
       "description": "Compact signed JWS. Structural validation is not signature verification."
     },
-    "session_id": {
-      "type": "string",
-      "minLength": 1
-    },
+    "session_id": false,
     "resource": {
       "type": "string",
       "format": "uri",
       "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?][^#\\s]*)?$"
     },
     "scope": {
-      "const": ""
+      "type": "string",
+      "pattern": "^(?!poppy:)[\\x21\\x23-\\x5B\\x5D-\\x7E]+( (?!poppy:)[\\x21\\x23-\\x5B\\x5D-\\x7E]+)*$"
     }
   },
   "required": [

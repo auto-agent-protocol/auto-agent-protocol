@@ -3,20 +3,28 @@ import Layout from "@theme/Layout";
 import Head from "@docusaurus/Head";
 import styles from "./partners.module.css";
 import registry from "../../partners.json";
+import releases from "../../releases.json";
 
 const SITE = "https://autoagentprotocol.org";
 const PAGE = `${SITE}/partners`;
+const docs = `/docs/${releases.stable}`;
 
 const partners = registry.partners;
-const updated = new Date(`${registry.updated}T00:00:00Z`).toLocaleDateString("en-US", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  timeZone: "UTC",
-});
+const updated = new Date(`${registry.updated}T00:00:00Z`).toLocaleDateString(
+  "en-US",
+  {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  },
+);
 
 const slug = (name: string, index: number) =>
-  name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || `partner-${index + 1}`;
+  name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || `partner-${index + 1}`;
 
 // Page-specific schema.org structured data for the partner register, cross-linked
 // (@id) to the site-wide WebSite/Organization graph declared in docusaurus.config.ts.
@@ -29,7 +37,7 @@ const partnersStructuredData = {
       url: PAGE,
       name: "The Auto Agent Protocol ecosystem",
       description:
-        "Organizations with a public, verifiable connection to the Auto Agent Protocol or the A2A standard it profiles: implementations, upstream specifications, and dealership platforms.",
+        "Public implementations, upstream standards and dealership platforms in the Auto Agent Protocol ecosystem. Each listing states its relationship; listings are not conformance certification.",
       inLanguage: "en",
       dateModified: registry.updated,
       isPartOf: { "@id": `${SITE}/#website` },
@@ -40,7 +48,7 @@ const partnersStructuredData = {
         "@id": `${PAGE}#list`,
         name: "The Auto Agent Protocol ecosystem",
         description:
-          "Organizations with a public, verifiable connection to the Auto Agent Protocol or the A2A standard it profiles. Each entry states the basis for its listing.",
+          "Organizations with a public, verifiable connection to Auto Agent Protocol or its upstream agent standards. Each entry states the basis for its listing.",
         itemListOrder: "https://schema.org/ItemListOrderAscending",
         numberOfItems: partners.length,
         itemListElement: partners.map((partner, index) => ({
@@ -69,7 +77,12 @@ const partnersStructuredData = {
       "@type": "BreadcrumbList",
       "@id": `${PAGE}#breadcrumb`,
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Auto Agent Protocol", item: `${SITE}/` },
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Auto Agent Protocol",
+          item: `${SITE}/`,
+        },
         { "@type": "ListItem", position: 2, name: "Partners" },
       ],
     },
@@ -80,7 +93,7 @@ export default function Partners(): JSX.Element {
   return (
     <Layout
       title="Partners and the AAP ecosystem"
-      description="Organizations with a public, verifiable connection to AAP or the A2A standard it profiles — implementations, upstream specs, and dealership platforms."
+      description="Public implementations, upstream standards and dealership platforms in the Auto Agent Protocol ecosystem."
     >
       <Head>
         <script type="application/ld+json">
@@ -91,26 +104,21 @@ export default function Partners(): JSX.Element {
         <header className={styles.intro}>
           <div className="container">
             <p className={styles.eyebrow}>Ecosystem</p>
-            <h1 className={styles.title}>Partners</h1>
+            <h1 className={styles.title}>An open ecosystem.</h1>
             <p className={styles.lede}>
-              <strong>
-                Partners are organizations with a public, verifiable connection to AAP or to the
-                A2A standard it profiles
-              </strong>{" "}
-              — a shipped implementation, a published agent card, or stewardship of an upstream
-              specification. AAP is a free, open standard: a listing costs nothing, requires no
-              reciprocal link, and is not a commercial endorsement.
+              Implementations, upstream standards and dealership platforms with
+              a public connection to AAP. Each listing explains its
+              relationship.
             </p>
             <p className={styles.spec}>
-              What a listing may claim is defined by the specification: the{" "}
-              <Link to="/docs/latest/discovery">agent card and extension URI</Link>, the{" "}
-              <Link to="/docs/latest/bindings/json-rpc">JSON-RPC binding</Link>, the{" "}
-              <Link to="/docs/latest/intro">five skills</Link>, and the{" "}
-              <Link to="/docs/latest/compatibility/adf-mapping">ADF lead mapping</Link>.
+              Listings are free and require no reciprocal link. They are not an
+              endorsement or certification of a particular AAP version. Verify a
+              deployment’s advertised version and{" "}
+              <Link to={`${docs}/conformance`}>conformance</Link> directly.
             </p>
             <p className={styles.count}>
-              {partners.length} organizations, listed alphabetically. Last updated{" "}
-              <time dateTime={registry.updated}>{updated}</time>.
+              {partners.length} organizations, listed alphabetically. Last
+              updated <time dateTime={registry.updated}>{updated}</time>.
             </p>
           </div>
         </header>
@@ -131,7 +139,12 @@ export default function Partners(): JSX.Element {
                     {partner.links.map((link) => (
                       <li key={link.url}>
                         {/* Overrides Link's noreferrer default, which would hide us from partner analytics. */}
-                        <Link className={styles.site} href={link.url} rel="noopener" data-partner-link="">
+                        <Link
+                          className={styles.site}
+                          href={link.url}
+                          rel="noopener"
+                          data-partner-link=""
+                        >
                           {link.label}
                           <span aria-hidden="true">↗</span>
                         </Link>
@@ -146,17 +159,15 @@ export default function Partners(): JSX.Element {
               <h2>Get listed</h2>
               <h3 className={styles.joinQuestion}>Who can be listed?</h3>
               <p className={styles.joinAnswer}>
-                Listings are open to organizations that ship an AAP agent, build a buyer agent
-                against AAP, map AAP leads into a dealer CRM, or maintain a specification AAP
-                depends on. The evidence has to be public — an agent card, a documentation page, a
-                release, or a published announcement. Maintainers review each request, and may
-                decline a listing or remove one whose public evidence no longer resolves.
+                Build an AAP service or buyer agent, connect AAP leads to a
+                dealer CRM, or maintain an upstream specification. Show public
+                evidence: an Agent Card, documentation, release or announcement.
               </p>
               <h3 className={styles.joinQuestion}>How do I get listed?</h3>
               <p className={styles.joinAnswer}>
-                Open an issue with your organization name, your site, and the public evidence.
-                Maintainers add the entry to <code>partners.json</code> in the repository, where the
-                alphabetical order and the link rules are enforced by CI.
+                Open an issue with your organization name, website and evidence.
+                Maintainers review each request and may remove entries whose
+                public evidence no longer resolves.
               </p>
               <Link
                 className="button button--primary"

@@ -1,0 +1,17 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "feedback-report.schema.json",
+    "title": "Feedback report",
+    "description": "The JSON body a Personal Agent posts to {feedback.endpoint} to report a User's task that can't be done through the protocol. Spec 8.3 (Feedback). Companies accept a kind they don't recognize.",
+    "type": "object",
+    "required": ["kind", "task", "description"],
+    "properties": {
+        "kind": {
+            "description": "missing: the task can't be done through the protocol. Personal Agents send only this value, and Companies accept kinds they don't recognize, which later versions can add.",
+            "type": "string",
+            "minLength": 1
+        },
+        "task": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "description": { "type": "string", "minLength": 1, "maxLength": 2000 }
+    }
+}

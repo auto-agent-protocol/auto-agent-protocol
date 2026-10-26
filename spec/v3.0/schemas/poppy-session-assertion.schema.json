@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.0/schemas/poppy-session-assertion.schema.json",
+  "title": "PoppySessionAssertion",
+  "description": "Decoded PAP 0.3 session JWT claims, not a token or proof of authentication. Verify signature, issuer audience, expiry, a lifetime of at most 300 seconds and per-client replay prevention before accepting it.",
+  "type": "object",
+  "properties": {
+    "iss": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$",
+      "description": "Authenticated personal-agent client_id."
+    },
+    "sub": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque User ID scoped to the Company issuer, never derived from personal information."
+    },
+    "aud": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:/[^?#\\s]*)?$",
+      "description": "Exact auth.issuer as a single string. The token endpoint URL and arrays are invalid."
+    },
+    "iat": {
+      "type": "number",
+      "minimum": 0,
+      "description": "JWT NumericDate: seconds since the Unix epoch, including fractional seconds (RFC 7519 section 2)."
+    },
+    "exp": {
+      "type": "number",
+      "minimum": 0,
+      "description": "JWT NumericDate: seconds since the Unix epoch, including fractional seconds (RFC 7519 section 2)."
+    },
+    "jti": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique assertion ID generated with at least 128 random bits; reject reuse by the same client until expiry."
+    },
+    "agent_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional stable opaque per-Company Agent ID, unchanged or absent for the entire Session. It does not create a separate client, account or conversation owner."
+    }
+  },
+  "required": [
+    "iss",
+    "sub",
+    "aud",
+    "iat",
+    "exp",
+    "jti"
+  ],
+  "additionalProperties": true
+}

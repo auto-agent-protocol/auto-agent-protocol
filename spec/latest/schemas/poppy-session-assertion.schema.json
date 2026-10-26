@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-session-assertion.schema.json",
   "title": "PoppySessionAssertion",
-  "description": "Decoded PAP 0.2 session JWT claims, not a token or proof of authentication. Verify signature, issuer audience, expiry, a lifetime of at most 300 seconds and per-client replay prevention before accepting it.",
+  "description": "Decoded PAP 0.3 session JWT claims, not a token or proof of authentication. Verify signature, issuer audience, expiry, a lifetime of at most 300 seconds and per-client replay prevention before accepting it.",
   "type": "object",
   "properties": {
     "iss": {
@@ -36,6 +36,11 @@
       "type": "string",
       "minLength": 1,
       "description": "Unique assertion ID generated with at least 128 random bits; reject reuse by the same client until expiry."
+    },
+    "agent_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional stable opaque per-Company Agent ID, unchanged or absent for the entire Session. It does not create a separate client, account or conversation owner."
     }
   },
   "required": [

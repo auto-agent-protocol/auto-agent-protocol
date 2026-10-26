@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-response.schema.json",
   "title": "LeadSubmitResponse",
-  "description": "Dealer agent's response to a `lead.submit.request`. Carries the assigned `lead_id` and overall lead `status`, plus an optional appointment block when the request included an `appointment` (the dealer can confirm the requested time, propose alternatives, leave it as merely requested for human follow-up, or reject the appointment while still accepting the lead). Carried as a typed DataPart in the A2A response or directly as the native Poppy API response body.",
+  "description": "Outcome of a consented lead submission, shared by MCP, A2A and PAP. Retries replay the complete original result with data.replayed true, preserving the original received/rejected status and all appointment details. A confirmed appointment requires confirmed_at.",
   "type": "object",
   "properties": {
     "type": {
@@ -14,12 +14,16 @@
       "properties": {
         "lead_id": {
           "type": "string",
-          "description": "Dealer-assigned identifier for this lead."
+          "description": "Dealer-assigned identifier for this lead.",
+          "minLength": 1
         },
         "status": {
           "type": "string",
-          "enum": ["received", "duplicate", "rejected"],
-          "description": "Overall lead status. `duplicate` indicates the dealer recognized the same buyer/vehicle combination from a recent prior submission and merged it. `rejected` indicates the dealer did not accept the lead (e.g. consent invalid, vehicle no longer available, dealer not serving the buyer's region)."
+          "enum": [
+            "received",
+            "rejected"
+          ],
+          "description": "Original business outcome: received means accepted for dealer follow-up; rejected means no accepted lead or booking. An idempotent replay preserves this value; it never replaces it with duplicate."
         },
         "appointment": {
           "type": "object",
@@ -27,11 +31,17 @@
           "properties": {
             "appointment_id": {
               "type": "string",
-              "description": "Dealer-assigned identifier for this appointment."
+              "description": "Dealer-assigned identifier for this appointment.",
+              "minLength": 1
             },
             "status": {
               "type": "string",
-              "enum": ["requested", "proposed", "confirmed", "rejected"],
+              "enum": [
+                "requested",
+                "proposed",
+                "confirmed",
+                "rejected"
+              ],
               "description": "Appointment status. `requested` = received but not yet scheduled (staff will follow up). `proposed` = dealer cannot honor the requested time but is offering alternatives in `proposed_times`. `confirmed` = dealer scheduled the appointment for `confirmed_at`. `rejected` = dealer cannot host this appointment (e.g. service unavailable)."
             },
             "confirmed_at": {
@@ -43,17 +53,75 @@
               "type": "array",
               "description": "Present iff `status` is `proposed`. Alternative start times the dealer offers, each an ISO 8601 / RFC 3339 timestamp with timezone offset.",
               "minItems": 1,
-              "items": { "type": "string", "format": "date-time" }
+              "items": {
+                "type": "string",
+                "format": "date-time"
+              }
             }
           },
-          "required": ["appointment_id", "status"],
-          "additionalProperties": false
+          "required": [
+            "appointment_id",
+            "status"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "status": {
+                    "const": "confirmed"
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              },
+              "then": {
+                "required": [
+                  "confirmed_at"
+                ]
+              },
+              "else": {
+                "not": {
+                  "required": [
+                    "confirmed_at"
+                  ]
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "status": {
+                    "const": "proposed"
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              },
+              "then": {
+                "required": [
+                  "proposed_times"
+                ]
+              },
+              "else": {
+                "not": {
+                  "required": [
+                    "proposed_times"
+                  ]
+                }
+              }
+            }
+          ]
         },
         "dealer": {
           "type": "object",
           "description": "Convenience contact summary for the buyer agent to surface follow-up details to the user.",
           "properties": {
-            "name": { "type": "string" },
+            "name": {
+              "type": "string"
+            },
             "phone": {
               "type": "string",
               "pattern": "^\\+[1-9]\\d{1,14}$",
@@ -61,9 +129,16 @@
             }
           },
           "additionalProperties": false
+        },
+        "replayed": {
+          "type": "boolean",
+          "description": "True on an idempotent replay. Every other response field repeats the original business result, including the lead status, appointment outcome and times, dealer details and message. False or absent on the original result. This is the original outcome, not a live lead-status lookup."
         }
       },
-      "required": ["lead_id", "status"],
+      "required": [
+        "lead_id",
+        "status"
+      ],
       "additionalProperties": false
     },
     "message": {
@@ -72,6 +147,45 @@
       "description": "Contextual note from the dealer (e.g. 'A salesperson will call within 1 business hour.', 'We are unable to honor your requested time; please pick from the alternatives.')."
     }
   },
-  "required": ["type", "data"],
-  "additionalProperties": false
+  "required": [
+    "type",
+    "data"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "data": {
+            "properties": {
+              "status": {
+                "const": "rejected"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "properties": {
+              "appointment": {
+                "properties": {
+                  "status": {
+                    "const": "rejected"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

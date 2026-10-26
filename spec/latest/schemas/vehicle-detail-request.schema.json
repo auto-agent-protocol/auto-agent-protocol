@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/vehicle-detail-request.schema.json",
   "title": "VehicleDetailRequest",
-  "description": "Typed AAP request for the `inventory.vehicle` skill. The request MUST identify a specific listing via at least one of `vin`, `stock`, or `vehicle_id`. Carried as a typed DataPart on the A2A interface or directly as the native Poppy API request body.",
+  "description": "Typed AAP request for the `inventory.vehicle` skill. The request MUST identify a specific listing via at least one of `vin`, `stock`, or `vehicle_id`. Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.",
   "type": "object",
   "examples": [
     {
@@ -21,12 +21,14 @@
     "stock": {
       "type": "string",
       "description": "Dealer's stock number, used when VIN is not yet assigned (e.g. in-transit units).",
-      "examples": ["H12345"]
+      "examples": ["H12345"],
+      "minLength": 1
     },
     "vehicle_id": {
       "type": "string",
-      "description": "Dealer-internal vehicle identifier.",
-      "examples": ["veh_8f3c1a"]
+      "description": "Stable listing identifier returned by this endpoint. Use it for an aggregate result so the owning dealer and listing resolve unambiguously.",
+      "examples": ["veh_8f3c1a"],
+      "minLength": 1
     }
   },
   "required": ["type"],

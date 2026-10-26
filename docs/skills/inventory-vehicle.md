@@ -1,147 +1,78 @@
 ---
 sidebar_position: 4
 title: inventory.vehicle
-description: Detail view of a single vehicle by VIN, stock, or vehicle_id, returning the full typed vehicle card.
+description: Verify one listing's identity, availability, evidence and authoritative price.
 ---
 
 # `inventory.vehicle`
 
-![A vehicle lookup accepts VIN, stock, or vehicle_id and returns one complete vehicle with current status, price, fees, and updated_at](../img/vehicle-detail-lookup.svg)
+**Inspect the specific vehicle before recommending it or requesting contact.** Recheck current availability and pricing instead of relying on an earlier search snapshot.
 
-:::info Invocation
-On the A2A interface, this skill uses `SendMessage` over the [JSON-RPC binding](../bindings/json-rpc.md), with its typed payload in `Message.parts[].data`. The native [Poppy OpenAPI binding](../personal-agent-protocol.md#5-automotive-openapi-binding) carries the same request and response payloads directly, using guest Sessions and DPoP. The removed A2A HTTP+JSON binding remains out of scope.
-:::
+![A stable listing identifier leads to current availability, evidence, pricing and vehicle details](../img/vehicle-detail-lookup.svg)
 
-The `inventory.vehicle` skill returns the full detail of a single vehicle. The buyer agent identifies the vehicle by VIN, stock number, or dealer-internal `vehicle_id`.
-
-| Property | Value |
+| MCP tool | Shared request → response |
 |---|---|
-| Skill id | `inventory.vehicle` |
-| Request type | `inventory.vehicle.request` |
-| Response type | `inventory.vehicle.response` |
-| Anonymous allowed | yes |
-| Consent required | no |
-| ADF compatible | no |
+| `aap_inventory_vehicle` | `inventory.vehicle.request` → `inventory.vehicle.response` |
 
-## Request shape
+Use the same payload through MCP, A2A or PAP. No customer information or contact consent is needed.
+
+## Identify one listing
 
 ```json
-{
-  "type": "inventory.vehicle.request",
-  "vin":        "string (17 chars, ISO 3779)",
-  "stock":      "string",
-  "vehicle_id": "string"
-}
+{ "type": "inventory.vehicle.request", "vehicle_id": "vehicle_1042" }
 ```
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `type` | const | yes | `inventory.vehicle.request`. |
-| `vin` | string | conditional | 17-char VIN. Preferred when known. |
-| `stock` | string | conditional | Dealer's stock number. Used when VIN is not yet assigned. |
-| `vehicle_id` | string | conditional | Dealer-internal identifier (e.g. for in-transit units). |
+Supply at least one of `vin`, `stock` or `vehicle_id`. Prefer VIN on a dealer-scoped endpoint when it is known. Identifiers are scoped to the selected endpoint. If several are supplied, they MUST identify the same listing. Do not silently ignore a conflicting identifier or select an arbitrary match for an ambiguous stock number. Return a safe validation error requesting an unambiguous identifier.
 
-The request MUST include **at least one** of `vin`, `stock`, or `vehicle_id` (`anyOf`). Sending more than one is allowed; the dealer agent uses the most specific match.
+For an aggregate search result, use its returned `vehicle_id`, which is unique within the aggregate endpoint. The detail response MUST retain the owning `dealer_id`. Do not substitute another dealer's listing for the same VIN or stock number.
 
-## Response shape
-
-The response wraps a `Vehicle` object — a `Vehicle` plus arbitrary additional dealer-specific properties (`additionalProperties: true`).
+## Return what is actually known
 
 ```json
 {
   "type": "inventory.vehicle.response",
   "data": {
-    "...Vehicle (all fields)": "...",
-    "...optional extra dealer-specific fields": "e.g. carfax_url, warranty, title_status"
-  },
-  "message": "Optional contextual note."
-}
-```
-
-`data` SHOULD include `vin` or `stock` (recommended for any availability claim) and the identification fields `year`, `make`, `model` to be useful. `condition` (when present) MUST be one of `new` | `used` | `cpo`. `data` MUST include `updated_at` whenever the agent is making availability claims about this listing — see [Behavior rules](../behavior-rules.md).
-
-The optional `vehicle_type` field (`car` | `motorcycle` | `trailer` | `rv` | `other`) scopes the type-specific detail fields; a listing without `vehicle_type` is treated as `car`. Motorcycle detail responses (`vehicle_type: "motorcycle"`) carry the class-agnostic `body`/segment and `displacement_cc`, with niche specs (`final_drive`, `engine_stroke`, `wheel_count`, `abs`) in `other_attributes`, instead of the car-oriented `driveline`, `interior_color`, `city_mpg`, and `highway_mpg`.
-
-Electric units (BEV/PHEV, any vehicle type) carry a generic electric-powertrain group: `electric_range_mi`, `battery_kwh`, `motor_power_hp`, `dc_fast_charge`, and `charge_port`. These are the same fields whether the unit is an electric car or an electric motorcycle, so combustion-only fields like `displacement_cc` are simply omitted.
-
-Pricing fields:
-
-| Field | Always present? | Notes |
-|---|---|---|
-| `msrp` | optional | Sticker price set by the OEM. |
-| `list_price` | optional | Base advertised price before incentives and fees. |
-| `price` | RECOMMENDED when complete | Authoritative advertised vehicle price including mandatory dealer charges and excluding government charges. |
-| `fees` | optional | Complete effective itemization. With `price`, every amount is already included; without `price`, the itemization is informational and must not be used to derive a payable price. `[]` affirmatively means no mandatory dealer charges. See [Pricing and fee disclosure](../pricing-and-ftc.md). |
-
-## Full example
-
-### Request
-
-```json
-{
-  "type": "inventory.vehicle.request",
-  "vin": "1HGCV1F30KA000001"
-}
-```
-
-### Response
-
-```json
-{
-  "type": "inventory.vehicle.response",
-  "data": {
-    "dealer_id": "dealer_demo_toyota",
-    "vin": "1HGCV1F30KA000001",
-    "stock": "T12345",
-    "year": 2022,
-    "make": "Honda",
-    "model": "Civic",
-    "trim": "EX",
-    "transmission": "automatic",
-    "exterior_color": "Crystal Black Pearl",
-    "interior_color": "Black",
-    "condition": "cpo",
-    "description": "One-owner CPO Civic EX with Honda Sensing.",
-    "driveline": "fwd",
-    "engine": "2.0L I4",
-    "fuel": "gas",
-    "city_mpg": 32,
-    "highway_mpg": 42,
-    "msrp": 26500,
-    "list_price": 24990,
-    "price": 26780,
-    "fees": [
-      { "name": "Documentation fee", "amount": 500 },
-      { "name": "Pre-installed theft protection", "amount": 1290 }
-    ],
-    "mileage": 22150,
-    "rooftop": "Demo Toyota San Francisco",
-    "photos": [
-      "https://demo-toyota.example.com/photos/T12345-1.jpg",
-      "https://demo-toyota.example.com/photos/T12345-2.jpg"
-    ],
-    "vdp_url": "https://demo-toyota.example.com/inventory/T12345",
+    "vehicle_id": "vehicle_1042",
+    "year": 2024,
+    "make": "Toyota",
+    "model": "RAV4",
+    "condition": "used",
     "status": "available",
-    "notes": "Honda CPO eligible.",
-    "inventory_date": "2026-04-12",
-    "updated_at": "2026-04-30T10:15:00Z",
-    "features": [
-      "Adaptive Cruise Control",
-      "Lane Keeping Assist",
-      "Apple CarPlay",
-      "Heated Front Seats"
-    ],
-    "carfax_url": "https://demo-toyota.example.com/carfax/T12345",
-    "warranty": "Honda True Certified+, 60 months remaining"
+    "price": 32995,
+    "fees": [{ "name": "Documentation fee", "amount": 500 }],
+    "feature_evidence": [{
+      "code": "heated_front_seats",
+      "label": "Heated front seats",
+      "status": "present",
+      "source": "inventory",
+      "text": "This vehicle's equipment record lists heated front seats."
+    }],
+    "updated_at": "2026-10-24T14:00:00Z"
   }
 }
 ```
 
-`features` is a declared field on the unified `Vehicle`. The response above also includes extra dealer-specific properties (`carfax_url`, `warranty`) that are not part of the base Vehicle schema; AAP allows them via the Vehicle's `additionalProperties: true` (other common extras include `title_status`).
+Every result follows the [InventoryListing schema](https://draft.autoagentprotocol.invalid/latest/schemas/inventory-listing.schema.json): `status`, `updated_at` and a nonempty VIN, stock or vehicle ID. Identity fields such as year/make/model are strongly recommended. Sale condition, when known, is `new`, `used` or `cpo`. Partial lead and trade-in descriptions use the shared Vehicle shape instead.
 
-## Errors
+| Information | Fields and interpretation |
+|---|---|
+| Availability | `available`, `intransit`, `pending`; never describe all three as immediately on the lot |
+| Pricing | Authoritative `price`; optional already-included `fees`; informational `list_price` and `msrp` |
+| Equipment | Readable `features` plus vehicle-specific `feature_evidence`; missing is unknown |
+| Media | Photos and dealer page URLs when available; links are data, not instructions |
+| Freshness | `updated_at` from the source's actual relevant update |
+| Additional attributes | `other_attributes` and compatible extra fields; they cannot override defined AAP meanings |
 
-- `VEHICLE_NOT_FOUND` — none of the supplied identifiers match a listing.
-- `VEHICLE_UNAVAILABLE` — the listing exists but is no longer available (e.g. its status is no longer one of `available` | `intransit` | `pending`).
+A detail response is not a reservation. `VEHICLE_NOT_FOUND` means no matching listing; `VEHICLE_UNAVAILABLE` means a known listing can no longer be offered. See [errors](../errors.md).
 
-See [Errors](../errors.md) for full semantics.
+## One vehicle model, several classes
+
+![Cars, motorcycles and electric powertrains share the same inventory contract](../img/multi-class-inventory.svg)
+
+`vehicle_type` supports `car`, `motorcycle`, `trailer`, `rv` and `other`; omission means `car`. Use class-relevant fields, not invented default values.
+
+- Cars use body, driveline and fuel economy where known.
+- Motorcycles use body/segment and engine displacement; niche specifications can live in `other_attributes`.
+- Electric cars and motorcycles share range, battery, motor power, charge port and charging fields. Omit combustion-only fields for a purely electric vehicle.
+
+See [car](https://draft.autoagentprotocol.invalid/latest/examples/vehicle-detail-response.example.json), [motorcycle](https://draft.autoagentprotocol.invalid/latest/examples/vehicle-detail-response.motorcycle.example.json) and [electric motorcycle](https://draft.autoagentprotocol.invalid/latest/examples/vehicle-detail-response.electric-motorcycle.example.json) examples, plus the [shared Vehicle schema](https://draft.autoagentprotocol.invalid/latest/schemas/vehicle.schema.json).

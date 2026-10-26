@@ -4,7 +4,9 @@ import { glob } from "glob";
 import { readFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { ROOT, isMain } from "./lib/releases.js";
-import { checkPoppyAssertion, checkPoppyClientIdentity, checkPoppyIdentity } from "./lib/poppy.js";
+import { checkPoppyAssertion, checkPoppyClientIdentity, checkPoppyIdentity, checkPoppyMcpResource, checkPoppyTokenResponse, poppyAlternativeReferences } from "./lib/poppy.js";
+import { checkDiscovery } from "./lib/discovery.js";
+import { validateManifest } from "./validate-manifest.js";
 
 const SKIP = [/\.jsonrpc\.example\.json$/, /\.rest\.example\.json$/, /^mcp-manifest\./];
 export async function validateExamples(specDir: string, label: string): Promise<{total: number; validated: number}> {
@@ -20,8 +22,7 @@ export async function validateExamples(specDir: string, label: string): Promise<
   let validated = 0;
   for (const file of files) {
     if (SKIP.some(pattern => pattern.test(file))) continue;
-    const name = basename(file, ".example.json"), variant = name.match(/^([a-z][a-z0-9-]+(?:request|response))\./);
-    const candidate = variant?.[1] ?? name, schema = schemas.get(candidate);
+    const candidate = basename(file, ".example.json").split(".")[0], schema = schemas.get(candidate);
     if (!schema) {
       if (candidate === "agent-card" && label === "v0.2") continue;
       throw new Error(`${label}/${file}: no matching schema ${candidate}`);
@@ -36,17 +37,48 @@ export async function validateExamples(specDir: string, label: string): Promise<
     const document = read("poppy");
     const errors = checkPoppyIdentity(document, `https://${document.organization.domain}/.well-known/poppy.json`, read("poppy-oauth-metadata"));
     if (errors.length) throw new Error(`${label}/poppy.example.json: ${errors.join("; ")}`);
+    if (document.protocol_version === "0.3") {
+      const tokenErrors = [
+        ...checkPoppyTokenResponse(read("poppy-session-token"), { grant: "guest" }),
+        ...checkPoppyTokenResponse(read("poppy-token-exchange-response"), { grant: "exchange", subjectScopes: [] }),
+      ];
+      const alternative = read("poppy-alternative");
+      if (poppyAlternativeReferences(document, alternative).length !== alternative.references.length) tokenErrors.push("Alternative references an unadvertised API");
+      const native = read("poppy.native-mcp"), metadata = read("poppy-oauth-metadata.native-mcp");
+      const url = read("poppy-token-exchange-request").resource;
+      tokenErrors.push(...checkPoppyIdentity(native, `https://${native.organization.domain}/.well-known/poppy.json`, metadata));
+      for (const name of ["poppy-mcp-resource-metadata", "poppy-mcp-resource-metadata.dpop"]) {
+        tokenErrors.push(...checkPoppyMcpResource(native, metadata, url, read(name)));
+      }
+      if (tokenErrors.length) throw new Error(`${label}/PAP 0.3 examples: ${tokenErrors.join("; ")}`);
+    }
+    if (schemas.has("aap-extension-params")) {
+      const discoveryErrors = checkDiscovery(read("agent-card"), document, validateManifest(specDir, label), document.extensions["autoagentprotocol.org/aap"].agent_card);
+      if (discoveryErrors.length) throw new Error(`${label}/discovery: ${discoveryErrors.join("; ")}`);
+    }
     if (files.includes("poppy-client-metadata.example.json")) {
       const client = read("poppy-client-metadata");
       const request = read("poppy-session-request");
       const identityErrors = checkPoppyClientIdentity(client, request.client_id);
+      const assertionIds = new Set<string>();
       for (const kind of ["client", "session"] as const) {
         const claims = read(`poppy-${kind}-assertion`);
         identityErrors.push(...checkPoppyAssertion(claims, client.client_id, document.auth.issuer, kind));
+        if (assertionIds.has(claims.jti)) identityErrors.push("Guest client and Session assertions must use distinct jti values");
+        assertionIds.add(claims.jti);
         const jwt = kind === "client" ? request.client_assertion : request.assertion;
         if (JSON.stringify(JSON.parse(Buffer.from(jwt.split(".")[1], "base64url").toString())) !== JSON.stringify(claims)) {
           identityErrors.push(`${kind} assertion example must match the token request payload`);
         }
+      }
+      if (document.protocol_version === "0.3") {
+        const exchange = read("poppy-token-exchange-request");
+        const claims = JSON.parse(Buffer.from(exchange.client_assertion.split(".")[1], "base64url").toString());
+        const assertionSchema = ajv.getSchema((schemas.get("poppy-client-assertion") as { $id: string }).$id)!;
+        if (!assertionSchema(claims)) identityErrors.push(`Exchange client assertion: ${ajv.errorsText(assertionSchema.errors)}`);
+        identityErrors.push(...checkPoppyAssertion(claims, client.client_id, document.auth.issuer, "client"));
+        if (exchange.client_id !== client.client_id) identityErrors.push("Exchange client_id must match the authenticated client metadata");
+        if (assertionIds.has(claims.jti)) identityErrors.push("Token exchange must use a fresh client assertion jti, distinct from both guest assertions");
       }
       if (identityErrors.length) throw new Error(`${label}/PAP handshake examples: ${identityErrors.join("; ")}`);
     }

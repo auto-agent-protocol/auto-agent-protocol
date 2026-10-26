@@ -8,12 +8,20 @@ is white. The symbol and lettering have transparent backgrounds.
 
 | Placement | Asset |
 | --- | --- |
-| Navigation, homepage, README | [Blue wordmark](../../static/img/brand/aap-wordmark.svg) / [white wordmark](../../static/img/brand/aap-wordmark-white.svg) |
-| Avatars, integrations, compact placements | [Blue symbol](../../static/img/brand/aap-symbol.svg) / [white symbol](../../static/img/brand/aap-symbol-white.svg) |
-| Raster-only consumers | [1024 px symbol](../../static/img/brand/aap-symbol.png) / [2380 px wordmark](../../static/img/brand/aap-wordmark.png) (white PNG variants are also provided) |
-| Browser tabs | [Transparent SVG favicon](../../static/img/brand/favicon.svg), with a transparent [16/32/48/256 px ICO fallback](../../static/img/brand/favicon.ico) |
+| Navigation and footer | Responsive blue/white wordmarks at 238, 298, 476, 596, 714 and 894 px; the theme selects the size for the screen |
+| High-resolution wordmark | [2380 px blue wordmark](../../static/img/brand/aap-wordmark.png) / [white wordmark](../../static/img/brand/aap-wordmark-white.png) |
+| Avatars and compact website placements | [1024 px blue symbol](../../static/img/brand/aap-symbol.png) / [white symbol](../../static/img/brand/aap-symbol-white.png) |
+| Homepage diagram | Blue symbol at 76, 152 and 228 px for native screen-density selection |
+| Vector workflows | [Blue wordmark](../../static/img/brand/aap-wordmark.svg) / [white wordmark](../../static/img/brand/aap-wordmark-white.svg); [blue symbol](../../static/img/brand/aap-symbol.svg) / [white symbol](../../static/img/brand/aap-symbol-white.svg) |
+| Browser tabs | [Transparent 16/32/48/256 px ICO](../../static/img/brand/favicon.ico); an [SVG export](../../static/img/brand/favicon.svg) is also available |
 | iOS home-screen bookmarks | [Transparent 180 px touch icon](../../static/img/brand/apple-touch-icon.png) |
-| Social/link previews | [1200 × 630 card](../../static/img/brand/aap-social-card.png) |
+| README and social/link previews | [1200 × 630 card](../../static/img/brand/aap-social-card.png) |
+
+Browser placements use the transparent PNG exports to avoid low-resolution
+SVG mask rendering in WebKit on high-density screens. Responsive wordmarks
+also avoid excessive raster downscaling on lower-density screens. Navigation
+and footer use their respective 238 px and 298 px display widths with native
+`srcset` selection. The vector masters and the logo's geometry remain unchanged.
 
 Use the blue artwork on light backgrounds and white artwork on dark backgrounds.
 Preserve the aspect ratio and leave clear space of at least one-quarter of the
@@ -42,12 +50,30 @@ manifest binds the exports to their source files and checks their hashes
 without depending on cross-platform font rendering. Review the social card
 visually after regeneration because system fonts can vary by OS.
 
-Branding generation owns the historic public logo/favicon and promotional
-banner URLs as compatibility aliases. They serve the new artwork; no obsolete
-binary is retained. The former banner HTML source was removed so the diagram
-generator cannot overwrite the brand exports. The unused legacy hero was
-removed. All historical explanatory diagrams and released contract text are
-unchanged. Git history is intentionally not rewritten.
+Branding generation updates the current public brand assets and unversioned
+logo/favicon/banner aliases. Historical versioned artwork remains byte-for-byte
+unchanged. Do not regenerate or overwrite images under released snapshot paths.
+
+## Explanatory diagrams
+
+The current 32 diagrams are native SVGs generated from
+[`image-specs.ts`](../image-specs.ts) and [`generate-images.ts`](../generate-images.ts).
+They share one palette, accessible titles/descriptions and the canonical symbol.
+The generator measures rendered text widths and checks every current reference.
+
+```sh
+pnpm generate:images
+pnpm check:images
+# Optional local PNG exports for visual review:
+pnpm generate:images --preview-dir=/tmp/aap-visual-review
+# Regenerate a single diagram after a targeted correction:
+pnpm generate:images --only=discovery-flow
+```
+
+Review every changed diagram at full size and in the website, including mobile.
+Check reading order, factual labels, text boundaries and connector placement.
+The website links to full-size diagrams for detailed inspection. Automated width
+checks complement visual review; they do not replace it.
 
 CI verifies asset dimensions, transparency-capable PNGs, favicon frames,
 source/export consistency, retired-artwork hashes, and shared branding on
@@ -56,9 +82,9 @@ not arbitrary visual alterations; newly added illustrations still need review.
 
 ## Relationship to A2A
 
-The visual direction was requested to reflect AAP's role as an automotive
-retail profile of [A2A](https://a2a-protocol.org/), using its blue and connected
-circles as a reference. The production paths are independently drawn for AAP.
+The original visual direction referenced [A2A](https://a2a-protocol.org/)
+through blue and connected circles. AAP 3.0 retains that independent identity
+while treating MCP, A2A and PAP as native interfaces. The production paths are independently drawn for AAP.
 This is AAP branding, not an official A2A logo, certification, or endorsement.
 The repository's software license does not grant rights to third-party marks;
 any A2A brand-permission questions should be confirmed with the mark owner

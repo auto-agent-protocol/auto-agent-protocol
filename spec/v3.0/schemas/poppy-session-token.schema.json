@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.0/schemas/poppy-session-token.schema.json",
+  "title": "PoppySessionTokenResponse",
+  "description": "PAP 0.3 token response. Grant context determines signed-in state and scopes: JWT bearer is always signed out with scope omitted; sign-in/refresh is signed in and may omit scope only when exactly as requested. Session key thumbprints replace session_id. JSON validation cannot verify cryptography or effective grant permissions.",
+  "type": "object",
+  "required": [
+    "access_token",
+    "token_type",
+    "expires_in"
+  ],
+  "properties": {
+    "access_token": {
+      "type": "string",
+      "minLength": 1
+    },
+    "token_type": {
+      "enum": [
+        "DPoP",
+        "Bearer"
+      ]
+    },
+    "expires_in": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "scope": {
+      "type": "string",
+      "pattern": "^(?!poppy:)[\\x21\\x23-\\x5B\\x5D-\\x7E]+( (?!poppy:)[\\x21\\x23-\\x5B\\x5D-\\x7E]+)*$"
+    },
+    "refresh_token": {
+      "type": "string",
+      "minLength": 1
+    },
+    "refresh_token_expires_in": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "issued_token_type": {
+      "const": "urn:ietf:params:oauth:token-type:access_token"
+    },
+    "session_id": false,
+    "signed_in": false
+  },
+  "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "token_type": {
+            "const": "Bearer"
+          }
+        },
+        "required": [
+          "token_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "issued_token_type"
+        ],
+        "properties": {
+          "refresh_token": false,
+          "refresh_token_expires_in": false
+        }
+      },
+      "else": {
+        "properties": {
+          "issued_token_type": false
+        }
+      }
+    }
+  ]
+}

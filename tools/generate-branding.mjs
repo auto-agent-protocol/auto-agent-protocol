@@ -15,6 +15,13 @@ for (const [suffix, color] of [['', '#2874d7'], ['-white', '#ffffff']]) {
   artifacts.set(`img/brand/aap-wordmark${suffix}.svg`, Buffer.from(wordmark(color)));
   artifacts.set(`img/brand/aap-symbol${suffix}.png`, await raster(icon(color), 1024));
   artifacts.set(`img/brand/aap-wordmark${suffix}.png`, await raster(wordmark(color), 2380));
+  for (const width of [238, 298, 476, 596, 714, 894]) {
+    artifacts.set(`img/brand/aap-wordmark${suffix}-${width}.png`, await raster(wordmark(color), width));
+  }
+}
+
+for (const width of [76, 152, 228]) {
+  artifacts.set(`img/brand/aap-symbol-${width}.png`, await raster(icon(), width));
 }
 
 artifacts.set('img/brand/aap-social-card.svg', Buffer.from(socialCard()));
@@ -48,9 +55,7 @@ artifacts.set('img/brand/favicon.ico', Buffer.concat([directory, ...frames]));
 artifacts.set('img/logo.png', artifacts.get('img/brand/aap-symbol.png'));
 artifacts.set('img/logo-white.png', artifacts.get('img/brand/aap-symbol-white.png'));
 artifacts.set('img/favicon.ico', artifacts.get('img/brand/favicon.ico'));
-for (const prefix of ['', 'v1.0/', 'v1.1/', 'v1.2/']) {
-  artifacts.set(`img/${prefix}aap-hero-banner.png`, artifacts.get('img/brand/aap-social-card.png'));
-}
+artifacts.set('img/aap-hero-banner.png', artifacts.get('img/brand/aap-social-card.png'));
 
 let failed = false;
 for (const [relative, content] of artifacts) {

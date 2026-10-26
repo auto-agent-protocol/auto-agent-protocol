@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-request.schema.json",
   "title": "LeadSubmitRequest",
-  "description": "Unified lead submission for the `lead.submit` AAP skill. A single request carries the consented customer plus any combination of `vehicle_of_interest`, `trade_in`, and `appointment` — matching how dealerships actually take leads (e.g. test-drive a new car while getting a trade-in appraised in the same visit).\n\nDesign principle: capture whatever the customer actually provided. `vehicle_of_interest`, `trade_in`, and `appointment` are entirely optional, and within them no individual field is required at the schema level — the buyer agent should pass through whatever pieces of information the user shared (a VIN, a make+model, just a year, mileage only — anything is welcome). The dealer is responsible for handling partial input gracefully.\n\nValidation rules:\n- `customer` and `consent` are always required (lead is never anonymous; consent is always required).\n- If `vehicle_of_interest.condition` is set, it MUST be one of `new`, `used`, `cpo`.\n- If `trade_in.condition` is set, it MUST be one of `excellent`, `good`, `fair`, `poor`.\n- `consent.scope` MUST be `[\"lead_submission\"]`.\n\nCarried inside an A2A `Message.parts[].data` DataPart via `SendMessage` (JSON-RPC 2.0), or directly as the native Poppy OpenAPI request body.",
+  "description": "Submit one consented automotive inquiry through MCP, A2A or PAP. Customer, consent, source_agent and idempotency_key are required. Vehicle interest and trade-in may contain partial user-provided information. An optional appointment requires appointment_type; requesting a visit does not itself confirm a booking.",
   "type": "object",
   "properties": {
     "type": {
@@ -23,7 +23,7 @@
     },
     "trade_in": {
       "$ref": "./vehicle.schema.json",
-      "description": "The vehicle the buyer wants to trade in. Optional. Pass through whatever the customer provided (just a make+model and a mileage is a perfectly valid trade-in lead). When `condition` is set it MUST be one of `excellent` | `good` | `fair` | `poor`. Pricing fields are typically absent on the request side and are populated by the dealer's appraisal response."
+      "description": "Optional partial description of the buyer’s trade-in. Pass through known information without inventing fields. When condition is present, use excellent, good, fair or poor. This skill does not return an appraisal or valuation."
     },
     "appointment": {
       "$ref": "./appointment.schema.json",
@@ -36,19 +36,19 @@
     },
     "source_agent": {
       "type": "object",
-      "description": "The buyer agent that originated this lead — a structured identity for analytics and the TCPA/consent audit trail (who submitted it, and where their public agent card lives). In v1.1 this replaces the v1.0 string form AND the duplicate `consent.source_agent`: there is now exactly ONE source_agent, here at the top level.",
+      "description": "Buyer-agent attribution. This caller-supplied label is not authentication and must not override verified transport identity.",
       "properties": {
         "name": {
           "type": "string",
           "minLength": 1,
           "description": "Stable identifier of the buyer agent.",
-          "examples": ["chatgpt-shopping", "claude-auto-shopper", "lumika-bdc"]
+          "examples": ["example-buyer"]
         },
         "url": {
           "type": "string",
           "format": "uri",
           "description": "Optional homepage / operator URL for the buyer agent.",
-          "examples": ["https://chat.openai.com"]
+          "examples": ["https://buyer.example"]
         },
         "agent_card_url": {
           "type": "string",
@@ -59,7 +59,7 @@
       },
       "required": ["name"],
       "additionalProperties": false,
-      "examples": [{ "name": "claude-auto-shopper", "agent_card_url": "https://shopper.example.com/.well-known/agent-card.json" }]
+      "examples": [{"name": "example-buyer", "url": "https://buyer.example"}]
     },
     "submitted_at": {
       "type": "string",
@@ -70,21 +70,25 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 128,
-      "description": "Optional client-generated key (UUID recommended) the dealer agent uses to dedupe retried submissions. Two requests carrying the same `idempotency_key` MUST produce the same response (the dealer returns the original `lead_id` and status). Strongly RECOMMENDED for production buyer agents that retry on network failure."
+      "description": "Required client-generated key (UUID recommended) for this consented submission. Preserve the key and payload after a timeout or session renewal. Deduplicate for at least 24 hours by dealer and verified caller, including the stable PAP User ID where applicable; anonymous calls use dealer and key. The same caller and key across bindings return the complete original result with data.replayed true, including its received/rejected status and appointment details; a changed payload returns IDEMPOTENCY_CONFLICT. Reauthorize the caller before replay; the original consent must have been valid for the initial delivery. A replay creates no new delivery or booking."
     }
   },
-  "required": ["type", "customer", "consent", "source_agent"],
+  "required": ["type", "customer", "consent", "source_agent", "idempotency_key"],
   "additionalProperties": false,
   "allOf": [
     {
       "description": "vehicle_of_interest.condition (when set) must be in the sale-condition vocabulary",
       "if": {
         "type": "object",
-        "required": ["vehicle_of_interest"],
+        "required": [
+          "vehicle_of_interest"
+        ],
         "properties": {
           "vehicle_of_interest": {
             "type": "object",
-            "required": ["condition"]
+            "required": [
+              "condition"
+            ]
           }
         }
       },
@@ -92,7 +96,13 @@
         "properties": {
           "vehicle_of_interest": {
             "properties": {
-              "condition": { "enum": ["new", "used", "cpo"] }
+              "condition": {
+                "enum": [
+                  "new",
+                  "used",
+                  "cpo"
+                ]
+              }
             }
           }
         }
@@ -102,11 +112,15 @@
       "description": "trade_in.condition (when set) must be in the wear-condition vocabulary",
       "if": {
         "type": "object",
-        "required": ["trade_in"],
+        "required": [
+          "trade_in"
+        ],
         "properties": {
           "trade_in": {
             "type": "object",
-            "required": ["condition"]
+            "required": [
+              "condition"
+            ]
           }
         }
       },
@@ -114,7 +128,200 @@
         "properties": {
           "trade_in": {
             "properties": {
-              "condition": { "enum": ["excellent", "good", "fair", "poor"] }
+              "condition": {
+                "enum": [
+                  "excellent",
+                  "good",
+                  "fair",
+                  "poor"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "email"
+                }
+              }
+            },
+            "required": [
+              "allowed_channels"
+            ]
+          }
+        },
+        "required": [
+          "consent"
+        ]
+      },
+      "then": {
+        "properties": {
+          "customer": {
+            "required": [
+              "email"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "customer": {
+            "properties": {
+              "preferred_contact": {
+                "const": "email"
+              }
+            },
+            "required": [
+              "preferred_contact"
+            ]
+          }
+        },
+        "required": [
+          "customer"
+        ]
+      },
+      "then": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "email"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "phone"
+                }
+              }
+            },
+            "required": [
+              "allowed_channels"
+            ]
+          }
+        },
+        "required": [
+          "consent"
+        ]
+      },
+      "then": {
+        "properties": {
+          "customer": {
+            "required": [
+              "phone"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "customer": {
+            "properties": {
+              "preferred_contact": {
+                "const": "phone"
+              }
+            },
+            "required": [
+              "preferred_contact"
+            ]
+          }
+        },
+        "required": [
+          "customer"
+        ]
+      },
+      "then": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "phone"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "sms"
+                }
+              }
+            },
+            "required": [
+              "allowed_channels"
+            ]
+          }
+        },
+        "required": [
+          "consent"
+        ]
+      },
+      "then": {
+        "properties": {
+          "customer": {
+            "required": [
+              "phone"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "customer": {
+            "properties": {
+              "preferred_contact": {
+                "const": "sms"
+              }
+            },
+            "required": [
+              "preferred_contact"
+            ]
+          }
+        },
+        "required": [
+          "customer"
+        ]
+      },
+      "then": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "sms"
+                }
+              }
             }
           }
         }

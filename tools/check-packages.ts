@@ -6,7 +6,7 @@
 // registry (schemas/validator pinned to an old version). Run after building both
 // packages; wired into CI.
 
-import { readFileSync } from "fs";
+import { readFileSync, readdirSync } from "fs";
 import { createRequire } from "module";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -37,13 +37,25 @@ if (schemasPkg.exports?.["./latest/*"] !== "./dist/schemas/*.json") {
 
 // 3. validator.loadDefaults() must resolve and compile the latest schemas without throwing.
 const { AAPValidator } = require(resolve(ROOT, "packages/validator/dist/index.js")) as {
-  AAPValidator: new () => { loadDefaults(): void; getSchemaNames(): string[] };
+  AAPValidator: new () => { loadDefaults(): void; getSchemaNames(): string[]; validate(name: string, value: unknown): {valid: boolean; errors: unknown} };
 };
 const validator = new AAPValidator();
 validator.loadDefaults();
 const count = validator.getSchemaNames().length;
 if (count === 0) fail("validator.loadDefaults() loaded zero schemas");
 
+const exampleDir = resolve(ROOT, `spec/${LATEST}/examples`);
+const schemaNames = new Set(validator.getSchemaNames());
+let checked = 0;
+for (const file of readdirSync(exampleDir).filter(file => file.endsWith(".example.json") && !file.includes(".jsonrpc.") && !file.includes(".rest."))) {
+  if (file.startsWith("mcp-manifest.")) continue;
+  const name = file.split(".")[0];
+  if (!schemaNames.has(name)) fail(`Bundled schemas omit ${name}`);
+  const result = validator.validate(name, JSON.parse(readFileSync(resolve(exampleDir, file), "utf8")));
+  if (!result.valid) fail(`${file}: ${JSON.stringify(result.errors)}`);
+  checked++;
+}
+
 console.log(
-  `check-packages OK — schemas.LATEST=${schemas.LATEST}, validator.loadDefaults() loaded ${count} schemas`
+  `check-packages OK — schemas.LATEST=${schemas.LATEST}, ${count} schemas, ${checked} published examples validate through the bundled library`
 );

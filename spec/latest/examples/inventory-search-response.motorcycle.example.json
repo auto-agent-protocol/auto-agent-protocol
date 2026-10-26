@@ -2,9 +2,42 @@
   "type": "inventory.search.response",
   "data": {
     "total": 2,
-    "skip": 0,
     "limit": 25,
     "vehicles": [
+      {
+        "vehicle_type": "motorcycle",
+        "dealer_id": "dealer_demo_powersports",
+        "vehicle_id": "veh_dp_5044",
+        "vin": "1AM1FBM17NB112233",
+        "stock": "M-5044",
+        "rooftop": "Demo Powersports San Jose",
+        "year": 2023,
+        "make": "Acme Moto",
+        "model": "Classic Cruiser",
+        "body": "cruiser",
+        "engine": "1746cc V-twin",
+        "displacement_cc": 1746,
+        "other_attributes": { "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2, "abs": true },
+        "transmission": "manual",
+        "fuel": "gas",
+        "exterior_color": "Classic Red",
+        "condition": "used",
+        "status": "available",
+        "description": "One-owner 2023 Classic Cruiser with saddlebags and a clean title.",
+        "msrp": 21499,
+        "list_price": 18995,
+        "price": 19995,
+        "fees": [
+          { "name": "Dealer preparation fee", "amount": 1000 }
+        ],
+        "mileage": 4210,
+        "photos": [
+          "https://cdn.demo-powersports.example.com/inventory/m-5044/01.jpg"
+        ],
+        "vdp_url": "https://demo-powersports.example.com/inventory/used/2023-acme-moto-classic-cruiser-M-5044",
+        "inventory_date": "2026-04-22",
+        "updated_at": "2026-04-30T08:10:00Z"
+      },
       {
         "vehicle_type": "motorcycle",
         "dealer_id": "dealer_demo_powersports",
@@ -40,40 +73,6 @@
         "vdp_url": "https://demo-powersports.example.com/inventory/new/2024-acme-moto-grand-tourer-M-5012",
         "inventory_date": "2026-04-18",
         "updated_at": "2026-04-30T07:20:00Z"
-      },
-      {
-        "vehicle_type": "motorcycle",
-        "dealer_id": "dealer_demo_powersports",
-        "vehicle_id": "veh_dp_5044",
-        "vin": "1AM1FBM17NB112233",
-        "stock": "M-5044",
-        "rooftop": "Demo Powersports San Jose",
-        "year": 2023,
-        "make": "Acme Moto",
-        "model": "Classic Cruiser",
-        "body": "cruiser",
-        "engine": "1746cc V-twin",
-        "displacement_cc": 1746,
-        "other_attributes": { "final_drive": "belt", "engine_stroke": 4, "wheel_count": 2, "abs": true },
-        "transmission": "manual",
-        "fuel": "gas",
-        "exterior_color": "Classic Red",
-        "condition": "used",
-        "status": "available",
-        "description": "One-owner 2023 Classic Cruiser with saddlebags and a clean title.",
-        "msrp": 21499,
-        "list_price": 18995,
-        "price": 19995,
-        "fees": [
-          { "name": "Dealer preparation fee", "amount": 1000 }
-        ],
-        "mileage": 4210,
-        "photos": [
-          "https://cdn.demo-powersports.example.com/inventory/m-5044/01.jpg"
-        ],
-        "vdp_url": "https://demo-powersports.example.com/inventory/used/2023-acme-moto-classic-cruiser-M-5044",
-        "inventory_date": "2026-04-22",
-        "updated_at": "2026-04-30T08:10:00Z"
       }
     ],
     "facets": {
@@ -112,7 +111,32 @@
       "mileage_range": { "min": 3, "max": 4210 },
       "year_range": { "min": 2023, "max": 2024 },
       "displacement_cc_range": { "min": 1746, "max": 1868 }
-    }
+    },
+    "applied_filters": {
+      "vehicle_type": [
+        "motorcycle"
+      ],
+      "make": [
+        "Acme Moto"
+      ],
+      "condition": [
+        "new",
+        "used"
+      ],
+      "body": [
+        "cruiser",
+        "touring"
+      ],
+      "displacement_cc_min": 1200,
+      "displacement_cc_max": 2000,
+      "price_max": 30000,
+      "year_min": 2023
+    },
+    "sort": {
+      "field": "price",
+      "order": "asc"
+    },
+    "next_cursor": null
   },
   "message": "2 Acme Moto motorcycles match your filters. Each 'price' includes the itemized mandatory dealer fees; government charges are excluded."
 }

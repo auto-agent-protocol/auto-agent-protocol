@@ -7,9 +7,32 @@ versioning policy is described in the
 
 ## [Unreleased]
 
-### Added
+## [3.0.0] — 2026-10-26
 
-- Documented `parts` department schedules alongside `sales` and `service` in the `dealer.information` schema and documentation, with separate weekly hours in the sample response. Schedule names remain free text and schedules remain optional; payload validation is unchanged.
+AAP becomes a shared automotive contract with native MCP, A2A and PAP interfaces. This major release requires an explicit deployment migration; previous releases remain immutable.
+
+- Upgrade PAP to draft **0.3**, pinned to upstream `86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7`. Replace custom Session IDs with per-Session DPoP keys, old domain metadata with protected resources, and built-in scopes with company scopes. Add explicit MCP token exchange, browser-code joins, alternatives and excluded tasks; migrate sign-in, callbacks, token responses and conversation authors.
+- Require a working MCP Streamable HTTP endpoint, with current `2026-07-28` and legacy `2025-11-25` interoperability, complete bundled tool schemas, standard annotations and typed success/error results.
+- Add AAP compatibility ingress for optional redundant request headers: infer A2A version/extension only from a contract-pinned endpoint and MCP mirror values from the request or negotiated session. Accept JSON-only MCP response preferences. Reject supplied conflicts and preserve authentication, consent and idempotency checks; portable clients retain the standard upstream headers.
+- Cross-link dealer-domain Agent Cards, PAP discovery and `llms.txt`; declare the actual skill subset and search capabilities consistently across all three interfaces.
+- Accept nonempty version strings on unknown PAP extensions so unrelated extensions cannot block discovery. The known AAP bridge still requires `version: "1"`.
+- Add feature filters with source-backed equipment evidence, rooftop-radius search and distance sorting, explicit applied filters, exact-or-unknown totals and complete cursor continuation.
+- Reduce the search `pagination.limit` schema maximum from 1000 to 100. Clients requesting larger pages must use at most the deployment's advertised `max_limit` (never above 100) and follow `next_cursor`.
+- Change `aap.error.details` from unrestricted JSON to an object when present. Every `details.errors[]` item now requires `instanceLocation`, `keyword` and `error`; migrate custom validation diagnostics to this shape. Additional detail fields remain allowed.
+- Standardize coordinates as `filters.near.latitude` and `filters.near.longitude`. Deployed `lat`/`lng` extensions and the validation errors teaching those names require a breaking client/server migration; the short keys are not 3.0 aliases.
+- Require listing identity, availability and source update timestamps. Reject unsupported filters and sorts rather than silently broadening a request.
+- Require lead idempotency keys and contact details for every permitted channel. Make appointment confirmation times and alternative times explicit, with consistent partial-success behavior.
+- Resolve aggregate seller IDs through `dealer.information` before consent; return `DEALER_NOT_FOUND` for an inaccessible or unknown seller.
+- Document separate `parts` department schedules alongside `sales` and `service`, with a complete sample. Department names remain free text and schedules remain optional.
+- Replace the ambiguous `duplicate` lead status with `replayed: true` alongside the complete original outcome, including booking details.
+- Require the effective search page size and millisecond retry hints; document stricter arrays/queries and preserve the public `DayHours` export. General first-page examples omit optional offsets.
+- Nest MCP input constraints below the root without changing validation, document affected-host limitations, and validate every canonical schema URL in the native catalog metadata.
+- Clarify fee-inclusive price semantics and ADF receiver mappings with separate retained consent and idempotency records.
+- Verify official current and legacy MCP clients, official A2A wire exchanges, pinned upstream MCP schemas, PAP discovery and authentication contracts, and copyable documentation examples.
+- Generate complete TypeScript declarations in one shared naming scope; preserve nested result fields and required inventory listing identifiers, availability and timestamps.
+- Rebuild the website, README and all 34 current explanatory diagrams, including five discovery/search visuals and two PAP 0.3 token/browser flows. Add readable Markdown representations and keep frozen artwork unchanged.
+
+See the [migration matrix](docs/versioning.md#for-implementers) and [deployment acceptance cases](docs/conformance.md#required-deployment-acceptance-cases). Contract fixtures do not certify a live dealership implementation.
 
 ## [2.1.0] — 2026-10-23
 

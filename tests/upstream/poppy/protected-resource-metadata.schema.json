@@ -1,0 +1,18 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "protected-resource-metadata.schema.json",
+    "title": "OAuth Protected Resource Metadata",
+    "description": "The RFC 9728 metadata a listed MCP server publishes, with the fields Poppy needs. Spec section 6 (APIs): authorization_servers must include auth.issuer. resource is the MCP server's URL. Other fields are allowed.",
+    "type": "object",
+    "required": ["resource", "authorization_servers"],
+    "properties": {
+        "resource": { "type": "string", "pattern": "^https://[^\\s/?#]+" },
+        "authorization_servers": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "pattern": "^https://[^\\s/?#]+" }
+        },
+        "bearer_methods_supported": { "type": "array", "items": { "type": "string" } },
+        "scopes_supported": { "type": "array", "items": { "type": "string" } }
+    }
+}

@@ -12,7 +12,6 @@
             "type": "inventory.search.response",
             "data": {
               "total": 2,
-              "skip": 0,
               "limit": 100,
               "vehicles": [
                 {
@@ -30,6 +29,7 @@
                   "interior_color": "Black",
                   "condition": "used",
                   "status": "available",
+                  "description": "One-owner 2023 Honda CR-V EX with full service history, AWD, and Honda Sensing safety suite.",
                   "driveline": "awd",
                   "engine": "1.5L Turbo I4",
                   "fuel": "gas",
@@ -39,13 +39,20 @@
                   "list_price": 27995,
                   "price": 29495,
                   "fees": [
-                    { "name": "Documentation fee", "amount": 500 },
-                    { "name": "Pre-installed theft protection", "amount": 1000 }
+                    {
+                      "name": "Documentation fee",
+                      "amount": 500
+                    },
+                    {
+                      "name": "Pre-installed theft protection",
+                      "amount": 1000
+                    }
                   ],
                   "mileage": 28450,
                   "photos": [
                     "https://cdn.demo-toyota.example.com/inventory/dt-2451/01.jpg",
-                    "https://cdn.demo-toyota.example.com/inventory/dt-2451/02.jpg"
+                    "https://cdn.demo-toyota.example.com/inventory/dt-2451/02.jpg",
+                    "https://cdn.demo-toyota.example.com/inventory/dt-2451/03.jpg"
                   ],
                   "vdp_url": "https://demo-toyota.example.com/inventory/used/2023-honda-cr-v-ex-DT-2451",
                   "inventory_date": "2026-04-12",
@@ -66,6 +73,7 @@
                   "interior_color": "Gray Leather",
                   "condition": "used",
                   "status": "available",
+                  "description": "Low-mileage 2024 Honda CR-V EX-L with leather, sunroof, and heated front seats. Single previous owner, clean Carfax.",
                   "driveline": "awd",
                   "engine": "1.5L Turbo I4",
                   "fuel": "gas",
@@ -75,21 +83,155 @@
                   "list_price": 31495,
                   "price": 32995,
                   "fees": [
-                    { "name": "Documentation fee", "amount": 500 },
-                    { "name": "Pre-installed theft protection", "amount": 1000 }
+                    {
+                      "name": "Documentation fee",
+                      "amount": 500
+                    },
+                    {
+                      "name": "Pre-installed theft protection",
+                      "amount": 1000
+                    }
                   ],
                   "mileage": 14820,
                   "photos": [
                     "https://cdn.demo-toyota.example.com/inventory/dt-2611/01.jpg",
-                    "https://cdn.demo-toyota.example.com/inventory/dt-2611/02.jpg"
+                    "https://cdn.demo-toyota.example.com/inventory/dt-2611/02.jpg",
+                    "https://cdn.demo-toyota.example.com/inventory/dt-2611/03.jpg",
+                    "https://cdn.demo-toyota.example.com/inventory/dt-2611/04.jpg"
                   ],
                   "vdp_url": "https://demo-toyota.example.com/inventory/used/2024-honda-cr-v-ex-l-DT-2611",
                   "inventory_date": "2026-04-21",
                   "updated_at": "2026-04-30T08:42:00Z"
                 }
-              ]
+              ],
+              "facets": {
+                "makes": [
+                  {
+                    "value": "Honda",
+                    "count": 2
+                  }
+                ],
+                "models": [
+                  {
+                    "value": "CR-V",
+                    "count": 2
+                  }
+                ],
+                "trims": [
+                  {
+                    "value": "EX",
+                    "count": 1
+                  },
+                  {
+                    "value": "EX-L",
+                    "count": 1
+                  }
+                ],
+                "years": [
+                  {
+                    "value": 2024,
+                    "count": 1
+                  },
+                  {
+                    "value": 2023,
+                    "count": 1
+                  }
+                ],
+                "conditions": [
+                  {
+                    "value": "used",
+                    "count": 2
+                  }
+                ],
+                "transmissions": [
+                  {
+                    "value": "automatic",
+                    "count": 2
+                  }
+                ],
+                "drivelines": [
+                  {
+                    "value": "awd",
+                    "count": 2
+                  }
+                ],
+                "fuels": [
+                  {
+                    "value": "gas",
+                    "count": 2
+                  }
+                ],
+                "bodies": [
+                  {
+                    "value": "suv",
+                    "count": 2
+                  }
+                ],
+                "rooftops": [
+                  {
+                    "value": "Demo Toyota San Francisco",
+                    "count": 2
+                  }
+                ],
+                "statuses": [
+                  {
+                    "value": "available",
+                    "count": 2
+                  }
+                ],
+                "price_range": {
+                  "min": 29495,
+                  "max": 32995
+                },
+                "mileage_range": {
+                  "min": 14820,
+                  "max": 28450
+                },
+                "year_range": {
+                  "min": 2023,
+                  "max": 2024
+                },
+                "features": [
+                  {
+                    "code": "adaptive_cruise_control",
+                    "label": "Adaptive cruise control",
+                    "count": 2
+                  },
+                  {
+                    "code": "heated_front_seats",
+                    "label": "Heated front seats",
+                    "count": 2
+                  }
+                ]
+              },
+              "applied_filters": {
+                "make": [
+                  "Honda",
+                  "BMW"
+                ],
+                "model": [
+                  "CR-V"
+                ],
+                "condition": [
+                  "used"
+                ],
+                "year_min": 2023,
+                "year_max": 2025,
+                "price_max": 35000,
+                "transmission": [
+                  "automatic"
+                ],
+                "rooftops": [
+                  "Demo Toyota San Francisco"
+                ]
+              },
+              "sort": {
+                "field": "price",
+                "order": "asc"
+              },
+              "next_cursor": null
             },
-            "message": "2 used Honda CR-Vs match your filters."
+            "message": "2 used Honda CR-Vs match your filters. Each 'price' includes the itemized mandatory dealer fees; government charges such as tax, title, and registration are excluded."
           },
           "mediaType": "application/vnd.autoagent.inventory-search-response+json"
         }

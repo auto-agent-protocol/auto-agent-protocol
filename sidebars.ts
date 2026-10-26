@@ -4,19 +4,23 @@ const sidebars: SidebarsConfig = {
   specSidebar: [
     "intro",
     "why",
-    "a2a-profile",
     "discovery",
-    "personal-agent-protocol",
-    "pap-client-guide",
-    "conformance",
-    "pricing-and-ftc",
     {
       type: "category",
       label: "Bindings",
       collapsed: false,
       items: [
-        "bindings/json-rpc",
-        "bindings/rest",
+        "bindings/mcp",
+        {
+          type: "category",
+          label: "A2A",
+          items: ["a2a-profile", "bindings/json-rpc"],
+        },
+        {
+          type: "category",
+          label: "PAP",
+          items: ["personal-agent-protocol", "pap-client-guide"],
+        },
       ],
     },
     {
@@ -33,14 +37,18 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "Implementation",
+      items: ["behavior-rules", "pricing-and-ftc", "errors", "conformance"],
+    },
+    {
+      type: "category",
       label: "Compatibility",
       items: [
         "compatibility/adf-mapping",
         "compatibility/mcp",
+        "bindings/rest",
       ],
     },
-    "behavior-rules",
-    "errors",
     "versioning",
     "contributing",
   ],

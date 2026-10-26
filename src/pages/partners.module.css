@@ -1,26 +1,23 @@
 .intro {
   padding: clamp(3rem, 6vw, 5.5rem) 0 3rem;
-  background: #f5f9ff;
-  border-bottom: 1px solid #dce5f0;
-}
-
-[data-theme="dark"] .intro {
-  background: #111d30;
-  border-color: #293b54;
+  background: var(--aap-canvas);
+  border-bottom: 1px solid var(--aap-line);
 }
 
 .eyebrow {
   color: var(--ifm-color-primary-dark);
-  font-size: .8rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   margin-bottom: 1.75rem;
 }
 
 .title {
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.15;
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  line-height: 1.05;
+  letter-spacing: 0;
+  font-weight: 650;
   margin: 0 0 1.75rem;
 }
 
@@ -28,20 +25,24 @@
   font-size: clamp(1.02rem, 1.8vw, 1.25rem);
   line-height: 1.65;
   color: var(--ifm-color-content-secondary);
-  max-width: 68ch;
+  max-width: 55ch;
   margin-bottom: 1.25rem;
 }
 
 .spec {
-  font-size: .95rem;
+  font-size: 0.88rem;
   line-height: 1.6;
   color: var(--ifm-color-emphasis-800);
   max-width: 68ch;
   margin-bottom: 1rem;
 }
+.spec a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 .count {
-  font-size: .9rem;
+  font-size: 0.9rem;
   color: var(--ifm-color-emphasis-700);
   margin-bottom: 0;
 }
@@ -59,15 +60,13 @@
 }
 
 .card {
-  border: 1px solid #dce5f0;
-  border-radius: 8px;
-  padding: 1.5rem;
+  border: 1px solid var(--aap-line);
+  border-radius: 16px;
+  padding: 2rem;
   background: var(--ifm-card-background-color);
-  transition: transform 180ms ease, border-color 180ms ease;
-}
-
-[data-theme="dark"] .card {
-  border-color: #293b54;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease;
 }
 
 .card:hover {
@@ -86,23 +85,23 @@
 .name {
   font-size: 1.35rem;
   margin-bottom: 0;
-  scroll-margin-top: calc(var(--ifm-navbar-height) + .5rem);
+  scroll-margin-top: calc(var(--ifm-navbar-height) + 0.5rem);
 }
 
 .role {
-  font-size: .7rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: .5px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   padding: 2px 7px;
   border-radius: 4px;
-  background: var(--ifm-color-emphasis-200);
-  color: var(--ifm-color-emphasis-700);
+  background: var(--aap-canvas);
+  color: var(--ifm-color-primary-dark);
 }
 
 .description {
   margin: 8px 0 0;
-  font-size: .95rem;
+  font-size: 0.95rem;
   line-height: 1.6;
   color: var(--ifm-color-emphasis-800);
   max-width: 78ch;
@@ -112,19 +111,19 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: .8rem;
+  gap: 0.8rem;
   list-style: none;
   margin: 0;
-  padding: .9rem 0 0;
+  padding: 0.9rem 0 0;
   border-top: 1px solid var(--ifm-color-emphasis-200);
-  margin-top: .9rem;
+  margin-top: 0.9rem;
 }
 
 .site {
   display: inline-flex;
   align-items: center;
-  gap: .45rem;
-  font-size: .9rem;
+  gap: 0.45rem;
+  font-size: 0.9rem;
   color: var(--ifm-color-primary-dark);
 }
 
@@ -148,8 +147,9 @@
 
 .join {
   margin-top: 3.5rem;
-  padding-top: 2.5rem;
-  border-top: 1px solid var(--ifm-color-emphasis-300);
+  padding: 2.5rem;
+  border-radius: 16px;
+  background: var(--aap-canvas);
 }
 
 .join h2 {
@@ -159,7 +159,7 @@
 
 .joinQuestion {
   font-weight: 600;
-  margin-bottom: .35rem;
+  margin-bottom: 0.35rem;
 }
 
 .joinAnswer {
@@ -169,12 +169,29 @@
 }
 
 @media (max-width: 600px) {
-  .intro { padding: 2.75rem 0 2.5rem; }
-  .eyebrow { font-size: .7rem; letter-spacing: .08em; }
-  .listing { padding: 2.5rem 0; }
+  .intro {
+    padding: 2.75rem 0 2.5rem;
+  }
+  .eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+  }
+  .listing {
+    padding: 2.5rem 0;
+  }
+  .card,
+  .join {
+    padding: 1.5rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card, .site span { transition: none; }
-  .card:hover, .site:hover span { transform: none; }
+  .card,
+  .site span {
+    transition: none;
+  }
+  .card:hover,
+  .site:hover span {
+    transform: none;
+  }
 }

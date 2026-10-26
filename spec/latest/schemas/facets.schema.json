@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/facets.schema.json",
   "title": "Facets",
-  "description": "Aggregated facet counts and ranges over a dealer's inventory. Returned by the `inventory.facets` AAP skill (wrapped in `inventory.facets.response`) and OPTIONALLY embedded in `inventory.search` responses. Both responses travel inside an A2A `Message.parts[].data` DataPart via the A2A `SendMessage` operation.",
+  "description": "Counts and ranges across the full matching inventory, before pagination. Shared by inventory.facets and optional search-response facets on every binding. Omitted facets are unavailable; zero counts describe known empty buckets. Feature counts use verified present equipment only.",
   "type": "object",
   "$defs": {
     "term_facet": {
@@ -12,7 +12,7 @@
       "items": {
         "type": "object",
         "properties": {
-          "value": { "type": ["string", "integer"], "description": "A distinct value observed for this field across the matching set (e.g. a make, model, or year).", "examples": ["Honda", 2024] },
+          "value": {"type": ["string", "integer", "boolean"], "description": "A distinct value observed for this field across the matching set (e.g. a make, model, year or DC fast-charge boolean).", "examples": ["Honda", 2024, true]},
           "count": { "type": "integer", "minimum": 0, "description": "Number of matching vehicles carrying this value.", "examples": [42] }
         },
         "required": ["value", "count"],
@@ -52,7 +52,37 @@
     "mileage_range": { "$ref": "#/$defs/range_facet" },
     "year_range": { "$ref": "#/$defs/range_facet" },
     "displacement_cc_range": { "$ref": "#/$defs/range_facet", "description": "Engine-displacement range in cc across the matching set, matching `Vehicle.displacement_cc` and `filters.displacement_cc_min` / `filters.displacement_cc_max`." },
-    "electric_range_mi_range": { "$ref": "#/$defs/range_facet", "description": "Electric-range span in miles across the matching set, matching `Vehicle.electric_range_mi` and `filters.electric_range_mi_min` / `filters.electric_range_mi_max`." }
+    "electric_range_mi_range": { "$ref": "#/$defs/range_facet", "description": "Electric-range span in miles across the matching set, matching `Vehicle.electric_range_mi` and `filters.electric_range_mi_min` / `filters.electric_range_mi_max`." },
+    "features": {
+      "type": "array",
+      "description": "Advertised feature vocabulary and verified present counts. A code has one meaning across the deployment; unknown codes return UNSUPPORTED_FILTER. Counts exclude absent and unknown equipment.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "maxLength": 80
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "pattern": "\\S"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "count"
+        ],
+        "additionalProperties": false
+      }
+    }
   },
   "additionalProperties": false
 }

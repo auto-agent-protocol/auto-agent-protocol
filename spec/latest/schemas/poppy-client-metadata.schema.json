@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-client-metadata.schema.json",
   "title": "PoppyClientMetadata",
-  "description": "PAP 0.2 personal-agent identity. Verify client_id against the fetched URL and JWKS/redirect domains separately. The JWKS must contain only public identity keys; DPoP keys are separate.",
+  "description": "PAP 0.3 personal-agent identity. Verify client_id against the fetched URL. JWKS is HTTPS on that domain; redirects are HTTPS on that domain or RFC 8252 HTTP loopback literals. Public identity keys and per-Session DPoP keys are separate.",
   "type": "object",
   "properties": {
     "client_id": {
@@ -27,9 +27,18 @@
     "redirect_uris": {
       "type": "array",
       "items": {
-        "type": "string",
-        "format": "uri",
-        "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+        "anyOf": [
+          {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?][^#\\s]*)?$"
+          },
+          {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^http://(127\\.0\\.0\\.1|\\[::1\\])(:[0-9]+)?(?:[/?][^#\\s]*)?$"
+          }
+        ]
       },
       "uniqueItems": true
     },

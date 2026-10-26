@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/error.schema.json",
   "title": "Error",
-  "description": "Typed AAP skill-error payload. On A2A JSON-RPC, wrap this object as the value of a google.protobuf.Struct detail in the error.data Any array; on the native Poppy API, return it directly as the skill-error response body.",
+  "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats.",
   "type": "object",
   "properties": {
     "type": {
@@ -20,9 +20,13 @@
       "type": "string",
       "enum": [
         "UNSUPPORTED_SKILL",
+        "UNSUPPORTED_FILTER",
+        "UNSUPPORTED_SORT",
+        "INVALID_CURSOR",
         "SCHEMA_VALIDATION_FAILED",
         "MISSING_REQUIRED_FIELD",
         "INVALID_CONDITION",
+        "DEALER_NOT_FOUND",
         "VEHICLE_NOT_FOUND",
         "VEHICLE_UNAVAILABLE",
         "CONTACT_CONSENT_REQUIRED",
@@ -53,13 +57,54 @@
       ]
     },
     "details": {
-      "description": "Optional, code-specific details (e.g. validation failure paths). Free shape.",
-      "additionalProperties": true
+      "description": "Actionable, code-specific details. Do not include credentials, customer values or internal stack traces. Unknown detail fields remain allowed.",
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "instanceLocation": {
+                "type": "string",
+                "pattern": "^(?:/|$)",
+                "description": "JSON Pointer to the invalid request field."
+              },
+              "keyword": {
+                "type": "string",
+                "minLength": 1
+              },
+              "error": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "instanceLocation",
+              "keyword",
+              "error"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "retry_after_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum delay before a retry. When HTTP Retry-After is also present, honor the longer delay."
+        },
+        "hint": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000,
+          "description": "Concrete correction, such as using an advertised feature code or restarting without an expired cursor."
+        }
+      }
     },
     "created_at": {
       "type": "string",
       "format": "date-time",
-      "description": "ISO 8601 / RFC 3339 timestamp at which the dealer agent generated this error (e.g. '2026-04-30T10:15:30Z'). MUST include a timezone offset (Z or ±HH:MM).",
+      "description": "ISO 8601 / RFC 3339 timestamp at which the dealer agent generated this error (e.g. '2026-04-30T10:15:30Z'). MUST include a timezone offset (Z or \u00b1HH:MM).",
       "examples": [
         "2026-04-30T10:15:30Z"
       ]
@@ -73,5 +118,31 @@
     "retryable",
     "created_at"
   ],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "code": {
+            "const": "RATE_LIMITED"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "then": {
+        "required": [
+          "details"
+        ],
+        "properties": {
+          "details": {
+            "required": [
+              "retry_after_ms"
+            ]
+          }
+        }
+      }
+    }
+  ]
 }

@@ -1,6 +1,6 @@
 # robots.txt — Auto Agent Protocol (https://autoagentprotocol.org)
-# AAP is an open A2A v1.0 profile. This site WANTS to be crawled, indexed,
-# and cited by search engines and AI agents. Everything here is public by design.
+# AAP is an open automotive contract for MCP, A2A and PAP. This site welcomes
+# crawling, indexing and citation by search engines and AI agents.
 # Machine-readable guide for LLMs: https://autoagentprotocol.org/llms.txt
 # Full spec for one-fetch ingestion:  https://autoagentprotocol.org/llms-full.txt
 #

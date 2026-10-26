@@ -1,5 +1,5 @@
 {
-  "protocol_version": "0.2",
+  "protocol_version": "0.3",
   "organization": {
     "name": "Demo Toyota",
     "domain": "demo-toyota.example.com"
@@ -20,7 +20,10 @@
     "autoagentprotocol.org/aap": {
       "version": "1",
       "agent_card": "https://demo-toyota.example.com/.well-known/agent-card.json",
-      "documentation": "https://autoagentprotocol.org/"
+      "documentation": "https://autoagentprotocol.org/",
+      "aap_version": "0.0.0-dev",
+      "mcp": "https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp",
+      "llms_txt": "https://demo-toyota.example.com/llms.txt"
     }
   }
 }

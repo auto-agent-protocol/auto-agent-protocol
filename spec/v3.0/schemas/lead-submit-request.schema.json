@@ -1,0 +1,331 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.0/schemas/lead-submit-request.schema.json",
+  "title": "LeadSubmitRequest",
+  "description": "Submit one consented automotive inquiry through MCP, A2A or PAP. Customer, consent, source_agent and idempotency_key are required. Vehicle interest and trade-in may contain partial user-provided information. An optional appointment requires appointment_type; requesting a visit does not itself confirm a booking.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "lead.submit.request",
+      "description": "AAP message type discriminator."
+    },
+    "customer": {
+      "$ref": "./customer.schema.json",
+      "description": "Buyer contact info. Required."
+    },
+    "consent": {
+      "$ref": "./consent-grant.schema.json",
+      "description": "Consent record covering this submission. Required. `scope` MUST be [\"lead_submission\"]."
+    },
+    "vehicle_of_interest": {
+      "$ref": "./vehicle.schema.json",
+      "description": "The vehicle the buyer is interested in purchasing. Optional. May be any vehicle type — set `vehicle_type` to `motorcycle` and pass motorcycle fields (`body`, `displacement_cc`, etc.) for a bike lead. Pass through whatever the customer provided (VIN alone, year+make+model, just a model name, etc.) — no individual field is required. When `condition` is set it MUST be one of `new` | `used` | `cpo`."
+    },
+    "trade_in": {
+      "$ref": "./vehicle.schema.json",
+      "description": "Optional partial description of the buyer’s trade-in. Pass through known information without inventing fields. When condition is present, use excellent, good, fair or poor. This skill does not return an appraisal or valuation."
+    },
+    "appointment": {
+      "$ref": "./appointment.schema.json",
+      "description": "An appointment request the buyer wants scheduled alongside this lead. Optional. `appointment_type` is one of `sales` | `service` | `test_drive` | `trade_in`, and `appointment_at` is the requested start time. The vehicle for the appointment is implicit: `vehicle_of_interest` for a test drive, `trade_in` for a trade-in appraisal."
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 4000,
+      "description": "Optional free-text message from the buyer to the dealer."
+    },
+    "source_agent": {
+      "type": "object",
+      "description": "Buyer-agent attribution. This caller-supplied label is not authentication and must not override verified transport identity.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable identifier of the buyer agent.",
+          "examples": ["example-buyer"]
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Optional homepage / operator URL for the buyer agent.",
+          "examples": ["https://buyer.example"]
+        },
+        "agent_card_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Optional URL of the buyer agent's A2A Agent Card for attribution and discovery. Fetching a public card does not authenticate the sender; verified transport identity remains separate.",
+          "examples": ["https://shopper.example.com/.well-known/agent-card.json"]
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false,
+      "examples": [{"name": "example-buyer", "url": "https://buyer.example"}]
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339 timestamp at which the buyer agent finalized this submission (e.g. '2026-04-30T11:05:08Z')."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Required client-generated key (UUID recommended) for this consented submission. Preserve the key and payload after a timeout or session renewal. Deduplicate for at least 24 hours by dealer and verified caller, including the stable PAP User ID where applicable; anonymous calls use dealer and key. The same caller and key across bindings return the complete original result with data.replayed true, including its received/rejected status and appointment details; a changed payload returns IDEMPOTENCY_CONFLICT. Reauthorize the caller before replay; the original consent must have been valid for the initial delivery. A replay creates no new delivery or booking."
+    }
+  },
+  "required": ["type", "customer", "consent", "source_agent", "idempotency_key"],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "vehicle_of_interest.condition (when set) must be in the sale-condition vocabulary",
+      "if": {
+        "type": "object",
+        "required": [
+          "vehicle_of_interest"
+        ],
+        "properties": {
+          "vehicle_of_interest": {
+            "type": "object",
+            "required": [
+              "condition"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "vehicle_of_interest": {
+            "properties": {
+              "condition": {
+                "enum": [
+                  "new",
+                  "used",
+                  "cpo"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "trade_in.condition (when set) must be in the wear-condition vocabulary",
+      "if": {
+        "type": "object",
+        "required": [
+          "trade_in"
+        ],
+        "properties": {
+          "trade_in": {
+            "type": "object",
+            "required": [
+              "condition"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "trade_in": {
+            "properties": {
+              "condition": {
+                "enum": [
+                  "excellent",
+                  "good",
+                  "fair",
+                  "poor"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "email"
+                }
+              }
+            },
+            "required": [
+              "allowed_channels"
+            ]
+          }
+        },
+        "required": [
+          "consent"
+        ]
+      },
+      "then": {
+        "properties": {
+          "customer": {
+            "required": [
+              "email"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "customer": {
+            "properties": {
+              "preferred_contact": {
+                "const": "email"
+              }
+            },
+            "required": [
+              "preferred_contact"
+            ]
+          }
+        },
+        "required": [
+          "customer"
+        ]
+      },
+      "then": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "email"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "phone"
+                }
+              }
+            },
+            "required": [
+              "allowed_channels"
+            ]
+          }
+        },
+        "required": [
+          "consent"
+        ]
+      },
+      "then": {
+        "properties": {
+          "customer": {
+            "required": [
+              "phone"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "customer": {
+            "properties": {
+              "preferred_contact": {
+                "const": "phone"
+              }
+            },
+            "required": [
+              "preferred_contact"
+            ]
+          }
+        },
+        "required": [
+          "customer"
+        ]
+      },
+      "then": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "phone"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "sms"
+                }
+              }
+            },
+            "required": [
+              "allowed_channels"
+            ]
+          }
+        },
+        "required": [
+          "consent"
+        ]
+      },
+      "then": {
+        "properties": {
+          "customer": {
+            "required": [
+              "phone"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "customer": {
+            "properties": {
+              "preferred_contact": {
+                "const": "sms"
+              }
+            },
+            "required": [
+              "preferred_contact"
+            ]
+          }
+        },
+        "required": [
+          "customer"
+        ]
+      },
+      "then": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "sms"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

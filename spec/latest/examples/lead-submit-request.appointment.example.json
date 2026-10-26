@@ -30,8 +30,9 @@
   },
   "message": "I'd like to test-drive the 2024 Honda CR-V EX-L (VIN 1HGCY2F57RA000001) on Sunday May 3 at 11:00 AM Pacific.",
   "source_agent": {
-    "name": "gemini-assistant",
-    "agent_card_url": "https://gemini.example.com/.well-known/agent-card.json"
+    "name": "example-buyer",
+    "url": "https://buyer.example"
   },
-  "submitted_at": "2026-04-30T11:12:04Z"
+  "submitted_at": "2026-04-30T11:12:04Z",
+  "idempotency_key": "demo-lead-submit-request.appointment"
 }

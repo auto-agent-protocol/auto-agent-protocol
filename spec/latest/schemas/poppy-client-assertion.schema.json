@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-client-assertion.schema.json",
   "title": "PoppyClientAssertion",
-  "description": "Decoded private_key_jwt client authentication claims for PAP 0.2. Both iss and sub equal client_id; aud equals auth.issuer. Sign separately from the session assertion with the published identity key and a different jti.",
+  "description": "Decoded private_key_jwt client authentication claims for PAP 0.3. Both iss and sub equal client_id; aud equals auth.issuer. Sign separately from the session assertion with the published identity key and a different jti.",
   "allOf": [
     {
       "$ref": "./poppy-session-assertion.schema.json"

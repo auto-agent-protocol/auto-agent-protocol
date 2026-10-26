@@ -16,6 +16,7 @@ test("official A2A JS SDK discovers the card and round-trips all five typed skil
   const card = read("agent-card.example.json");
   const manifest = parse(readFileSync(resolve(ROOT, "spec/latest/skills.yaml"), "utf8"));
   const calls: any[] = [];
+  let responseExample: string | undefined;
   const server = createServer(async (req, res) => {
     res.setHeader("Content-Type", "application/json");
     if (req.url === "/.well-known/agent-card.json") { res.end(JSON.stringify(card)); return; }
@@ -32,7 +33,7 @@ test("official A2A JS SDK discovers the card and round-trips all five typed skil
     const type = request.params?.message?.parts?.[0]?.data?.type;
     const skill = manifest.skills.find((s: any) => s.request_type === type);
     if (!skill) { res.statusCode = 400; res.end("{}"); return; }
-    const data = read(skill.response_schema.split("/").pop().replace(".schema.json", ".example.json"));
+    const data = read(responseExample ?? skill.response_schema.split("/").pop().replace(".schema.json", ".example.json"));
     res.end(JSON.stringify({ jsonrpc: "2.0", id: request.id, result: { message: {
       messageId: `response-${calls.length}`, contextId: "context-test", role: "ROLE_AGENT",
       parts: [{ data, mediaType: skill.media_type_response }],
@@ -58,7 +59,21 @@ test("official A2A JS SDK discovers the card and round-trips all five typed skil
       assert.equal(message.contextId, "context-test");
       assert.deepEqual(message.parts[0].data, read(skill.response_schema.split("/").pop().replace(".schema.json", ".example.json")));
     }
-    assert.equal(calls.length, 5);
+    for (const [skillId, requestFile, responseFile] of [
+      ["dealer.information", "dealer-information-request.aggregate.example.json", "dealer-information-response.aggregate.example.json"],
+      ["lead.submit", "lead-submit-request.example.json", "lead-submit-response.replayed.example.json"],
+    ]) {
+      const skill = manifest.skills.find((item: any) => item.id === skillId);
+      responseExample = responseFile;
+      const result = await client.sendMessage(SendMessageRequest.fromJSON({
+        message: { messageId: `request-${responseFile}`, role: "ROLE_USER", parts: [{ data: read(requestFile), mediaType: skill.media_type_request }] },
+        configuration: { acceptedOutputModes: [skill.media_type_response] },
+      }), { signal: AbortSignal.timeout(5000), serviceParameters: ServiceParameters.create(withA2AExtensions(manifest.extension_uri)) });
+      assert.ok("parts" in result);
+      assert.deepEqual((Message.toJSON(result) as any).parts[0].data, read(responseFile), "seller identity and recovered booking survive the transport unchanged");
+    }
+    responseExample = undefined;
+    assert.equal(calls.length, 7);
     for (const { request, headers } of calls) {
       assert.equal(request.method, "SendMessage");
       assert.equal(request.jsonrpc, "2.0");
@@ -67,6 +82,9 @@ test("official A2A JS SDK discovers the card and round-trips all five typed skil
       assert.equal(request.params.message.parts[0].kind, undefined);
       assert.equal(headers["a2a-version"], "1.0");
       assert.equal(headers["a2a-extensions"], manifest.extension_uri);
+      for (const name of ["authorization", "dpop", "mcp-protocol-version", "mcp-method", "mcp-name", "mcp-session-id"]) {
+        assert.equal(headers[name], undefined, `public A2A needs no ${name} header`);
+      }
     }
     const skill = manifest.skills.find((item: any) => item.id === "inventory.search");
     await assert.rejects(client.sendMessage(SendMessageRequest.fromJSON({

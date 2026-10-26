@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { filesIn, hash, loadRegistry, readJson, ROOT, stableRelease } from "./lib/releases.js";
 import { loadPartners } from "./check-partners.js";
@@ -40,6 +40,9 @@ if (suggestedVersion?.name !== stable.contract) {
 }
 
 const build = resolve(ROOT, "build");
+if (!readFileSync(join(build, "search.html")).equals(readFileSync(join(build, "search/index.html")))) {
+  throw new Error("Search links and refreshed /search/ URLs must serve the same search page");
+}
 const poppyVersion = readJson<{protocol_version: string}>(join(build, stable.contract, "examples/poppy.example.json")).protocol_version;
 for (const file of ["llms.txt", "llms-full.txt"]) {
   const header = readFileSync(join(build, file), "utf8").split("\n").find(line => line.startsWith(file === "llms.txt" ? "> " : "Interfaces: "));
@@ -54,6 +57,25 @@ for (const [, contract] of faq.matchAll(/href="\/docs\/(v\d+\.\d+)\//g)) {
 }
 if (!readdirSync(join(build, "docs")).includes("latest")) throw new Error("Production docs/latest alias is missing");
 if (!readdirSync(join(build, "docs")).includes(stable.contract)) throw new Error(`Published docs/${stable.contract} is missing`);
+for (const version of renderedVersions) {
+  for (const doc of version.docs ?? []) {
+    const markdownPath = `${doc.path}.md`;
+    if (!existsSync(join(build, markdownPath))) throw new Error(`Missing readable page ${markdownPath}`);
+    const html = readFileSync(join(build, `${doc.path}.html`), "utf8");
+    const editAnchor = html.match(/<a\b[^>]*class="[^"]*\btheme-edit-this-page\b[^"]*"[^>]*>/)?.[0];
+    const editUrl = editAnchor?.match(/\bhref="([^"]+)"/)?.[1];
+    const expectedEditUrl = version.name === "current" || version.name === stable.contract
+      ? `https://github.com/auto-agent-protocol/auto-agent-protocol/edit/main/docs/${doc.id}.md`
+      : undefined;
+    if (editUrl !== expectedEditUrl) throw new Error(`Documentation edits must target editable sources, not frozen snapshots: ${doc.path}`);
+    const robots = (html.match(/<meta\b[^>]*>/g) ?? []).find(tag => /\bname="robots"/.test(tag))?.match(/\bcontent="([^"]+)"/)?.[1] ?? "";
+    if (/\bnoindex\b/.test(robots) !== (version.name !== stable.contract)) throw new Error(`Only the stable contract should be publicly indexed: ${doc.path}`);
+    const alternate = html.match(/<link\b[^>]*rel="alternate"[^>]*type="text\/markdown"[^>]*>/)?.[0];
+    if (!alternate?.includes(`href="${markdownPath}"`)) throw new Error(`Missing Markdown alternate for ${doc.path}`);
+    const markdown = readFileSync(join(build, markdownPath), "utf8");
+    if (!markdown.includes(`# `) || !markdown.includes(`Canonical HTML: https://autoagentprotocol.org${doc.path}`)) throw new Error(`Invalid readable representation for ${doc.path}`);
+  }
+}
 const latestDocsRoot = join(build, "docs", "latest");
 const latestPages = filesIn(latestDocsRoot).filter(file => file.endsWith(".html"));
 const currentVersion = renderedVersions.find(version => version.name === "current");

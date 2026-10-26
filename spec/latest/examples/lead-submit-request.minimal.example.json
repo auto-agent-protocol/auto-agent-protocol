@@ -15,8 +15,9 @@
   },
   "message": "Hi, I'm comparing financing options for a used SUV in the $30k range and would like to know what APR Demo Toyota is offering this month for buyers with a 740+ credit score, and whether you can pre-qualify me without a hard credit pull.",
   "source_agent": {
-    "name": "chatgpt-shopping-agent",
-    "agent_card_url": "https://chat.openai.com/.well-known/agent-card.json"
+    "name": "example-buyer",
+    "url": "https://buyer.example"
   },
-  "submitted_at": "2026-04-30T10:42:05Z"
+  "submitted_at": "2026-04-30T10:42:05Z",
+  "idempotency_key": "demo-lead-submit-request.minimal"
 }
