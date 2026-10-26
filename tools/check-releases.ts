@@ -8,6 +8,12 @@ import { validateManifest } from "./validate-manifest.js";
 
 interface BootstrapRecord {url: string; sha256: string; matchesCurrentGenerator: boolean}
 interface BootstrapProvenance {sourceCommit: string; artifacts: BootstrapRecord[]}
+interface McpTool {
+  name?: string;
+  inputSchema?: {$ref?: string};
+  annotations?: {aap_response_schema?: string};
+  _meta?: Record<string, Record<string, unknown>>;
+}
 
 function refs(value: unknown): string[] {
   if (!value || typeof value !== "object") return [];
@@ -47,10 +53,25 @@ export async function checkAllReleases(root = ROOT): Promise<void> {
         if (!(component in components)) throw new Error(`${release.contract}/${name}: unresolved component reference ${ref}`);
       }
     }
-    const mcp = readJson<{tools?: Array<{inputSchema?: {$ref?: string}; annotations?: {aap_response_schema?: string}}> }>(resolve(artifactDir, "mcp.json"));
-    for (const ref of (mcp.tools ?? []).flatMap(tool => [tool.inputSchema?.$ref, tool.annotations?.aap_response_schema]).filter((value): value is string => !!value)) {
+    const mcp = readJson<{tools?: McpTool[]}>(resolve(artifactDir, "mcp.json"));
+    const schemaReferences = (mcp.tools ?? []).flatMap(tool => {
+      const references = [tool.inputSchema?.$ref, tool.annotations?.aap_response_schema].filter((value): value is string => value !== undefined);
+      const metadata = tool._meta?.["autoagentprotocol.org/aap"];
+      if (Number(release.version.split(".")[0]) >= 3 || metadata) {
+        const fields = ["request_schema", "response_schema", "error_schema"];
+        if (tool.name === "aap_inventory_search" || metadata?.capabilities_schema !== undefined) fields.push("capabilities_schema");
+        for (const field of fields) {
+          const ref = metadata?.[field];
+          if (typeof ref !== "string" || !ref) throw new Error(`${release.contract}/${tool.name}: missing or invalid MCP metadata ${field}`);
+          references.push(ref);
+        }
+      }
+      return references;
+    });
+    const schemaFiles = new Set(filesIn(schemaDir).map(file => relative(schemaDir, file).split("\\").join("/")));
+    for (const ref of schemaReferences) {
       const prefix = `${SITE}/${release.contract}/schemas/`;
-      if (!ref.startsWith(prefix) || !filesIn(schemaDir).some(file => relative(schemaDir, file).split("\\").join("/") === ref.slice(prefix.length))) throw new Error(`${release.contract}/mcp.json: unresolved schema reference ${ref}`);
+      if (!ref.startsWith(prefix) || !schemaFiles.has(ref.slice(prefix.length))) throw new Error(`${release.contract}/mcp.json: unresolved schema reference ${ref}`);
     }
   }
   const stable = registry.stable;

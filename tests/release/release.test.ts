@@ -10,7 +10,7 @@ import { freezeCheck } from "../../tools/freeze-check.js";
 import { generateMcp } from "../../tools/generate-mcp-manifest.js";
 import { generateOpenapi } from "../../tools/generate-openapi.js";
 import { generateTypes } from "../../tools/generate-types.js";
-import { contractFor, DRAFT_SITE, DRAFT_VERSION, filesIn, hash, loadRegistry, parseVersion, releasePrefixes, ROOT, readJson, SITE, writeJson } from "../../tools/lib/releases.js";
+import { contractFor, createIntegrity, DRAFT_SITE, DRAFT_VERSION, filesIn, hash, loadRegistry, parseVersion, releasePrefixes, ROOT, readJson, SITE, writeJson } from "../../tools/lib/releases.js";
 import { prepareRelease } from "../../tools/release-prepare.js";
 
 function snapshot(directory: string): string {
@@ -60,6 +60,40 @@ test("release version labels reject ambiguous patch contracts", () => {
   assert.equal(contractFor("1.3.0"), "v1.3");
   assert.throws(() => contractFor("1.3.1"), /patch/i);
   assert.throws(() => parseVersion("01.3.0"), /invalid/i);
+});
+
+test("release checks reject broken MCP metadata links even when snapshot hashes agree", async () => {
+  const context = fixture();
+  try {
+    const registry = loadRegistry(context.root);
+    const release = registry.releases.find(entry => Number(entry.version.split(".")[0]) >= 3)!;
+    assert.ok(release, "a native MCP release is required for this regression");
+    const file = join(context.root, "releases", release.contract, "artifacts/mcp.json");
+    const original = readJson<any>(file);
+    for (const field of ["request_schema", "response_schema", "error_schema", "capabilities_schema"]) {
+      for (const missing of [false, true]) {
+        const catalog = structuredClone(original);
+        const metadata = catalog.tools.find((tool: any) => tool.name === "aap_inventory_search")._meta["autoagentprotocol.org/aap"];
+        if (missing) delete metadata[field];
+        else metadata[field] = `${SITE}/${release.contract}/schemas/does-not-exist.schema.json`;
+        writeJson(file, catalog);
+        writeJson(join(context.root, "releases", release.contract, "integrity.json"), createIntegrity(context.root, release));
+        await assert.rejects(() => checkAllReleases(context.root), /MCP metadata|unresolved schema reference/, `${field}: missing=${missing}`);
+      }
+    }
+    writeJson(file, original);
+    writeJson(join(context.root, "releases", release.contract, "integrity.json"), createIntegrity(context.root, release));
+    await checkAllReleases(context.root);
+    const legacy = registry.releases.find(entry => entry.contract === "v2.1")!;
+    const legacyFile = join(context.root, "releases", legacy.contract, "artifacts/mcp.json");
+    const catalog = readJson<any>(legacyFile);
+    catalog.tools[0].inputSchema.$ref = `${SITE}/${legacy.contract}/schemas/does-not-exist.schema.json`;
+    writeJson(legacyFile, catalog);
+    writeJson(join(context.root, "releases", legacy.contract, "integrity.json"), createIntegrity(context.root, legacy));
+    await assert.rejects(() => checkAllReleases(context.root), /unresolved schema reference/);
+  } finally {
+    context.cleanup();
+  }
 });
 
 test("draft generation is isolated from frozen releases and stable package types", async () => {
