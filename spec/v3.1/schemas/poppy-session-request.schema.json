@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.1/schemas/poppy-session-request.schema.json",
+  "title": "PoppySessionRequest",
+  "description": "PAP 0.3 JWT bearer grant form fields, encoded as application/x-www-form-urlencoded. Every token request requires a fresh DPoP header with the Session key, including token exchange. Omit scope for a guest grant; a successful guest response has no scope. The key identifies the Session; session_id is removed.",
+  "type": "object",
+  "properties": {
+    "grant_type": {
+      "const": "urn:ietf:params:oauth:grant-type:jwt-bearer"
+    },
+    "client_id": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+    },
+    "client_assertion_type": {
+      "const": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+    },
+    "client_assertion": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
+      "description": "Compact signed JWS. Structural validation is not signature verification."
+    },
+    "assertion": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
+      "description": "Compact signed JWS. Structural validation is not signature verification."
+    },
+    "session_id": false,
+    "resource": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?][^#\\s]*)?$"
+    },
+    "scope": {
+      "type": "string",
+      "pattern": "^(?!poppy:)[\\x21\\x23-\\x5B\\x5D-\\x7E]+( (?!poppy:)[\\x21\\x23-\\x5B\\x5D-\\x7E]+)*$"
+    }
+  },
+  "required": [
+    "grant_type",
+    "client_id",
+    "client_assertion_type",
+    "client_assertion",
+    "assertion"
+  ],
+  "additionalProperties": true
+}

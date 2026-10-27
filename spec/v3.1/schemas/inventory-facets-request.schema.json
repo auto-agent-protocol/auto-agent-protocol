@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.1/schemas/inventory-facets-request.schema.json",
+  "title": "InventoryFacetsRequest",
+  "description": "Typed AAP request for the `inventory.facets` skill. An optional `filters` block scopes the facets to a subset of inventory (e.g. `condition: ['used']`). Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.",
+  "type": "object",
+  "examples": [
+    {
+      "type": "inventory.facets.request",
+      "filters": { "condition": ["used"] }
+    }
+  ],
+  "properties": {
+    "type": { "const": "inventory.facets.request" },
+    "currency": {
+      "$ref": "./_primitives/currency.schema.json",
+      "description": "Single currency of the matching set and price_range, without foreign-exchange conversion. When inventory.search is implemented, use its supported currencies and default_currency; an unsupported currency returns SCHEMA_VALIDATION_FAILED at /currency. Otherwise accept both USD and CAD and default to USD. A supported currency with no matching inventory returns empty facets."
+    },
+    "mileage_unit": {
+      "$ref": "./_primitives/mileage-unit.schema.json",
+      "description": "Unit of mileage_max and mileage_range. Both mi and km are supported. When inventory.search is implemented, use its default_mileage_unit; otherwise default to mi. Convert known odometers exactly using 1 mi = 1.609344 km without rounding before comparison or aggregation. Explicit _mi fields remain miles."
+    },
+    "filters": {
+      "$ref": "./inventory-search-request.schema.json#/$defs/filters",
+      "description": "Optional filters to scope facet aggregation. Same shape as inventory.search filters; all fields are optional."
+    }
+  },
+  "required": ["type"],
+  "additionalProperties": false
+}

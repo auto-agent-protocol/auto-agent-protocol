@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.1/schemas/_primitives/mileage-unit.schema.json",
+  "title": "MileageUnit",
+  "description": "Odometer or mileage-query unit: mi means miles and km means kilometres. One mile is exactly 1.609344 kilometres. Fields explicitly ending in _mi always remain miles.",
+  "type": "string",
+  "enum": ["mi", "km"]
+}

@@ -1,0 +1,244 @@
+{
+  "name": "Demo Toyota",
+  "description": "Demo Toyota automotive agent: the same inventory and consented contact contract through MCP, A2A and PAP.",
+  "supportedInterfaces": [
+    {
+      "url": "https://demo-toyota.example.com/a2a",
+      "protocolBinding": "JSONRPC",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "provider": {
+    "organization": "Example Platform",
+    "url": "https://provider.example"
+  },
+  "version": "1.0.0",
+  "documentationUrl": "https://autoagentprotocol.org/",
+  "capabilities": {
+    "extensions": [
+      {
+        "uri": "https://autoagentprotocol.org/extensions/aap/v3.1",
+        "description": "Auto Agent Protocol v3.1.0 \u2014 shared automotive contract.",
+        "required": true,
+        "params": {
+          "id": "0192f3c0-1a2b-7c3d-8e4f-5a6b7c8d9e0f",
+          "version": "3.1.0",
+          "schema_base_url": "https://autoagentprotocol.org/v3.1/schemas/",
+          "skills": {
+            "dealer.information": {
+              "request_schema": "https://autoagentprotocol.org/v3.1/schemas/dealer-information-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v3.1/schemas/dealer-information-response.schema.json"
+            },
+            "inventory.facets": {
+              "request_schema": "https://autoagentprotocol.org/v3.1/schemas/inventory-facets-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v3.1/schemas/inventory-facets-response.schema.json"
+            },
+            "inventory.search": {
+              "request_schema": "https://autoagentprotocol.org/v3.1/schemas/inventory-search-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v3.1/schemas/inventory-search-response.schema.json",
+              "capabilities": {
+                "scope": "dealer",
+                "filters": [
+                  "make",
+                  "model",
+                  "trim",
+                  "condition",
+                  "vehicle_type",
+                  "transmission",
+                  "fuel",
+                  "electric_range_mi_min",
+                  "electric_range_mi_max",
+                  "dc_fast_charge",
+                  "charge_port",
+                  "driveline",
+                  "body",
+                  "displacement_cc_min",
+                  "displacement_cc_max",
+                  "exterior_color",
+                  "interior_color",
+                  "rooftops",
+                  "status",
+                  "features_all",
+                  "features_any",
+                  "near",
+                  "year_min",
+                  "year_max",
+                  "price_min",
+                  "price_max",
+                  "mileage_max",
+                  "vin",
+                  "stock",
+                  "query"
+                ],
+                "sort_fields": [
+                  "price",
+                  "list_price",
+                  "msrp",
+                  "mileage",
+                  "year",
+                  "make",
+                  "model",
+                  "stock",
+                  "updated_at",
+                  "distance_mi"
+                ],
+                "default_sort": {
+                  "field": "price",
+                  "order": "asc"
+                },
+                "default_limit": 20,
+                "max_limit": 100,
+                "offset": true,
+                "currencies": [
+                  "USD"
+                ],
+                "default_currency": "USD",
+                "default_mileage_unit": "mi"
+              }
+            },
+            "inventory.vehicle": {
+              "request_schema": "https://autoagentprotocol.org/v3.1/schemas/vehicle-detail-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v3.1/schemas/vehicle-detail-response.schema.json"
+            },
+            "lead.submit": {
+              "request_schema": "https://autoagentprotocol.org/v3.1/schemas/lead-submit-request.schema.json",
+              "response_schema": "https://autoagentprotocol.org/v3.1/schemas/lead-submit-response.schema.json"
+            }
+          },
+          "mcp": {
+            "url": "https://api.provider.example/aap/3.1.0/demo-toyota/mcp",
+            "transport": "streamable-http",
+            "protocol_versions": [
+              "2026-07-28",
+              "2025-11-25"
+            ],
+            "public_read": true
+          },
+          "poppy": "https://demo-toyota.example.com/.well-known/poppy.json",
+          "llms_txt": "https://demo-toyota.example.com/llms.txt"
+        }
+      }
+    ]
+  },
+  "defaultInputModes": [
+    "application/vnd.autoagent.dealer-information-request+json",
+    "application/vnd.autoagent.inventory-facets-request+json",
+    "application/vnd.autoagent.inventory-search-request+json",
+    "application/vnd.autoagent.vehicle-detail-request+json",
+    "application/vnd.autoagent.lead-submit-request+json"
+  ],
+  "defaultOutputModes": [
+    "application/vnd.autoagent.dealer-information-response+json",
+    "application/vnd.autoagent.inventory-facets-response+json",
+    "application/vnd.autoagent.inventory-search-response+json",
+    "application/vnd.autoagent.vehicle-detail-response+json",
+    "application/vnd.autoagent.lead-submit-response+json"
+  ],
+  "skills": [
+    {
+      "id": "dealer.information",
+      "name": "Dealer Information",
+      "description": "Read dealership identity, rooftops, coordinates, hours, contact channels and default fee disclosures. On aggregate inventory, resolve a listing's dealer_id to the actual seller before consent.",
+      "tags": [
+        "dealer",
+        "dealership",
+        "profile",
+        "hours",
+        "contact",
+        "locations",
+        "fees",
+        "automotive",
+        "motorcycles",
+        "powersports"
+      ],
+      "inputModes": [
+        "application/vnd.autoagent.dealer-information-request+json"
+      ],
+      "outputModes": [
+        "application/vnd.autoagent.dealer-information-response+json"
+      ]
+    },
+    {
+      "id": "inventory.facets",
+      "name": "Inventory Facets",
+      "description": "Discover inventory values, numeric ranges and supported feature codes with verified-present counts.",
+      "tags": [
+        "inventory",
+        "facets",
+        "aggregation",
+        "filters",
+        "automotive",
+        "motorcycles",
+        "powersports"
+      ],
+      "inputModes": [
+        "application/vnd.autoagent.inventory-facets-request+json"
+      ],
+      "outputModes": [
+        "application/vnd.autoagent.inventory-facets-response+json"
+      ]
+    },
+    {
+      "id": "inventory.search",
+      "name": "Inventory Search",
+      "description": "Find vehicles using advertised constraints, source-backed equipment, rooftop radius and complete cursor pagination. Return applied filters, freshness and authoritative prices.",
+      "tags": [
+        "inventory",
+        "vehicles",
+        "search",
+        "cars",
+        "motorcycles",
+        "powersports",
+        "automotive"
+      ],
+      "inputModes": [
+        "application/vnd.autoagent.inventory-search-request+json"
+      ],
+      "outputModes": [
+        "application/vnd.autoagent.inventory-search-response+json"
+      ]
+    },
+    {
+      "id": "inventory.vehicle",
+      "name": "Vehicle Detail",
+      "description": "Read one listing by VIN, stock or vehicle ID, including current status, equipment evidence, pricing and relevant specifications.",
+      "tags": [
+        "inventory",
+        "vehicle",
+        "vin",
+        "stock",
+        "detail",
+        "automotive",
+        "motorcycles",
+        "powersports"
+      ],
+      "inputModes": [
+        "application/vnd.autoagent.vehicle-detail-request+json"
+      ],
+      "outputModes": [
+        "application/vnd.autoagent.vehicle-detail-response+json"
+      ]
+    },
+    {
+      "id": "lead.submit",
+      "name": "Submit Lead",
+      "description": "Submit one explicitly consented inquiry with optional vehicle, trade-in and appointment details. Require an idempotency key; duplicate suppression lasts at least 24 hours. Reconcile uncertain outcomes before retrying after that window. Report lead and booking outcomes separately.",
+      "tags": [
+        "lead",
+        "contact",
+        "consent",
+        "sales",
+        "appointment",
+        "automotive",
+        "motorcycles",
+        "powersports"
+      ],
+      "inputModes": [
+        "application/vnd.autoagent.lead-submit-request+json"
+      ],
+      "outputModes": [
+        "application/vnd.autoagent.lead-submit-response+json"
+      ]
+    }
+  ]
+}

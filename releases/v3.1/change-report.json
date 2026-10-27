@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "previous": "3.0.0",
+  "candidate": "3.1.0",
+  "summary": {
+    "additive": 17,
+    "breaking": 0
+  },
+  "changes": [
+    {
+      "kind": "additive",
+      "file": "dealer-information.schema.json",
+      "path": "$.$defs.rooftop.properties.currency",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "facets.schema.json",
+      "path": "$.properties.currency",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "facets.schema.json",
+      "path": "$.properties.mileage_unit",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "inventory-capabilities.schema.json",
+      "path": "$.properties.currencies",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "inventory-capabilities.schema.json",
+      "path": "$.properties.default_currency",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "inventory-capabilities.schema.json",
+      "path": "$.properties.default_mileage_unit",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "inventory-facets-request.schema.json",
+      "path": "$.properties.currency",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "inventory-facets-request.schema.json",
+      "path": "$.properties.mileage_unit",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "inventory-search-request.schema.json",
+      "path": "$.properties.currency",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "inventory-search-request.schema.json",
+      "path": "$.properties.mileage_unit",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "inventory-search-response.schema.json",
+      "path": "$.properties.data.properties.currency",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "inventory-search-response.schema.json",
+      "path": "$.properties.data.properties.mileage_unit",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "inventory-search-response.schema.json",
+      "path": "$.properties.data.dependentSchemas",
+      "detail": "dependencies apply only to newly allowed properties"
+    },
+    {
+      "kind": "additive",
+      "file": "vehicle.schema.json",
+      "path": "$.properties.currency",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "vehicle.schema.json",
+      "path": "$.properties.mileage_unit",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "_primitives/currency.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "_primitives/mileage-unit.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    }
+  ],
+  "note": "Structural schema check only. Release URLs and the two generated AAP version identity constants are normalized; business constants are not. Maintainers must review normative behavior and documentation."
+}
