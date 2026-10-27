@@ -7,7 +7,7 @@ versioning policy is described in the
 
 ## [Unreleased]
 
-## [3.1.0] — 2026-10-26
+## [3.1.0] — 2026-10-27
 
 This additive release preserves native Canadian prices and odometers without changing the meaning of existing USD/mi payloads. MCP, A2A and PAP wire versions are unchanged.
 
