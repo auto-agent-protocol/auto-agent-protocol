@@ -29,6 +29,7 @@ A server's software version is separate. A PAP 0.2 client must migrate its authe
 | Vehicle odometer | Miles | Optional `mileage_unit` labels mi or km; omission still means mi. Returned numbers remain native |
 | Rooftop fee defaults | Whole USD | Optional rooftop `currency`; omission still means USD. Never infer vehicle currency from it |
 | Search and facets | USD prices, mi odometer comparisons | Optional top-level `currency` and `mileage_unit`; use declared capability defaults, falling back to USD/mi. One currency scopes every matching set; mileage comparisons convert exactly |
+| Facets without search | USD/mi requests without search capabilities | Accept explicit USD/CAD and mi/km contexts; omitted contexts remain USD/mi. No search capability declaration is needed |
 | Capabilities | No monetary or odometer context | Optional `currencies`, `default_currency`, `default_mileage_unit`; declarations must agree across bindings |
 | Results and cursors | USD/mi implicit | Label effective nondefault contexts explicitly on search/facet data; bind both contexts into cursor identity. Per-vehicle labels never inherit query context |
 | Geographic and electric range | Explicit `_mi` fields | Unchanged: miles for every country and odometer unit |

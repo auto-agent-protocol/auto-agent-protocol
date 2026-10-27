@@ -95,3 +95,22 @@ test("discovery compares effective currency and unit defaults across bindings", 
   metadata.capabilities.default_mileage_unit = "km";
   assert.ok(checkDiscovery(card, read("poppy"), manifest, cardUrl, tools).some(error => error.includes("capabilities must agree")));
 });
+
+test("facets-only discovery can serve explicit Canadian contexts without claiming a search capability", () => {
+  const card = read("agent-card");
+  const tools = deployedTools(card).filter(tool => tool.name === "aap_inventory_facets");
+  card.skills = card.skills.filter((skill: any) => skill.id === "inventory.facets");
+  params(card).skills = { "inventory.facets": params(card).skills["inventory.facets"] };
+  assert.equal(validateCard(card), true, JSON.stringify(validateCard.errors));
+  assert.deepEqual(checkDiscovery(card, read("poppy"), manifest, cardUrl, tools), []);
+  assert.equal(params(card).skills["inventory.search"], undefined);
+  assert.equal(tools[0]._meta["autoagentprotocol.org/aap"].capabilities, undefined);
+  const request = ajv.getSchema(`${manifest.schema_base_url}inventory-facets-request.schema.json`)!;
+  const response = ajv.getSchema(`${manifest.schema_base_url}inventory-facets-response.schema.json`)!;
+  for (const currency of ["USD", "CAD"]) for (const mileage_unit of ["mi", "km"]) {
+    assert.equal(request({ type: "inventory.facets.request", currency, mileage_unit }), true);
+    assert.equal(response({ type: "inventory.facets.response", data: { currency, mileage_unit } }), true,
+      "no matching inventory still returns the explicit currency and unit");
+  }
+  assert.equal(request({ type: "inventory.facets.request" }), true, "omitted contexts keep the USD/mi fallback");
+});

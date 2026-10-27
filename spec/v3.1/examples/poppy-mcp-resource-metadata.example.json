@@ -1,9 +1,0 @@
-{
-  "resource": "https://api.provider.example/aap/3.1.0/demo-toyota/mcp",
-  "authorization_servers": [
-    "https://demo-toyota.example.com/poppy"
-  ],
-  "bearer_methods_supported": [
-    "header"
-  ]
-}

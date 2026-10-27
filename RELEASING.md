@@ -52,6 +52,8 @@ Dry-run validation creates candidates in an operating-system temporary directory
 
 The comparison normalizes release URL prefixes and the two generated AAP version constants in Agent Card and Poppy identity schemas. It does not normalize business constants or waive validation changes. An additive minor still requires unchanged meanings for existing payloads and a review of the documented defaults.
 
+A new `dependentSchemas` map is additive only when every triggering property is newly declared on an object that previously rejected additional properties and had no pattern properties. Such constraints cannot run for a previously valid payload. Dependencies on existing fields, changes to existing dependencies, and newly required fields remain validation changes.
+
 ## Prepare the reviewable snapshot
 
 Commit the approved editable source, confirm the tree is clean, then run:

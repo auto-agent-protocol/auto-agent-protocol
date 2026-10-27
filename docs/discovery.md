@@ -60,6 +60,8 @@ The card remains an ordinary [A2A 1.0 Agent Card](https://a2a-protocol.org/v1.0.
 
 Search defaults MUST be usable: `default_sort.field` belongs to `sort_fields`, and `default_limit` does not exceed `max_limit`. Feature filters require `inventory.facets` so a client can discover supported feature codes. An unsupported filter is an explicit error, never silently ignored. See [search semantics](./skills/inventory-search.md).
 
+A facets-only deployment omits `inventory.search` and its capabilities. It accepts USD/CAD and mi/km contexts with USD/mi defaults under the [facets-only fallback](./skills/inventory-facets.md#currency-and-odometer-context); clients can explicitly request CAD/km without a search declaration.
+
 The card's software `version` is independent of AAP `params.version`. The A2A extension URI, not the software version, selects the automotive contract.
 
 ## Poppy: an authenticated native API

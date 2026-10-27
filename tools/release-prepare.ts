@@ -36,7 +36,7 @@ export function normalizeReleaseIdentifiers(value: unknown, file: string, versio
   if (value && typeof value === "object") return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, item]) => [key, normalizeReleaseIdentifiers(item, file, version, [...path, key])]));
   return value;
 }
-function structuralDiff(previous: unknown, candidate: unknown, file: string, path = "$", context: "schema" | "map" | "value" = "schema"): Change[] {
+export function structuralDiff(previous: unknown, candidate: unknown, file: string, path = "$", context: "schema" | "map" | "value" = "schema"): Change[] {
   if (JSON.stringify(previous) === JSON.stringify(candidate)) return [];
   if (previous && candidate && typeof previous === "object" && typeof candidate === "object" && !Array.isArray(previous) && !Array.isArray(candidate)) {
     const before = previous as Record<string, unknown>, after = candidate as Record<string, unknown>, changes: Change[] = [];
@@ -50,8 +50,14 @@ function structuralDiff(previous: unknown, candidate: unknown, file: string, pat
     }
     for (const key of Object.keys(after)) if (!(key in before)) {
       if (context === "schema" && JSON_SCHEMA_ANNOTATIONS.has(key)) continue;
-      const additive = context === "map" && (path.endsWith(".properties") || path.endsWith(".$defs"));
-      changes.push({kind: additive ? "additive" : "breaking", file, path: `${path}.${key}`, detail: additive ? "optional definition/property added" : "value added outside an optional property map"});
+      // These dependencies cannot execute for an old valid object: it forbids
+      // every triggering property. Open objects and pattern properties are not exempt.
+      const dependencies = context === "schema" && key === "dependentSchemas" && after[key];
+      const guarded = dependencies && typeof dependencies === "object" && !Array.isArray(dependencies)
+        && before.additionalProperties === false && !Object.keys(before.patternProperties ?? {}).length
+        && Object.keys(dependencies).every(name => !Object.hasOwn(before.properties ?? {}, name) && Object.hasOwn(after.properties ?? {}, name));
+      const additive = guarded || context === "map" && (path.endsWith(".properties") || path.endsWith(".$defs"));
+      changes.push({kind: additive ? "additive" : "breaking", file, path: `${path}.${key}`, detail: guarded ? "dependencies apply only to newly allowed properties" : additive ? "optional definition/property added" : "value added outside an optional property map"});
     }
     return changes;
   }

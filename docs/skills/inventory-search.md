@@ -74,6 +74,8 @@ A deployment advertising feature filters MUST also expose [`inventory.facets`](.
 
 The Agent Card and MCP search metadata advertise `currencies`, `default_currency` and `default_mileage_unit`. Omitted capability fields mean `currencies: ["USD"]`, `default_currency: "USD"` and `default_mileage_unit: "mi"`. A default currency MUST be supported. A Canadian dealer may advertise CAD/km defaults; an aggregate may support both currencies with USD/mi defaults. An omitted request context uses the advertised default. Callers can pass both fields explicitly to avoid relying on deployment defaults.
 
+Services implementing only `inventory.facets` use the [facets-only currency fallback](./inventory-facets.md#currency-and-odometer-context) instead of advertising an unimplemented search skill.
+
 - The effective `currency` selects **one denomination for the entire matching set**, including listings without a price. Compare and sort price fields only within it; never sort CAD and USD amounts as interchangeable numbers or invent an exchange rate. A schema-valid but unsupported currency produces `SCHEMA_VALIDATION_FAILED` at `/currency`.
 - `mileage_unit` defines the units of `mileage_max`, mileage sorting and `mileage_range`. Both `mi` and `km` contexts are supported. Convert known native readings using exactly **1 mi = 1.609344 km** before filtering, sorting and range aggregation. Do not round before comparison. Missing odometers never satisfy a mileage bound and sort last in either direction.
 - Search results echo the effective context in `data.currency` and `data.mileage_unit`; embedded facets carry the same labels. These response fields may be omitted only for the original USD/mi meanings. CAD or km contexts MUST be explicit, including on empty pages.

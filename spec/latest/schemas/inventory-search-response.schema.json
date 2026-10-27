@@ -66,6 +66,34 @@
       },
       "required": ["total", "limit", "next_cursor", "applied_filters", "sort", "vehicles"],
       "additionalProperties": false,
+      "dependentSchemas": {
+        "currency": {
+          "description": "Explicit 3.1 query contexts require matching vehicle currencies and facet labels. Vehicle odometer units remain independent; omitted contexts and labels retain USD/mi.",
+          "allOf": [
+            {
+              "if": { "properties": { "currency": { "const": "CAD" } }, "required": ["currency"] },
+              "then": {
+                "properties": {
+                  "vehicles": { "items": { "properties": { "currency": { "const": "CAD" } }, "required": ["currency"] } },
+                  "facets": { "properties": { "currency": { "const": "CAD" } }, "required": ["currency"] }
+                }
+              },
+              "else": {
+                "properties": {
+                  "vehicles": { "items": { "properties": { "currency": { "const": "USD" } } } },
+                  "facets": { "properties": { "currency": { "const": "USD" } } }
+                }
+              }
+            },
+            {
+              "if": { "properties": { "mileage_unit": { "const": "km" } }, "required": ["mileage_unit"] },
+              "then": { "properties": { "facets": { "properties": { "mileage_unit": { "const": "km" } }, "required": ["mileage_unit"] } } },
+              "else": { "properties": { "facets": { "properties": { "mileage_unit": { "const": "mi" } } } } }
+            }
+          ]
+        },
+        "mileage_unit": { "$ref": "#/properties/data/dependentSchemas/currency" }
+      },
       "allOf": [
         {
           "if": {

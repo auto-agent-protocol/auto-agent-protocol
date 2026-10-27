@@ -11,7 +11,7 @@ import { generateMcp } from "../../tools/generate-mcp-manifest.js";
 import { generateOpenapi } from "../../tools/generate-openapi.js";
 import { generateTypes } from "../../tools/generate-types.js";
 import { contractFor, createIntegrity, DRAFT_SITE, DRAFT_VERSION, filesIn, hash, loadRegistry, parseVersion, releasePrefixes, ROOT, readJson, SITE, writeJson } from "../../tools/lib/releases.js";
-import { normalizeReleaseIdentifiers, prepareRelease } from "../../tools/release-prepare.js";
+import { normalizeReleaseIdentifiers, prepareRelease, structuralDiff } from "../../tools/release-prepare.js";
 
 function snapshot(directory: string): string {
   return hash(filesIn(directory).map(file => `${relative(directory, file).split("\\").join("/")}\0${hash(readFileSync(file))}`).join("\n"));
@@ -77,6 +77,33 @@ test("minor compatibility normalizes only the two known generated version consta
   const normalized = normalizeReleaseIdentifiers(poppy, "poppy.schema.json", "3.1.0") as any;
   assert.equal(path(normalized).const, "{release-version}");
   assert.equal(normalized.properties.business_value.const, "3.1.0");
+});
+
+test("minor dependencies are additive only when old objects forbid every triggering property", () => {
+  const before = { type: "object", properties: { total: { type: "integer" } }, additionalProperties: false };
+  const after = { ...before, properties: { ...before.properties, currency: { enum: ["USD", "CAD"] } },
+    dependentSchemas: { currency: { properties: { total: { minimum: 0 } } } } };
+  const compare = (old: unknown, next: unknown) => structuralDiff(old, next, "fixture.schema.json");
+  assert.ok(compare(before, after).every(change => change.kind === "additive"));
+  for (const old of [
+    { ...before, additionalProperties: true },
+    { type: "object", properties: before.properties },
+    { ...before, patternProperties: { "^currency$": {} } },
+    { ...before, properties: { ...before.properties, currency: {} } },
+  ]) {
+    const next = { ...old, properties: { ...old.properties, currency: "currency" in old.properties ? old.properties.currency : after.properties.currency },
+      dependentSchemas: after.dependentSchemas };
+    assert.ok(compare(old, next).some(change => change.kind === "breaking"));
+  }
+  for (const dependentSchemas of [
+    { total: { minimum: 0 } },
+    { currency: {}, total: { minimum: 0 } },
+    { undeclared: {} },
+  ]) assert.ok(compare(before, { ...after, dependentSchemas }).some(change => change.kind === "breaking"));
+  assert.ok(compare(after, { ...after, dependentSchemas: { currency: false } }).some(change => change.kind === "breaking"),
+    "changing an existing dependency is still a validation change");
+  assert.ok(compare(before, { ...after, required: ["currency"] }).some(change => change.kind === "breaking"),
+    "a new dependency does not waive newly required fields");
 });
 
 test("an additive minor can advance its pinned contract identifiers without a compatibility exception", async () => {

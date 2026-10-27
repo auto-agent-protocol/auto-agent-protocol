@@ -650,10 +650,12 @@
             "const": "inventory.facets.request"
           },
           "currency": {
-            "$ref": "#/$defs/inventory_search_request_properties_currency"
+            "$ref": "#/$defs/_primitives_currency",
+            "description": "Single currency of the matching set and price_range, without foreign-exchange conversion. When inventory.search is implemented, use its supported currencies and default_currency; an unsupported currency returns SCHEMA_VALIDATION_FAILED at /currency. Otherwise accept both USD and CAD and default to USD. A supported currency with no matching inventory returns empty facets."
           },
           "mileage_unit": {
-            "$ref": "#/$defs/inventory_search_request_properties_mileage_unit"
+            "$ref": "#/$defs/_primitives_mileage_unit",
+            "description": "Unit of mileage_max and mileage_range. Both mi and km are supported. When inventory.search is implemented, use its default_mileage_unit; otherwise default to mi. Convert known odometers exactly using 1 mi = 1.609344 km without rounding before comparison or aggregation. Explicit _mi fields remain miles."
           },
           "filters": {
             "$ref": "#/$defs/inventory_search_request__defs_filters",
@@ -665,10 +667,6 @@
         ],
         "additionalProperties": false,
         "$defs": {
-          "inventory_search_request_properties_currency": {
-            "$ref": "#/$defs/_primitives_currency",
-            "description": "Single currency of the matching inventory and all price bounds, price sorts and price facets. Omit to use capabilities.default_currency, or USD when that capability is absent. Every matched vehicle has this effective currency, including listings without a price. No foreign-exchange conversion or country inference occurs. A schema-valid currency not advertised by capabilities.currencies returns SCHEMA_VALIDATION_FAILED at /currency."
-          },
           "_primitives_currency": {
             "title": "Currency",
             "description": "Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.",
@@ -677,10 +675,6 @@
               "USD",
               "CAD"
             ]
-          },
-          "inventory_search_request_properties_mileage_unit": {
-            "$ref": "#/$defs/_primitives_mileage_unit",
-            "description": "Unit for filters.mileage_max, mileage sorting and mileage_range. Omit to use capabilities.default_mileage_unit, or mi when absent. Compare known odometers after exact conversion using 1 mi = 1.609344 km, without rounding before filtering or sorting. Returned Vehicle.mileage stays in each vehicle's explicitly labelled native unit. This does not change radius_mi, distance_mi or electric_range_mi."
           },
           "_primitives_mileage_unit": {
             "title": "MileageUnit",
@@ -2252,6 +2246,111 @@
                   "vehicles"
                 ],
                 "additionalProperties": false,
+                "dependentSchemas": {
+                  "currency": {
+                    "description": "Explicit 3.1 query contexts require matching vehicle currencies and facet labels. Vehicle odometer units remain independent; omitted contexts and labels retain USD/mi.",
+                    "allOf": [
+                      {
+                        "if": {
+                          "properties": {
+                            "currency": {
+                              "const": "CAD"
+                            }
+                          },
+                          "required": [
+                            "currency"
+                          ]
+                        },
+                        "then": {
+                          "properties": {
+                            "vehicles": {
+                              "items": {
+                                "properties": {
+                                  "currency": {
+                                    "const": "CAD"
+                                  }
+                                },
+                                "required": [
+                                  "currency"
+                                ]
+                              }
+                            },
+                            "facets": {
+                              "properties": {
+                                "currency": {
+                                  "const": "CAD"
+                                }
+                              },
+                              "required": [
+                                "currency"
+                              ]
+                            }
+                          }
+                        },
+                        "else": {
+                          "properties": {
+                            "vehicles": {
+                              "items": {
+                                "properties": {
+                                  "currency": {
+                                    "const": "USD"
+                                  }
+                                }
+                              }
+                            },
+                            "facets": {
+                              "properties": {
+                                "currency": {
+                                  "const": "USD"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "mileage_unit": {
+                              "const": "km"
+                            }
+                          },
+                          "required": [
+                            "mileage_unit"
+                          ]
+                        },
+                        "then": {
+                          "properties": {
+                            "facets": {
+                              "properties": {
+                                "mileage_unit": {
+                                  "const": "km"
+                                }
+                              },
+                              "required": [
+                                "mileage_unit"
+                              ]
+                            }
+                          }
+                        },
+                        "else": {
+                          "properties": {
+                            "facets": {
+                              "properties": {
+                                "mileage_unit": {
+                                  "const": "mi"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "mileage_unit": {
+                    "$ref": "#/$defs/inventory_search_response_properties_data_dependentSchemas_currency"
+                  }
+                },
                 "allOf": [
                   {
                     "if": {
@@ -3786,6 +3885,106 @@
               "order"
             ],
             "additionalProperties": false
+          },
+          "inventory_search_response_properties_data_dependentSchemas_currency": {
+            "description": "Explicit 3.1 query contexts require matching vehicle currencies and facet labels. Vehicle odometer units remain independent; omitted contexts and labels retain USD/mi.",
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "currency": {
+                      "const": "CAD"
+                    }
+                  },
+                  "required": [
+                    "currency"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "vehicles": {
+                      "items": {
+                        "properties": {
+                          "currency": {
+                            "const": "CAD"
+                          }
+                        },
+                        "required": [
+                          "currency"
+                        ]
+                      }
+                    },
+                    "facets": {
+                      "properties": {
+                        "currency": {
+                          "const": "CAD"
+                        }
+                      },
+                      "required": [
+                        "currency"
+                      ]
+                    }
+                  }
+                },
+                "else": {
+                  "properties": {
+                    "vehicles": {
+                      "items": {
+                        "properties": {
+                          "currency": {
+                            "const": "USD"
+                          }
+                        }
+                      }
+                    },
+                    "facets": {
+                      "properties": {
+                        "currency": {
+                          "const": "USD"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "mileage_unit": {
+                      "const": "km"
+                    }
+                  },
+                  "required": [
+                    "mileage_unit"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "facets": {
+                      "properties": {
+                        "mileage_unit": {
+                          "const": "km"
+                        }
+                      },
+                      "required": [
+                        "mileage_unit"
+                      ]
+                    }
+                  }
+                },
+                "else": {
+                  "properties": {
+                    "facets": {
+                      "properties": {
+                        "mileage_unit": {
+                          "const": "mi"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
           },
           "error": {
             "title": "Error",

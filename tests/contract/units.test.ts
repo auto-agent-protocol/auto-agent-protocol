@@ -105,6 +105,62 @@ test("facets permit exact fractional odometer bounds and explicit empty result c
   }
 });
 
+test("explicit search contexts require matching vehicle currencies and facet labels, not native odometer units", () => {
+  const original = example("inventory-search-response.canadian");
+  for (const currency of [undefined, "USD", "CAD"]) {
+    for (const mileageUnit of [undefined, "mi", "km"]) {
+      if (currency === undefined && mileageUnit === undefined) continue;
+      for (const vehicleCurrency of [undefined, "USD", "CAD"]) {
+        for (const vehicleUnit of [undefined, "mi", "km"]) {
+          for (const facetCurrency of [undefined, "USD", "CAD"]) {
+            for (const facetUnit of [undefined, "mi", "km"]) {
+              const response = structuredClone(original);
+              delete response.data.currency;
+              delete response.data.mileage_unit;
+              if (currency !== undefined) response.data.currency = currency;
+              if (mileageUnit !== undefined) response.data.mileage_unit = mileageUnit;
+              for (const vehicle of response.data.vehicles) {
+                delete vehicle.currency;
+                delete vehicle.mileage_unit;
+                if (vehicleCurrency !== undefined) vehicle.currency = vehicleCurrency;
+                if (vehicleUnit !== undefined) vehicle.mileage_unit = vehicleUnit;
+              }
+              const facets = response.data.facets;
+              delete facets.currency;
+              delete facets.mileage_unit;
+              if (facetCurrency !== undefined) facets.currency = facetCurrency;
+              if (facetUnit !== undefined) facets.mileage_unit = facetUnit;
+              const valid = (vehicleCurrency ?? "USD") === (currency ?? "USD")
+                && (facetCurrency ?? "USD") === (currency ?? "USD")
+                && (facetUnit ?? "mi") === (mileageUnit ?? "mi");
+              assert.equal(validate("inventory-search-response", response), valid,
+                JSON.stringify({ currency, mileageUnit, vehicleCurrency, vehicleUnit, facetCurrency, facetUnit }));
+            }
+          }
+        }
+      }
+    }
+  }
+});
+
+test("currency consistency covers unpriced listings, mixed pages and empty pages without requiring facets", () => {
+  const response = example("inventory-search-response.canadian");
+  delete response.data.facets;
+  assert.equal(validate("inventory-search-response", response), true);
+  delete response.data.vehicles[0].price;
+  delete response.data.vehicles[0].currency;
+  assert.equal(validate("inventory-search-response", response), false, "unpriced vehicles still belong to the selected currency");
+  response.data.vehicles[0].currency = "USD";
+  assert.equal(validate("inventory-search-response", response), false, "a page cannot mix CAD and USD vehicles");
+  response.data.vehicles = [];
+  response.data.total = 0;
+  assert.equal(validate("inventory-search-response", response), true, "an empty CAD/km page can omit facets");
+  response.data.facets = {};
+  assert.equal(validate("inventory-search-response", response), false, "empty embedded facets still need CAD/km labels");
+  response.data.facets = { currency: "CAD", mileage_unit: "km" };
+  assert.equal(validate("inventory-search-response", response), true);
+});
+
 test("rooftop fees and partial lead vehicles carry their own native labels", () => {
   const dealer = example("dealer-information-response.canadian");
   assert.equal(validate("dealer-information-response", dealer), true);
