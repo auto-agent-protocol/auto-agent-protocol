@@ -79,6 +79,7 @@ An ordinary dealer-scoped endpoint needs no additional lookup before consent: it
 | `schedules`, `timezone` | Named weekly hours such as sales, service or parts in rooftop local time; a day is `{open, close}` or `null` when closed |
 | `capabilities` | Service tags such as sales, service, trade_in, delivery or motorcycle_sales |
 | `fees` | Optional default fee schedule for the publisher; never an extra charge for the buyer to add |
+| `currency` | Currency of that rooftop's fee amounts: `USD` or `CAD`; omitted means USD even when its address is Canadian |
 
 Rooftop names MUST be unique within a dealer-scoped endpoint and match the exact values used by `Vehicle.rooftop` and `filters.rooftops`. Aggregate search does not accept ambiguous rooftop-name filters. An aggregate operator must retain owning dealer identity on listings.
 
@@ -93,6 +94,8 @@ Schedule names are free-text labels, so other department names are allowed. Sche
 ## Fees belong to the listing price
 
 Rooftop fees are publisher defaults and discovery metadata. A publisher may use them to construct a complete effective vehicle fee snapshot. Buyers MUST NOT join them onto a vehicle, add them to `price`, or treat a missing schedule as zero fees.
+
+Label Canadian-dollar rooftop fees with `currency: "CAD"`. This context applies only to that rooftop's fee schedule; it never supplies an omitted `Vehicle.currency`. Each vehicle's amounts keep their own currency label.
 
 A vehicle's optional `fees` is a complete replacement breakdown, already included in authoritative `price`. See [pricing](../pricing-and-ftc.md).
 

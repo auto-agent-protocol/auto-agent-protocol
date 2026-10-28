@@ -47,8 +47,8 @@ The consent text and timestamp record the actual user's decision; this fictional
 
 | Optional field | Meaning |
 |---|---|
-| `vehicle_of_interest` | Partial vehicle information; a known VIN, stock or `vehicle_id` helps identify a listing. Sale condition is `new`, `used` or `cpo`. |
-| `trade_in` | Partial trade-in description. Wear condition is `excellent`, `good`, `fair` or `poor`. No valuation is promised. |
+| `vehicle_of_interest` | Partial vehicle information; a known VIN, stock or `vehicle_id` helps identify a listing. Sale condition is `new`, `used` or `cpo`. Preserve the listing's `currency` and `mileage_unit` with its native numbers. |
+| `trade_in` | Partial trade-in description. Wear condition is `excellent`, `good`, `fair` or `poor`. Label monetary values with `currency` and its odometer with `mileage_unit`; omitted labels mean USD/mi regardless of customer country. No valuation is promised. |
 | `appointment` | Requires `appointment_type`: `sales`, `service`, `test_drive` or `trade_in`. Time, duration and notes are optional. |
 | `message` | The buyer's note, up to 4,000 characters. |
 | `submitted_at` | Submission timestamp; preserve it on a retry. |

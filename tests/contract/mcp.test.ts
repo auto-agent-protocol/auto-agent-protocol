@@ -75,6 +75,27 @@ test("bundled MCP schemas validate every typed example without external schema r
   assert.equal(lead.annotations.idempotentHint, false);
 });
 
+test("bundled MCP search results enforce query labels while permitting native odometer units", () => {
+  const search = tools.find((tool: any) => tool.name === "aap_inventory_search");
+  const response = read("inventory-search-response.canadian.example.json");
+  assert.equal(search.output(response), true);
+  for (const mutate of [
+    (value: any) => delete value.data.vehicles[0].currency,
+    (value: any) => value.data.vehicles[0].currency = "USD",
+    (value: any) => delete value.data.facets.currency,
+    (value: any) => value.data.facets.mileage_unit = "mi",
+    (value: any) => delete value.data.facets.mileage_unit,
+  ]) {
+    const invalid = structuredClone(response);
+    mutate(invalid);
+    assert.equal(search.output(invalid), false);
+  }
+  response.data.vehicles[0].mileage_unit = "mi";
+  assert.equal(search.output(response), true, "vehicle readings need not use the query unit");
+  delete response.data.vehicles[0].mileage_unit;
+  assert.equal(search.output(response), true, "an unlabelled vehicle reading still means miles");
+});
+
 test("MCP input schemas avoid the reported host root-keyword restriction without losing validation", () => {
   const canonical = new Ajv2020({ strict: false, allErrors: true });
   addFormats(canonical);

@@ -32,7 +32,7 @@
           }
         }
       ],
-      "description": "Every actually supported MCP revision. AAP 3.0 requires both the current baseline and the initialization-based compatibility revision."
+      "description": "Every actually supported MCP revision. AAP 3.1 requires both the current baseline and the initialization-based compatibility revision."
     },
     "public_read": {
       "type": "boolean",

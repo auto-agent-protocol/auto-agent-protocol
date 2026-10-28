@@ -8,7 +8,7 @@ description: Complete A2A 1.0 headers, messages and errors for the shared automo
 
 {/* aap-draft-only:start */}
 
-This is the unreleased **AAP 3.0.0** contract. Do not deploy draft identifiers.
+This is the unreleased **AAP 3.1.0** contract. Do not deploy draft identifiers.
 
 {/* aap-draft-only:end */}
 

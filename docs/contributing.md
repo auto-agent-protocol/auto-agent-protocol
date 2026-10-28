@@ -55,7 +55,7 @@ Version-specific documentation images, including compatibility branding files un
 Only the explicit release command creates a version directory:
 
 ```bash
-pnpm release:prepare 3.0.0 --dry-run
+pnpm release:prepare 3.1.0 --dry-run
 ```
 
 Release preparation is a maintainer operation, not a normal contribution step. It requires a clean tree, refuses overwrites, and performs no commit, tag, push, publication, or deployment.

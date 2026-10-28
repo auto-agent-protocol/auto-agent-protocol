@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy.schema.json",
   "title": "AAPPoppyDiscovery",
-  "description": "AAP 3.0 PAP draft 0.3 publication profile. Requires a guest OAuth issuer, native OpenAPI API and an AAP bridge linking the matching Agent Card, public MCP endpoint and llms.txt. Native PAP MCP session support remains conditional on advertising an MCP API entry.",
+  "description": "AAP 3.1 PAP draft 0.3 publication profile. Requires a guest OAuth issuer, native OpenAPI API and an AAP bridge linking the matching Agent Card, public MCP endpoint and llms.txt. Native PAP MCP session support remains conditional on advertising an MCP API entry.",
   "allOf": [
     {
       "$ref": "./poppy-document.schema.json"

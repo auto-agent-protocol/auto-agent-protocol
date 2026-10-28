@@ -9,6 +9,16 @@
     "data": {
       "type": "object",
       "properties": {
+        "currency": {
+          "$ref": "./_primitives/currency.schema.json",
+          "default": "USD",
+          "description": "Effective query currency for every matched vehicle and every price comparison. Omitted means USD, independently of request or capability defaults; CAD results MUST include this field and label every Vehicle.currency as CAD."
+        },
+        "mileage_unit": {
+          "$ref": "./_primitives/mileage-unit.schema.json",
+          "default": "mi",
+          "description": "Effective query unit used for mileage_max, mileage sorting and mileage_range. Omitted means mi; km query results MUST include this field. This context never overrides a returned vehicle's native mileage_unit or the explicit _mi fields."
+        },
         "total": {
           "type": ["integer", "null"],
           "minimum": 0,
@@ -56,6 +66,34 @@
       },
       "required": ["total", "limit", "next_cursor", "applied_filters", "sort", "vehicles"],
       "additionalProperties": false,
+      "dependentSchemas": {
+        "currency": {
+          "description": "Explicit 3.1 query contexts require matching vehicle currencies and facet labels. Vehicle odometer units remain independent; omitted contexts and labels retain USD/mi.",
+          "allOf": [
+            {
+              "if": { "properties": { "currency": { "const": "CAD" } }, "required": ["currency"] },
+              "then": {
+                "properties": {
+                  "vehicles": { "items": { "properties": { "currency": { "const": "CAD" } }, "required": ["currency"] } },
+                  "facets": { "properties": { "currency": { "const": "CAD" } }, "required": ["currency"] }
+                }
+              },
+              "else": {
+                "properties": {
+                  "vehicles": { "items": { "properties": { "currency": { "const": "USD" } } } },
+                  "facets": { "properties": { "currency": { "const": "USD" } } }
+                }
+              }
+            },
+            {
+              "if": { "properties": { "mileage_unit": { "const": "km" } }, "required": ["mileage_unit"] },
+              "then": { "properties": { "facets": { "properties": { "mileage_unit": { "const": "km" } }, "required": ["mileage_unit"] } } },
+              "else": { "properties": { "facets": { "properties": { "mileage_unit": { "const": "mi" } } } } }
+            }
+          ]
+        },
+        "mileage_unit": { "$ref": "#/properties/data/dependentSchemas/currency" }
+      },
       "allOf": [
         {
           "if": {

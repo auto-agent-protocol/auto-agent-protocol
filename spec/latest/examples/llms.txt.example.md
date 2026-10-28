@@ -12,5 +12,7 @@
 
 ## Shopping
 
+Search defaults are USD prices and miles for odometer comparisons, as advertised in the Agent Card and MCP search capabilities. Listings retain their explicit native currency and odometer labels; omitted labels mean USD/mi. Geographic radius, distance and electric range fields ending in `_mi` always remain miles.
+
 - [Inventory](https://demo-toyota.example.com/inventory): Browse current vehicles. Check availability and complete pricing before recommending a listing.
 - [Contact](https://demo-toyota.example.com/contact): Dealer contact options. Submitting a lead requires explicit permission for the selected contact channels and an idempotency key.

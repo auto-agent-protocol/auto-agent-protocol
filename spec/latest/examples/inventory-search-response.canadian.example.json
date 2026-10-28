@@ -1,0 +1,93 @@
+{
+  "type": "inventory.search.response",
+  "data": {
+    "currency": "CAD",
+    "mileage_unit": "km",
+    "total": 1,
+    "limit": 20,
+    "next_cursor": null,
+    "applied_filters": {
+      "make": [
+        "Toyota"
+      ],
+      "condition": [
+        "used"
+      ],
+      "price_max": 40000,
+      "mileage_max": 80000,
+      "near": {
+        "latitude": 43.6532,
+        "longitude": -79.3832,
+        "radius_mi": 50
+      }
+    },
+    "sort": {
+      "field": "price",
+      "order": "asc"
+    },
+    "vehicles": [
+      {
+        "dealer_id": "dealer_demo_toronto",
+        "vehicle_id": "veh_toronto_1042",
+        "vin": "2T3R1RFV8RC123456",
+        "stock": "TOR-1042",
+        "rooftop": "Demo Toyota Toronto",
+        "year": 2024,
+        "make": "Toyota",
+        "model": "RAV4",
+        "condition": "used",
+        "status": "available",
+        "country": "CA",
+        "currency": "CAD",
+        "price": 35500,
+        "mileage": 72000,
+        "mileage_unit": "km",
+        "fees": [
+          {
+            "name": "Documentation fee",
+            "amount": 500
+          }
+        ],
+        "features": [
+          "Heated front seats"
+        ],
+        "feature_evidence": [
+          {
+            "code": "heated_front_seats",
+            "label": "Heated front seats",
+            "status": "present",
+            "source": "inventory",
+            "text": "Heated front seats"
+          }
+        ],
+        "updated_at": "2026-10-26T20:00:00Z",
+        "distance_mi": 0
+      }
+    ],
+    "facets": {
+      "currency": "CAD",
+      "mileage_unit": "km",
+      "makes": [
+        {
+          "value": "Toyota",
+          "count": 1
+        }
+      ],
+      "price_range": {
+        "min": 35500,
+        "max": 35500
+      },
+      "mileage_range": {
+        "min": 72000,
+        "max": 72000
+      },
+      "features": [
+        {
+          "code": "heated_front_seats",
+          "label": "Heated front seats",
+          "count": 1
+        }
+      ]
+    }
+  }
+}

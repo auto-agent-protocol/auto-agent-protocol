@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.1/schemas/inventory-listing.schema.json",
+  "title": "InventoryListing",
+  "description": "An eligible inventory listing shared by search and vehicle detail. Requires availability, a source update timestamp and at least one stable identifier. Lead vehicle descriptions remain partial Vehicle objects.",
+  "allOf": [
+    {
+      "$ref": "./vehicle.schema.json"
+    }
+  ],
+  "type": "object",
+  "properties": {
+    "condition": {
+      "enum": [
+        "new",
+        "used",
+        "cpo"
+      ]
+    },
+    "status": {
+      "$ref": "./vehicle.schema.json#/properties/status"
+    },
+    "updated_at": {
+      "$ref": "./vehicle.schema.json#/properties/updated_at"
+    }
+  },
+  "required": [
+    "status",
+    "updated_at"
+  ],
+  "anyOf": [
+    {
+      "type": "object",
+      "properties": {
+        "vin": {
+          "$ref": "./vehicle.schema.json#/properties/vin"
+        }
+      },
+      "required": [
+        "vin"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "vehicle_id": {
+          "$ref": "./vehicle.schema.json#/properties/vehicle_id"
+        }
+      },
+      "required": [
+        "vehicle_id"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "stock": {
+          "$ref": "./vehicle.schema.json#/properties/stock"
+        }
+      },
+      "required": [
+        "stock"
+      ]
+    }
+  ]
+}

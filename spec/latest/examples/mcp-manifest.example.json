@@ -125,6 +125,11 @@
                   "Demo Toyota San Francisco"
                 ]
               },
+              "currency": {
+                "$ref": "#/$defs/_primitives_currency",
+                "default": "USD",
+                "description": "Currency of this rooftop's fees[].amount. Omitted means USD regardless of address.country. Include CAD explicitly for Canadian-dollar fee defaults. Vehicles always carry their own currency context; do not inherit this value onto a vehicle."
+              },
               "legal_name": {
                 "type": "string",
                 "description": "Legal / registered business name for this location.",
@@ -243,6 +248,15 @@
               "name"
             ],
             "additionalProperties": false
+          },
+          "_primitives_currency": {
+            "title": "Currency",
+            "description": "Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.",
+            "type": "string",
+            "enum": [
+              "USD",
+              "CAD"
+            ]
           },
           "dealer_information__defs_named_value": {
             "type": "object",
@@ -416,7 +430,7 @@
           },
           "_primitives_dealer_fee": {
             "title": "DealerFee",
-            "description": "One mandatory dealer charge or required add-on, in whole US dollars. Include dealer-paid taxes or fees passed to the buyer; exclude only government-required consumer charges and optional products. The amount is already included when Vehicle.price is present. Without price it is informational and cannot establish a payable amount. Names must be specific, nonempty and unique within one fees array.",
+            "description": "One mandatory dealer charge or required add-on, in whole units of the enclosing Vehicle.currency or rooftop.currency (USD when omitted). Include dealer-paid taxes or fees passed to the buyer; exclude only government-required consumer charges and optional products. The amount is already included when Vehicle.price is present. Without price it is informational and cannot establish a payable amount. Names must be specific, nonempty and unique within one fees array.",
             "type": "object",
             "properties": {
               "name": {
@@ -433,7 +447,7 @@
               "amount": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Amount in whole US dollars. When Vehicle.price is present, this amount is already included and MUST NOT be added again. Without Vehicle.price, the amount is informational only.",
+                "description": "Amount in whole units of the enclosing vehicle's or rooftop's currency (USD when omitted). When Vehicle.price is present, this amount is already included and MUST NOT be added again. Without Vehicle.price, the amount is informational only.",
                 "examples": [
                   500,
                   1000
@@ -635,6 +649,14 @@
           "type": {
             "const": "inventory.facets.request"
           },
+          "currency": {
+            "$ref": "#/$defs/_primitives_currency",
+            "description": "Single currency of the matching set and price_range, without foreign-exchange conversion. When inventory.search is implemented, use its supported currencies and default_currency; an unsupported currency returns SCHEMA_VALIDATION_FAILED at /currency. Otherwise accept both USD and CAD and default to USD. A supported currency with no matching inventory returns empty facets."
+          },
+          "mileage_unit": {
+            "$ref": "#/$defs/_primitives_mileage_unit",
+            "description": "Unit of mileage_max and mileage_range. Both mi and km are supported. When inventory.search is implemented, use its default_mileage_unit; otherwise default to mi. Convert known odometers exactly using 1 mi = 1.609344 km without rounding before comparison or aggregation. Explicit _mi fields remain miles."
+          },
           "filters": {
             "$ref": "#/$defs/inventory_search_request__defs_filters",
             "description": "Optional filters to scope facet aggregation. Same shape as inventory.search filters; all fields are optional."
@@ -645,6 +667,24 @@
         ],
         "additionalProperties": false,
         "$defs": {
+          "_primitives_currency": {
+            "title": "Currency",
+            "description": "Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.",
+            "type": "string",
+            "enum": [
+              "USD",
+              "CAD"
+            ]
+          },
+          "_primitives_mileage_unit": {
+            "title": "MileageUnit",
+            "description": "Odometer or mileage-query unit: mi means miles and km means kilometres. One mile is exactly 1.609344 kilometres. Fields explicitly ending in _mi always remain miles.",
+            "type": "string",
+            "enum": [
+              "mi",
+              "km"
+            ]
+          },
           "inventory_search_request__defs_filters": {
             "type": "object",
             "description": "Filter fields combine with AND. Multi-value arrays combine with OR, except features_all. Ranges are inclusive. A missing listing value never satisfies a filter. Empty arrays and inverted ranges are invalid. The near field groups one geographic point and its radius; other filters remain flat.",
@@ -925,7 +965,7 @@
               "price_min": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Minimum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.",
+                "description": "Minimum price in whole units of the effective query currency, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.",
                 "examples": [
                   20000
                 ]
@@ -933,7 +973,7 @@
               "price_max": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Maximum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.",
+                "description": "Maximum price in whole units of the effective query currency, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.",
                 "examples": [
                   40000
                 ]
@@ -941,6 +981,7 @@
               "mileage_max": {
                 "type": "integer",
                 "minimum": 0,
+                "description": "Inclusive maximum odometer in the effective query mileage_unit. Convert the known native reading exactly before comparing; a missing reading never matches.",
                 "examples": [
                   60000
                 ]
@@ -1103,6 +1144,16 @@
             "description": "Counts and ranges across the full matching inventory, before pagination. Shared by inventory.facets and optional search-response facets on every binding. Omitted facets are unavailable; zero counts describe known empty buckets. Feature counts use verified present equipment only.",
             "type": "object",
             "properties": {
+              "currency": {
+                "$ref": "#/$defs/_primitives_currency",
+                "default": "USD",
+                "description": "Effective query currency of the matching set and price_range. Omitted means USD; CAD facets MUST include this field. Do not combine monetary ranges from different currencies."
+              },
+              "mileage_unit": {
+                "$ref": "#/$defs/_primitives_mileage_unit",
+                "default": "mi",
+                "description": "Effective query unit of mileage_range. Omitted means mi; km facets MUST include this field. Compute the bounds from known native odometers converted exactly to this unit."
+              },
               "makes": {
                 "$ref": "#/$defs/facets__defs_term_facet"
               },
@@ -1159,10 +1210,11 @@
               },
               "price_range": {
                 "$ref": "#/$defs/facets__defs_range_facet",
-                "description": "Observed minimum and maximum of authoritative Vehicle.price values. Vehicles without `price` do not contribute; omit `price_range` when no matching vehicle has `price`."
+                "description": "Observed minimum and maximum of authoritative Vehicle.price values in the effective query currency. Vehicles without `price` do not contribute; omit `price_range` when no matching vehicle has `price`."
               },
               "mileage_range": {
-                "$ref": "#/$defs/facets__defs_range_facet"
+                "$ref": "#/$defs/facets__defs_range_facet",
+                "description": "Observed minimum and maximum known odometer readings after exact conversion to the effective query mileage_unit. Bounds may be fractional; never aggregate native mi and km numbers directly."
               },
               "year_range": {
                 "$ref": "#/$defs/facets__defs_range_facet"
@@ -1207,6 +1259,24 @@
               }
             },
             "additionalProperties": false
+          },
+          "_primitives_currency": {
+            "title": "Currency",
+            "description": "Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.",
+            "type": "string",
+            "enum": [
+              "USD",
+              "CAD"
+            ]
+          },
+          "_primitives_mileage_unit": {
+            "title": "MileageUnit",
+            "description": "Odometer or mileage-query unit: mi means miles and km means kilometres. One mile is exactly 1.609344 kilometres. Fields explicitly ending in _mi always remain miles.",
+            "type": "string",
+            "enum": [
+              "mi",
+              "km"
+            ]
           },
           "facets__defs_term_facet": {
             "type": "array",
@@ -1493,13 +1563,21 @@
           "type": {
             "const": "inventory.search.request"
           },
+          "currency": {
+            "$ref": "#/$defs/_primitives_currency",
+            "description": "Single currency of the matching inventory and all price bounds, price sorts and price facets. Omit to use capabilities.default_currency, or USD when that capability is absent. Every matched vehicle has this effective currency, including listings without a price. No foreign-exchange conversion or country inference occurs. A schema-valid currency not advertised by capabilities.currencies returns SCHEMA_VALIDATION_FAILED at /currency."
+          },
+          "mileage_unit": {
+            "$ref": "#/$defs/_primitives_mileage_unit",
+            "description": "Unit for filters.mileage_max, mileage sorting and mileage_range. Omit to use capabilities.default_mileage_unit, or mi when absent. Compare known odometers after exact conversion using 1 mi = 1.609344 km, without rounding before filtering or sorting. Returned Vehicle.mileage stays in each vehicle's explicitly labelled native unit. This does not change radius_mi, distance_mi or electric_range_mi."
+          },
           "filters": {
             "$ref": "#/$defs/inventory_search_request__defs_filters",
             "description": "Optional filter block. All fields optional; absent fields mean 'no constraint'."
           },
           "pagination": {
             "type": "object",
-            "description": "Omit cursor and skip for the first page. Continue with the previous response's next_cursor and the same filters, sort and limit. Offset entry is optional and must be advertised. Cursor and skip are mutually exclusive. The server publishes its default_limit and max_limit; limits above max_limit are rejected.",
+            "description": "Omit cursor and skip for the first page. Continue with the previous response's next_cursor and the same effective currency, mileage_unit, filters, sort and limit. Offset entry is optional and must be advertised. Cursor and skip are mutually exclusive. The server publishes its default_limit and max_limit; limits above max_limit are rejected.",
             "properties": {
               "skip": {
                 "type": "integer",
@@ -1552,7 +1630,7 @@
                   "updated_at",
                   "distance_mi"
                 ],
-                "description": "Primary sort field. Missing values sort last in either direction. price includes mandatory dealer charges and excludes only government-required consumer charges. distance_mi requires filters.near and is straight-line distance to the vehicle's rooftop. Break ties with a stable listing identifier so cursor pages do not repeat listings.",
+                "description": "Primary sort field. Missing values sort last in either direction. Price fields compare only amounts in the effective query currency; mileage compares readings converted to the effective query mileage_unit without rounding. price includes mandatory dealer charges and excludes only government-required consumer charges. distance_mi requires filters.near and is straight-line distance to the vehicle's rooftop. Break ties with a stable listing identifier so cursor pages do not repeat listings.",
                 "examples": [
                   "price",
                   "year"
@@ -1595,6 +1673,24 @@
         ],
         "additionalProperties": false,
         "$defs": {
+          "_primitives_currency": {
+            "title": "Currency",
+            "description": "Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.",
+            "type": "string",
+            "enum": [
+              "USD",
+              "CAD"
+            ]
+          },
+          "_primitives_mileage_unit": {
+            "title": "MileageUnit",
+            "description": "Odometer or mileage-query unit: mi means miles and km means kilometres. One mile is exactly 1.609344 kilometres. Fields explicitly ending in _mi always remain miles.",
+            "type": "string",
+            "enum": [
+              "mi",
+              "km"
+            ]
+          },
           "inventory_search_request__defs_filters": {
             "type": "object",
             "description": "Filter fields combine with AND. Multi-value arrays combine with OR, except features_all. Ranges are inclusive. A missing listing value never satisfies a filter. Empty arrays and inverted ranges are invalid. The near field groups one geographic point and its radius; other filters remain flat.",
@@ -1875,7 +1971,7 @@
               "price_min": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Minimum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.",
+                "description": "Minimum price in whole units of the effective query currency, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.",
                 "examples": [
                   20000
                 ]
@@ -1883,7 +1979,7 @@
               "price_max": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Maximum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.",
+                "description": "Maximum price in whole units of the effective query currency, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.",
                 "examples": [
                   40000
                 ]
@@ -1891,6 +1987,7 @@
               "mileage_max": {
                 "type": "integer",
                 "minimum": 0,
+                "description": "Inclusive maximum odometer in the effective query mileage_unit. Convert the known native reading exactly before comparing; a missing reading never matches.",
                 "examples": [
                   60000
                 ]
@@ -2073,6 +2170,16 @@
               "data": {
                 "type": "object",
                 "properties": {
+                  "currency": {
+                    "$ref": "#/$defs/_primitives_currency",
+                    "default": "USD",
+                    "description": "Effective query currency for every matched vehicle and every price comparison. Omitted means USD, independently of request or capability defaults; CAD results MUST include this field and label every Vehicle.currency as CAD."
+                  },
+                  "mileage_unit": {
+                    "$ref": "#/$defs/_primitives_mileage_unit",
+                    "default": "mi",
+                    "description": "Effective query unit used for mileage_max, mileage sorting and mileage_range. Omitted means mi; km query results MUST include this field. This context never overrides a returned vehicle's native mileage_unit or the explicit _mi fields."
+                  },
                   "total": {
                     "type": [
                       "integer",
@@ -2139,6 +2246,111 @@
                   "vehicles"
                 ],
                 "additionalProperties": false,
+                "dependentSchemas": {
+                  "currency": {
+                    "description": "Explicit 3.1 query contexts require matching vehicle currencies and facet labels. Vehicle odometer units remain independent; omitted contexts and labels retain USD/mi.",
+                    "allOf": [
+                      {
+                        "if": {
+                          "properties": {
+                            "currency": {
+                              "const": "CAD"
+                            }
+                          },
+                          "required": [
+                            "currency"
+                          ]
+                        },
+                        "then": {
+                          "properties": {
+                            "vehicles": {
+                              "items": {
+                                "properties": {
+                                  "currency": {
+                                    "const": "CAD"
+                                  }
+                                },
+                                "required": [
+                                  "currency"
+                                ]
+                              }
+                            },
+                            "facets": {
+                              "properties": {
+                                "currency": {
+                                  "const": "CAD"
+                                }
+                              },
+                              "required": [
+                                "currency"
+                              ]
+                            }
+                          }
+                        },
+                        "else": {
+                          "properties": {
+                            "vehicles": {
+                              "items": {
+                                "properties": {
+                                  "currency": {
+                                    "const": "USD"
+                                  }
+                                }
+                              }
+                            },
+                            "facets": {
+                              "properties": {
+                                "currency": {
+                                  "const": "USD"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "mileage_unit": {
+                              "const": "km"
+                            }
+                          },
+                          "required": [
+                            "mileage_unit"
+                          ]
+                        },
+                        "then": {
+                          "properties": {
+                            "facets": {
+                              "properties": {
+                                "mileage_unit": {
+                                  "const": "km"
+                                }
+                              },
+                              "required": [
+                                "mileage_unit"
+                              ]
+                            }
+                          }
+                        },
+                        "else": {
+                          "properties": {
+                            "facets": {
+                              "properties": {
+                                "mileage_unit": {
+                                  "const": "mi"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "mileage_unit": {
+                    "$ref": "#/$defs/inventory_search_response_properties_data_dependentSchemas_currency"
+                  }
+                },
                 "allOf": [
                   {
                     "if": {
@@ -2265,6 +2477,24 @@
             ],
             "additionalProperties": false
           },
+          "_primitives_currency": {
+            "title": "Currency",
+            "description": "Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.",
+            "type": "string",
+            "enum": [
+              "USD",
+              "CAD"
+            ]
+          },
+          "_primitives_mileage_unit": {
+            "title": "MileageUnit",
+            "description": "Odometer or mileage-query unit: mi means miles and km means kilometres. One mile is exactly 1.609344 kilometres. Fields explicitly ending in _mi always remain miles.",
+            "type": "string",
+            "enum": [
+              "mi",
+              "km"
+            ]
+          },
           "inventory_listing": {
             "title": "InventoryListing",
             "description": "An eligible inventory listing shared by search and vehicle detail. Requires availability, a source update timestamp and at least one stable identifier. Lead vehicle descriptions remain partial Vehicle objects.",
@@ -2331,7 +2561,7 @@
           },
           "vehicle": {
             "title": "Vehicle",
-            "description": "Shared vehicle shape for listings, vehicle_of_interest and trade_in. Inventory and vehicle_of_interest use condition new, used or cpo; trade_in uses excellent, good, fair or poor. Inventory requires an available, intransit or pending status, an identifier and updated_at. Out-of-stock units are omitted. Context schemas enforce these constraints. Prices are integers in whole US dollars. price includes mandatory dealer charges and excludes only government-required consumer charges; fee itemizations are already included. Optional vehicle_type defaults to car; motorcycles, trailers, RVs and other units use relevant fields only. Electric range, battery and charging fields apply across vehicle types. Free-text features are descriptive; feature_evidence supports verified equipment filtering. Additional inventory attributes remain allowed.",
+            "description": "Shared vehicle shape for listings, vehicle_of_interest and trade_in. Inventory and vehicle_of_interest use condition new, used or cpo; trade_in uses excellent, good, fair or poor. Inventory requires an available, intransit or pending status, an identifier and updated_at. Out-of-stock units are omitted. Context schemas enforce these constraints. Prices are integers in whole units of currency (USD when omitted); mileage uses mileage_unit (mi when omitted). Neither country nor request context overrides these per-vehicle defaults. price includes mandatory dealer charges and excludes only government-required consumer charges; fee itemizations are already included. Optional vehicle_type defaults to car; motorcycles, trailers, RVs and other units use relevant fields only. Electric range, battery and charging fields apply across vehicle types. Free-text features are descriptive; feature_evidence supports verified equipment filtering. Additional inventory attributes remain allowed.",
             "type": "object",
             "examples": [
               {
@@ -2503,10 +2733,15 @@
                   "Demo Toyota San Francisco"
                 ]
               },
+              "currency": {
+                "$ref": "#/$defs/_primitives_currency",
+                "default": "USD",
+                "description": "Currency of this vehicle's price, list_price, msrp and fees[].amount. Omitted means USD, including for Canadian addresses or CAD query context. Publishers MUST include CAD explicitly for Canadian-dollar amounts. Currency selection never performs a foreign-exchange conversion."
+              },
               "msrp": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Manufacturer's Suggested Retail Price (sticker price), whole US dollars. Inventory context.",
+                "description": "Manufacturer's Suggested Retail Price (sticker price), in whole units of this vehicle's currency (USD when omitted). Inventory context.",
                 "examples": [
                   36000
                 ]
@@ -2514,7 +2749,7 @@
               "price": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.",
+                "description": "Authoritative advertised vehicle price in whole units of this vehicle's currency (USD when omitted). It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.",
                 "examples": [
                   35500
                 ]
@@ -2522,7 +2757,7 @@
               "list_price": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Dealer's base list price before discounts, rebates, mandatory dealer charges, and required add-ons, in whole US dollars. This is comparison context, not an amount a consumer can necessarily buy the vehicle for. A provider that knows only a base or list amount publishes `list_price` and omits `price`. Inventory context.",
+                "description": "Dealer's base list price before discounts, rebates, mandatory dealer charges, and required add-ons, in whole units of this vehicle's currency (USD when omitted). This is comparison context, not an amount a consumer can necessarily buy the vehicle for. A provider that knows only a base or list amount publishes `list_price` and omits `price`. Inventory context.",
                 "examples": [
                   34000
                 ]
@@ -2559,10 +2794,15 @@
                 ],
                 "minLength": 1
               },
+              "mileage_unit": {
+                "$ref": "#/$defs/_primitives_mileage_unit",
+                "default": "mi",
+                "description": "Unit of this vehicle's mileage. Omitted means mi; include km explicitly for a kilometre odometer. This unit does not inherit from country, currency or the search's query unit."
+              },
               "mileage": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Known odometer reading in miles. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.",
+                "description": "Known odometer reading in this vehicle's mileage_unit (mi when omitted). Preserve the labelled native reading; query comparisons and sorting may convert it without changing this value. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.",
                 "examples": [
                   12,
                   38450
@@ -2824,7 +3064,7 @@
           },
           "_primitives_dealer_fee": {
             "title": "DealerFee",
-            "description": "One mandatory dealer charge or required add-on, in whole US dollars. Include dealer-paid taxes or fees passed to the buyer; exclude only government-required consumer charges and optional products. The amount is already included when Vehicle.price is present. Without price it is informational and cannot establish a payable amount. Names must be specific, nonempty and unique within one fees array.",
+            "description": "One mandatory dealer charge or required add-on, in whole units of the enclosing Vehicle.currency or rooftop.currency (USD when omitted). Include dealer-paid taxes or fees passed to the buyer; exclude only government-required consumer charges and optional products. The amount is already included when Vehicle.price is present. Without price it is informational and cannot establish a payable amount. Names must be specific, nonempty and unique within one fees array.",
             "type": "object",
             "properties": {
               "name": {
@@ -2841,7 +3081,7 @@
               "amount": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Amount in whole US dollars. When Vehicle.price is present, this amount is already included and MUST NOT be added again. Without Vehicle.price, the amount is informational only.",
+                "description": "Amount in whole units of the enclosing vehicle's or rooftop's currency (USD when omitted). When Vehicle.price is present, this amount is already included and MUST NOT be added again. Without Vehicle.price, the amount is informational only.",
                 "examples": [
                   500,
                   1000
@@ -2994,6 +3234,16 @@
             "description": "Counts and ranges across the full matching inventory, before pagination. Shared by inventory.facets and optional search-response facets on every binding. Omitted facets are unavailable; zero counts describe known empty buckets. Feature counts use verified present equipment only.",
             "type": "object",
             "properties": {
+              "currency": {
+                "$ref": "#/$defs/_primitives_currency",
+                "default": "USD",
+                "description": "Effective query currency of the matching set and price_range. Omitted means USD; CAD facets MUST include this field. Do not combine monetary ranges from different currencies."
+              },
+              "mileage_unit": {
+                "$ref": "#/$defs/_primitives_mileage_unit",
+                "default": "mi",
+                "description": "Effective query unit of mileage_range. Omitted means mi; km facets MUST include this field. Compute the bounds from known native odometers converted exactly to this unit."
+              },
               "makes": {
                 "$ref": "#/$defs/facets__defs_term_facet"
               },
@@ -3050,10 +3300,11 @@
               },
               "price_range": {
                 "$ref": "#/$defs/facets__defs_range_facet",
-                "description": "Observed minimum and maximum of authoritative Vehicle.price values. Vehicles without `price` do not contribute; omit `price_range` when no matching vehicle has `price`."
+                "description": "Observed minimum and maximum of authoritative Vehicle.price values in the effective query currency. Vehicles without `price` do not contribute; omit `price_range` when no matching vehicle has `price`."
               },
               "mileage_range": {
-                "$ref": "#/$defs/facets__defs_range_facet"
+                "$ref": "#/$defs/facets__defs_range_facet",
+                "description": "Observed minimum and maximum known odometer readings after exact conversion to the effective query mileage_unit. Bounds may be fractional; never aggregate native mi and km numbers directly."
               },
               "year_range": {
                 "$ref": "#/$defs/facets__defs_range_facet"
@@ -3457,7 +3708,7 @@
               "price_min": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Minimum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.",
+                "description": "Minimum price in whole units of the effective query currency, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.",
                 "examples": [
                   20000
                 ]
@@ -3465,7 +3716,7 @@
               "price_max": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Maximum price in whole US dollars, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.",
+                "description": "Maximum price in whole units of the effective query currency, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.",
                 "examples": [
                   40000
                 ]
@@ -3473,6 +3724,7 @@
               "mileage_max": {
                 "type": "integer",
                 "minimum": 0,
+                "description": "Inclusive maximum odometer in the effective query mileage_unit. Convert the known native reading exactly before comparing; a missing reading never matches.",
                 "examples": [
                   60000
                 ]
@@ -3611,7 +3863,7 @@
                   "updated_at",
                   "distance_mi"
                 ],
-                "description": "Primary sort field. Missing values sort last in either direction. price includes mandatory dealer charges and excludes only government-required consumer charges. distance_mi requires filters.near and is straight-line distance to the vehicle's rooftop. Break ties with a stable listing identifier so cursor pages do not repeat listings.",
+                "description": "Primary sort field. Missing values sort last in either direction. Price fields compare only amounts in the effective query currency; mileage compares readings converted to the effective query mileage_unit without rounding. price includes mandatory dealer charges and excludes only government-required consumer charges. distance_mi requires filters.near and is straight-line distance to the vehicle's rooftop. Break ties with a stable listing identifier so cursor pages do not repeat listings.",
                 "examples": [
                   "price",
                   "year"
@@ -3633,6 +3885,106 @@
               "order"
             ],
             "additionalProperties": false
+          },
+          "inventory_search_response_properties_data_dependentSchemas_currency": {
+            "description": "Explicit 3.1 query contexts require matching vehicle currencies and facet labels. Vehicle odometer units remain independent; omitted contexts and labels retain USD/mi.",
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "currency": {
+                      "const": "CAD"
+                    }
+                  },
+                  "required": [
+                    "currency"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "vehicles": {
+                      "items": {
+                        "properties": {
+                          "currency": {
+                            "const": "CAD"
+                          }
+                        },
+                        "required": [
+                          "currency"
+                        ]
+                      }
+                    },
+                    "facets": {
+                      "properties": {
+                        "currency": {
+                          "const": "CAD"
+                        }
+                      },
+                      "required": [
+                        "currency"
+                      ]
+                    }
+                  }
+                },
+                "else": {
+                  "properties": {
+                    "vehicles": {
+                      "items": {
+                        "properties": {
+                          "currency": {
+                            "const": "USD"
+                          }
+                        }
+                      }
+                    },
+                    "facets": {
+                      "properties": {
+                        "currency": {
+                          "const": "USD"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "mileage_unit": {
+                      "const": "km"
+                    }
+                  },
+                  "required": [
+                    "mileage_unit"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "facets": {
+                      "properties": {
+                        "mileage_unit": {
+                          "const": "km"
+                        }
+                      },
+                      "required": [
+                        "mileage_unit"
+                      ]
+                    }
+                  }
+                },
+                "else": {
+                  "properties": {
+                    "facets": {
+                      "properties": {
+                        "mileage_unit": {
+                          "const": "mi"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
           },
           "error": {
             "title": "Error",
@@ -3972,7 +4324,7 @@
           },
           "vehicle": {
             "title": "Vehicle",
-            "description": "Shared vehicle shape for listings, vehicle_of_interest and trade_in. Inventory and vehicle_of_interest use condition new, used or cpo; trade_in uses excellent, good, fair or poor. Inventory requires an available, intransit or pending status, an identifier and updated_at. Out-of-stock units are omitted. Context schemas enforce these constraints. Prices are integers in whole US dollars. price includes mandatory dealer charges and excludes only government-required consumer charges; fee itemizations are already included. Optional vehicle_type defaults to car; motorcycles, trailers, RVs and other units use relevant fields only. Electric range, battery and charging fields apply across vehicle types. Free-text features are descriptive; feature_evidence supports verified equipment filtering. Additional inventory attributes remain allowed.",
+            "description": "Shared vehicle shape for listings, vehicle_of_interest and trade_in. Inventory and vehicle_of_interest use condition new, used or cpo; trade_in uses excellent, good, fair or poor. Inventory requires an available, intransit or pending status, an identifier and updated_at. Out-of-stock units are omitted. Context schemas enforce these constraints. Prices are integers in whole units of currency (USD when omitted); mileage uses mileage_unit (mi when omitted). Neither country nor request context overrides these per-vehicle defaults. price includes mandatory dealer charges and excludes only government-required consumer charges; fee itemizations are already included. Optional vehicle_type defaults to car; motorcycles, trailers, RVs and other units use relevant fields only. Electric range, battery and charging fields apply across vehicle types. Free-text features are descriptive; feature_evidence supports verified equipment filtering. Additional inventory attributes remain allowed.",
             "type": "object",
             "examples": [
               {
@@ -4144,10 +4496,15 @@
                   "Demo Toyota San Francisco"
                 ]
               },
+              "currency": {
+                "$ref": "#/$defs/_primitives_currency",
+                "default": "USD",
+                "description": "Currency of this vehicle's price, list_price, msrp and fees[].amount. Omitted means USD, including for Canadian addresses or CAD query context. Publishers MUST include CAD explicitly for Canadian-dollar amounts. Currency selection never performs a foreign-exchange conversion."
+              },
               "msrp": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Manufacturer's Suggested Retail Price (sticker price), whole US dollars. Inventory context.",
+                "description": "Manufacturer's Suggested Retail Price (sticker price), in whole units of this vehicle's currency (USD when omitted). Inventory context.",
                 "examples": [
                   36000
                 ]
@@ -4155,7 +4512,7 @@
               "price": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.",
+                "description": "Authoritative advertised vehicle price in whole units of this vehicle's currency (USD when omitted). It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.",
                 "examples": [
                   35500
                 ]
@@ -4163,7 +4520,7 @@
               "list_price": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Dealer's base list price before discounts, rebates, mandatory dealer charges, and required add-ons, in whole US dollars. This is comparison context, not an amount a consumer can necessarily buy the vehicle for. A provider that knows only a base or list amount publishes `list_price` and omits `price`. Inventory context.",
+                "description": "Dealer's base list price before discounts, rebates, mandatory dealer charges, and required add-ons, in whole units of this vehicle's currency (USD when omitted). This is comparison context, not an amount a consumer can necessarily buy the vehicle for. A provider that knows only a base or list amount publishes `list_price` and omits `price`. Inventory context.",
                 "examples": [
                   34000
                 ]
@@ -4200,10 +4557,15 @@
                 ],
                 "minLength": 1
               },
+              "mileage_unit": {
+                "$ref": "#/$defs/_primitives_mileage_unit",
+                "default": "mi",
+                "description": "Unit of this vehicle's mileage. Omitted means mi; include km explicitly for a kilometre odometer. This unit does not inherit from country, currency or the search's query unit."
+              },
               "mileage": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Known odometer reading in miles. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.",
+                "description": "Known odometer reading in this vehicle's mileage_unit (mi when omitted). Preserve the labelled native reading; query comparisons and sorting may convert it without changing this value. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.",
                 "examples": [
                   12,
                   38450
@@ -4463,9 +4825,18 @@
             },
             "additionalProperties": true
           },
+          "_primitives_currency": {
+            "title": "Currency",
+            "description": "Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.",
+            "type": "string",
+            "enum": [
+              "USD",
+              "CAD"
+            ]
+          },
           "_primitives_dealer_fee": {
             "title": "DealerFee",
-            "description": "One mandatory dealer charge or required add-on, in whole US dollars. Include dealer-paid taxes or fees passed to the buyer; exclude only government-required consumer charges and optional products. The amount is already included when Vehicle.price is present. Without price it is informational and cannot establish a payable amount. Names must be specific, nonempty and unique within one fees array.",
+            "description": "One mandatory dealer charge or required add-on, in whole units of the enclosing Vehicle.currency or rooftop.currency (USD when omitted). Include dealer-paid taxes or fees passed to the buyer; exclude only government-required consumer charges and optional products. The amount is already included when Vehicle.price is present. Without price it is informational and cannot establish a payable amount. Names must be specific, nonempty and unique within one fees array.",
             "type": "object",
             "properties": {
               "name": {
@@ -4482,7 +4853,7 @@
               "amount": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Amount in whole US dollars. When Vehicle.price is present, this amount is already included and MUST NOT be added again. Without Vehicle.price, the amount is informational only.",
+                "description": "Amount in whole units of the enclosing vehicle's or rooftop's currency (USD when omitted). When Vehicle.price is present, this amount is already included and MUST NOT be added again. Without Vehicle.price, the amount is informational only.",
                 "examples": [
                   500,
                   1000
@@ -4494,6 +4865,15 @@
               "amount"
             ],
             "additionalProperties": false
+          },
+          "_primitives_mileage_unit": {
+            "title": "MileageUnit",
+            "description": "Odometer or mileage-query unit: mi means miles and km means kilometres. One mile is exactly 1.609344 kilometres. Fields explicitly ending in _mi always remain miles.",
+            "type": "string",
+            "enum": [
+              "mi",
+              "km"
+            ]
           },
           "vehicle_feature": {
             "title": "VehicleFeature",
@@ -5104,7 +5484,7 @@
           },
           "vehicle": {
             "title": "Vehicle",
-            "description": "Shared vehicle shape for listings, vehicle_of_interest and trade_in. Inventory and vehicle_of_interest use condition new, used or cpo; trade_in uses excellent, good, fair or poor. Inventory requires an available, intransit or pending status, an identifier and updated_at. Out-of-stock units are omitted. Context schemas enforce these constraints. Prices are integers in whole US dollars. price includes mandatory dealer charges and excludes only government-required consumer charges; fee itemizations are already included. Optional vehicle_type defaults to car; motorcycles, trailers, RVs and other units use relevant fields only. Electric range, battery and charging fields apply across vehicle types. Free-text features are descriptive; feature_evidence supports verified equipment filtering. Additional inventory attributes remain allowed.",
+            "description": "Shared vehicle shape for listings, vehicle_of_interest and trade_in. Inventory and vehicle_of_interest use condition new, used or cpo; trade_in uses excellent, good, fair or poor. Inventory requires an available, intransit or pending status, an identifier and updated_at. Out-of-stock units are omitted. Context schemas enforce these constraints. Prices are integers in whole units of currency (USD when omitted); mileage uses mileage_unit (mi when omitted). Neither country nor request context overrides these per-vehicle defaults. price includes mandatory dealer charges and excludes only government-required consumer charges; fee itemizations are already included. Optional vehicle_type defaults to car; motorcycles, trailers, RVs and other units use relevant fields only. Electric range, battery and charging fields apply across vehicle types. Free-text features are descriptive; feature_evidence supports verified equipment filtering. Additional inventory attributes remain allowed.",
             "type": "object",
             "examples": [
               {
@@ -5276,10 +5656,15 @@
                   "Demo Toyota San Francisco"
                 ]
               },
+              "currency": {
+                "$ref": "#/$defs/_primitives_currency",
+                "default": "USD",
+                "description": "Currency of this vehicle's price, list_price, msrp and fees[].amount. Omitted means USD, including for Canadian addresses or CAD query context. Publishers MUST include CAD explicitly for Canadian-dollar amounts. Currency selection never performs a foreign-exchange conversion."
+              },
               "msrp": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Manufacturer's Suggested Retail Price (sticker price), whole US dollars. Inventory context.",
+                "description": "Manufacturer's Suggested Retail Price (sticker price), in whole units of this vehicle's currency (USD when omitted). Inventory context.",
                 "examples": [
                   36000
                 ]
@@ -5287,7 +5672,7 @@
               "price": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Authoritative advertised vehicle price in whole US dollars. It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.",
+                "description": "Authoritative advertised vehicle price in whole units of this vehicle's currency (USD when omitted). It includes every mandatory, non-government dealer charge and dealer-required add-on, may reflect only discounts or rebates available to every consumer, and MUST NOT be reduced by an additional required down payment or conditioned on dealer financing. It excludes sales tax, title, registration, and other required government charges, so it is not an out-the-door quote. An optional `fees` array can itemize mandatory charges already included in this number; consumers MUST NOT add them again. Inventory context. Excluded government charges are only amounts government requires the consumer to pay. Dealer-paid taxes or fees passed to a buyer remain included.",
                 "examples": [
                   35500
                 ]
@@ -5295,7 +5680,7 @@
               "list_price": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Dealer's base list price before discounts, rebates, mandatory dealer charges, and required add-ons, in whole US dollars. This is comparison context, not an amount a consumer can necessarily buy the vehicle for. A provider that knows only a base or list amount publishes `list_price` and omits `price`. Inventory context.",
+                "description": "Dealer's base list price before discounts, rebates, mandatory dealer charges, and required add-ons, in whole units of this vehicle's currency (USD when omitted). This is comparison context, not an amount a consumer can necessarily buy the vehicle for. A provider that knows only a base or list amount publishes `list_price` and omits `price`. Inventory context.",
                 "examples": [
                   34000
                 ]
@@ -5332,10 +5717,15 @@
                 ],
                 "minLength": 1
               },
+              "mileage_unit": {
+                "$ref": "#/$defs/_primitives_mileage_unit",
+                "default": "mi",
+                "description": "Unit of this vehicle's mileage. Omitted means mi; include km explicitly for a kilometre odometer. This unit does not inherit from country, currency or the search's query unit."
+              },
               "mileage": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Known odometer reading in miles. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.",
+                "description": "Known odometer reading in this vehicle's mileage_unit (mi when omitted). Preserve the labelled native reading; query comparisons and sorting may convert it without changing this value. Typical on used inventory and trade-ins; omit it when unknown, including on partial trade-in descriptions.",
                 "examples": [
                   12,
                   38450
@@ -5595,9 +5985,18 @@
             },
             "additionalProperties": true
           },
+          "_primitives_currency": {
+            "title": "Currency",
+            "description": "Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.",
+            "type": "string",
+            "enum": [
+              "USD",
+              "CAD"
+            ]
+          },
           "_primitives_dealer_fee": {
             "title": "DealerFee",
-            "description": "One mandatory dealer charge or required add-on, in whole US dollars. Include dealer-paid taxes or fees passed to the buyer; exclude only government-required consumer charges and optional products. The amount is already included when Vehicle.price is present. Without price it is informational and cannot establish a payable amount. Names must be specific, nonempty and unique within one fees array.",
+            "description": "One mandatory dealer charge or required add-on, in whole units of the enclosing Vehicle.currency or rooftop.currency (USD when omitted). Include dealer-paid taxes or fees passed to the buyer; exclude only government-required consumer charges and optional products. The amount is already included when Vehicle.price is present. Without price it is informational and cannot establish a payable amount. Names must be specific, nonempty and unique within one fees array.",
             "type": "object",
             "properties": {
               "name": {
@@ -5614,7 +6013,7 @@
               "amount": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Amount in whole US dollars. When Vehicle.price is present, this amount is already included and MUST NOT be added again. Without Vehicle.price, the amount is informational only.",
+                "description": "Amount in whole units of the enclosing vehicle's or rooftop's currency (USD when omitted). When Vehicle.price is present, this amount is already included and MUST NOT be added again. Without Vehicle.price, the amount is informational only.",
                 "examples": [
                   500,
                   1000
@@ -5626,6 +6025,15 @@
               "amount"
             ],
             "additionalProperties": false
+          },
+          "_primitives_mileage_unit": {
+            "title": "MileageUnit",
+            "description": "Odometer or mileage-query unit: mi means miles and km means kilometres. One mile is exactly 1.609344 kilometres. Fields explicitly ending in _mi always remain miles.",
+            "type": "string",
+            "enum": [
+              "mi",
+              "km"
+            ]
           },
           "vehicle_feature": {
             "title": "VehicleFeature",

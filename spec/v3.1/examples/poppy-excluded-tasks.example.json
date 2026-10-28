@@ -1,0 +1,16 @@
+{
+  "tasks": [
+    {
+      "task": "Finalize a vehicle purchase online",
+      "alternative": {
+        "instructions": "Contact the selling dealership to discuss the purchase.",
+        "references": [
+          {
+            "type": "web",
+            "url": "https://demo-toyota.example.com/contact"
+          }
+        ]
+      }
+    }
+  ]
+}

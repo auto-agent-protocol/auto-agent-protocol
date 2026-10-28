@@ -8,7 +8,7 @@ description: The automotive contract for AI agents, with native MCP tools, A2A m
 
 {/* aap-draft-only:start */}
 
-:::info Unreleased AAP 3.0.0
+:::info Unreleased AAP 3.1.0
 This is the editable contract. Draft identifiers are replaced with immutable URLs during release preparation; do not deploy them.
 :::
 
@@ -18,7 +18,7 @@ This is the editable contract. Draft identifiers are replaced with immutable URL
 
 ![MCP, A2A and PAP connect buyer agents to one shared automotive contract](./img/network-overview.svg)
 
-AAP 3.0 defines three native interfaces. Each carries the same typed request and response; none requires an extra hop through another protocol.
+AAP 3.1 defines three native interfaces. Each carries the same typed request and response; none requires an extra hop through another protocol.
 
 | Interface | How the agent calls | Baseline |
 |---|---|---|
@@ -26,7 +26,7 @@ AAP 3.0 defines three native interfaces. Each carries the same typed request and
 | [A2A](./bindings/json-rpc.md) | `SendMessage` with an automotive DataPart | A2A 1.0, JSON-RPC 2.0 |
 | [PAP](./personal-agent-protocol.md) | Native OpenAPI operation with Session + DPoP | Personal Agent Protocol draft 0.3 |
 
-A full AAP 3.0 dealer deployment implements all three with the same skill subset and business behavior. A client needs only its chosen interface. A partial implementation can describe the binding it supports, but cannot claim the full deployment profile. [Conformance](./conformance.md) defines the exact boundary.
+A full AAP 3.1 dealer deployment implements all three with the same skill subset and business behavior. A client needs only its chosen interface. A partial implementation can describe the binding it supports, but cannot claim the full deployment profile. [Conformance](./conformance.md) defines the exact boundary.
 
 ## Five skills. One shopping journey.
 
@@ -49,6 +49,7 @@ Declare one or more implemented skills. Search with feature filters also require
 - **Search:** explicit capabilities, verified features, radius/distance semantics and complete cursor pagination.
 - **Truthful listings:** availability, freshness, identifiers and evidence; missing data remains unknown.
 - **Clear pricing:** one authoritative advertised `price`; mandatory dealer charges are included, only government-required consumer charges are separate.
+- **Explicit units:** native USD/CAD prices and mi/km odometers; single-currency searches and exact odometer comparisons. Omitted labels preserve USD/mi.
 - **Controlled contact:** explicit channel consent, mandatory retry keys and truthful appointment outcomes.
 
 AAP covers discovery, research and dealer contact. Payments, financing approval, transaction quotes, reservations and trade-in valuations are outside this release.

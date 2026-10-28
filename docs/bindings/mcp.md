@@ -7,7 +7,7 @@ description: Native automotive tools over MCP Streamable HTTP, with complete sch
 
 {/* aap-draft-only:start */}
 
-This is the unreleased **3.0.0** binding. Draft identifiers are replaced when the release is prepared; do not deploy them.
+This is the unreleased **3.1.0** binding. Draft identifiers are replaced when the release is prepared; do not deploy them.
 
 {/* aap-draft-only:end */}
 
@@ -17,7 +17,7 @@ This is the unreleased **3.0.0** binding. Draft identifiers are replaced when th
 
 ## Protocol baseline
 
-An AAP 3.0 MCP endpoint MUST implement Streamable HTTP for **MCP 2026-07-28** and **2025-11-25**. Advertise both actual revisions in discovery; additional revisions are optional. AAP's `3.0.0` release number is separate from these MCP protocol dates and from a server's software version.
+An AAP 3.1 MCP endpoint MUST implement Streamable HTTP for **MCP 2026-07-28** and **2025-11-25**. Advertise both actual revisions in discovery; additional revisions are optional. AAP's `3.1.0` release number is separate from these MCP protocol dates and from a server's software version.
 
 | | MCP 2026-07-28 | MCP 2025-11-25 compatibility |
 |---|---|---|
@@ -83,6 +83,8 @@ This minimal discovery request omits optional client software identification. Th
 | `lead.submit` | `aap_lead_submit` | Consented dealer contact |
 
 The release's `mcp.json` is a **reference tool catalog**, not a live server or a JSON-RPC response. A deployment MUST expose only implemented tools, in a deterministic order. Its inventory search tool MUST add actual `capabilities` under `_meta["autoagentprotocol.org/aap"]`, following `inventory-capabilities.schema.json`. That object MUST match the linked Agent Card.
+
+If only `inventory.facets` is implemented, omit the search tool and search capabilities. The facets tool follows the [USD/CAD and mi/km fallback](../skills/inventory-facets.md#currency-and-odometer-context), with USD/mi defaults, identically to A2A and PAP.
 
 ### Complete schemas, standard hints
 

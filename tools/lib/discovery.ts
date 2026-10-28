@@ -30,6 +30,7 @@ export function checkDiscovery(
   if (capabilities) {
     if (!capabilities.sort_fields.includes(capabilities.default_sort.field)) errors.push("Search default_sort must use a supported sort field");
     if (capabilities.default_limit > capabilities.max_limit) errors.push("Search default_limit must not exceed max_limit");
+    if (!(capabilities.currencies ?? ["USD"]).includes(capabilities.default_currency ?? "USD")) errors.push("Search default_currency must be a supported currency");
   }
   const poppyUrl = new URL(params.poppy);
   if (poppyUrl.protocol !== "https:" || poppyUrl.hostname !== poppy.organization.domain.toLowerCase() ||
@@ -58,7 +59,8 @@ export function checkDiscovery(
         errors.push(`${tool.name}: MCP metadata must match the shared skill contract`);
       }
       if (skill.id === "inventory.search") {
-        const normalize = (value: any) => value && ({ ...value, filters: [...value.filters].sort(), sort_fields: [...value.sort_fields].sort() });
+        const normalize = (value: any) => value && ({ ...value, filters: [...value.filters].sort(), sort_fields: [...value.sort_fields].sort(),
+          currencies: [...(value.currencies ?? ["USD"])].sort(), default_currency: value.default_currency ?? "USD", default_mileage_unit: value.default_mileage_unit ?? "mi" });
         if (!isDeepStrictEqual(normalize(metadata.capabilities), normalize(capabilities))) errors.push("MCP and Agent Card search capabilities must agree");
       }
     }

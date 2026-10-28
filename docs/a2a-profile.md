@@ -8,7 +8,7 @@ description: Typed automotive DataParts in A2A 1.0 SendMessage, with optional re
 
 {/* aap-draft-only:start */}
 
-This is the unreleased **AAP 3.0.0** contract. Draft extension identifiers are replaced during release preparation.
+This is the unreleased **AAP 3.1.0** contract. Draft extension identifiers are replaced during release preparation.
 
 {/* aap-draft-only:end */}
 

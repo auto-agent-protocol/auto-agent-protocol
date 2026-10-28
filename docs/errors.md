@@ -8,7 +8,7 @@ description: One typed automotive error, three protocol envelopes, and explicit 
 
 {/* aap-draft-only:start */}
 
-This is the unreleased **AAP 3.0.0** contract. Draft identifiers are replaced when the release is prepared.
+This is the unreleased **AAP 3.1.0** contract. Draft identifiers are replaced when the release is prepared.
 
 {/* aap-draft-only:end */}
 

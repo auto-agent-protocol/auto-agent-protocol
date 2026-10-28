@@ -89,6 +89,11 @@
           "description": "Rooftop name shown to buyers and referenced by `Vehicle.rooftop` (e.g. 'Demo Toyota San Francisco').",
           "examples": ["Demo Toyota San Francisco"]
         },
+        "currency": {
+          "$ref": "./_primitives/currency.schema.json",
+          "default": "USD",
+          "description": "Currency of this rooftop's fees[].amount. Omitted means USD regardless of address.country. Include CAD explicitly for Canadian-dollar fee defaults. Vehicles always carry their own currency context; do not inherit this value onto a vehicle."
+        },
         "legal_name": {
           "type": "string",
           "description": "Legal / registered business name for this location.",

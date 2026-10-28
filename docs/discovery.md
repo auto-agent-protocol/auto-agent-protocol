@@ -8,7 +8,7 @@ description: One dealership identity, three working interfaces, and a readable l
 
 {/* aap-draft-only:start */}
 
-:::info Unreleased AAP 3.0.0
+:::info Unreleased AAP 3.1.0
 Draft identifiers are not production identifiers. Release preparation replaces them with the pinned release URLs.
 :::
 
@@ -60,6 +60,8 @@ The card remains an ordinary [A2A 1.0 Agent Card](https://a2a-protocol.org/v1.0.
 
 Search defaults MUST be usable: `default_sort.field` belongs to `sort_fields`, and `default_limit` does not exceed `max_limit`. Feature filters require `inventory.facets` so a client can discover supported feature codes. An unsupported filter is an explicit error, never silently ignored. See [search semantics](./skills/inventory-search.md).
 
+A facets-only deployment omits `inventory.search` and its capabilities. It accepts USD/CAD and mi/km contexts with USD/mi defaults under the [facets-only fallback](./skills/inventory-facets.md#currency-and-odometer-context); clients can explicitly request CAD/km without a search declaration.
+
 The card's software `version` is independent of AAP `params.version`. The A2A extension URI, not the software version, selects the automotive contract.
 
 ## Poppy: an authenticated native API
@@ -74,7 +76,7 @@ For redirects, PAP organization identity follows the **final HTTPS discovery hos
 
 ![A short dealer llms.txt index links the exact MCP endpoint, A2A and PAP discovery, API documentation and inventory](./img/llms-discovery.svg)
 
-The [llms.txt proposal](https://llmstxt.org/) provides a small Markdown index. It does not make every agent automatically discover or trust a website. AAP 3.0 requires this index as an additional entry point, alongside working protocol discovery.
+The [llms.txt proposal](https://llmstxt.org/) provides a small Markdown index. It does not make every agent automatically discover or trust a website. AAP 3.1 requires this index as an additional entry point, alongside working protocol discovery.
 
 Start from the [dealer llms.txt example](https://draft.autoagentprotocol.invalid/latest/examples/llms.txt.example.md). Include the dealer name, selected AAP version, exact MCP URL, public/authenticated access requirements, Agent Card, Poppy document, deployment-specific OpenAPI and a link to human-readable inventory. State that lead submission needs explicit customer contact consent.
 

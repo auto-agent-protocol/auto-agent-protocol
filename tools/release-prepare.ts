@@ -21,15 +21,22 @@ const PAP_02_TRANSITION = {
 const JSON_SCHEMA_ANNOTATIONS = new Set(["$comment", "$id", "default", "deprecated", "description", "examples", "readOnly", "title", "writeOnly"]);
 const SCHEMA_MAPS = new Set(["properties", "patternProperties", "$defs", "definitions", "dependentSchemas"]);
 const SINGLE_SCHEMAS = new Set(["additionalProperties", "unevaluatedProperties", "propertyNames", "items", "additionalItems", "unevaluatedItems", "contains", "not", "if", "then", "else"]);
-function normalizeReleaseIdentifiers(value: unknown): unknown {
-  if (typeof value === "string") return value
-    .replaceAll(/https:\/\/autoagentprotocol\.org\/v\d+\.\d+\//g, `${SITE}/v{release}/`)
-    .replaceAll(/https:\/\/autoagentprotocol\.org\/extensions\/(?:aap|a2a-automotive-retail)\/v\d+\.\d+/g, `${SITE}/extensions/aap/v{release}`);
-  if (Array.isArray(value)) return value.map(normalizeReleaseIdentifiers);
-  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, item]) => [key, normalizeReleaseIdentifiers(item)]));
+export function normalizeReleaseIdentifiers(value: unknown, file: string, version: string, path: string[] = []): unknown {
+  if (typeof value === "string") {
+    // Only these two contract-identity constants are generated from the release version.
+    // An automotive/business constant that happens to equal the version must still be compared.
+    const identityPath = file === "aap-extension-params.schema.json" ? ["properties", "version", "const"]
+      : file === "poppy.schema.json" ? ["allOf", "1", "properties", "extensions", "properties", "autoagentprotocol.org/aap", "allOf", "1", "properties", "aap_version", "const"] : undefined;
+    if (value === version && identityPath && JSON.stringify(path) === JSON.stringify(identityPath)) return "{release-version}";
+    return value
+      .replaceAll(/https:\/\/autoagentprotocol\.org\/v\d+\.\d+\//g, `${SITE}/v{release}/`)
+      .replaceAll(/https:\/\/autoagentprotocol\.org\/extensions\/(?:aap|a2a-automotive-retail)\/v\d+\.\d+/g, `${SITE}/extensions/aap/v{release}`);
+  }
+  if (Array.isArray(value)) return value.map((item, index) => normalizeReleaseIdentifiers(item, file, version, [...path, String(index)]));
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, item]) => [key, normalizeReleaseIdentifiers(item, file, version, [...path, key])]));
   return value;
 }
-function structuralDiff(previous: unknown, candidate: unknown, file: string, path = "$", context: "schema" | "map" | "value" = "schema"): Change[] {
+export function structuralDiff(previous: unknown, candidate: unknown, file: string, path = "$", context: "schema" | "map" | "value" = "schema"): Change[] {
   if (JSON.stringify(previous) === JSON.stringify(candidate)) return [];
   if (previous && candidate && typeof previous === "object" && typeof candidate === "object" && !Array.isArray(previous) && !Array.isArray(candidate)) {
     const before = previous as Record<string, unknown>, after = candidate as Record<string, unknown>, changes: Change[] = [];
@@ -43,21 +50,27 @@ function structuralDiff(previous: unknown, candidate: unknown, file: string, pat
     }
     for (const key of Object.keys(after)) if (!(key in before)) {
       if (context === "schema" && JSON_SCHEMA_ANNOTATIONS.has(key)) continue;
-      const additive = context === "map" && (path.endsWith(".properties") || path.endsWith(".$defs"));
-      changes.push({kind: additive ? "additive" : "breaking", file, path: `${path}.${key}`, detail: additive ? "optional definition/property added" : "value added outside an optional property map"});
+      // These dependencies cannot execute for an old valid object: it forbids
+      // every triggering property. Open objects and pattern properties are not exempt.
+      const dependencies = context === "schema" && key === "dependentSchemas" && after[key];
+      const guarded = dependencies && typeof dependencies === "object" && !Array.isArray(dependencies)
+        && before.additionalProperties === false && !Object.keys(before.patternProperties ?? {}).length
+        && Object.keys(dependencies).every(name => !Object.hasOwn(before.properties ?? {}, name) && Object.hasOwn(after.properties ?? {}, name));
+      const additive = guarded || context === "map" && (path.endsWith(".properties") || path.endsWith(".$defs"));
+      changes.push({kind: additive ? "additive" : "breaking", file, path: `${path}.${key}`, detail: guarded ? "dependencies apply only to newly allowed properties" : additive ? "optional definition/property added" : "value added outside an optional property map"});
     }
     return changes;
   }
   return [{kind: "breaking", file, path, detail: "validation-affecting value changed"}];
 }
-function compatibility(root: string, previousContract: string, candidateSpec: string): Change[] {
-  const previousDir = join(root, "spec", previousContract, "schemas"), candidateDir = join(candidateSpec, "schemas");
+function compatibility(root: string, previous: Release, version: string, candidateSpec: string): Change[] {
+  const previousDir = join(root, "spec", previous.contract, "schemas"), candidateDir = join(candidateSpec, "schemas");
   const oldFiles = filesIn(previousDir).map(file => relative(previousDir, file).split("\\").join("/"));
   const newFiles = filesIn(candidateDir).map(file => relative(candidateDir, file).split("\\").join("/"));
   const changes: Change[] = [];
   for (const file of oldFiles) {
     if (!newFiles.includes(file)) changes.push({kind: "breaking", file, path: "$", detail: "schema removed"});
-    else changes.push(...structuralDiff(normalizeReleaseIdentifiers(JSON.parse(readFileSync(join(previousDir, file), "utf8"))), normalizeReleaseIdentifiers(JSON.parse(readFileSync(join(candidateDir, file), "utf8"))), file));
+    else changes.push(...structuralDiff(normalizeReleaseIdentifiers(JSON.parse(readFileSync(join(previousDir, file), "utf8")), file, previous.version), normalizeReleaseIdentifiers(JSON.parse(readFileSync(join(candidateDir, file), "utf8")), file, version), file));
   }
   for (const file of newFiles) if (!oldFiles.includes(file)) changes.push({kind: "additive", file, path: "$", detail: "schema added"});
   return changes;
@@ -114,14 +127,14 @@ export async function prepareRelease(root: string, version: string, dryRun: bool
     await validateSchemas(candidateSpec, contract); await validateExamples(candidateSpec, contract);
     mkdirSync(artifacts, {recursive: true});
     await generateTypes(join(candidateSpec, "schemas"), artifacts, version); await generateOpenapi(candidateSpec, artifacts, version); generateMcp(candidateSpec, artifacts, version);
-    const changes = compatibility(root, stable.contract, candidateSpec);
+    const changes = compatibility(root, stable, version, candidateSpec);
     const breaking = changes.filter(change => change.kind === "breaking");
     const compatibilityException = stable.version === PAP_02_TRANSITION.previous && version === PAP_02_TRANSITION.candidate && draftHash === PAP_02_TRANSITION.workingSpecSha256
       ? PAP_02_TRANSITION : undefined;
     if (breaking.length > 0 && major === oldMajor && !compatibilityException) {
       throw new Error(`Compatibility report found breaking schema changes; a minor release is not permitted:\n${JSON.stringify(breaking, null, 2)}`);
     }
-    const report = {schemaVersion: 1, previous: stable.version, candidate: version, summary: {additive: changes.filter(c => c.kind === "additive").length, breaking: breaking.length}, changes, compatibilityException, note: "Structural schema check only. Maintainers must review normative behavior and documentation."};
+    const report = {schemaVersion: 1, previous: stable.version, candidate: version, summary: {additive: changes.filter(c => c.kind === "additive").length, breaking: breaking.length}, changes, compatibilityException, note: "Structural schema check only. Release URLs and the two generated AAP version identity constants are normalized; business constants are not. Maintainers must review normative behavior and documentation."};
     if (dryRun) { console.log(JSON.stringify(report, null, 2)); return {contract, changes}; }
     const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], {cwd: root, encoding: "utf8"}).trim();
     const release: Release = {contract, version, sourceCommit};

@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/_primitives/currency.schema.json",
+  "title": "Currency",
+  "description": "Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.",
+  "type": "string",
+  "enum": ["USD", "CAD"]
+}

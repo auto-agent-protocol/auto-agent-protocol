@@ -1,20 +1,20 @@
 ---
 sidebar_position: 6
 title: Conformance and verification
-description: What full AAP 3.0 support requires, what this repository verifies, and what each deployment must prove.
+description: What full AAP 3.1 support requires, what this repository verifies, and what each deployment must prove.
 ---
 
 # Conformance and verification
 
-**AAP 3.0 is a complete automotive contract with three native interfaces.** Full dealer-deployment conformance requires MCP, A2A and PAP OpenAPI, consistent dealer-domain discovery, and every mandatory behavior for the skills advertised.
+**AAP 3.1 is a complete automotive contract with three native interfaces.** Full dealer-deployment conformance requires MCP, A2A and PAP OpenAPI, consistent dealer-domain discovery, and every mandatory behavior for the skills advertised.
 
 ![Shared schemas and fixtures verify the contract; each deployed interface must also pass runtime acceptance](./img/aap-sdk-toolbox.svg)
 
-## What “supports AAP 3.0” means
+## What “supports AAP 3.1” means
 
 | Surface | Required baseline |
 |---|---|
-| Shared automotive contract | AAP 3.0 schemas, evidence, pricing, consent, pagination and retry semantics |
+| Shared automotive contract | AAP 3.1 schemas, explicit currency/odometer contexts, evidence, pricing, consent, pagination and retry semantics |
 | MCP | Streamable HTTP, 2026-07-28 and 2025-11-25 compatibility; complete tool schemas and structured outcomes |
 | A2A | A2A 1.0 JSON-RPC `SendMessage`, exact extension activation and canonical ProtoJSON |
 | PAP | Personal Agent Protocol draft 0.3; verified guest Sessions, DPoP and native automotive OpenAPI |
@@ -22,7 +22,7 @@ description: What full AAP 3.0 support requires, what this repository verifies, 
 
 A dealer implements one or more of the five skills and exposes the same subset through all three bindings. Feature filters additionally require `inventory.facets`. A buyer client needs only the binding it uses and the selected AAP contract.
 
-An MCP-only implementation may say “implements the AAP 3.0 MCP binding.” It must not claim full dealer-deployment conformance. Optional PAP accounts, conversations, feedback and native PAP authorization for MCP are required only when advertised. Supporting a protocol transport alone does not establish automotive conformance or universal assistant compatibility.
+An MCP-only implementation may say “implements the AAP 3.1 MCP binding.” It must not claim full dealer-deployment conformance. Optional PAP accounts, conversations, feedback and native PAP authorization for MCP are required only when advertised. Supporting a protocol transport alone does not establish automotive conformance or universal assistant compatibility.
 
 ## Evidence in this repository
 
@@ -43,7 +43,7 @@ These checks validate the specification and protocol fixtures. They do **not** c
 
 ## Required deployment acceptance cases
 
-Run these before advertising AAP 3.0. Use isolated inventory and a non-delivering lead sink for mutation cases.
+Run these before advertising AAP 3.1. Use isolated inventory and a non-delivering lead sink for mutation cases.
 
 | Area | Verify |
 |---|---|
@@ -66,6 +66,7 @@ Run these before advertising AAP 3.0. Use isolated inventory and a non-deliverin
 | Features and geography | Known feature vocabulary, source evidence, unknown-data handling, correct radius boundary and stable distance ordering |
 | Aggregate identity | Each result's endpoint-unique vehicle ID resolves the same seller and listing; duplicate VINs/stock numbers never choose an arbitrary dealer; `dealer.information` resolves its dealer ID to the actual recipient before consent; unknown IDs fail and mismatched identities stop delivery |
 | Inventory and pricing | Current eligible status, real update timestamp, stable identifier, authoritative fee-inclusive price; unknown price stays unknown |
+| Currency and units | USD/mi omission defaults; explicit CAD/km vehicle, rooftop and query labels; Canadian capability defaults; unsupported currency errors; same country with different currencies or odometers; no mixed-currency price ranges or sorting; exact mi/km mileage boundaries and null handling; `_mi` fields stay miles; both contexts bind cursors; all three bindings return equivalent native numbers |
 | Consent | Missing/invalid/expired grants fail before delivery; every permitted channel has contact data; no unauthorized follow-up |
 | Concurrent retries | Lose the first response, then retry: one delivery and the complete original received/rejected outcome, booking details and message with replayed=true; changed payload conflicts; concurrent calls, Session renewal and correlated bindings share the result |
 | Appointment outcome | `confirmed` has a real booking and time; alternatives are explicit; partial success never hides an accepted lead |

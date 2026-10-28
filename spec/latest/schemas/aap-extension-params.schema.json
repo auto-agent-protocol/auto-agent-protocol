@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/aap-extension-params.schema.json",
   "title": "AapExtensionParams",
-  "description": "AAP 3.0 metadata carried in the A2A Agent Card extension params. Links the three bindings without inventing an A2A transport or a PAP conversation protocol.",
+  "description": "AAP 3.1 metadata carried in the A2A Agent Card extension params. Links the three bindings without inventing an A2A transport or a PAP conversation protocol.",
   "type": "object",
   "properties": {
     "id": {

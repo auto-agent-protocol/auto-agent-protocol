@@ -12,7 +12,7 @@ description: One authoritative advertised price, optional included-fee detail, a
 
 ## Four fields, four meanings
 
-Every amount is an integer in **whole US dollars**.
+Every amount is an integer in **whole units of its explicitly identified currency**. AAP supports `USD` and `CAD`. A vehicle's `currency` applies to its `price`, `list_price`, `msrp` and every `fees[].amount`. Omission retains the original **USD** meaning; a Canadian address does not change it.
 
 | Field | Meaning | Buyer-agent treatment |
 |---|---|---|
@@ -20,6 +20,16 @@ Every amount is an integer in **whole US dollars**.
 | `fees` | Optional complete itemization of mandatory charges already included in `price` | Show as an included breakdown; never add again |
 | `list_price` | Informational base/list amount before relevant discounts and charges | Context only; never a substitute for `price` |
 | `msrp` | Manufacturer's suggested retail amount | Reference only |
+
+## Currency and odometer units
+
+Canadian publishers may retain their native numbers: for example, `{"price": 35500, "currency": "CAD", "mileage": 45000, "mileage_unit": "km"}` means **CA$35,500** and **45,000 km**. The same numbers with omitted labels mean **US$35,500** and **45,000 miles**. Country is geographic information, not a currency or odometer conversion rule. Imported vehicles can use an odometer unit different from their location's usual unit.
+
+Each rooftop's `currency` labels its own default fees, again defaulting to USD. Do not inherit rooftop currency onto a vehicle or merge rooftop and vehicle fee arrays. A vehicle snapshot and each partial `vehicle_of_interest` or `trade_in` description carries its own labels.
+
+Search and facets accept top-level `currency` and `mileage_unit` contexts. The effective currency selects one denomination for the matching inventory, price comparisons and price ranges; it never performs foreign-exchange conversion. Odometer filtering and ordering compare readings in the effective query unit using exactly **1 mile = 1.609344 kilometres**, without rounding before comparison. Returned vehicle readings keep their labelled native units. See [inventory search](./skills/inventory-search.md#currency-and-odometer-context) for defaults and result labels.
+
+`radius_mi`, `distance_mi`, `electric_range_mi` and their range filters always remain **miles**, regardless of country or `mileage_unit`.
 
 `price` excludes only charges a government requires the **consumer** to pay, such as applicable tax, title or registration. A tax or fee owed by the dealer and passed to the buyer remains included, as does a dealer fee merely permitted by government. Optional products are outside the mandatory fee breakdown.
 

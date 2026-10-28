@@ -1,0 +1,322 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.1/schemas/poppy-document.schema.json",
+  "title": "PoppyDocument",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "string",
+      "const": "0.3",
+      "description": "Supported PAP draft. Pre-1.0 major.minor versions are not implicitly compatible; unknown fields within this version remain allowed."
+    },
+    "organization": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "domain": {
+          "type": "string",
+          "format": "hostname"
+        }
+      },
+      "required": [
+        "name",
+        "domain"
+      ],
+      "additionalProperties": true
+    },
+    "auth": {
+      "type": "object",
+      "properties": {
+        "issuer": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:/[^?#\\s]*)?$"
+        },
+        "mediated": {
+          "type": "object",
+          "properties": {
+            "endpoint": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+            },
+            "fields": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "secret": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "name",
+                  "label",
+                  "secret"
+                ],
+                "additionalProperties": true
+              }
+            },
+            "scopes": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(?!poppy:)[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
+              },
+              "uniqueItems": true,
+              "minItems": 1
+            }
+          },
+          "required": [
+            "endpoint",
+            "fields",
+            "scopes"
+          ],
+          "additionalProperties": true
+        },
+        "scopes": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^(?!poppy:)[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "scope_hints": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^(?!poppy:)[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "changes",
+              "personal_data"
+            ],
+            "properties": {
+              "changes": {
+                "type": "string",
+                "description": "Readers treat unrecognized values as irreversible; publishers use none, reversible or irreversible."
+              },
+              "personal_data": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "issuer"
+      ],
+      "additionalProperties": true
+    },
+    "web": {
+      "type": "object",
+      "properties": {
+        "browser_session_endpoint": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+        }
+      },
+      "required": [],
+      "additionalProperties": true
+    },
+    "apis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resource": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?][^#\\s]*)?$",
+            "description": "HTTPS resource identifier without a fragment, as required by PAP 0.3 and RFC 8707."
+          }
+        },
+        "required": [
+          "type",
+          "url",
+          "description"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "agent": {
+      "type": "object",
+      "properties": {
+        "protocols": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "minLength": 1
+              },
+              "endpoint": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+              },
+              "resource": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?][^#\\s]*)?$",
+                "description": "HTTPS resource identifier without a fragment, as required by PAP 0.3 and RFC 8707."
+              }
+            },
+            "required": [
+              "type",
+              "endpoint"
+            ],
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "protocols"
+      ],
+      "additionalProperties": true
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "description": "An extension-defined version string. Readers ignore unknown extensions; the AAP publication profile separately requires bridge version 1."
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "feedback": {
+      "type": "object",
+      "properties": {
+        "endpoint": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+        }
+      },
+      "required": [
+        "endpoint"
+      ],
+      "additionalProperties": true
+    },
+    "excluded_tasks": {
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "protocol_version",
+    "organization"
+  ],
+  "additionalProperties": true,
+  "description": "Structural validation of Personal Agent Protocol draft 0.3 discovery. Readers ignore unknown fields and skip unsupported interface types. Cross-document identity and runtime security require separate checks.",
+  "anyOf": [
+    {
+      "required": [
+        "web"
+      ]
+    },
+    {
+      "required": [
+        "apis"
+      ]
+    },
+    {
+      "required": [
+        "agent"
+      ]
+    }
+  ],
+  "allOf": [
+    {
+      "if": {
+        "anyOf": [
+          {
+            "required": [
+              "agent"
+            ]
+          },
+          {
+            "required": [
+              "apis"
+            ]
+          },
+          {
+            "required": [
+              "feedback"
+            ]
+          },
+          {
+            "required": [
+              "web"
+            ],
+            "properties": {
+              "web": {
+                "required": [
+                  "browser_session_endpoint"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "required": [
+          "auth"
+        ]
+      }
+    }
+  ]
+}
