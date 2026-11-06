@@ -1,5 +1,5 @@
 // Auto-generated from JSON Schema — do not edit
-// Auto Agent Protocol 3.1.0
+// Auto Agent Protocol 3.2.0
 
 /**
  * Explicit currency for monetary amounts. USD and CAD are supported; country and odometer units do not determine currency.
@@ -17,36 +17,36 @@ export type AapExtensionParams = {
    * Stable deployment identifier. It must not identify a shopper.
    */
   id: string;
-  version: "3.1.0";
-  schema_base_url: "https://autoagentprotocol.org/v3.1/schemas/";
+  version: "3.2.0";
+  schema_base_url: "https://autoagentprotocol.org/v3.2/schemas/";
   mcp: McpEndpoint;
   poppy: string;
   llms_txt: string;
   skills: {
     "dealer.information"?: {
-      request_schema: "https://autoagentprotocol.org/v3.1/schemas/dealer-information-request.schema.json";
-      response_schema: "https://autoagentprotocol.org/v3.1/schemas/dealer-information-response.schema.json";
+      request_schema: "https://autoagentprotocol.org/v3.2/schemas/dealer-information-request.schema.json";
+      response_schema: "https://autoagentprotocol.org/v3.2/schemas/dealer-information-response.schema.json";
       [k: string]: any;
     };
     "inventory.facets"?: {
-      request_schema: "https://autoagentprotocol.org/v3.1/schemas/inventory-facets-request.schema.json";
-      response_schema: "https://autoagentprotocol.org/v3.1/schemas/inventory-facets-response.schema.json";
+      request_schema: "https://autoagentprotocol.org/v3.2/schemas/inventory-facets-request.schema.json";
+      response_schema: "https://autoagentprotocol.org/v3.2/schemas/inventory-facets-response.schema.json";
       [k: string]: any;
     };
     "inventory.search"?: {
-      request_schema: "https://autoagentprotocol.org/v3.1/schemas/inventory-search-request.schema.json";
-      response_schema: "https://autoagentprotocol.org/v3.1/schemas/inventory-search-response.schema.json";
+      request_schema: "https://autoagentprotocol.org/v3.2/schemas/inventory-search-request.schema.json";
+      response_schema: "https://autoagentprotocol.org/v3.2/schemas/inventory-search-response.schema.json";
       capabilities: InventoryCapabilities;
       [k: string]: any;
     };
     "inventory.vehicle"?: {
-      request_schema: "https://autoagentprotocol.org/v3.1/schemas/vehicle-detail-request.schema.json";
-      response_schema: "https://autoagentprotocol.org/v3.1/schemas/vehicle-detail-response.schema.json";
+      request_schema: "https://autoagentprotocol.org/v3.2/schemas/vehicle-detail-request.schema.json";
+      response_schema: "https://autoagentprotocol.org/v3.2/schemas/vehicle-detail-response.schema.json";
       [k: string]: any;
     };
     "lead.submit"?: {
-      request_schema: "https://autoagentprotocol.org/v3.1/schemas/lead-submit-request.schema.json";
-      response_schema: "https://autoagentprotocol.org/v3.1/schemas/lead-submit-response.schema.json";
+      request_schema: "https://autoagentprotocol.org/v3.2/schemas/lead-submit-request.schema.json";
+      response_schema: "https://autoagentprotocol.org/v3.2/schemas/lead-submit-response.schema.json";
       [k: string]: any;
     };
   };
@@ -650,7 +650,7 @@ export type LeadSubmitResponse = {
   message?: string;
 };
 /**
- * Another way to do a task: in an excluded task, or as the body of a 200 response to a feedback report. Spec 8.2 (Alternatives). Personal Agents skip reference types they don't recognize.
+ * Another way to do a task: in an excluded task, or as the body of a 200 response to a feedback report. Spec 9.2 (Alternatives). Personal Agents skip reference types they don't recognize. Web references can point to any HTTPS website or app and don't authorize sending Session JWTs or access tokens. OpenAPI and MCP references name APIs listed in the Company's poppy.json.
  */
 export type PoppyAlternative = {
   [k: string]: any;
@@ -667,70 +667,80 @@ export type Reference = {
   [k: string]: any;
 };
 /**
- * Decoded private_key_jwt client authentication claims for PAP 0.3. Both iss and sub equal client_id; aud equals auth.issuer. Sign separately from the session assertion with the published identity key and a different jti.
- */
-export type PoppyClientAssertion = PoppySessionAssertion & {
-  /**
-   * The same client_id as iss; verify equality separately.
-   */
-  sub?: string;
-  [k: string]: any;
-};
-/**
- * Structural validation of Personal Agent Protocol draft 0.3 discovery. Readers ignore unknown fields and skip unsupported interface types. Cross-document identity and runtime security require separate checks.
+ * The discovery document a Company publishes at /.well-known/poppy.json. Spec section 3 (Discovery) and 3.1 (Fields). Unknown fields are allowed: Personal Agents ignore fields they don't recognize.
  */
 export type PoppyDocument = {
   [k: string]: any;
 } & {
-  /**
-   * Supported PAP draft. Pre-1.0 major.minor versions are not implicitly compatible; unknown fields within this version remain allowed.
-   */
   protocol_version: "0.3";
   organization: {
     name: string;
     domain: string;
+    logo_uri?: string;
     [k: string]: any;
   };
+  /**
+   * Optional. issuer is required only when the domain's protected resource metadata lists more than one authorization server, and must then be one of them (spec 3.1, 3.2), which is checked separately.
+   */
   auth?: {
-    issuer: string;
-    mediated?: {
-      endpoint: string;
-      /**
-       * @minItems 1
-       */
-      fields: [
-        {
-          name: string;
-          label: string;
-          secret: boolean;
-          [k: string]: any;
-        },
-        ...{
-          name: string;
-          label: string;
-          secret: boolean;
-          [k: string]: any;
-        }[]
-      ];
-      /**
-       * @minItems 1
-       */
-      scopes: [string, ...string[]];
-      [k: string]: any;
-    };
+    issuer?: string;
+    /**
+     * true if the Company offers Personal Agents no sign-in, even though it has an issuer (spec 3.2).
+     */
+    disabled?: boolean;
+    /**
+     * Scope descriptions, keyed by scope name, in the same form as an OpenAPI OAuth 2.0 security scheme. Describing offered scopes here or in a listed OpenAPI description is recommended.
+     */
     scopes?: {
       [k: string]: string;
     };
+    /**
+     * Hints about each scope, keyed by scope name, describing the most consequential operation that requires it.
+     */
     scope_hints?: {
       [k: string]: {
         /**
-         * Readers treat unrecognized values as irreversible; publishers use none, reversible or irreversible.
+         * Readers treat unknown values as irreversible.
          */
         changes: string;
         personal_data: boolean;
         [k: string]: any;
       };
     };
+    [k: string]: any;
+  };
+  agent?: {
+    /**
+     * @minItems 1
+     */
+    protocols: [
+      {
+        type: string;
+        endpoint: string;
+        /**
+         * For a poppy protocol entry, session (the default) or signed_in. Unknown values are ignored as an absent hint (spec 3.2).
+         */
+        access?: string;
+        [k: string]: any;
+      },
+      ...{
+        type: string;
+        endpoint: string;
+        /**
+         * For a poppy protocol entry, session (the default) or signed_in. Unknown values are ignored as an absent hint (spec 3.2).
+         */
+        access?: string;
+        [k: string]: any;
+      }[]
+    ];
+    [k: string]: any;
+  };
+  feedback?: {
+    endpoint: string;
+    [k: string]: any;
+  };
+  excluded_tasks?: {
+    url: string;
     [k: string]: any;
   };
   web?: {
@@ -741,113 +751,81 @@ export type PoppyDocument = {
     type: string;
     url: string;
     description: string;
-    /**
-     * HTTPS resource identifier without a fragment, as required by PAP 0.3 and RFC 8707.
-     */
-    resource?: string;
     [k: string]: any;
   }[];
-  agent?: {
+  skill_index?: PoppySkillIndex;
+  extensions?: {
     /**
-     * @minItems 1
+     * The Mediated Sign-In extension (Mediated Sign-In 2). Version 1 has the credentials to collect, each sent as a token request parameter of that name, and the scopes it can grant. The grant is at the issuer's token_endpoint, which lists https://personalagentprotocol.org/grant/mediated-sign-in in grant_types_supported.
      */
-    protocols: [
-      {
-        type: string;
-        endpoint: string;
-        /**
-         * HTTPS resource identifier without a fragment, as required by PAP 0.3 and RFC 8707.
-         */
-        resource?: string;
-        [k: string]: any;
-      },
-      ...{
-        type: string;
-        endpoint: string;
-        /**
-         * HTTPS resource identifier without a fragment, as required by PAP 0.3 and RFC 8707.
-         */
-        resource?: string;
-        [k: string]: any;
-      }[]
-    ];
-    [k: string]: any;
-  };
-  extensions?: Extensions;
-  feedback?: {
-    endpoint: string;
-    [k: string]: any;
-  };
-  excluded_tasks?: {
-    url: string;
-    [k: string]: any;
+    "mediated-sign-in"?: {
+      version: string;
+      [k: string]: any;
+    };
+    [k: string]:
+      | {
+          version: string;
+          endpoint?: string;
+          [k: string]: any;
+        }
+      | {
+          version: string;
+          [k: string]: any;
+        }
+      | undefined;
   };
   [k: string]: any;
 };
 /**
- * Successful JWT bearer guest grant. Always a DPoP token; no account scopes or credentials.
+ * An error with a JSON body from an endpoint this protocol or an extension defines, such as conversations (spec 8.13), feedback (9.3), and the browser-session authorization (6), including invalid_session and session_ended (HTTP 400, spec 5.3 and 5.5, also at APIs) and extension_required (3.3). extension_required names the extension in extension, and direct_conversation_open names the open Direct Conversation in conversation_id (8.10). Unknown fields are allowed.
  */
-export type PoppyGuestTokenResponse = PoppySessionTokenResponse & {
-  token_type?: "DPoP";
-  scope?: never;
-  refresh_token?: never;
-  refresh_token_expires_in?: never;
+export type PoppyError = {
+  error: string;
+  error_description?: string;
+  extension?: string;
+  conversation_id?: string;
   [k: string]: any;
 };
 /**
- * PAP 0.3 token response. Grant context determines signed-in state and scopes: JWT bearer is always signed out with scope omitted; sign-in/refresh is signed in and may omit scope only when exactly as requested. Session key thumbprints replace session_id. JSON validation cannot verify cryptography or effective grant permissions.
+ * The RFC 8414 metadata the Company's issuer publishes, with the fields Poppy requires. Spec section 3.2 (OAuth server). Other fields are allowed, and Personal Agents ignore them. grant_types_supported says which of Direct and Device Sign-In the Company offers: authorization_endpoint is required when it includes authorization_code, and device_authorization_endpoint when it includes the device_code grant. Publishing scopes_supported and a complete scope inventory is recommended. Endpoint conditions and scope recommendations are checked separately.
  */
-export type PoppySessionTokenResponse = {
-  access_token: string;
-  token_type: "DPoP" | "Bearer";
-  expires_in: number;
-  scope?: string;
-  refresh_token?: string;
-  refresh_token_expires_in?: number;
-  issued_token_type?: "urn:ietf:params:oauth:token-type:access_token";
-  session_id?: never;
-  signed_in?: never;
-  [k: string]: any;
-};
-/**
- * PAP 0.3 issuer metadata. Direct and Device Sign-In are selected by grant_types_supported. Cross-check organization resources, scope descriptions, mediated sign-in and native MCP resource metadata separately.
- */
-export type PoppyOAuthMetadata = {
+export type PoppyOauthMetadata = {
   issuer: string;
   token_endpoint: string;
   revocation_endpoint: string;
   authorization_endpoint?: string;
   device_authorization_endpoint?: string;
-  grant_types_supported: string[];
-  token_endpoint_auth_methods_supported?: string[];
   /**
-   * Optional advertisement; when present it must include ES256. ES256 proof verification is mandatory even when this field is omitted.
+   * RFC 8414 section 2. Accepted client-assertion algorithms, not delegation algorithms. Poppy requires ES256 and recommends PS384.
    */
-  dpop_signing_alg_values_supported?: string[];
-  poppy_domains?: never;
+  token_endpoint_auth_signing_alg_values_supported?: string[];
   /**
-   * Includes https://{organization.domain} with no port, path, query or trailing slash, compared with hostname case ignored only. May also list service resources.
+   * Must include refresh_token, which is checked separately.
+   */
+  grant_types_supported: string[];
+  scopes_supported?: string[];
+  /**
+   * RFC 9728 section 4. Lists https://{domain} for every domain whose issuer it is, and may list other resources.
    *
    * @minItems 1
    */
   protected_resources: [string, ...string[]];
-  scopes_supported?: string[];
   [k: string]: any;
 };
 /**
- * Resource-bound MCP Bearer token for the same Session and no broader scopes than the subject DPoP token. A signed-out exchange omits scope.
+ * HTTP 400 Session authentication error. Optional descriptions are static, allowlisted recovery guidance and must never reflect JWTs, keys, claims or request input. OAuth access-token errors use their separate OAuth status/challenge.
  */
-export type PoppyTokenExchangeResponse = PoppySessionTokenResponse & {
-  token_type?: "Bearer";
+export type PoppySessionError = PoppyError & {
+  error?: "invalid_session" | "session_ended";
   [k: string]: any;
 };
 /**
- * AAP 3.1 PAP draft 0.3 publication profile. Requires a guest OAuth issuer, native OpenAPI API and an AAP bridge linking the matching Agent Card, public MCP endpoint and llms.txt. Native PAP MCP session support remains conditional on advertising an MCP API entry.
+ * AAP publication profile for published PAP 0.3. Requires native OpenAPI and the matching AAP bridge. Signed-out Sessions use delegated Poppy-Session JWTs without a guest token grant. Issuer and account access are optional.
  */
 export type AAPPoppyDiscovery = PoppyDocument & {
   protocol_version?: "0.3";
-  auth: {
-    issuer: string;
+  auth?: {
+    issuer?: string;
     direct?: never;
     device?: never;
     custom_scopes?: never;
@@ -857,15 +835,17 @@ export type AAPPoppyDiscovery = PoppyDocument & {
         [k: string]: any;
       };
     };
+    mediated?: never;
     [k: string]: any;
   };
   apis: {
     type?: "openapi" | "mcp";
+    resource?: never;
     [k: string]: any;
   }[];
   extensions: {
     "autoagentprotocol.org/aap": PoppyAapExtension & {
-      aap_version: "3.1.0";
+      aap_version: "3.2.0";
       mcp: string;
       [k: string]: any;
     };
@@ -874,6 +854,8 @@ export type AAPPoppyDiscovery = PoppyDocument & {
   agent?: {
     protocols?: {
       type?: "poppy";
+      resource?: never;
+      access?: "session" | "signed_in";
       [k: string]: any;
     }[];
     [k: string]: any;
@@ -931,21 +913,21 @@ export interface AapSchemaTypes {
   LeadSubmitResponse: LeadSubmitResponse;
   McpEndpoint: McpEndpoint;
   PoppyAapExtension: PoppyAapExtension;
+  PoppyAccessTokenResponse: PoppyAccessTokenResponse;
   PoppyAlternative: PoppyAlternative;
-  PoppyBrowserSessionRequest: PoppyBrowserSessionRequest;
+  PoppyBrowserSessionAuthorize: PoppyBrowserSessionAuthorize;
   PoppyClientAssertion: PoppyClientAssertion;
   PoppyClientMetadata: PoppyClientMetadata;
+  PoppyDelegation: PoppyDelegation;
   PoppyDocument: PoppyDocument;
+  PoppyError: PoppyError;
   PoppyExcludedTasks: PoppyExcludedTasks;
   PoppyFeedbackRequest: PoppyFeedbackRequest;
-  PoppyGuestTokenResponse: PoppyGuestTokenResponse;
-  PoppyMCPResourceMetadata: PoppyMCPResourceMetadata;
-  PoppyOAuthMetadata: PoppyOAuthMetadata;
-  PoppySessionAssertion: PoppySessionAssertion;
-  PoppySessionRequest: PoppySessionRequest;
-  PoppySessionTokenResponse: PoppySessionTokenResponse;
-  PoppyTokenExchangeRequest: PoppyTokenExchangeRequest;
-  PoppyTokenExchangeResponse: PoppyTokenExchangeResponse;
+  PoppyOauthMetadata: PoppyOauthMetadata;
+  PoppyProtectedResourceMetadata: PoppyProtectedResourceMetadata;
+  PoppySessionError: PoppySessionError;
+  PoppySessionJWT: PoppySessionJWT;
+  PoppySkillIndex: PoppySkillIndex;
   AAPPoppyDiscovery: AAPPoppyDiscovery;
   VehicleDetailRequest: VehicleDetailRequest;
   VehicleDetailResponse: VehicleDetailResponse;
@@ -1042,7 +1024,7 @@ export interface Sort {
   order: "asc" | "desc";
 }
 /**
- * A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. AAP requires a JSONRPC interface in 'supportedInterfaces[]'. Additional bindings are outside AAP's conformance requirements, but all bindings on the same card MUST expose equivalent functionality, behavior, errors and authentication under A2A section 5.1. The card MUST declare exactly one AAP extension, whose 'uri' equals 'https://autoagentprotocol.org/extensions/aap/v3.1' and whose 'required' flag is true.
+ * A2A v1.0 AgentCard carrying the AAP automotive-retail extension. Published at /.well-known/agent-card.json on a dealer-controlled domain. AAP requires a JSONRPC interface in 'supportedInterfaces[]'. Additional bindings are outside AAP's conformance requirements, but all bindings on the same card MUST expose equivalent functionality, behavior, errors and authentication under A2A section 5.1. The card MUST declare exactly one AAP extension, whose 'uri' equals 'https://autoagentprotocol.org/extensions/aap/v3.2' and whose 'required' flag is true.
  */
 export interface AgentCard {
   /**
@@ -2709,29 +2691,36 @@ export interface PoppyAapExtension {
   [k: string]: any;
 }
 /**
- * PAP 0.3 browser form POST. The browser supplies its __Host- join cookie. code is single-use, at least 128 random bits, expires within 60 seconds and is read only from the own browser endpoint page. proof is a Session-key DPoP JWS with nonce=code, htm=POST, htu=endpoint and no ath. Runtime verification is mandatory.
+ * A successful token endpoint response from sign-in, including Mediated Sign-In, or refresh (spec 4.7): an access token, Bearer by default or DPoP if the Company binds its tokens (spec 4.5), and a refresh token. The response isn't tied to a Session: signed-in requests carry the access token with the Session header. refresh_token is present after sign-in and when the Company rotates it. scope is left out only when the granted scopes equal those requested, and expires_in is recommended (RFC 6749 section 5.1). Unknown fields are allowed.
  */
-export interface PoppyBrowserSessionRequest {
-  code: string;
+export interface PoppyAccessTokenResponse {
+  access_token: string;
   /**
-   * Compact signed JWS. Structural validation is not signature verification.
+   * Compared ignoring case (RFC 6749 section 5.1).
    */
-  proof: string;
-  assertion?: never;
-  return_to?: never;
-  session_id?: never;
+  token_type: string;
+  expires_in?: number;
+  scope?: string;
+  refresh_token?: string;
   [k: string]: any;
 }
 /**
- * Decoded PAP 0.3 session JWT claims, not a token or proof of authentication. Verify signature, issuer audience, expiry, a lifetime of at most 300 seconds and per-client replay prevention before accepting it.
+ * The JSON body a Personal Agent posts to {browser_session_endpoint}/authorize, with the Session header and, if signed in, its access token, to authorize the one-time code from the browser-session page (spec 6, step 2). The Company responds with HTTP 204, or 400 with invalid_request for a code that is unknown, expired, or already authorized.
  */
-export interface PoppySessionAssertion {
+export interface PoppyBrowserSessionAuthorize {
+  code: string;
+  [k: string]: any;
+}
+/**
+ * Decoded optional OAuth private_key_jwt claims. iss and sub equal client_id, aud is exactly the Company issuer, iat/exp are short-lived and jti unique. Verify signatures independently; this is never a Session JWT.
+ */
+export interface PoppyClientAssertion {
   /**
    * Authenticated personal-agent client_id.
    */
   iss: string;
   /**
-   * Opaque User ID scoped to the Company issuer, never derived from personal information.
+   * Authenticated personal-agent client_id.
    */
   sub: string;
   /**
@@ -2747,39 +2736,93 @@ export interface PoppySessionAssertion {
    */
   exp: number;
   /**
-   * Unique assertion ID generated with at least 128 random bits; reject reuse by the same client until expiry.
+   * Unique, unguessable client-assertion identifier. A deployment may reject replay; freshness is mandatory.
    */
   jti: string;
-  /**
-   * Optional stable opaque per-Company Agent ID, unchanged or absent for the entire Session. It does not create a separate client, account or conversation owner.
-   */
-  agent_id?: string;
   [k: string]: any;
 }
 /**
- * PAP 0.3 personal-agent identity. Verify client_id against the fetched URL. JWKS is HTTPS on that domain; redirects are HTTPS on that domain or RFC 8252 HTTP loopback literals. Public identity keys and per-Session DPoP keys are separate.
+ * The document at a Personal Agent's client_id URL. Spec section 4.1 (Agent identity). client_id must equal the URL it was fetched from, and jwks_uri and each redirect_uris entry other than a loopback redirect URI must be on the same domain as client_id; those depend on the fetch and are checked separately. Unknown fields are allowed. Signed-out Session verification requires client_id and jwks_uri; client_name, redirect_uris and OAuth authentication method metadata are optional. Direct Sign-In and OAuth authenticate only when their metadata and full flow are implemented.
  */
 export interface PoppyClientMetadata {
   client_id: string;
-  client_name: string;
+  client_name?: string;
   logo_uri?: string;
   jwks_uri: string;
-  redirect_uris: string[];
-  token_endpoint_auth_method: "private_key_jwt";
-  extensions?: Extensions;
+  redirect_uris?: string[];
+  /**
+   * Absent or none is valid for signed-out Sessions. Account OAuth requires advertised private_key_jwt.
+   */
+  token_endpoint_auth_method?: "none" | "private_key_jwt";
+  extensions?: {
+    [k: string]: {
+      version: string;
+      [k: string]: any;
+    };
+  };
+  client_secret?: never;
+  client_secret_expires_at?: never;
+  jwks?: never;
+  /**
+   * CIMD method choices. Optional OAuth must select private_key_jwt; any singular method must occur here.
+   *
+   * @minItems 1
+   */
+  token_endpoint_auth_methods_supported?: [string, ...string[]];
   [k: string]: any;
 }
-export interface Extensions {
-  [k: string]: {
-    /**
-     * An extension-defined version string. Readers ignore unknown extensions; the AAP publication profile separately requires bridge version 1.
-     */
-    version: string;
+/**
+ * A delegation as its decoded JWT header and payload: signed with ES256 or PS384 by a key in the Personal Agent's jwks_uri, it vouches for the delegated key in cnf.jwk (RFC 7800), which signs the Personal Agent's Session JWTs. Spec section 5.2 (Delegated keys). exp is at most 24 hours after iat. A delegation names no User, Agent ID, or Company. The header and payload are also available on their own as delegation.schema.json#/$defs/header and #/$defs/payload. The Session JWT that carries a delegation in poppy_dlg is session-jwt.schema.json.
+ */
+export interface PoppyDelegation {
+  header: Header;
+  payload: Payload;
+  [k: string]: any;
+}
+export interface Header {
+  alg: "ES256" | "PS384";
+  typ: "poppy-delegation+jwt";
+  kid: string;
+  [k: string]: any;
+}
+export interface Payload {
+  iss: string;
+  cnf: {
+    jwk: {
+      kty: "EC";
+      d?: never;
+      p?: never;
+      q?: never;
+      dp?: never;
+      dq?: never;
+      qi?: never;
+      k?: never;
+      crv: "P-256";
+      x: string;
+      y: string;
+      alg?: "ES256";
+      oth?: never;
+      [k: string]: any;
+    };
     [k: string]: any;
   };
+  iat: number;
+  exp: number;
+  jti: string;
+  sub?: never;
+  aud?: never;
+  agent_id?: never;
+  [k: string]: any;
 }
 /**
- * The document at excluded_tasks.url in poppy.json, listing the tasks a Company chose not to offer through the protocol. Spec 8.1 (Excluded tasks).
+ * The optional skill_index in poppy.json (spec 9.4). Local validation of the Agent Skills discovery proposal pinned by the spec, not an upstream-published JSON Schema. Unknown schema versions remain opaque to clients.
+ */
+export interface PoppySkillIndex {
+  $schema: string;
+  [k: string]: any;
+}
+/**
+ * The document at excluded_tasks.url in poppy.json, listing the tasks a Company chose not to offer through the protocol. Spec 9.1 (Excluded tasks).
  */
 export interface PoppyExcludedTasks {
   tasks: {
@@ -2790,70 +2833,49 @@ export interface PoppyExcludedTasks {
   [k: string]: any;
 }
 /**
- * PAP 0.3 feedback report. Personal agents send kind=missing; receiving Companies must also accept unknown kinds. Send with a Session Token and DPoP, without account scopes, identifiers or secrets. Accept HTTP 202 with no body or HTTP 200 with a PoppyAlternative. Do not report an excluded task.
+ * The JSON body a Personal Agent posts to {feedback.endpoint} to report a User's task that can't be done through the protocol. Spec 9.3 (Feedback).
  */
 export interface PoppyFeedbackRequest {
-  /**
-   * PAP 0.3 senders use missing. Receivers accept unknown future kinds.
-   */
-  kind: string;
   task: string;
   description: string;
   [k: string]: any;
 }
 /**
- * PAP 0.3 RFC 9728 metadata for native MCP. Cross-check resource against the exact advertised MCP URL and authorization_servers against auth.issuer. Advertised DPoP support requires ES256; without it the issuer must support token exchange.
+ * RFC 9728 protected resource metadata, with the fields Poppy needs. The Company's domain publishes it at https://{domain}/.well-known/oauth-protected-resource with resource exactly https://{domain}, and authorization_servers names its issuer when it has one (spec 3.2). An issuerless Company may omit authorization_servers or use an empty array. A listed MCP server publishes it with resource set to its URL and the Company's issuer in authorization_servers (spec 7), as does any service that accepts only tokens issued for it (spec 4.5). Other fields are allowed.
  */
-export interface PoppyMCPResourceMetadata {
+export interface PoppyProtectedResourceMetadata {
   resource: string;
-  /**
-   * @minItems 1
-   */
-  authorization_servers: [string, ...string[]];
-  /**
-   * Presence advertises MCP DPoP support and requires ES256. If absent, PAP clients obtain Bearer tokens through token exchange with DPoP at the token endpoint.
-   */
-  dpop_signing_alg_values_supported?: string[];
-  scopes_supported?: string[];
+  authorization_servers?: string[];
   bearer_methods_supported?: string[];
+  scopes_supported?: string[];
   [k: string]: any;
 }
 /**
- * PAP 0.3 JWT bearer grant form fields, encoded as application/x-www-form-urlencoded. Every token request requires a fresh DPoP header with the Session key, including token exchange. Omit scope for a guest grant; a successful guest response has no scope. The key identifies the Session; session_id is removed.
+ * The JWT in the Poppy-Session header, as its decoded header and payload (spec 5.2). The Personal Agent signs one for each request with a delegated key: kid is the delegated key's JWK thumbprint, and poppy_dlg is the delegation that vouches for it (delegation.schema.json). The Company verifies it as spec 5.3 describes. agent_id is optional, and ath is present only when the request carries an access token. The header and payload are also available on their own as session-jwt.schema.json#/$defs/header and #/$defs/payload.
  */
-export interface PoppySessionRequest {
-  grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer";
-  client_id: string;
-  client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
-  /**
-   * Compact signed JWS. Structural validation is not signature verification.
-   */
-  client_assertion: string;
-  /**
-   * Compact signed JWS. Structural validation is not signature verification.
-   */
-  assertion: string;
-  session_id?: never;
-  resource?: string;
-  scope?: string;
+export interface PoppySessionJWT {
+  header: Header1;
+  payload: Payload1;
   [k: string]: any;
 }
-/**
- * RFC 8693 form fields for PAP 0.3 non-DPoP MCP only. Send client authentication and a fresh Session-key DPoP header without ath. Verify the subject token belongs to that client and key; resource must equal the advertised MCP URL. Scopes cannot expand.
- */
-export interface PoppyTokenExchangeRequest {
-  client_id: string;
-  client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
-  /**
-   * Compact signed JWS. Structural validation is not signature verification.
-   */
-  client_assertion: string;
-  session_id?: never;
-  resource: string;
-  scope?: string;
-  grant_type: "urn:ietf:params:oauth:grant-type:token-exchange";
-  subject_token: string;
-  subject_token_type: "urn:ietf:params:oauth:token-type:access_token";
+export interface Header1 {
+  typ: "poppy-session+jwt";
+  alg: "ES256";
+  kid: string;
+  poppy_dlg: string;
+  [k: string]: any;
+}
+export interface Payload1 {
+  iss: string;
+  aud: string;
+  sid: string;
+  sub: string;
+  agent_id?: string;
+  htm: string;
+  htu: string;
+  iat: number;
+  jti: string;
+  ath?: string;
   [k: string]: any;
 }
 /**

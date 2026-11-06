@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.2/schemas/poppy-client-assertion.schema.json",
+  "title": "PoppyClientAssertion",
+  "description": "Decoded optional OAuth private_key_jwt claims. iss and sub equal client_id, aud is exactly the Company issuer, iat/exp are short-lived and jti unique. Verify signatures independently; this is never a Session JWT.",
+  "type": "object",
+  "properties": {
+    "iss": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$",
+      "description": "Authenticated personal-agent client_id."
+    },
+    "sub": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$",
+      "description": "Authenticated personal-agent client_id."
+    },
+    "aud": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:/[^?#\\s]*)?$",
+      "description": "Exact auth.issuer as a single string. The token endpoint URL and arrays are invalid."
+    },
+    "iat": {
+      "type": "number",
+      "minimum": 0,
+      "description": "JWT NumericDate: seconds since the Unix epoch, including fractional seconds (RFC 7519 section 2)."
+    },
+    "exp": {
+      "type": "number",
+      "minimum": 0,
+      "description": "JWT NumericDate: seconds since the Unix epoch, including fractional seconds (RFC 7519 section 2)."
+    },
+    "jti": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique, unguessable client-assertion identifier. A deployment may reject replay; freshness is mandatory."
+    }
+  },
+  "required": [
+    "iss",
+    "sub",
+    "aud",
+    "iat",
+    "exp",
+    "jti"
+  ],
+  "additionalProperties": true
+}

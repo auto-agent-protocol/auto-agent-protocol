@@ -1,0 +1,8 @@
+{
+  "iss": "https://buyer-agent.example/client.json",
+  "sub": "https://buyer-agent.example/client.json",
+  "aud": "https://demo-toyota.example.com/poppy",
+  "iat": 1792742400,
+  "exp": 1792742460,
+  "jti": "fa4ebc82b958a5cd75da99b031a3c647"
+}

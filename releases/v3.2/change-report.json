@@ -1,0 +1,900 @@
+{
+  "schemaVersion": 1,
+  "previous": "3.1.0",
+  "candidate": "3.2.0",
+  "summary": {
+    "additive": 18,
+    "breaking": 129
+  },
+  "changes": [
+    {
+      "kind": "breaking",
+      "file": "poppy-alternative.schema.json",
+      "path": "$.properties.instructions.maxLength",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-alternative.schema.json",
+      "path": "$.$defs.reference.properties.url.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-alternative.schema.json",
+      "path": "$.$defs.reference.properties.url.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-alternative.schema.json",
+      "path": "$.$defs.reference.properties.url.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-alternative.schema.json",
+      "path": "$.$defs.reference.properties.url.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-browser-session-request.schema.json",
+      "path": "$",
+      "detail": "schema removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-assertion.schema.json",
+      "path": "$.allOf",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-assertion.schema.json",
+      "path": "$.type",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-assertion.schema.json",
+      "path": "$.properties",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-assertion.schema.json",
+      "path": "$.required",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-assertion.schema.json",
+      "path": "$.additionalProperties",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.client_id.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.client_id.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.client_id.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.client_id.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.logo_uri.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.logo_uri.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.logo_uri.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.logo_uri.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.jwks_uri.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.jwks_uri.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.jwks_uri.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.jwks_uri.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.redirect_uris.items.anyOf",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.redirect_uris.uniqueItems",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.token_endpoint_auth_method.const",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.token_endpoint_auth_method.enum",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.extensions.$ref",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.extensions.type",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.extensions.additionalProperties",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.client_secret",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.client_secret_expires_at",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.jwks",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.token_endpoint_auth_methods_supported",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.required",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.additionalProperties",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.$defs",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.protocol_version.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.organization.properties.domain.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.organization.properties.domain.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.organization.properties.domain.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.organization.properties.logo_uri",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.organization.additionalProperties",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.auth.properties.issuer.pattern",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.auth.properties.mediated",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.auth.properties.scopes.propertyNames",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.auth.properties.scope_hints.propertyNames",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.auth.properties.scope_hints.additionalProperties.additionalProperties",
+      "detail": "removed"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.auth.properties.disabled",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.auth.required",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.auth.additionalProperties",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.web.properties.browser_session_endpoint.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.web.properties.browser_session_endpoint.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.web.properties.browser_session_endpoint.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.web.properties.browser_session_endpoint.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.web.required",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.web.additionalProperties",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.apis.items.properties.url.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.apis.items.properties.url.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.apis.items.properties.url.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.apis.items.properties.url.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.apis.items.properties.resource",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.apis.items.additionalProperties",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.agent.properties.protocols.items.properties.endpoint.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.agent.properties.protocols.items.properties.endpoint.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.agent.properties.protocols.items.properties.endpoint.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.agent.properties.protocols.items.properties.endpoint.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.agent.properties.protocols.items.properties.resource",
+      "detail": "removed"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.agent.properties.protocols.items.properties.access",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.agent.properties.protocols.items.additionalProperties",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.agent.additionalProperties",
+      "detail": "removed"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.extensions.additionalProperties.properties.endpoint",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.extensions.additionalProperties.additionalProperties",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.extensions.properties",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.feedback.properties.endpoint.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.feedback.properties.endpoint.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.feedback.properties.endpoint.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.feedback.properties.endpoint.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.feedback.additionalProperties",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.excluded_tasks.properties.url.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.excluded_tasks.properties.url.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.excluded_tasks.properties.url.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.excluded_tasks.properties.url.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.excluded_tasks.additionalProperties",
+      "detail": "removed"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.skill_index",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.additionalProperties",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.anyOf",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.allOf",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.$defs",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-excluded-tasks.schema.json",
+      "path": "$.properties.tasks.items.properties.task.maxLength",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-feedback-request.schema.json",
+      "path": "$.properties.kind",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-feedback-request.schema.json",
+      "path": "$.properties.task.minLength",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-feedback-request.schema.json",
+      "path": "$.properties.description.minLength",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-feedback-request.schema.json",
+      "path": "$.required",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-feedback-request.schema.json",
+      "path": "$.additionalProperties",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-guest-token-response.schema.json",
+      "path": "$",
+      "detail": "schema removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-mcp-resource-metadata.schema.json",
+      "path": "$",
+      "detail": "schema removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.issuer.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.issuer.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.issuer.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.issuer.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.token_endpoint.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.token_endpoint.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.token_endpoint.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.token_endpoint.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.revocation_endpoint.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.revocation_endpoint.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.revocation_endpoint.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.revocation_endpoint.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.authorization_endpoint.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.authorization_endpoint.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.authorization_endpoint.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.authorization_endpoint.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.device_authorization_endpoint.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.device_authorization_endpoint.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.device_authorization_endpoint.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.device_authorization_endpoint.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.grant_types_supported.allOf",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.grant_types_supported.contains",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.token_endpoint_auth_methods_supported",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.dpop_signing_alg_values_supported",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.poppy_domains",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.protected_resources.uniqueItems",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.protected_resources.items.type",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.protected_resources.items.format",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.protected_resources.items.pattern",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.protected_resources.items.$ref",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.scopes_supported.uniqueItems",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.scopes_supported.items.pattern",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.token_endpoint_auth_signing_alg_values_supported",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.additionalProperties",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.allOf",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.$defs",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-session-assertion.schema.json",
+      "path": "$",
+      "detail": "schema removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-session-request.schema.json",
+      "path": "$",
+      "detail": "schema removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-session-token.schema.json",
+      "path": "$",
+      "detail": "schema removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-token-exchange-request.schema.json",
+      "path": "$",
+      "detail": "schema removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-token-exchange-response.schema.json",
+      "path": "$",
+      "detail": "schema removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy.schema.json",
+      "path": "$.allOf",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-access-token-response.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-browser-session-authorize.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-delegation.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-error.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-protected-resource-metadata.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-session-error.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-session-jwt.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-skill-index.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    }
+  ],
+  "compatibilityException": {
+    "previous": "3.1.0",
+    "candidate": "3.2.0",
+    "workingSpecSha256": "a17f4f06befb0a8a891545b0fd382ac353370a9a8fbc467585518d5fa96c3dcf",
+    "reason": "Maintainer-approved published PAP 0.3 transition. Automotive payloads, MCP, A2A and bridge version 1 are unchanged; earlier PAP 0.3 clients require authentication migration. The next AAP major is reserved for PAP 1.0. See docs/versioning.md#pap-03-migration."
+  },
+  "note": "Structural schema check only. Release URLs and the two generated AAP version identity constants are normalized; business constants are not. Maintainers must review normative behavior and documentation."
+}

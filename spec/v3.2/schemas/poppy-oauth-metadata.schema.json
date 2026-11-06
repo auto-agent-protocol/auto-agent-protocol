@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.2/schemas/poppy-oauth-metadata.schema.json",
+  "title": "PoppyOauthMetadata",
+  "description": "The RFC 8414 metadata the Company's issuer publishes, with the fields Poppy requires. Spec section 3.2 (OAuth server). Other fields are allowed, and Personal Agents ignore them. grant_types_supported says which of Direct and Device Sign-In the Company offers: authorization_endpoint is required when it includes authorization_code, and device_authorization_endpoint when it includes the device_code grant. Publishing scopes_supported and a complete scope inventory is recommended. Endpoint conditions and scope recommendations are checked separately.",
+  "type": "object",
+  "required": [
+    "issuer",
+    "token_endpoint",
+    "revocation_endpoint",
+    "grant_types_supported",
+    "protected_resources"
+  ],
+  "properties": {
+    "issuer": {
+      "$ref": "#/$defs/https_url"
+    },
+    "token_endpoint": {
+      "$ref": "#/$defs/https_url"
+    },
+    "revocation_endpoint": {
+      "$ref": "#/$defs/https_url"
+    },
+    "authorization_endpoint": {
+      "$ref": "#/$defs/https_url"
+    },
+    "device_authorization_endpoint": {
+      "$ref": "#/$defs/https_url"
+    },
+    "token_endpoint_auth_signing_alg_values_supported": {
+      "description": "RFC 8414 section 2. Accepted client-assertion algorithms, not delegation algorithms. Poppy requires ES256 and recommends PS384.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "contains": {
+        "const": "ES256"
+      }
+    },
+    "grant_types_supported": {
+      "description": "Must include refresh_token, which is checked separately.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "contains": {
+        "const": "refresh_token"
+      }
+    },
+    "scopes_supported": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
+      }
+    },
+    "protected_resources": {
+      "description": "RFC 9728 section 4. Lists https://{domain} for every domain whose issuer it is, and may list other resources.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/https_url"
+      }
+    }
+  },
+  "$defs": {
+    "https_url": {
+      "type": "string",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\\\\\s]+(?:[/?#][^\\\\\\s]*)?$",
+      "format": "uri"
+    }
+  },
+  "$comment": "Adapted from personal-agent-protocol at 6fb46d381ac1b94265795132af13848ec442b6f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-0.3. JSON Schema does not verify cryptography or runtime requirements.",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "grant_types_supported": {
+            "contains": {
+              "const": "authorization_code"
+            }
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "authorization_endpoint"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "grant_types_supported": {
+            "contains": {
+              "const": "urn:ietf:params:oauth:grant-type:device_code"
+            }
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "device_authorization_endpoint"
+        ]
+      }
+    }
+  ]
+}
