@@ -36,16 +36,16 @@ publication so the live website does not advertise an unavailable contract.
 
 The independent Protobuf error check also runs in CI. Install the pinned Python dependencies and run it as described in [Conformance](docs/conformance.md#run-the-repository-checks).
 
-4. Choose the next `MAJOR.MINOR.0` version. Use a minor release only for additive changes; use a major release for validation-affecting or semantic breaks. The sole approved exception is the 2.0.0 → 2.1.0 PAP 0.2 transition described below.
+4. Choose the next `MAJOR.MINOR.0` version. Additive changes use a minor release; validation-affecting or semantic breaks normally require a major release. The approved exceptions are the 2.0.0 → 2.1.0 PAP 0.2 transition and the 3.1.0 → 3.2.0 published PAP 0.3 transition described below. The maintainer has reserved the next AAP major release for PAP 1.0; this does not authorize unrelated breaking minor changes.
 
 Patch releases are not cut because public contract URLs identify major/minor only. Existing public URLs are never replaced.
 
 ## Rehearse first
 
-The examples below prepare 3.1.0 from stable 3.0.0. Select the next eligible version from the current registry; never reuse an existing release label.
+The examples below prepare the approved 3.2.0 transition from stable 3.1.0. Select the next eligible version from the current registry; never reuse an existing release label.
 
 ```bash
-pnpm release:prepare 3.1.0 --dry-run
+pnpm release:prepare 3.2.0 --dry-run
 ```
 
 Dry-run validation creates candidates in an operating-system temporary directory, prints the structural compatibility report, and leaves the repository byte-for-byte unchanged. Review every reported change. The report intentionally does not certify normative behavior, security, privacy, legal compliance, or interoperability.
@@ -59,7 +59,7 @@ A new `dependentSchemas` map is additive only when every triggering property is 
 Commit the approved editable source, confirm the tree is clean, then run:
 
 ```bash
-pnpm release:prepare 3.1.0
+pnpm release:prepare 3.2.0
 ```
 
 The command:
@@ -73,7 +73,7 @@ The command:
 - updates `releases.json`, `versions.json`, stable package versions, and stable generated types;
 - leaves the editable `spec/latest/` and `docs/` sources unchanged.
 
-It refuses dirty input, an existing target, a skipped version, a patch contract, and a breaking minor candidate outside the approved PAP transition. If applying the snapshot fails, it restores every mutable metadata and package file and removes only the newly created target directories.
+It refuses dirty input, an existing target, a skipped version, a patch contract, and a breaking minor candidate outside the approved PAP transitions. If applying the snapshot fails, it restores every mutable metadata and package file and removes only the newly created target directories.
 
 The command never commits, tags, pushes, publishes npm packages, changes GitHub releases, or deploys the website.
 
@@ -82,6 +82,12 @@ The command never commits, tags, pushes, publishes npm packages, changes GitHub 
 AAP 2.1.0 retains the AAP 2.0 automotive payloads, A2A v1.0 behavior and bridge version `1`, while upgrading the PAP profile from 0.1 to 0.2. The maintainer selected 2.1.0 as an explicit exception to the normal major-release policy. This does not make PAP 0.1 clients compatible: discovery and authentication require the [frozen migration](https://autoagentprotocol.org/docs/v2.1/versioning#pap-02-migration).
 
 `tools/release-prepare.ts` pins this exception to the exact reviewed specification SHA-256 and the 2.0.0 → 2.1.0 version pair. It cannot permit other specification changes or future breaking minor releases. The generated compatibility report records the exception and retains every detected breaking change. Rehearse with `pnpm release:prepare 2.1.0 --dry-run`, then prepare the committed source with `pnpm release:prepare 2.1.0`.
+
+## Approved published PAP 0.3 transition
+
+AAP 3.2.0 replaces the earlier October 26 PAP 0.3 authentication profile with the published PAP 0.3 contract pinned in [Versions and migration](docs/versioning.md#pap-03-migration). Automotive payloads, MCP, A2A and bridge version `1` retain their meanings. The required authentication and discovery changes still require client migration, even though the maintainer selected a minor release and reserved the next AAP major for PAP 1.0.
+
+`tools/release-prepare.ts` permits this exception only for 3.1.0 → 3.2.0 and the exact reviewed `spec/latest` SHA-256 `b8da2aed1b1059e776060f9d83091326803d006085855e53775505c8eb70569b`. Any additional specification change invalidates the exception and needs explicit review. The compatibility report retains every detected breaking change and records the exception; it does not declare older PAP clients compatible. Preserve frozen AAP 3.1 endpoints during migration and complete deployment acceptance before changing default discovery.
 
 ## Review and publish explicitly
 

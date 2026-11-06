@@ -281,6 +281,65 @@ test("the PAP 0.2 exception permits only the reviewed 2.0.0 to 2.1.0 specificati
   }
 });
 
+test("the published PAP 0.3 exception permits only the reviewed 3.1.0 to 3.2.0 specification", async () => {
+  const context = fixture();
+  try {
+    const registry = loadRegistry(context.root);
+    const baseline = registry.releases.findIndex(release => release.contract === "v3.1");
+    assert.ok(baseline >= 0);
+    const approvedSpec = join(context.root, "spec/v3.2"), draftSpec = join(context.root, "spec/latest");
+    if (existsSync(approvedSpec)) {
+      rmSync(draftSpec, {recursive: true});
+      cpSync(approvedSpec, draftSpec, {recursive: true});
+      for (const file of filesIn(draftSpec)) writeFileSync(file, readFileSync(file, "utf8")
+        .replaceAll(`${SITE}/v3.2/`, `${DRAFT_SITE}/latest/`)
+        .replaceAll(`${SITE}/extensions/aap/v3.2`, `${DRAFT_SITE}/extensions/aap/latest`)
+        .replaceAll("3.2.0", DRAFT_VERSION));
+    }
+    for (const release of registry.releases.slice(baseline + 1)) {
+      for (const path of releasePrefixes(release.contract)) rmSync(join(context.root, path), {recursive: true, force: true});
+    }
+    registry.releases = registry.releases.slice(0, baseline + 1);
+    registry.stable = "v3.1";
+    writeJson(join(context.root, "releases.json"), registry);
+    writeJson(join(context.root, "versions.json"), registry.releases.map(release => release.contract).reverse());
+    for (const file of ["package.json", "packages/types/package.json", "packages/schemas/package.json", "packages/validator/package.json"]) {
+      const value = readJson<Record<string, unknown>>(join(context.root, file));
+      writeJson(join(context.root, file), {...value, version: "3.1.0"});
+    }
+    cpSync(join(context.root, "releases/v3.1/artifacts/types.d.ts"), join(context.root, "packages/types/src/index.d.ts"));
+    git(context.root, ["add", "-A"]);
+    git(context.root, ["commit", "--allow-empty", "-qm", "feat: restore the published PAP transition baseline"]);
+    const frozenBefore = snapshot(join(context.root, "spec/v3.1"));
+    for (const [name, property] of [["poppy-oauth-metadata", "issuer"], ["agent-card", "description"]]) {
+      const file = join(context.root, `spec/latest/schemas/${name}.schema.json`);
+      const original = readFileSync(file, "utf8");
+      const schema = JSON.parse(original);
+      schema.properties[property].maxLength = 100000;
+      writeJson(file, schema);
+      const before = releaseState(context.root);
+      await assert.rejects(() => prepareRelease(context.root, "3.2.0", true), /breaking schema changes; a minor release is not permitted/);
+      assert.equal(releaseState(context.root), before);
+      writeFileSync(file, original);
+    }
+    await prepareRelease(context.root, "3.2.0", false);
+    const report = readJson<{summary: {breaking: number}; compatibilityException: {previous: string; candidate: string; workingSpecSha256: string}}>(join(context.root, "releases/v3.2/change-report.json"));
+    const provenance = readJson<{workingSpecSha256: string}>(join(context.root, "releases/v3.2/provenance.json"));
+    assert.ok(report.summary.breaking > 0, "a minor version label must not hide the authentication migration");
+    assert.equal(report.compatibilityException.previous, "3.1.0");
+    assert.equal(report.compatibilityException.candidate, "3.2.0");
+    assert.equal(report.compatibilityException.workingSpecSha256, provenance.workingSpecSha256);
+    assert.equal(snapshot(join(context.root, "spec/v3.1")), frozenBefore);
+    const file = join(context.root, "spec/latest/schemas/poppy-oauth-metadata.schema.json");
+    const schema = JSON.parse(readFileSync(file, "utf8"));
+    schema.properties.issuer.maxLength = 100000;
+    writeJson(file, schema);
+    await assert.rejects(() => prepareRelease(context.root, "3.3.0", true), /breaking schema changes; a minor release is not permitted/);
+  } finally {
+    context.cleanup();
+  }
+});
+
 test("release preparation snapshots latest once and refuses overwrite", async () => {
   const context = fixture();
   try {

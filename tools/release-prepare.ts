@@ -18,6 +18,12 @@ const PAP_02_TRANSITION = {
   workingSpecSha256: "ce1568df11f6620bcf8cb18235829fadbd9d00a5708f89768c9fbe08cf803358",
   reason: "Maintainer-approved PAP 0.2 transition. Automotive payloads, A2A behavior and bridge version 1 are unchanged; PAP 0.1 clients require migration. See docs/versioning.md#pap-02-migration.",
 };
+const PAP_03_TRANSITION = {
+  previous: "3.1.0",
+  candidate: "3.2.0",
+  workingSpecSha256: "b8da2aed1b1059e776060f9d83091326803d006085855e53775505c8eb70569b",
+  reason: "Maintainer-approved published PAP 0.3 transition. Automotive payloads, MCP, A2A and bridge version 1 are unchanged; earlier PAP 0.3 clients require authentication migration. The next AAP major is reserved for PAP 1.0. See docs/versioning.md#pap-03-migration.",
+};
 const JSON_SCHEMA_ANNOTATIONS = new Set(["$comment", "$id", "default", "deprecated", "description", "examples", "readOnly", "title", "writeOnly"]);
 const SCHEMA_MAPS = new Set(["properties", "patternProperties", "$defs", "definitions", "dependentSchemas"]);
 const SINGLE_SCHEMAS = new Set(["additionalProperties", "unevaluatedProperties", "propertyNames", "items", "additionalItems", "unevaluatedItems", "contains", "not", "if", "then", "else"]);
@@ -129,8 +135,8 @@ export async function prepareRelease(root: string, version: string, dryRun: bool
     await generateTypes(join(candidateSpec, "schemas"), artifacts, version); await generateOpenapi(candidateSpec, artifacts, version); generateMcp(candidateSpec, artifacts, version);
     const changes = compatibility(root, stable, version, candidateSpec);
     const breaking = changes.filter(change => change.kind === "breaking");
-    const compatibilityException = stable.version === PAP_02_TRANSITION.previous && version === PAP_02_TRANSITION.candidate && draftHash === PAP_02_TRANSITION.workingSpecSha256
-      ? PAP_02_TRANSITION : undefined;
+    const compatibilityException = [PAP_02_TRANSITION, PAP_03_TRANSITION].find(transition =>
+      stable.version === transition.previous && version === transition.candidate && draftHash === transition.workingSpecSha256);
     if (breaking.length > 0 && major === oldMajor && !compatibilityException) {
       throw new Error(`Compatibility report found breaking schema changes; a minor release is not permitted:\n${JSON.stringify(breaking, null, 2)}`);
     }

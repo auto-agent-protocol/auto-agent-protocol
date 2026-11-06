@@ -1,25 +1,25 @@
 ---
 sidebar_position: 9
 title: Versions and migration
-description: AAP 3.1 currency and odometer migration, independent upstream versions, and immutable release artifacts.
+description: AAP 3.2 published PAP 0.3 migration, independent upstream versions, and immutable release artifacts.
 ---
 
 # Versions and migration
 
-**AAP 3.1 adds explicit currency and odometer units.** Existing omitted labels retain USD/mi meanings. Native Canadian amounts require the new fields and a 3.1 endpoint; do not relabel CAD/km numbers on an unchanged 3.0 endpoint. The frozen 3.0 contract remains unchanged.
+**AAP 3.2.0 is the release target for published PAP 0.3.** This approved minor transition requires an authentication migration from the earlier PAP 0.3 profile in frozen AAP 3.1. The next AAP major release is reserved for PAP 1.0. Automotive payloads retain their 3.1 meanings, including explicit currency and odometer units.
 
 ![Edit and verify the draft, freeze a new release, then publish and switch a verified deployment](./img/versioning-timeline.svg)
 
 ## Four independent version numbers
 
-| Identifier | Meaning in AAP 3.1 |
+| Identifier | Meaning in AAP 3.2 |
 |---|---|
-| AAP `3.1.0` / contract `v3.1` | Automotive schemas, bindings and behavior |
+| AAP `3.2.0` / contract `v3.2` | Target automotive schemas, bindings and behavior; draft authoring still uses `0.0.0-dev` |
 | MCP `2026-07-28` + `2025-11-25` | Current wire protocol and explicit compatibility path |
 | A2A `1.0` | Agent Card, Message and JSON-RPC protocol |
-| PAP `0.3` | Pinned in-progress Poppy draft; discovery bridge remains `version: "1"` |
+| PAP `0.3` | Published specification pinned to commit `6fb46d381ac1b94265795132af13848ec442b6f6`; discovery bridge remains `version: "1"` |
 
-A server's software version is separate. A PAP 0.2 client must migrate its authentication flow; a PAP 0.3 client is not automatically an AAP 3.1 client, and MCP version negotiation does not choose an automotive schema version.
+A server's software version is separate. PAP 0.2 and earlier draft 0.3 clients must migrate their authentication flows; a PAP 0.3 client is not automatically an AAP 3.2 client, and MCP version negotiation does not choose an automotive schema version.
 
 ## AAP 3.0 to 3.1
 
@@ -80,9 +80,9 @@ Do not retry an uncertain lead through an older contract with a new key. Preserv
 
 ### PAP 0.3 migration
 
-The editable draft targets [published 0.3 at commit `6fb46d381ac1b94265795132af13848ec442b6f6`](https://github.com/personal-agent-protocol/personal-agent-protocol/blob/6fb46d381ac1b94265795132af13848ec442b6f6/content/versions/0.3/spec.mdx). Frozen AAP 3.1 pins October 26 commit `86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7`, which used the same upstream `0.3` label but a different authentication model. The replacement changes required fields and meanings, so it is a **next-major AAP change**. No release number is assigned by this work; `/latest/`, package versions and all frozen releases remain unchanged.
+The editable draft targets [published 0.3 at commit `6fb46d381ac1b94265795132af13848ec442b6f6`](https://github.com/personal-agent-protocol/personal-agent-protocol/blob/6fb46d381ac1b94265795132af13848ec442b6f6/content/versions/0.3/spec.mdx). Frozen AAP 3.1 pins October 26 commit `86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7`, which used the same upstream `0.3` label but a different authentication model. The maintainer approved **AAP 3.2.0** for this migration and reserved the next major for PAP 1.0. Required authentication fields and meanings change, so older clients still require migration. The release tool permits this minor exception only for the reviewed specification hash and the 3.1.0 → 3.2.0 pair. Until release approval, `/latest/`, package versions and all frozen releases remain unchanged.
 
-| Surface | Frozen AAP 3.1 profile | Published PAP 0.3 draft binding |
+| Surface | Frozen AAP 3.1 profile | AAP 3.2 published PAP 0.3 binding |
 |---|---|---|
 | Signed-out access | OAuth guest JWT grant, two assertions, Session Token and DPoP | Fresh delegated `Poppy-Session` JWT on each request; no guest token grant |
 | Company identity | Required `auth.issuer` | Discover domain protected-resource metadata; optional issuer; domain fallback only after explicit absence, never errors |
@@ -104,7 +104,7 @@ Update client constructors and generated schemas together. Preserve automotive p
 
 ### PAP 0.2 migration
 
-This heading remains as a historical link. AAP 2.1 used PAP 0.2; its [frozen migration record](https://autoagentprotocol.org/docs/v2.1/versioning#pap-02-migration) documents the earlier 0.1 → 0.2 transition. The next-major draft targets **published 0.3 directly**; frozen AAP 3.1 retains its earlier pinned profile. They do not need an intermediate 0.2 deployment. The historical 2.0 → 2.1 minor-release exception was approved for one specification hash and does not relax the major-version policy.
+This heading remains as a historical link. AAP 2.1 used PAP 0.2; its [frozen migration record](https://autoagentprotocol.org/docs/v2.1/versioning#pap-02-migration) documents the earlier 0.1 → 0.2 transition. AAP 3.2 targets **published 0.3 directly**; frozen AAP 3.1 retains its earlier pinned profile. They do not need an intermediate 0.2 deployment. Both the historical 2.0 → 2.1 and the approved 3.1 → 3.2 minor-release exceptions are pinned to their reviewed specification hashes and do not permit unrelated breaking changes.
 
 ### Breaking migration checklist
 
@@ -123,7 +123,7 @@ Draft schema/extension URLs use `https://draft.autoagentprotocol.invalid`. Relea
 
 ## SemVer and immutability
 
-AAP follows Semantic Versioning. Optional additive behavior can be minor; removed fields, tighter validation, changed required meanings or new mandatory interfaces require a major release. The structural compatibility report is conservative and does not replace semantic review.
+AAP normally follows Semantic Versioning. Optional additive behavior can be minor; removed fields, tighter validation, changed required meanings or new mandatory interfaces normally require a major release. The explicitly approved PAP transitions to AAP 2.1 and 3.2 are exceptions, with required client migrations documented above. The next AAP major is reserved for PAP 1.0. These decisions do not waive compatibility checks for other changes; the structural report remains conservative and does not replace semantic review.
 
 Contract paths contain major/minor only, so the release tool creates `MAJOR.MINOR.0` snapshots. Published snapshots are never edited, including their diagrams. Editorial corrections enter the editable source for a later release.
 
@@ -134,7 +134,7 @@ A release freezes schemas, examples, skills, docs/sidebar/images, generated Type
 Commit reviewed edits to the working sources, then rehearse:
 
 ```bash
-pnpm release:prepare 3.1.0 --dry-run
+pnpm release:prepare 3.2.0 --dry-run
 ```
 
 After reviewing the compatibility report, run without `--dry-run` from a clean tree. The command validates and freezes the new contract, generates artifacts, records the source commit/hashes and updates registry/package versions. It does not commit, tag, push, publish npm packages or deploy the site. See [RELEASING.md](https://github.com/auto-agent-protocol/auto-agent-protocol/blob/main/RELEASING.md).

@@ -1,15 +1,15 @@
 ---
 sidebar_position: 5
 title: Personal Agent Protocol
-description: Unreleased next-major AAP binding for published PAP 0.3, delegated Sessions and consistent automotive payloads.
+description: Unreleased AAP 3.2 binding for published PAP 0.3, delegated Sessions and consistent automotive payloads.
 ---
 
 # Personal Agent Protocol
 
 {/* aap-draft-only:start */}
 
-:::info Unreleased next-major contract
-This editable draft replaces required authentication and therefore requires a new AAP major release. No release number is assigned. Frozen AAP 3.1, its October 26 PAP profile and stable aliases remain unchanged. Draft URLs and `0.0.0-dev` are authoring identifiers, never production identifiers.
+:::info Unreleased AAP 3.2 contract
+This editable draft targets AAP 3.2.0 under the approved PAP migration exception. The next AAP major is reserved for PAP 1.0; clients must still migrate the required authentication flow. Frozen AAP 3.1, its October 26 PAP profile and stable aliases remain unchanged. Draft URLs and `0.0.0-dev` are authoring identifiers, never production identifiers.
 :::
 
 {/* aap-draft-only:end */}
@@ -119,8 +119,8 @@ A Session JWT never grants account access. A signed-in request carries both Sess
 
 ## 7. Migration and evidence
 
-Historical illustrations for the **frozen AAP 3.1 October 26 profile only** remain available as links: [discovery](./img/poppy-discovery.svg), [guest token and key-bound Session](./img/poppy-session.svg), [MCP token exchange](./img/poppy-mcp-tokens.svg), and [browser DPoP join](./img/poppy-browser-join.svg). They describe that older authentication mechanism. Updated published-0.3 artwork belongs to a separate presentation PR under the release policy.
+Historical illustrations for the **frozen AAP 3.1 October 26 profile only** remain available as links: [discovery](./img/poppy-discovery.svg), [guest token and key-bound Session](./img/poppy-session.svg), [MCP token exchange](./img/poppy-mcp-tokens.svg), and [browser DPoP join](./img/poppy-browser-join.svg). They describe that older authentication mechanism; use the AAP 3.2 flow above for published PAP 0.3.
 
-Follow the [migration table](./versioning.md#pap-03-migration). Keep frozen AAP 3.1 endpoints available while testing the opt-in replacement; publish a new default only after the next-major release and deployment acceptance are approved. No release or deployment is performed by editing these contracts.
+Follow the [migration table](./versioning.md#pap-03-migration). Keep frozen AAP 3.1 endpoints available while testing the opt-in replacement; publish a new default only after the AAP 3.2 release and deployment acceptance are approved. No release or deployment is performed by editing these contracts.
 
 The repository checks schema structure, independent pinned upstream fixtures, cross-document identities, claim relationships, safe recovery shapes and generated bindings. Static examples deliberately contain invalid illustrative signatures and fixed timestamps. `checkPoppySessionClaims` is **not a JWT verifier**. Neither it nor a schema verifies real signatures, TLS/DNS, SSRF protections, distributed Session/replay state, account revocation, browser isolation or contact consent. Run [deployment acceptance](./conformance.md) with independent signers, isolated inventory and a non-delivering lead sink before claiming runtime conformance. Verify actual target shopping agents separately; publish only the capabilities and evidence actually tested.

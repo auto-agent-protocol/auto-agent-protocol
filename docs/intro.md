@@ -8,7 +8,7 @@ description: The automotive contract for AI agents, with native MCP tools, A2A m
 
 {/* aap-draft-only:start */}
 
-:::info Unreleased next-major draft
+:::info Unreleased AAP 3.2 draft
 This is the editable contract. Draft identifiers are replaced with immutable URLs during release preparation; do not deploy them.
 :::
 
@@ -18,15 +18,15 @@ This is the editable contract. Draft identifiers are replaced with immutable URL
 
 ![MCP, A2A and PAP connect buyer agents to one shared automotive contract](./img/network-overview.svg)
 
-AAP 3.1 defines three native interfaces. Each carries the same typed request and response; none requires an extra hop through another protocol.
+AAP 3.2 defines three native interfaces. Each carries the same typed request and response; none requires an extra hop through another protocol.
 
 | Interface | How the agent calls | Baseline |
 |---|---|---|
 | [MCP](./bindings/mcp.md) | Discover and call automotive tools | Streamable HTTP, 2026-07-28 + 2025-11-25 compatibility |
 | [A2A](./bindings/json-rpc.md) | `SendMessage` with an automotive DataPart | A2A 1.0, JSON-RPC 2.0 |
-| [PAP](./personal-agent-protocol.md) | Native OpenAPI operation with delegated Session JWT | Published PAP 0.3 (next-major draft) |
+| [PAP](./personal-agent-protocol.md) | Native OpenAPI operation with delegated Session JWT | Published PAP 0.3 |
 
-A full AAP 3.1 dealer deployment implements all three with the same skill subset and business behavior. A client needs only its chosen interface. A partial implementation can describe the binding it supports, but cannot claim the full deployment profile. [Conformance](./conformance.md) defines the exact boundary.
+A full AAP 3.2 dealer deployment implements all three with the same skill subset and business behavior. A client needs only its chosen interface. A partial implementation can describe the binding it supports, but cannot claim the full deployment profile. [Conformance](./conformance.md) defines the exact boundary.
 
 ## Five skills. One shopping journey.
 

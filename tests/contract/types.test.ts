@@ -31,7 +31,7 @@ const closedDay: AAP.DayHours = null;
 const weeklySchedule: AAP.WeeklyHours = { monday: publicDayHours, sunday: closedDay };
 const accessToken: AAP.PoppyAccessTokenResponse = { access_token: "illustrative", token_type: "Bearer", expires_in: 300 };
 const browserJoin: AAP.PoppyBrowserSessionAuthorize = { code: "illustrative" };
-// @ts-expect-error The next-major draft no longer exports a guest OAuth response.
+// @ts-expect-error The AAP 3.2 draft no longer exports a guest OAuth response.
 const oldGuestToken: AAP.PoppyGuestTokenResponse = accessToken;
 // @ts-expect-error API Session signatures require ES256 even when a delegation uses PS384.
 const wrongSessionAlgorithm: AAP.PoppySessionJWT["header"]["alg"] = "PS384";
