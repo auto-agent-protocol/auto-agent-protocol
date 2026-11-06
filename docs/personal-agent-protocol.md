@@ -1,7 +1,7 @@
 ---
 sidebar_position: 5
 title: Personal Agent Protocol
-description: Unreleased AAP 3.2 binding for published PAP 0.3, delegated Sessions and consistent automotive payloads.
+description: AAP 3.2 binding for published PAP 0.3, delegated Sessions and consistent automotive payloads.
 ---
 
 # Personal Agent Protocol
@@ -19,9 +19,11 @@ The target is **published PAP 0.3**, pinned to [upstream commit 6fb46d381ac1b942
 AAP carries the same automotive payloads through [A2A](./a2a-profile.md), [MCP](./bindings/mcp.md) and native PAP OpenAPI. Published PAP 0.3 sends a fresh **delegated `Poppy-Session` JWT on every API request**. Signed-out shopping obtains no OAuth guest token. OAuth remains separate and optional for account access.
 
 
+![Public MCP pointers and advertised native PAP APIs have distinct authentication obligations](./img/poppy-discovery.svg)
+
 ## 1. Conformance and scope
 
-A dealer implementing this draft MUST publish dealer-domain Agent Card, Poppy discovery and `llms.txt`, with matching identity and implemented skill sets. `poppy.schema.json` requires an OpenAPI entry plus the AAP bridge linking the matching card, public MCP endpoint and `llms.txt`. It does not require an issuer. The native PAP API MUST verify the Session header before executing skills; explicit contact consent and stable lead idempotency remain separate requirements.
+A dealer implementing this profile MUST publish dealer-domain Agent Card, Poppy discovery and `llms.txt`, with matching identity and implemented skill sets. `poppy.schema.json` requires an OpenAPI entry plus the AAP bridge linking the matching card, public MCP endpoint and `llms.txt`. It does not require an issuer. The native PAP API MUST verify the Session header before executing skills; explicit contact consent and stable lead idempotency remain separate requirements.
 
 The reference OpenAPI supports signed-out automotive operations. Account sign-in, native PAP MCP, browser joining, Company Agent conversations, feedback, skill indexes and protocol extensions are optional. Their complete pinned upstream requirements apply when advertised. Linking a public MCP endpoint in the AAP extension does not advertise native PAP MCP. Do not publish an optional surface merely because this repository includes its schema.
 
@@ -49,6 +51,8 @@ An issuer publishes token/revocation endpoints and `grant_types_supported` conta
 Changing the Company identifier requires new User IDs, Agent IDs and Sessions. Preserve a verified existing issuer during migration unless identity migration is an intentional reviewed change.
 
 ## 3. Client identity and delegated Sessions
+
+![Delegated Session JWTs authenticate each request while Sessions survive key rotation](./img/poppy-session.svg)
 
 
 A Personal Agent publishes HTTPS CIMD metadata at its exact `client_id`, without redirects. `jwks_uri` is HTTPS on that same hostname and contains public identity keys. Signed-out CIMD needs only `client_id` and `jwks_uri`; a name, redirect list and OAuth auth-method declaration are optional. An absent or explicit `none` token authentication method does not block Session verification. Account OAuth separately requires advertised `private_key_jwt`. Direct Sign-In redirects are same-host HTTPS or RFC 8252 loopback literals. A Company chooses which clients it accepts; a shared origin does not make two metadata URLs the same client. DNS/address checks, bounded fetches, cache expiry and key rotation belong in trusted code.
@@ -110,8 +114,12 @@ A Session JWT never grants account access. A signed-in request carries both Sess
 ## 6. Optional Poppy surfaces
 
 
+![Native PAP MCP carries the Session header and ordinary OAuth when account access is needed](./img/poppy-mcp-tokens.svg)
+
 **Native MCP.** Advertise `apis[].type: "mcp"` only after implementing the Session header and required resource/issuer checks. Discover protected-resource metadata with its exact MCP resource URL and Company issuer when one exists. Signed-out requests need no token. Signed-in requests use ordinary resource-appropriate OAuth, and DPoP only if that token is bound. Published 0.3 does not require the earlier guest-token-to-Bearer exchange. Never forward credentials to the AAP extension's public MCP pointer merely because it is linked.
 
+
+![An agent authorizes its own browser code using a Session header before browser redemption](./img/poppy-browser-join.svg)
 
 **Browser joining.** Advertise `web.browser_session_endpoint` only with all three steps implemented: (1) the agent's own browser obtains a short-lived unguessable one-use code and same-response protected join cookie, with no-store, frame isolation and opener isolation; (2) trusted agent code sends JSON `{code}` to `/authorize` with the Session header and optional OAuth token, obtaining 204; (3) the browser submits the code with its matching cookie. The first submission consumes the code even if validation fails. Never authorize a code from a message or another browser. Joined-cookie account/scopes follow upstream §6, including preservation of a pre-existing browser login on a signed-out join, and the cookie MUST NOT outlive the Session. Do not apply the frozen profile's DPoP-nonce form flow.
 
@@ -119,7 +127,6 @@ A Session JWT never grants account access. A signed-in request carries both Sess
 
 ## 7. Migration and evidence
 
-Historical illustrations for the **frozen AAP 3.1 October 26 profile only** remain available as links: [discovery](./img/poppy-discovery.svg), [guest token and key-bound Session](./img/poppy-session.svg), [MCP token exchange](./img/poppy-mcp-tokens.svg), and [browser DPoP join](./img/poppy-browser-join.svg). They describe that older authentication mechanism; use the AAP 3.2 flow above for published PAP 0.3.
 
 Follow the [migration table](./versioning.md#pap-03-migration). Keep frozen AAP 3.1 endpoints available while testing the opt-in replacement; publish a new default only after the AAP 3.2 release and deployment acceptance are approved. No release or deployment is performed by editing these contracts.
 

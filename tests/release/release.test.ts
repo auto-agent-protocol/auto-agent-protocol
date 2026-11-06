@@ -323,6 +323,10 @@ test("the published PAP 0.3 exception permits only the reviewed 3.1.0 to 3.2.0 s
       writeFileSync(file, original);
     }
     await prepareRelease(context.root, "3.2.0", false);
+    const api = parseYaml(readFileSync(join(context.root, "releases/v3.2/artifacts/openapi-poppy.yaml"), "utf8"));
+    assert.match(api.info.description, /^AAP 3\.2\.0 payloads/);
+    assert.doesNotMatch(api.components.schemas.Poppy.description, /unreleased|next-major/i,
+      "the frozen PAP contract must not describe a different release target");
     const report = readJson<{summary: {breaking: number}; compatibilityException: {previous: string; candidate: string; workingSpecSha256: string}}>(join(context.root, "releases/v3.2/change-report.json"));
     const provenance = readJson<{workingSpecSha256: string}>(join(context.root, "releases/v3.2/provenance.json"));
     assert.ok(report.summary.breaking > 0, "a minor version label must not hide the authentication migration");

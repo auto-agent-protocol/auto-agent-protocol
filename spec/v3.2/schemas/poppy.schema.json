@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.2/schemas/poppy.schema.json",
+  "title": "AAPPoppyDiscovery",
+  "description": "AAP publication profile for published PAP 0.3. Requires native OpenAPI and the matching AAP bridge. Signed-out Sessions use delegated Poppy-Session JWTs without a guest token grant. Issuer and account access are optional.",
+  "allOf": [
+    {
+      "$ref": "./poppy-document.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "protocol_version": {
+          "const": "0.3"
+        },
+        "auth": {
+          "type": "object",
+          "properties": {
+            "issuer": {
+              "type": "string"
+            },
+            "direct": false,
+            "device": false,
+            "custom_scopes": false,
+            "scope_hints": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "changes": {
+                    "enum": [
+                      "none",
+                      "reversible",
+                      "irreversible"
+                    ]
+                  }
+                }
+              }
+            },
+            "mediated": false
+          },
+          "additionalProperties": true
+        },
+        "apis": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "enum": [
+                  "openapi",
+                  "mcp"
+                ]
+              },
+              "resource": false
+            }
+          },
+          "contains": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "openapi"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "extensions": {
+          "type": "object",
+          "properties": {
+            "autoagentprotocol.org/aap": {
+              "allOf": [
+                {
+                  "$ref": "./poppy-aap-extension.schema.json"
+                },
+                {
+                  "properties": {
+                    "aap_version": {
+                      "const": "3.2.0"
+                    },
+                    "mcp": {
+                      "type": "string",
+                      "format": "uri",
+                      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:/[^?#\\s]*)?$"
+                    }
+                  },
+                  "required": [
+                    "aap_version",
+                    "mcp",
+                    "llms_txt"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "autoagentprotocol.org/aap"
+          ],
+          "additionalProperties": true
+        },
+        "agent": {
+          "type": "object",
+          "properties": {
+            "protocols": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "poppy"
+                  },
+                  "resource": false,
+                  "access": {
+                    "enum": [
+                      "session",
+                      "signed_in"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "apis",
+        "extensions"
+      ],
+      "additionalProperties": true
+    },
+    {
+      "if": {
+        "required": [
+          "auth"
+        ],
+        "properties": {
+          "auth": {
+            "required": [
+              "disabled"
+            ],
+            "properties": {
+              "disabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "extensions": {
+            "properties": {
+              "mediated-sign-in": false
+            }
+          },
+          "agent": {
+            "properties": {
+              "protocols": {
+                "items": {
+                  "properties": {
+                    "access": {
+                      "not": {
+                        "const": "signed_in"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

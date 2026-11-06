@@ -7,6 +7,8 @@ const release = releases.releases.find(
   (item) => item.contract === releases.stable,
 )!;
 const docs = `/docs/${release.contract}`;
+const [releaseMajor, releaseMinor] = release.version.split(".").map(Number);
+const publishedPap = releaseMajor > 3 || releaseMajor === 3 && releaseMinor >= 2;
 const questions = [
   {
     title: "What is Auto Agent Protocol?",
@@ -16,9 +18,10 @@ const questions = [
     label: "Start with the specification",
   },
   {
-    title: "What changes in AAP 3.1?",
-    answer:
-      "Currency and odometer labels preserve native USD/CAD amounts and mi/km readings. Search and facets select one currency and a mileage comparison unit, with explicit capability defaults and result context. Omitted vehicle labels keep their USD/miles meaning. This additive release retains the three native interfaces and frozen 3.0 contract.",
+    title: publishedPap ? "What changes in AAP 3.2?" : "What changes in AAP 3.1?",
+    answer: publishedPap
+      ? "AAP 3.2 adopts published PAP 0.3: delegated Poppy-Session JWTs replace the earlier guest-token flow. This maintainer-approved minor exception requires PAP client migration, even though both profiles use the upstream label 0.3. Automotive payloads, MCP, A2A and the discovery bridge retain their meanings. Frozen AAP 3.1 stays available; the next major is reserved for PAP 1.0."
+      : "Currency and odometer labels preserve native USD/CAD amounts and mi/km readings. Search and facets select one currency and a mileage comparison unit, with explicit capability defaults and result context. Omitted vehicle labels keep their USD/miles meaning. This additive release retains the three native interfaces and frozen 3.0 contract.",
     link: "versioning",
     label: "Read the migration guide",
   },
@@ -31,8 +34,9 @@ const questions = [
   },
   {
     title: "How do the three interfaces fit together?",
-    answer:
-      "MCP carries tool calls. A2A 1.0 carries typed automotive DataParts through SendMessage. Poppy draft 0.3 guest OpenAPI uses verified Sessions and DPoP for personal agents. The same automotive payloads and behavior apply to all three.",
+    answer: publishedPap
+      ? "MCP carries tool calls. A2A 1.0 carries typed automotive DataParts through SendMessage. Published PAP 0.3 OpenAPI uses delegated Poppy-Session JWTs for personal agents. Signed-out calls need no OAuth token; optional account access uses ordinary OAuth separately. The same automotive payloads and behavior apply to all three."
+      : "MCP carries tool calls. A2A 1.0 carries typed automotive DataParts through SendMessage. Poppy draft 0.3 guest OpenAPI uses verified Sessions and DPoP for personal agents. The same automotive payloads and behavior apply to all three.",
     link: "personal-agent-protocol",
     label: "Read the PAP profile",
   },
@@ -97,7 +101,7 @@ export default function Faq(): JSX.Element {
   return (
     <Layout
       title="AAP, explained"
-      description="How Auto Agent Protocol 3.0 connects MCP, A2A and PAP to dealership discovery, inventory, pricing, evidence and consent."
+      description={`How Auto Agent Protocol ${release.version} connects MCP, A2A and PAP to dealership discovery, inventory, pricing, evidence and consent.`}
     >
       <main className={styles.page}>
         <article>

@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.2/schemas/poppy-delegation.schema.json",
+  "title": "PoppyDelegation",
+  "description": "A delegation as its decoded JWT header and payload: signed with ES256 or PS384 by a key in the Personal Agent's jwks_uri, it vouches for the delegated key in cnf.jwk (RFC 7800), which signs the Personal Agent's Session JWTs. Spec section 5.2 (Delegated keys). exp is at most 24 hours after iat. A delegation names no User, Agent ID, or Company. The header and payload are also available on their own as delegation.schema.json#/$defs/header and #/$defs/payload. The Session JWT that carries a delegation in poppy_dlg is session-jwt.schema.json.",
+  "type": "object",
+  "required": [
+    "header",
+    "payload"
+  ],
+  "properties": {
+    "header": {
+      "$ref": "#/$defs/header"
+    },
+    "payload": {
+      "$ref": "#/$defs/payload"
+    }
+  },
+  "$defs": {
+    "header": {
+      "type": "object",
+      "required": [
+        "alg",
+        "typ",
+        "kid"
+      ],
+      "properties": {
+        "alg": {
+          "enum": [
+            "ES256",
+            "PS384"
+          ]
+        },
+        "typ": {
+          "const": "poppy-delegation+jwt"
+        },
+        "kid": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "iss",
+        "cnf",
+        "iat",
+        "exp",
+        "jti"
+      ],
+      "properties": {
+        "iss": {
+          "type": "string",
+          "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\\\\\s]+(?:[/?#][^\\\\\\s]*)?$",
+          "format": "uri"
+        },
+        "cnf": {
+          "type": "object",
+          "required": [
+            "jwk"
+          ],
+          "properties": {
+            "jwk": {
+              "type": "object",
+              "required": [
+                "kty",
+                "crv",
+                "x",
+                "y"
+              ],
+              "properties": {
+                "kty": {
+                  "const": "EC"
+                },
+                "d": false,
+                "p": false,
+                "q": false,
+                "dp": false,
+                "dq": false,
+                "qi": false,
+                "k": false,
+                "crv": {
+                  "const": "P-256"
+                },
+                "x": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{43}$"
+                },
+                "y": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{43}$"
+                },
+                "alg": {
+                  "const": "ES256"
+                },
+                "oth": false
+              }
+            }
+          }
+        },
+        "iat": {
+          "type": "number",
+          "minimum": 0
+        },
+        "exp": {
+          "type": "number",
+          "minimum": 0
+        },
+        "jti": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sub": false,
+        "aud": false,
+        "agent_id": false
+      }
+    }
+  },
+  "$comment": "Adapted from personal-agent-protocol at 6fb46d381ac1b94265795132af13848ec442b6f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-0.3. JSON Schema does not verify cryptography or runtime requirements."
+}

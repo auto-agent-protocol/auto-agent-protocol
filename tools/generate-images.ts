@@ -208,33 +208,33 @@ function renderVisual(name: DiagramName): string {
       + pill('Native PAP apis: "mcp"', 636, 238, 488, C.teal, C.paper, 24)
       + icon("key", 845, 312, 70, C.teal)
       + label("PAP-authorized MCP", 880, 431, 488, 33, C.ink, 650, false, "middle")
-      + lines(["DPoP or explicit token exchange", "Exact resource URL + scopes"], 880, 480, 488, 23).replaceAll('text-anchor="start"', 'text-anchor="middle"');
+      + lines(["Delegated Session JWT", "OAuth for account access"], 880, 480, 488, 23).replaceAll('text-anchor="start"', 'text-anchor="middle"');
     case "poppy-session": {
       const xs = [158, 600, 1042];
-      return ["Personal agent", "Company issuer", "Automotive API"].map((v, i) => pill(v, xs[i] - 110, 198, 220, i === 2 ? C.teal : C.blueDark, i === 2 ? C.tealTint : C.blueTint, 21) + line(xs[i], 252, xs[i], 611, C.line, true)).join("")
-        + label("Discover and verify the issuer", 193, 293, 407, 23, C.ink, 500)
-        + arrow(158, 315, 600) + label("Client JWT + Session JWT + DPoP", 193, 365, 830, 23, C.ink, 500)
-        + arrow(158, 387, 600) + label("DPoP token · no scope field", 193, 437, 830, 23, C.blueDark, 500)
-        + arrow(600, 459, 158) + label("AAP request + token + fresh DPoP", 193, 509, 830, 23, C.teal, 500)
-        + arrow(158, 531, 1042, 531, C.teal) + label("Typed automotive result", 632, 582, 370, 22, C.teal, 500)
-        + arrow(1042, 603, 158, 603, C.teal);
+      return ["Identity key", "Personal agent", "Automotive API"].map((v, i) => pill(v, xs[i] - 110, 198, 220, i === 2 ? C.teal : C.blueDark, i === 2 ? C.tealTint : C.blueTint, 21) + line(xs[i], 252, xs[i], 611, C.line, true)).join("")
+        + label("Sign a short-lived delegation", 193, 293, 407, 23, C.ink, 500)
+        + arrow(158, 315, 600) + label("Fresh delegated Session JWT", 635, 365, 500, 23, C.ink, 500)
+        + arrow(600, 387, 1042) + label("Verify delegation + request binding", 635, 437, 500, 23, C.blueDark, 500)
+        + label("Typed automotive result", 635, 509, 500, 23, C.teal, 500)
+        + arrow(1042, 531, 600, 531, C.teal)
+        + label("client_id + sid identifies the Session; keys may rotate", 193, 582, 900, 23, C.teal, 500);
     }
     case "poppy-mcp-tokens": return rect(48, 192, 1104, 68, C.blueTint, C.blue)
-      + label("Read the advertised MCP server's resource metadata", 600, 235, 1040, 28, C.blueDark, 650, false, "middle")
+      + label("Use the advertised native PAP MCP endpoint", 600, 235, 1040, 28, C.blueDark, 650, false, "middle")
       + arrow(310, 264, 310, 302) + arrow(890, 264, 890, 302, C.teal)
       + rect(48, 310, 530, 296) + rect(622, 310, 530, 296, C.tealTint)
-      + pill("DPoP supported", 76, 334, 474, C.blueDark, C.blueTint, 25)
-      + pill("No DPoP support", 650, 334, 474, C.teal, C.paper, 25)
-      + lines(["JWT / Account Token grant", "resource = exact MCP URL", "Token endpoint: DPoP proof"], 80, 414, 466, 23)
-      + lines(["Token exchange grant", "Subject = current DPoP token", "Token endpoint: DPoP proof"], 654, 414, 466, 23)
+      + pill("Signed out", 76, 334, 474, C.blueDark, C.blueTint, 25)
+      + pill("Account access", 650, 334, 474, C.teal, C.paper, 25)
+      + lines(["Poppy-Session header", "No access token", "No guest grant"], 80, 414, 466, 23)
+      + lines(["Poppy-Session + OAuth", "ath binds access token", "DPoP if token is bound"], 654, 414, 466, 23)
       + arrow(310, 505, 310, 538) + arrow(890, 505, 890, 538, C.teal)
-      + label("DPoP token + fresh proof", 313, 576, 474, 26, C.blueDark, 650, false, "middle")
-      + label("Bearer · exact MCP resource", 887, 576, 474, 25, C.teal, 650, false, "middle");
+      + label("Verified Session", 313, 576, 474, 26, C.blueDark, 650, false, "middle")
+      + label("Account + scopes", 887, 576, 474, 25, C.teal, 650, false, "middle");
     case "poppy-browser-join": {
       const steps: [string, Icon, string[]][] = [
-        ["Browser gets code", "globe", ["Own endpoint page", "Code expires within 60s", "__Host- join cookie"]],
-        ["Agent signs proof", "key", ["Same Session Key", "nonce = browser code", "POST proof · no ath"]],
-        ["Company verifies", "shield", ["Match cookie + code", "Consume first attempt", "Active Session only"]],
+        ["Browser gets code", "globe", ["Own endpoint page", "Short-lived one-use code", "Protected join cookie"]],
+        ["Agent authorizes", "key", ["POST /authorize", "Session JWT + code", "204 after verification"]],
+        ["Browser redeems", "shield", ["Match cookie + code", "Consume first attempt", "Apply verified Session"]],
       ];
       return steps.map(([title, glyph, detail], i) => {
         const x = 48 + i * 378;

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v3.2/schemas/poppy-feedback-request.schema.json",
+  "title": "PoppyFeedbackRequest",
+  "description": "The JSON body a Personal Agent posts to {feedback.endpoint} to report a User's task that can't be done through the protocol. Spec 9.3 (Feedback).",
+  "type": "object",
+  "required": [
+    "task",
+    "description"
+  ],
+  "properties": {
+    "task": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    }
+  },
+  "$comment": "Adapted from personal-agent-protocol at 6fb46d381ac1b94265795132af13848ec442b6f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-0.3. JSON Schema does not verify cryptography or runtime requirements."
+}

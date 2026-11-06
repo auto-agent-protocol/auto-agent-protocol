@@ -1,0 +1,31 @@
+{
+  "type": "inventory.search.request",
+  "filters": {
+    "body": [
+      "suv"
+    ],
+    "price_max": 35000,
+    "status": [
+      "available"
+    ],
+    "features_all": [
+      "adaptive_cruise_control",
+      "heated_front_seats"
+    ],
+    "near": {
+      "latitude": 37.7749,
+      "longitude": -122.4194,
+      "radius_mi": 50
+    }
+  },
+  "pagination": {
+    "limit": 1
+  },
+  "sort": {
+    "field": "distance_mi",
+    "order": "asc"
+  },
+  "privacy": {
+    "anonymous": true
+  }
+}

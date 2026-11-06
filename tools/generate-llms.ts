@@ -42,7 +42,11 @@ const poppyVersion = readJson<{ protocol_version: string }>(
 const nativeMcp = existsSync(
   join(ROOT, "spec", contract, "schemas/mcp-endpoint.schema.json"),
 );
-const interfaces = `${nativeMcp ? "native MCP Streamable HTTP tools; " : ""}A2A 1.0 SendMessage; Poppy draft ${poppyVersion} guest OpenAPI with DPoP`;
+const publishedPap = existsSync(join(ROOT, "spec", contract, "schemas/poppy-session-jwt.schema.json"));
+const papInterface = publishedPap
+  ? `Published PAP ${poppyVersion} OpenAPI with delegated Poppy-Session JWTs`
+  : `Poppy draft ${poppyVersion} guest OpenAPI with DPoP`;
+const interfaces = `${nativeMcp ? "native MCP Streamable HTTP tools; " : ""}A2A 1.0 SendMessage; ${papInterface}`;
 const sidebar = readJson<{ specSidebar: SidebarItem[] }>(
   join(ROOT, "versioned_sidebars", `version-${contract}-sidebars.json`),
 ).specSidebar;
@@ -77,9 +81,9 @@ function artifactLinks(): string[] {
   return [
     `- [MCP reference tool catalog](${artifactBase}/mcp.json): tool definitions, not a running MCP endpoint`,
     `- [A2A JSON-RPC OpenAPI](${artifactBase}/openapi-jsonrpc.yaml): the automotive SendMessage binding`,
-    `- [PAP OpenAPI](${artifactBase}/openapi-poppy.yaml): native automotive operations with guest Sessions`,
+    `- [PAP OpenAPI](${artifactBase}/openapi-poppy.yaml): native automotive operations with ${publishedPap ? "delegated Poppy-Session JWTs; signed-out calls need no OAuth token" : "guest Sessions"}`,
     `- [Agent Card example](${artifactBase}/examples/agent-card.example.json): replace fictional identity and deployment URLs`,
-    `- [Poppy discovery example](${artifactBase}/examples/poppy.example.json): PAP identity, issuer and API discovery`,
+    `- [Poppy discovery example](${artifactBase}/examples/poppy.example.json): PAP identity, ${publishedPap ? "optional issuer" : "issuer"} and API discovery`,
     ...(nativeMcp
       ? [
           `- [Dealer llms.txt example](${artifactBase}/examples/llms.txt.example.md): exact MCP URL, discovery links and access requirements`,

@@ -1,0 +1,21 @@
+{
+  "header": {
+    "typ": "poppy-delegation+jwt",
+    "alg": "ES256",
+    "kid": "illustrative_identity_key"
+  },
+  "payload": {
+    "iss": "https://buyer-agent.example/client.json",
+    "cnf": {
+      "jwk": {
+        "kty": "EC",
+        "crv": "P-256",
+        "x": "B484TQp7695xQfzTcW5Rf8HUNC3a-Bt9zYTlgxtJUeU",
+        "y": "5ji2Z0dKOVQLXZJ2yzHiryVoopigNfpEVr_D36MPgwM"
+      }
+    },
+    "iat": 1790899200,
+    "exp": 1790902800,
+    "jti": "illustrative_delegation_id_0001"
+  }
+}

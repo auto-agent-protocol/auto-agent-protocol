@@ -1,0 +1,18 @@
+{
+  "header": {
+    "typ": "poppy-session+jwt",
+    "alg": "ES256",
+    "kid": "9E421cSqd5UfAq5slDKYxXQd8Zmm8B3CIsT9cDxRHx8",
+    "poppy_dlg": "eyJ0eXAiOiJwb3BweS1kZWxlZ2F0aW9uK2p3dCIsImFsZyI6IkVTMjU2Iiwia2lkIjoiaWxsdXN0cmF0aXZlX2lkZW50aXR5X2tleSJ9.eyJpc3MiOiJodHRwczovL2J1eWVyLWFnZW50LmV4YW1wbGUvY2xpZW50Lmpzb24iLCJjbmYiOnsiandrIjp7Imt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiQjQ4NFRRcDc2OTV4UWZ6VGNXNVJmOEhVTkMzYS1CdDl6WVRsZ3h0SlVlVSIsInkiOiI1amkyWjBkS09WUUxYWkoyeXpIaXJ5Vm9vcGlnTmZwRVZyX0QzNk1QZ3dNIn19LCJpYXQiOjE3OTA4OTkyMDAsImV4cCI6MTc5MDkwMjgwMCwianRpIjoiaWxsdXN0cmF0aXZlX2RlbGVnYXRpb25faWRfMDAwMSJ9.illustrative_invalid_signature"
+  },
+  "payload": {
+    "iss": "https://buyer-agent.example/client.json",
+    "aud": "https://demo-toyota.example.com",
+    "sid": "illustrative_session_id_0001",
+    "sub": "opaque_company_scoped_user",
+    "htm": "POST",
+    "htu": "https://demo-toyota.example.com/poppy/skills/inventory.search",
+    "iat": 1790899201,
+    "jti": "illustrative_request_id_0001"
+  }
+}
