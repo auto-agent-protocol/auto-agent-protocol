@@ -10,6 +10,8 @@ const release = releases.releases.find(
   (item) => item.contract === releases.stable,
 )!;
 const docs = `/docs/${release.contract}`;
+const [releaseMajor, releaseMinor] = release.version.split(".").map(Number);
+const publishedPap = releaseMajor > 3 || releaseMajor === 3 && releaseMinor >= 2;
 const github = "https://github.com/auto-agent-protocol/auto-agent-protocol";
 const icons = {
   arrow: <path d="M5 12h14m-6-6 6 6-6 6" />,
@@ -266,16 +268,18 @@ const protocols = [
     icon: "key" as const,
     subtitle: "Personal agents",
     title: "A native API for a verified personal agent.",
-    description:
-      "Personal Agent Protocol draft 0.3 discovery, guest Sessions and DPoP. Automotive skills without a shopper account.",
+    description: publishedPap
+      ? "Published PAP 0.3 discovery and delegated Poppy-Session JWTs. Signed-out automotive skills need no OAuth guest token."
+      : "Personal Agent Protocol draft 0.3 discovery, guest Sessions and DPoP. Automotive skills without a shopper account.",
     path: "personal-agent-protocol",
     steps: [
       "Read poppy.json",
-      "Verify issuer + start Session",
+      publishedPap ? "Verify Company + sign Session JWT" : "Verify issuer + start Session",
       "Call the native OpenAPI",
     ],
-    codeTitle:
-      "PAP inventory search JSON body · token and DPoP headers omitted",
+    codeTitle: publishedPap
+      ? "PAP inventory search JSON body · Poppy-Session header omitted"
+      : "PAP inventory search JSON body · token and DPoP headers omitted",
     code: searchRequest,
   },
 ];

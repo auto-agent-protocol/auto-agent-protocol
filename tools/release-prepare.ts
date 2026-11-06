@@ -21,7 +21,7 @@ const PAP_02_TRANSITION = {
 const PAP_03_TRANSITION = {
   previous: "3.1.0",
   candidate: "3.2.0",
-  workingSpecSha256: "b8da2aed1b1059e776060f9d83091326803d006085855e53775505c8eb70569b",
+  workingSpecSha256: "a17f4f06befb0a8a891545b0fd382ac353370a9a8fbc467585518d5fa96c3dcf",
   reason: "Maintainer-approved published PAP 0.3 transition. Automotive payloads, MCP, A2A and bridge version 1 are unchanged; earlier PAP 0.3 clients require authentication migration. The next AAP major is reserved for PAP 1.0. See docs/versioning.md#pap-03-migration.",
 };
 const JSON_SCHEMA_ANNOTATIONS = new Set(["$comment", "$id", "default", "deprecated", "description", "examples", "readOnly", "title", "writeOnly"]);

@@ -1,16 +1,16 @@
 ---
 sidebar_position: 6
 title: Conformance and verification
-description: What the AAP 3.2 draft requires, what this repository verifies, and what each deployment must prove.
+description: What the AAP 3.2 contract requires, what this repository verifies, and what each deployment must prove.
 ---
 
 # Conformance and verification
 
-**This page describes the unreleased AAP 3.2 draft.** Frozen AAP 3.1 keeps its [published conformance rules](https://autoagentprotocol.org/docs/v3.1/conformance). AAP 3.2.0 is the approved release target for published PAP 0.3; the next AAP major is reserved for PAP 1.0. Full dealer-deployment conformance requires MCP, A2A and PAP OpenAPI, consistent dealer-domain discovery, and every mandatory behavior for the skills advertised.
+**This page defines AAP 3.2 conformance.** Frozen AAP 3.1 keeps its [published conformance rules](https://autoagentprotocol.org/docs/v3.1/conformance). AAP 3.2.0 adopts published PAP 0.3; the next AAP major is reserved for PAP 1.0. Full dealer-deployment conformance requires MCP, A2A and PAP OpenAPI, consistent dealer-domain discovery, and every mandatory behavior for the skills advertised.
 
 ![Shared schemas and fixtures verify the contract; each deployed interface must also pass runtime acceptance](./img/aap-sdk-toolbox.svg)
 
-## Scope of draft conformance
+## Scope of AAP 3.2 conformance
 
 | Surface | Required baseline |
 |---|---|
@@ -43,7 +43,7 @@ The PAP helpers check decoded structures and relationships; they are not cryptog
 
 ## Required deployment acceptance cases
 
-Run these before advertising the new draft binding or a subsequently approved release. Use isolated inventory and a non-delivering lead sink for mutation cases.
+Run these before advertising the AAP 3.2 binding. Use isolated inventory and a non-delivering lead sink for mutation cases.
 
 | Area | Verify |
 |---|---|

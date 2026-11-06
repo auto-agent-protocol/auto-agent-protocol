@@ -373,7 +373,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
     }));
     const poppy = {
       openapi: "3.1.0",
-      info: { ...jsonRpc.info, title: "Auto Agent Protocol — PAP signed-out API", description: `Unreleased AAP ${version} payloads over published PAP 0.3. Replace example servers and advertise only implemented skills. Discover the Company identifier through domain protected-resource metadata and verify any selected issuer. Sign a fresh delegated Poppy-Session JWT for each request; no guest OAuth token grant. This reference advertises no account sign-in, native PAP MCP or browser join. Deployment acceptance is required before publication.` },
+      info: { ...jsonRpc.info, title: "Auto Agent Protocol — PAP signed-out API", description: `${version === DRAFT_VERSION ? "Unreleased " : ""}AAP ${version} payloads over published PAP 0.3. Replace example servers and advertise only implemented skills. Discover the Company identifier through domain protected-resource metadata and verify any selected issuer. Sign a fresh delegated Poppy-Session JWT for each request; no guest OAuth token grant. This reference advertises no account sign-in, native PAP MCP or browser join. Deployment acceptance is required before publication.` },
       "x-aap-extension": manifest.extension_uri, "x-poppy-protocol-version": "0.3", "x-poppy-specification-revision": PAP_SPECIFICATION_REVISION,
       externalDocs: { url: "https://personalagentprotocol.org/docs/0.3/spec", description: "Published PAP 0.3" },
       servers: [{ url: "https://demo-toyota.example.com/poppy", description: "Illustrative API base; replace before publication" }], paths,

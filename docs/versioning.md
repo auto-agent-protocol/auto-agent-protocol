@@ -6,7 +6,7 @@ description: AAP 3.2 published PAP 0.3 migration, independent upstream versions,
 
 # Versions and migration
 
-**AAP 3.2.0 is the release target for published PAP 0.3.** This approved minor transition requires an authentication migration from the earlier PAP 0.3 profile in frozen AAP 3.1. The next AAP major release is reserved for PAP 1.0. Automotive payloads retain their 3.1 meanings, including explicit currency and odometer units.
+**AAP 3.2.0 adopts published PAP 0.3.** This approved minor transition requires an authentication migration from the earlier PAP 0.3 profile in frozen AAP 3.1. The next AAP major release is reserved for PAP 1.0. Automotive payloads retain their 3.1 meanings, including explicit currency and odometer units.
 
 ![Edit and verify the draft, freeze a new release, then publish and switch a verified deployment](./img/versioning-timeline.svg)
 
@@ -45,7 +45,7 @@ For implementations coming from 2.1, the 3.0 major migration below is also requi
 |---|---|---|
 | MCP | Reference manifest/optional adapter | Implement native Streamable HTTP for both required revisions, actual tools/list and typed success/error results |
 | Request headers | A2A version and extension headers mandatory | Accept omitted A2A headers on contract-pinned endpoints and omitted MCP mirror headers when the body or this client's negotiated session supplies the value. Keep supplied-value conflict checks and all authentication requirements; see the binding pages for this AAP compatibility extension |
-| PAP | Draft 0.2 authentication and discovery | Migrate to draft 0.3 as detailed [below](#pap-03-migration); changing the version label is insufficient |
+| PAP | Draft 0.2 authentication and discovery | AAP 3.0 adopted the earlier draft 0.3 profile. Upgrades to AAP 3.2 use the [published 0.3 migration below](#pap-03-migration); changing the version label is insufficient |
 | Discovery | A2A + PAP pair | Add complete AAP params, exact MCP URL, search capabilities, release metadata and dealer `/llms.txt` |
 | Search filters | Empty arrays, repeated values and empty queries can validate | Advertise supported keys/sorts; deduplicate arrays and omit empty optional filters. Reject `make: []`, `make: ["Honda", "Honda"]`, empty/whitespace-only `query`, unknown keys and unsupported constraints; implement explicit query token rules |
 | Features | Free-text attributes | Add `features_all` (AND), `features_any` (OR), advertised feature vocabulary and source-backed `feature_evidence`; unknown is not absent |
@@ -80,7 +80,7 @@ Do not retry an uncertain lead through an older contract with a new key. Preserv
 
 ### PAP 0.3 migration
 
-The editable draft targets [published 0.3 at commit `6fb46d381ac1b94265795132af13848ec442b6f6`](https://github.com/personal-agent-protocol/personal-agent-protocol/blob/6fb46d381ac1b94265795132af13848ec442b6f6/content/versions/0.3/spec.mdx). Frozen AAP 3.1 pins October 26 commit `86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7`, which used the same upstream `0.3` label but a different authentication model. The maintainer approved **AAP 3.2.0** for this migration and reserved the next major for PAP 1.0. Required authentication fields and meanings change, so older clients still require migration. The release tool permits this minor exception only for the reviewed specification hash and the 3.1.0 → 3.2.0 pair. Until release approval, `/latest/`, package versions and all frozen releases remain unchanged.
+AAP 3.2 targets [published 0.3 at commit `6fb46d381ac1b94265795132af13848ec442b6f6`](https://github.com/personal-agent-protocol/personal-agent-protocol/blob/6fb46d381ac1b94265795132af13848ec442b6f6/content/versions/0.3/spec.mdx). Frozen AAP 3.1 pins October 26 commit `86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7`, which used the same upstream `0.3` label but a different authentication model. The maintainer approved **AAP 3.2.0** for this migration and reserved the next major for PAP 1.0. Required authentication fields and meanings change, so older clients still require migration. The release tool permits this minor exception only for the reviewed specification hash and the 3.1.0 → 3.2.0 pair. The approved release snapshot and package versions identify this transition; frozen earlier releases remain unchanged.
 
 | Surface | Frozen AAP 3.1 profile | AAP 3.2 published PAP 0.3 binding |
 |---|---|---|
@@ -116,7 +116,7 @@ An upgrade from AAP 1.x must also apply the [frozen 2.0 migration](https://autoa
 |---|---|
 | `spec/latest/`, `docs/` | Editable specification and documentation |
 | `/docs/latest/` | Editable documentation with an unreleased banner |
-| `spec/v3.1/`, `/v3.1/`, `/docs/v3.1/` | Frozen contract, artifacts and documentation after approval |
+| `spec/v3.2/`, `/v3.2/`, `/docs/v3.2/` | Frozen AAP 3.2 contract, artifacts and documentation |
 | `/latest/` | Artifact alias of the stable release named by `releases.json` |
 
 Draft schema/extension URLs use `https://draft.autoagentprotocol.invalid`. Release preparation replaces them with immutable production identifiers. Agents pin the selected release rather than relying on a moving `/latest/` alias.

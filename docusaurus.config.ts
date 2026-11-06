@@ -6,6 +6,8 @@ import releases from "./releases.json";
 const stableRelease = releases.releases.find((release) => release.contract === releases.stable);
 if (!stableRelease) throw new Error(`Stable release ${releases.stable} is missing from releases.json`);
 const stableContract = stableRelease.contract;
+const [stableMajor, stableMinor] = stableRelease.version.split(".").map(Number);
+const publishedPap = stableMajor > 3 || stableMajor === 3 && stableMinor >= 2;
 const releasedDocs = Object.fromEntries(
   releases.releases.map((release) => [
     release.contract,
@@ -191,14 +193,14 @@ const config: Config = {
       {
         name: "twitter:image:alt",
         content:
-          "Auto Agent Protocol 3.1 — automotive skills through MCP, A2A and PAP",
+          `Auto Agent Protocol ${stableRelease.version} — automotive skills through MCP, A2A and PAP`,
       },
       { property: "og:site_name", content: "Auto Agent Protocol" },
       { property: "og:type", content: "website" },
       {
         property: "og:image:alt",
         content:
-          "Auto Agent Protocol 3.1 — automotive skills through MCP, A2A and PAP",
+          `Auto Agent Protocol ${stableRelease.version} — automotive skills through MCP, A2A and PAP`,
       },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
@@ -238,7 +240,7 @@ const config: Config = {
           items: [
             { label: "MCP specification", href: "https://modelcontextprotocol.io/specification/2026-07-28" },
             { label: "A2A 1.0 specification", href: "https://a2a-protocol.org/v1.0.0/specification/" },
-            { label: "PAP draft 0.3 specification", href: "https://personalagentprotocol.org/docs/0.3/spec" },
+            { label: publishedPap ? "Published PAP 0.3 specification" : "PAP draft 0.3 specification", href: "https://personalagentprotocol.org/docs/0.3/spec" },
           ],
         },
         {
@@ -272,7 +274,7 @@ const config: Config = {
           items: [
             { label: "MCP tools", to: `/docs/${stableContract}/bindings/mcp` },
             { label: "A2A messages", to: `/docs/${stableContract}/bindings/json-rpc` },
-            { label: "PAP guest API", to: `/docs/${stableContract}/personal-agent-protocol` },
+            { label: publishedPap ? "PAP signed-out API" : "PAP guest API", to: `/docs/${stableContract}/personal-agent-protocol` },
             { label: "CRM / ADF mapping", to: `/docs/${stableContract}/compatibility/adf-mapping` },
           ],
         },

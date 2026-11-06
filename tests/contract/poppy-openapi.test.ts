@@ -21,6 +21,7 @@ test("Poppy OpenAPI carries every AAP skill unchanged and requires delegated Pop
     const ajv = new Ajv2020({ strict: false, allErrors: true }); addFormats(ajv);
     ajv.addSchema({ $id: "https://test.example/poppy", components: api.components });
     assert.equal(api.openapi, "3.1.0");
+    assert.match(api.info.description, /^Unreleased AAP 0\.0\.0-dev payloads/);
     assert.equal(api["x-poppy-protocol-version"], "0.3");
     assert.equal(api["x-poppy-specification-revision"], "6fb46d381ac1b94265795132af13848ec442b6f6");
     assert.equal(api["x-aap-extension"], manifest.extension_uri);

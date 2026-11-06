@@ -5,7 +5,7 @@ description: Use published PAP 0.3 delegated Session JWTs to discover and query 
 
 # PAP client walkthrough
 
-This is the **unreleased AAP 3.2** [published PAP 0.3 binding](./personal-agent-protocol.md). Frozen AAP 3.1 uses a different October 26 draft. Keep its endpoints and client configuration separate; both upstream profiles say `0.3`, so that string alone cannot select the authentication mechanism.
+This walkthrough uses the **AAP 3.2** [published PAP 0.3 binding](./personal-agent-protocol.md). Frozen AAP 3.1 uses a different October 26 draft. Keep its endpoints and client configuration separate; both upstream profiles say `0.3`, so that string alone cannot select the authentication mechanism.
 
 ## 1. Discover the Company and API
 

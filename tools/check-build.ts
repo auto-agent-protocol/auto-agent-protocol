@@ -44,14 +44,18 @@ if (!readFileSync(join(build, "search.html")).equals(readFileSync(join(build, "s
   throw new Error("Search links and refreshed /search/ URLs must serve the same search page");
 }
 const poppyVersion = readJson<{protocol_version: string}>(join(build, stable.contract, "examples/poppy.example.json")).protocol_version;
+const publishedPap = existsSync(join(build, stable.contract, "schemas/poppy-session-jwt.schema.json"));
+const papLabel = publishedPap ? `Published PAP ${poppyVersion}` : `Poppy draft ${poppyVersion}`;
 for (const file of ["llms.txt", "llms-full.txt"]) {
   const header = readFileSync(join(build, file), "utf8").split("\n").find(line => line.startsWith(file === "llms.txt" ? "> " : "Interfaces: "));
-  if (!header?.includes(`Poppy draft ${poppyVersion} guest OpenAPI`)) {
-    throw new Error(`${file} must describe the stable PAP version ${poppyVersion}`);
+  const expected = publishedPap ? `${papLabel} OpenAPI with delegated Poppy-Session JWTs` : `${papLabel} guest OpenAPI`;
+  if (!header?.includes(expected)) {
+    throw new Error(`${file} must describe the stable PAP authentication profile: ${expected}`);
   }
 }
 const faq = readFileSync(join(build, "faq.html"), "utf8").match(/<article\b[^>]*>([\s\S]*?)<\/article>/)?.[1];
-if (!faq?.includes(`Poppy draft ${poppyVersion}`)) throw new Error("FAQ must describe the stable PAP version");
+if (!faq?.includes(papLabel)) throw new Error("FAQ must describe the stable PAP authentication profile");
+if (publishedPap && /guest Sessions and DPoP|guest OpenAPI uses verified Sessions and DPoP/.test(faq)) throw new Error("FAQ teaches the retired guest-token flow as the stable PAP binding");
 for (const [, contract] of faq.matchAll(/href="\/docs\/(v\d+\.\d+)\//g)) {
   if (contract !== stable.contract) throw new Error(`FAQ must link the stable contract ${stable.contract}, not ${contract}`);
 }
