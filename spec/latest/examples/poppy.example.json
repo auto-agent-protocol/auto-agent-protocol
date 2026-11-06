@@ -4,15 +4,11 @@
     "name": "Demo Toyota",
     "domain": "demo-toyota.example.com"
   },
-  "auth": {
-    "issuer": "https://demo-toyota.example.com/poppy"
-  },
   "apis": [
     {
       "type": "openapi",
       "url": "https://demo-toyota.example.com/poppy/openapi.yaml",
-      "resource": "https://demo-toyota.example.com/poppy",
-      "description": "Dealer information, inventory facets, search, vehicle details and consented leads using AAP payloads and Poppy guest sessions."
+      "description": "AAP automotive payloads with verified delegated Poppy-Session JWTs. Contact consent is separate."
     }
   ],
   "web": {},

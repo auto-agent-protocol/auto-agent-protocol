@@ -1,0 +1,7 @@
+{
+  "access_token": "illustrative_account_access_token",
+  "token_type": "Bearer",
+  "expires_in": 300,
+  "refresh_token": "illustrative_refresh_token",
+  "scope": "saved_searches:read"
+}

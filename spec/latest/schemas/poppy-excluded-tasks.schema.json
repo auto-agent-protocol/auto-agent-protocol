@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-excluded-tasks.schema.json",
   "title": "PoppyExcludedTasks",
-  "description": "The document at excluded_tasks.url in poppy.json, listing the tasks a Company chose not to offer through the protocol. Spec 8.1 (Excluded tasks).",
+  "description": "The document at excluded_tasks.url in poppy.json, listing the tasks a Company chose not to offer through the protocol. Spec 9.1 (Excluded tasks).",
   "type": "object",
   "required": [
     "tasks"
@@ -18,8 +18,7 @@
         "properties": {
           "task": {
             "type": "string",
-            "minLength": 1,
-            "maxLength": 200
+            "minLength": 1
           },
           "alternative": {
             "$ref": "./poppy-alternative.schema.json"
@@ -28,5 +27,5 @@
       }
     }
   },
-  "$comment": "Adapted from personal-agent-protocol/personal-agent-protocol at 86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7 (Apache-2.0). AAP changes schema identifiers, type titles and HTTPS URL validation; original fixtures and license are in tests/upstream/poppy."
+  "$comment": "Adapted from personal-agent-protocol at 6fb46d381ac1b94265795132af13848ec442b6f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-0.3. JSON Schema does not verify cryptography or runtime requirements."
 }

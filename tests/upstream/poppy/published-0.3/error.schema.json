@@ -1,0 +1,30 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "error.schema.json",
+    "title": "Poppy JSON error",
+    "description": "An error with a JSON body from an endpoint this protocol or an extension defines, such as conversations (spec 8.13), feedback (9.3), and the browser-session authorization (6), including invalid_session and session_ended (HTTP 400, spec 5.3 and 5.5, also at APIs) and extension_required (3.3). extension_required names the extension in extension, and direct_conversation_open names the open Direct Conversation in conversation_id (8.10). Unknown fields are allowed.",
+    "type": "object",
+    "required": ["error"],
+    "properties": {
+        "error": { "type": "string", "minLength": 1 },
+        "error_description": { "type": "string" },
+        "extension": { "type": "string", "minLength": 1 },
+        "conversation_id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,256}$" }
+    },
+    "allOf": [
+        {
+            "if": {
+                "properties": { "error": { "const": "extension_required" } },
+                "required": ["error"]
+            },
+            "then": { "required": ["extension"] }
+        },
+        {
+            "if": {
+                "properties": { "error": { "const": "direct_conversation_open" } },
+                "required": ["error"]
+            },
+            "then": { "required": ["conversation_id"] }
+        }
+    ]
+}

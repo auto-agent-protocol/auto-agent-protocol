@@ -156,7 +156,7 @@ Repository checks compare the generated and canonical validators on valid and ma
 
 For 2025-11-25, accept `initialize` with `protocolVersion`, `clientInfo` and `capabilities`; return that supported version, `serverInfo` and `capabilities.tools`. Accept `notifications/initialized` with HTTP 202 and no body. Subsequent requests send the negotiated protocol header, or may omit it when the server can recover the version from this client's validated session. A stateless request with no version information must supply the header. Keep tool arguments, schemas and AAP results identical to the current binding.
 
-A legacy server may issue an MCP session ID. It is transport state, never a replacement for authorization or a PAP Session Token. If issued, enforce its lifecycle under the legacy specification. The current 2026-07-28 path does not create protocol sessions. Do not require legacy initialization or a session ID on a current request.
+A legacy server may issue an MCP session ID. It is transport state, never a replacement for authorization or a verified PAP Session JWT. If issued, enforce its lifecycle under the legacy specification. The current 2026-07-28 path does not create protocol sessions. Do not require legacy initialization or a session ID on a current request.
 
 Use the upstream [HTTP compatibility rules](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http#backward-compatibility) when supporting both client generations. Do not retry a consented write on a different binding with a new idempotency key after an uncertain result.
 
@@ -181,9 +181,9 @@ These omission rules are an AAP compatibility extension, not the strict upstream
 
 Public inventory reads SHOULD work without customer sign-in or personal information. An operator may require MCP OAuth credentials; it MUST disclose that requirement and publish protected resource metadata rather than an undocumented API-key prerequisite.
 
-A public MCP link in the AAP Poppy extension does **not** claim native PAP authorization. Advertising `apis: [{"type":"mcp", ...}]` in `poppy.json` additionally requires the [PAP MCP rules](../personal-agent-protocol.md#6-optional-poppy-surfaces): resource-bound Session Tokens, protected resource metadata, authorization-server discovery, and scope enforcement. Under PAP 0.3, new MCP servers SHOULD support DPoP. For an existing MCP server without DPoP, the client first obtains a DPoP Session Token and then uses RFC 8693 token exchange with a fresh DPoP proof at the token endpoint. Only that exchange returns a Bearer Session Token, restricted to the exact MCP resource URL. The issuer advertises the token-exchange grant; omitting the proof is never a Bearer shortcut.
+A public MCP link in the AAP Poppy extension does **not** claim native PAP authorization. Advertising `apis: [{"type":"mcp", ...}]` additionally requires the [published PAP 0.3 MCP rules](../personal-agent-protocol.md#6-optional-poppy-surfaces): a delegated `Poppy-Session` header, protected-resource/issuer discovery when applicable, and ordinary OAuth token/scope enforcement for account access. Signed-out requests need no guest token. DPoP remains separate when the OAuth token is bound; the earlier mandatory token exchange is not part of this binding.
 
-PAP clients MUST send their Session Token to a native PAP MCP API. Generic MCP clients use standard MCP OAuth. A token issued for MCP MUST NOT be forwarded to an A2A or OpenAPI endpoint, or to another tenant. An adapter authenticates to its downstream service according to that service's own audience and policy.
+PAP clients send the Session header only to advertised native APIs. Generic MCP clients use standard MCP authorization. Never forward a Session JWT or access token to another resource, A2A endpoint or tenant. An adapter authenticates to downstream services under their own policy. Frozen AAP 3.1 retains its prior PAP token rules.
 
 `lead.submit` always requires explicit contact consent and a stable idempotency key. MCP tool selection, OAuth consent, a PAP session or an agent's `source_agent` label cannot substitute for the buyer's contact consent.
 

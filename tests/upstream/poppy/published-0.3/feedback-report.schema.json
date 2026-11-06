@@ -1,0 +1,12 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "feedback-report.schema.json",
+    "title": "Feedback report",
+    "description": "The JSON body a Personal Agent posts to {feedback.endpoint} to report a User's task that can't be done through the protocol. Spec 9.3 (Feedback).",
+    "type": "object",
+    "required": ["task", "description"],
+    "properties": {
+        "task": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "description": { "type": "string", "minLength": 1, "maxLength": 2000 }
+    }
+}

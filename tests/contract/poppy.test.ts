@@ -1,357 +1,193 @@
 import assert from "node:assert/strict";
-import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { globSync } from "glob";
 import { ROOT } from "../../tools/lib/releases.js";
-import { validateExamples } from "../../tools/validate-examples.js";
-import { checkPoppyAssertion, checkPoppyClientIdentity, checkPoppyIdentity, checkPoppyMcpResource, checkPoppyTokenResponse, poppyRedirectMatches, poppyScopeChanges, poppyAlternativeReferences, oauthMetadataUrl } from "../../tools/lib/poppy.js";
+import { checkPoppyIdentity, poppyCompanyIdentifier, checkPoppySessionClaims, checkPoppyTokenResponse, checkPoppyClientIdentity, checkPoppyAssertion, checkPoppyMcpResource, poppyJwkThumbprint, poppyScopeChanges } from "../../tools/lib/poppy.js";
 
-const ajv = new Ajv2020({ strict: false, allErrors: true });
-addFormats(ajv);
+const ajv = new Ajv2020({ strict: false, allErrors: true }); addFormats(ajv);
 for (const file of globSync("spec/latest/schemas/**/*.json", { cwd: ROOT })) ajv.addSchema(JSON.parse(readFileSync(resolve(ROOT, file), "utf8")));
 const validate = (name: string, value: unknown) => ajv.validate(`https://draft.autoagentprotocol.invalid/latest/schemas/${name}.schema.json`, value);
 const read = (name: string) => JSON.parse(readFileSync(resolve(ROOT, `spec/latest/examples/${name}.example.json`), "utf8"));
 const discovery = "https://demo-toyota.example.com/.well-known/poppy.json";
+const issuer = read("poppy-oauth-metadata").issuer;
+const resource = () => ({ status: 200 as const, document: read("poppy-protected-resource-metadata.existing-issuer") });
+const context = () => ({ clientId: read("poppy-client-metadata").client_id, companyIdentifier: "https://demo-toyota.example.com", method: "POST", url: read("poppy-session-jwt").payload.htu, now: 1790899201, windowSeconds: 60 });
+const compact = (delegation: any) => [delegation.header, delegation.payload].map(value => Buffer.from(JSON.stringify(value)).toString("base64url")).join(".") + ".illustrative_invalid_signature";
 
-test("Poppy guest API and extension examples conform without inventing a conversation protocol", () => {
-  assert.equal(validate("poppy", read("poppy")), true, JSON.stringify(ajv.errors));
-  assert.equal(validate("poppy-aap-extension", read("poppy-aap-extension")), true);
-  assert.equal(read("poppy").agent, undefined);
-  assert.deepEqual(checkPoppyIdentity(read("poppy"), discovery, read("poppy-oauth-metadata")), []);
+test("published 0.3 allows issuerless native APIs and preserves existing issuer identity with sign-in disabled", () => {
+  for (const name of ["poppy", "poppy.existing-issuer", "poppy.native-mcp"]) assert.equal(validate("poppy", read(name)), true, ajv.errorsText());
+  assert.deepEqual(checkPoppyIdentity(read("poppy"), discovery, undefined, discovery, {}, { status: 404 }), []);
+  assert.deepEqual(checkPoppyIdentity(read("poppy.existing-issuer"), discovery, read("poppy-oauth-metadata"), discovery, {}, resource()), []);
+  assert.equal(poppyCompanyIdentifier(read("poppy"), { status: 404 }).identifier, "https://demo-toyota.example.com");
+  assert.equal(poppyCompanyIdentifier(read("poppy.existing-issuer"), resource()).identifier, issuer);
 });
 
-test("website-only Poppy remains valid upstream discovery but does not claim full AAP 3.0", () => {
-  const website = read("poppy-document");
-  assert.equal(validate("poppy-document", website), true);
-  assert.equal(validate("poppy", website), false);
-  assert.deepEqual(checkPoppyIdentity(website, discovery), []);
-  website.apis = [];
-  website.auth = read("poppy").auth;
-  assert.equal(validate("poppy-document", website), true, "a website may advertise no API entries");
-  assert.equal(validate("poppy", website), false, "AAP publication still needs an OpenAPI entry");
+test("issuer selection is bidirectional and discovery failures never imply issuer removal", () => {
+  assert.ok(poppyCompanyIdentifier(read("poppy"), { status: "error" }).errors.length);
+  assert.ok(poppyCompanyIdentifier(read("poppy.existing-issuer"), { status: 404 }).errors.length);
+  const multiple = resource(); multiple.document.authorization_servers.push("https://staff.example/issuer");
+  assert.ok(poppyCompanyIdentifier(read("poppy"), multiple).errors.length);
+  assert.equal(poppyCompanyIdentifier(read("poppy.existing-issuer"), multiple).identifier, issuer);
+  multiple.document.authorization_servers = ["https://other.example/issuer"];
+  assert.ok(poppyCompanyIdentifier(read("poppy.existing-issuer"), multiple).errors.length);
+  const metadata = read("poppy-oauth-metadata"); metadata.protected_resources = ["https://demo-toyota.example.com/"];
+  assert.ok(checkPoppyIdentity(read("poppy.existing-issuer"), discovery, metadata, discovery, {}, resource()).length);
+  const wrong = resource(); wrong.document.resource += "/";
+  assert.ok(poppyCompanyIdentifier(read("poppy"), wrong).errors.length);
+  assert.equal(poppyCompanyIdentifier(read("poppy"), resource()).identifier, issuer, "a single server does not require auth.issuer");
 });
 
-test("Poppy 0.3 readers reject unsupported pre-1.0 minor versions", () => {
-  assert.equal(validate("poppy-document", read("poppy")), true);
-  for (const version of ["0.1", "0.2", "0.4", "0.12", "1.0", "0.0", "0.01", "0.3.0", "0.x", "0.3 "]) {
-    assert.equal(validate("poppy-document", { ...read("poppy"), protocol_version: version }), false, version);
-    assert.equal(validate("poppy", { ...read("poppy"), protocol_version: version }), false, version);
-  }
-});
-
-test("Poppy native surfaces require auth, including empty advertised lists", () => {
-  for (const patch of [
-    { apis: [{ type: "openapi", url: "https://dealer.example/api.json", description: "Inventory" }] },
-    { apis: [] }, { agent: { protocols: [{ type: "poppy", endpoint: "https://dealer.example/conversations" }] } },
-    { web: { browser_session_endpoint: "https://dealer.example/browser-session" } },
-    { feedback: { endpoint: "https://dealer.example/feedback" } },
-  ]) assert.equal(validate("poppy-document", { ...read("poppy-document"), ...patch }), false);
-});
-
-test("AAP Poppy requires a standard OpenAPI surface and a versioned link to its A2A card", () => {
-  for (const change of [
-    (d: any) => delete d.extensions,
-    (d: any) => delete d.extensions["autoagentprotocol.org/aap"].agent_card,
-    (d: any) => d.extensions["autoagentprotocol.org/aap"].version = "2",
-    (d: any) => d.apis[0].type = "a2a",
-    (d: any) => d.apis = [],
-  ]) {
-    const document = read("poppy"); change(document);
-    assert.equal(validate("poppy", document), false, JSON.stringify(document));
-  }
-});
-
-test("Poppy discovery consumers tolerate unknown fields, extensions and interface types", () => {
-  const document = read("poppy");
-  document.future = true;
-  document.organization.future = "allowed";
-  document.extensions["example.com/feature"] = { version: "1", future: true };
-  document.extensions["autoagentprotocol.org/aap"].future = true;
-  assert.equal(validate("poppy", document), true, JSON.stringify(ajv.errors));
-  document.apis.push({ type: "future-api", url: "https://example.com/api", description: "Skip if unsupported" });
-  assert.equal(validate("poppy-document", document), true, JSON.stringify(ajv.errors));
-  assert.equal(validate("poppy", document), false, "publishers advertise only defined PAP API types");
-});
-
-test("unknown Poppy extension versions do not prevent reading the AAP bridge", () => {
-  const upstream = ajv.compile(JSON.parse(readFileSync(resolve(ROOT, "tests/upstream/poppy/poppy.schema.json"), "utf8")));
-  for (const version of ["1", "0", "1.0", "2026-10", "draft-next"]) {
-    const document = read("poppy");
-    document.extensions["example.com/future"] = { version, future: true };
-    assert.equal(upstream(document), true, `upstream permits ${version}`);
-    assert.equal(validate("poppy-document", document), true, `reader must tolerate ${version}`);
-    assert.equal(validate("poppy", document), true, `unrelated extension ${version} does not change AAP publication`);
-    document.extensions["autoagentprotocol.org/aap"].version = "2";
-    assert.equal(validate("poppy", document), false, "the known AAP bridge still requires version 1");
-  }
-  for (const extension of [{}, { version: "" }, { version: 1 }, { version: null }]) {
-    const document = read("poppy");
-    document.extensions["example.com/future"] = extension;
-    assert.equal(upstream(document), false);
-    assert.equal(validate("poppy-document", document), false);
-  }
-});
-
-test("Poppy HTTPS publication rejects credential-bearing and insecure URLs", () => {
+test("final discovery identity, pre-1.0 version and safe publication URLs are enforced", () => {
+  for (const url of [discovery.replace("https:", "http:"), discovery + "?query=1", discovery.replace("poppy.json", "other.json"), discovery.replace("demo-toyota", "www.demo-toyota")]) assert.ok(checkPoppyIdentity(read("poppy"), discovery, undefined, url, {}, { status: 404 }).length, url);
+  for (const version of ["0.2", "0.4", "0.3.0", "1.0"]) assert.equal(validate("poppy-document", { ...read("poppy"), protocol_version: version }), false);
   for (const url of ["http://dealer.example/api", "https://user:secret@dealer.example/api", "https:///api", "https://dealer.example/has space"]) {
     const document = read("poppy"); document.apis[0].url = url;
     assert.equal(validate("poppy", document), false, url);
   }
-  for (const issuer of ["https://dealer.example/issuer?tenant=1", "https://dealer.example/issuer#fragment"]) {
-    const document = read("poppy"); document.auth.issuer = issuer;
+});
+
+test("readers retain unknown data but publishers reject retired auth/resource shapes", () => {
+  const document = read("poppy"); document.future = true; document.apis.push({ type: "future", url: "https://dealer.example/api", description: "Ignore" });
+  assert.equal(validate("poppy-document", document), true); assert.equal(validate("poppy", document), false);
+  for (const name of ["direct", "device", "custom_scopes", "mediated"]) {
+    const old = read("poppy.existing-issuer"); old.auth[name] = {};
+    assert.equal(validate("poppy-document", old), true); assert.equal(validate("poppy", old), false);
+  }
+  const old = read("poppy"); old.apis[0].resource = "https://dealer.example/api";
+  assert.equal(validate("poppy-document", old), true); assert.equal(validate("poppy", old), false);
+  const hint = read("poppy.existing-issuer"); hint.auth.scope_hints = { read: { changes: "future", personal_data: false } };
+  assert.equal(validate("poppy-document", hint), true); assert.equal(validate("poppy", hint), false);
+  assert.equal(poppyScopeChanges("future"), "irreversible"); assert.equal(poppyScopeChanges(undefined), undefined);
+});
+
+test("disabled sign-in forbids signed_in conversations and mediated extension", () => {
+  for (const patch of [ { agent: { protocols: [{ type: "poppy", endpoint: "https://dealer.example/conversations", access: "signed_in" }] } }, { extensions: { ...read("poppy").extensions, "mediated-sign-in": { version: "1", fields: [{ name: "email", label: "Email", secret: false }], scopes: ["read"] } } } ]) {
+    const document = { ...read("poppy.existing-issuer"), ...patch };
     assert.equal(validate("poppy", document), false);
-    assert.throws(() => oauthMetadataUrl(issuer));
-  }
-  for (const resource of ["urn:example:dealer", "http://dealer.example/api", "https://dealer.example/api#fragment"]) {
-    const document = read("poppy"); document.apis[0].resource = resource;
-    assert.equal(validate("poppy", document), false, "PAP requires HTTPS resource URLs without fragments");
+    assert.ok(checkPoppyIdentity(document, discovery, read("poppy-oauth-metadata"), discovery, {}, resource()).length);
   }
 });
 
-test("OAuth discovery uses RFC 8414 insertion before a tenant path", () => {
-  assert.equal(oauthMetadataUrl("https://provider.example/tenant/42"), "https://provider.example/.well-known/oauth-authorization-server/tenant/42");
-  assert.equal(oauthMetadataUrl("https://provider.example/tenant/"), "https://provider.example/.well-known/oauth-authorization-server/tenant");
-  assert.equal(oauthMetadataUrl("https://provider.example/tenant//"), "https://provider.example/.well-known/oauth-authorization-server/tenant");
-  assert.equal(oauthMetadataUrl("https://provider.example"), "https://provider.example/.well-known/oauth-authorization-server");
-  assert.equal(oauthMetadataUrl("https://provider.example/"), "https://provider.example/.well-known/oauth-authorization-server");
-});
-
-test("Poppy 0.3 identity binds the final well-known URL, exact issuer and authorized resource", () => {
-  const www = discovery.replace("https://", "https://www.");
-  assert.ok(checkPoppyIdentity(read("poppy"), www, read("poppy-oauth-metadata")).some(e => e.includes("final discovery host")));
-  assert.deepEqual(checkPoppyIdentity(read("poppy"), www, read("poppy-oauth-metadata"), discovery), []);
-  assert.ok(checkPoppyIdentity(read("poppy"), discovery, read("poppy-oauth-metadata"), www).some(e => e.includes("final discovery host")));
-  assert.ok(checkPoppyIdentity(read("poppy"), discovery, read("poppy-oauth-metadata"), discovery.replace("https:", "http:")).some(e => e.includes("HTTPS")));
-  assert.ok(checkPoppyIdentity(read("poppy"), discovery).some(e => e.includes("metadata")));
-  const slashDocument = read("poppy"); slashDocument.auth.issuer += "/";
-  const slashMetadata = read("poppy-oauth-metadata"); slashMetadata.issuer += "/";
-  assert.deepEqual(checkPoppyIdentity(slashDocument, discovery, slashMetadata), [], "metadata URL normalization must not change exact issuer identity");
-  const metadata = read("poppy-oauth-metadata"); metadata.issuer += "/";
-  assert.ok(checkPoppyIdentity(read("poppy"), discovery, metadata).some(e => e.includes("exactly")));
-  metadata.issuer = read("poppy").auth.issuer; metadata.protected_resources = ["https://different.example"];
-  assert.ok(checkPoppyIdentity(read("poppy"), discovery, metadata).some(e => e.includes("protected_resources")));
-  metadata.protected_resources = [`https://${read("poppy").organization.domain.toUpperCase()}`];
-  assert.deepEqual(checkPoppyIdentity(read("poppy"), discovery, metadata), []);
-  for (const suffix of ["/", ":443", "/api", "?query", "#fragment"]) {
-    metadata.protected_resources = [`https://${read("poppy").organization.domain}${suffix}`];
-    assert.ok(checkPoppyIdentity(read("poppy"), discovery, metadata).length, suffix);
-  }
-  for (const final of [discovery.replace("poppy.json", "other.json"), `${discovery}?v=3`, `${discovery}#fragment`]) {
-    assert.ok(checkPoppyIdentity(read("poppy"), discovery, read("poppy-oauth-metadata"), final).length, final);
-  }
-  for (const version of ["v2.0", "v2.1"]) {
-    const frozen = (name: string) => JSON.parse(readFileSync(resolve(ROOT, `spec/${version}/examples/${name}.example.json`), "utf8"));
-    assert.deepEqual(checkPoppyIdentity(frozen("poppy"), version === "v2.0" ? www : discovery, frozen("poppy-oauth-metadata")), [], "published versions retain their identity rules");
-  }
-});
-
-test("Poppy 0.3 validates optional feedback and ES256 metadata", () => {
-  const document = read("poppy");
-  document.feedback = { endpoint: "https://dealer.example/feedback", future: true };
-  assert.equal(validate("poppy", document), true);
-  document.feedback.endpoint = "http://dealer.example/feedback";
-  assert.equal(validate("poppy", document), false);
-  delete document.feedback.endpoint;
-  assert.equal(validate("poppy", document), false);
+test("issuer OAuth requires refresh only, correct conditional endpoints and optional scope descriptions", () => {
   const metadata = read("poppy-oauth-metadata");
-  metadata.dpop_signing_alg_values_supported = ["RS256"];
-  assert.equal(validate("poppy-oauth-metadata", metadata), false);
-  delete metadata.dpop_signing_alg_values_supported;
   assert.equal(validate("poppy-oauth-metadata", metadata), true);
-  for (const patch of [{ grant_types_supported: ["client_credentials"] }, { token_endpoint_auth_methods_supported: ["none"] }]) {
-    assert.equal(validate("poppy-oauth-metadata", { ...metadata, ...patch }), false, "advertised metadata must support the PAP guest handshake");
-  }
+  assert.deepEqual(metadata.grant_types_supported, ["refresh_token"]);
+  for (const grants of [[], ["authorization_code"], ["refresh_token", "authorization_code"], ["refresh_token", "urn:ietf:params:oauth:grant-type:device_code"]]) assert.equal(validate("poppy-oauth-metadata", { ...metadata, grant_types_supported: grants }), false);
+  assert.equal(validate("poppy-oauth-metadata", { ...metadata, token_endpoint_auth_signing_alg_values_supported: ["PS384"] }), false);
 });
 
-test("sign-in is discovered from grants and requires described company scopes", () => {
-  const document = read("poppy");
-  const metadata = read("poppy-oauth-metadata");
-  metadata.grant_types_supported.push("authorization_code", "urn:ietf:params:oauth:grant-type:device_code");
-  assert.equal(validate("poppy-oauth-metadata", metadata), false);
-  assert.ok(checkPoppyIdentity(document, discovery, metadata).some(e => e.includes("scopes_supported")));
-  metadata.authorization_endpoint = "https://dealer.example/authorize";
-  metadata.device_authorization_endpoint = "https://dealer.example/device";
-  metadata.scopes_supported = ["saved_searches:read"];
-  assert.ok(checkPoppyIdentity(document, discovery, metadata).some(e => e.includes("description")));
-  document.auth.scopes = { "saved_searches:read": "Read saved searches" };
-  document.auth.scope_hints = { "saved_searches:read": { changes: "none", personal_data: true } };
-  assert.deepEqual(checkPoppyIdentity(document, discovery, metadata), []);
-  assert.equal(validate("poppy", document), true);
-  document.auth.scope_hints["saved_searches:read"].changes = "future";
-  assert.equal(validate("poppy-document", document), true, "readers must accept future hint values");
-  assert.equal(validate("poppy", document), false, "publishers use defined hint values");
-  assert.equal(poppyScopeChanges("future"), "irreversible");
-  assert.equal(poppyScopeChanges(undefined), undefined, "missing hints are unknown, not read-only");
-  assert.equal(poppyScopeChanges("none"), "none");
-  delete document.auth.scope_hints;
-  delete document.auth.scopes;
-  assert.deepEqual(checkPoppyIdentity(document, discovery, metadata, discovery, { "saved_searches:read": "Read saved searches" }), [], "descriptions can come from a listed OpenAPI OAuth scheme");
-  document.auth.mediated = { endpoint: "https://dealer.example/sign-in", fields: [{ name: "password", label: "Password", secret: true }], scopes: ["undeclared"] };
-  assert.ok(checkPoppyIdentity(document, discovery, metadata).some(e => e.includes("Mediated")));
-});
-
-test("token validation uses grant context instead of removed signed_in fields", () => {
-  const token = read("poppy-session-token");
-  assert.equal(validate("poppy-session-token", token), true);
-  assert.equal(validate("poppy-session-token", { ...token, expires_in: 0.5 }), true, "PAP requires a positive lifetime without restricting fractional seconds");
-  assert.deepEqual(checkPoppyTokenResponse(token, { grant: "guest" }), []);
-  for (const patch of [{ expires_in: 0 }, { expires_in: -1 }, { token_type: "JWT" }, { scope: "" }, { session_id: "old" }, { signed_in: false }]) {
-    assert.equal(validate("poppy-session-token", { ...token, ...patch }), false);
-  }
-  for (const patch of [{ scope: "saved_searches:read" }, { refresh_token: "not-for-guests" }, { token_type: "Bearer" }]) {
-    assert.ok(checkPoppyTokenResponse({ ...token, ...patch }, { grant: "guest" }).length);
-  }
-  const signedIn = { ...token, refresh_token: "example-account-token" };
-  assert.equal(validate("poppy-session-token", signedIn), true);
-  assert.deepEqual(checkPoppyTokenResponse(signedIn, { grant: "sign-in", requestedScopes: ["saved_searches:read"] }), [], "omitted scope means exactly the requested scopes for a successful sign-in");
-  assert.ok(checkPoppyTokenResponse(signedIn, { grant: "sign-in", requestedScopes: [] }).length, "approving no scopes is a decline");
-  assert.ok(checkPoppyTokenResponse({ ...signedIn, scope: "unrequested" }, { grant: "sign-in", requestedScopes: ["saved_searches:read"] }).length);
-  assert.ok(checkPoppyTokenResponse(token, { grant: "sign-in", requestedScopes: ["saved_searches:read"] }).length, "sign-in returns an Account Token");
-  assert.deepEqual(checkPoppyTokenResponse(token, { grant: "refresh", requestedScopes: ["saved_searches:read"] }), [], "refresh may leave the existing Account Token unchanged");
-});
-
-test("PAP 0.3 handshake binds both assertions to the verified client and issuer", () => {
+test("CIMD and OAuth client assertions remain distinct from delegated Session JWTs", () => {
   const client = read("poppy-client-metadata");
-  const { issuer, token_endpoint } = read("poppy-oauth-metadata");
   assert.deepEqual(checkPoppyClientIdentity(client, client.client_id), []);
-  assert.ok(checkPoppyClientIdentity({ ...client, jwks_uri: "https://other.example/jwks.json" }, client.client_id).length);
-  assert.ok(checkPoppyClientIdentity(client, `${client.client_id}?different`).length);
-  for (const kind of ["client", "session"] as const) {
-    const claims = read(`poppy-${kind}-assertion`);
-    assert.equal(validate(`poppy-${kind}-assertion`, claims), true);
-    assert.equal(validate(`poppy-${kind}-assertion`, { ...claims, iat: claims.iat + 0.25, exp: claims.exp + 0.25 }), true, "JWT NumericDates may be fractional");
-    assert.deepEqual(checkPoppyAssertion(claims, client.client_id, issuer, kind), []);
-    assert.deepEqual(checkPoppyAssertion({ ...claims, exp: claims.iat + 300 }, client.client_id, issuer, kind), []);
-    for (const patch of [{ aud: token_endpoint }, { aud: [issuer] }, { iss: "https://other.example/client.json" }, { exp: claims.iat }, { exp: claims.iat + 301 }]) {
-      assert.ok(checkPoppyAssertion({ ...claims, ...patch }, client.client_id, issuer, kind).length, JSON.stringify(patch));
-    }
-    assert.equal(validate(`poppy-${kind}-assertion`, { ...claims, aud: [issuer] }), false);
-  }
-  assert.ok(checkPoppyAssertion(read("poppy-session-assertion"), client.client_id, issuer, "client").length);
-  const request = read("poppy-session-request");
-  assert.equal(validate("poppy-session-request", request), true);
-  delete request.client_assertion;
-  assert.equal(validate("poppy-session-request", request), false);
+  assert.ok(checkPoppyClientIdentity({ ...client, jwks_uri: "https://other.example/jwks" }, client.client_id).length);
+  assert.deepEqual(checkPoppyAssertion(read("poppy-client-assertion"), client.client_id, issuer), []);
+  assert.ok(checkPoppyAssertion({ ...read("poppy-client-assertion"), aud: read("poppy-oauth-metadata").token_endpoint }, client.client_id, issuer).length);
+  assert.equal(validate("poppy-session-jwt", read("poppy-client-assertion")), false);
 });
 
-test("release validation rejects replayed or invalid token-exchange client assertions", async t => {
-  const spec = mkdtempSync(resolve(tmpdir(), "aap-assertions-"));
-  t.after(() => rmSync(spec, { recursive: true, force: true }));
-  cpSync(resolve(ROOT, "spec/latest"), spec, { recursive: true });
-  const request = read("poppy-token-exchange-request");
-  const guest = read("poppy-session-request");
-  const claims = (jwt: string) => JSON.parse(Buffer.from(jwt.split(".")[1], "base64url").toString());
-  const exchangeClaims = claims(request.client_assertion);
-  assert.notEqual(exchangeClaims.jti, claims(guest.client_assertion).jti, "exchange must not replay guest client authentication");
-  assert.notEqual(exchangeClaims.jti, claims(guest.assertion).jti, "exchange must not reuse the Session assertion ID");
-  await validateExamples(spec, "assertion regression");
-  for (const patch of [
-    { jti: claims(guest.client_assertion).jti },
-    { jti: claims(guest.assertion).jti },
-    { aud: read("poppy-oauth-metadata").token_endpoint },
-    { sub: "https://different-agent.example/client.json" },
-    { jti: "" },
-  ]) {
-    const parts = request.client_assertion.split(".");
-    parts[1] = Buffer.from(JSON.stringify({ ...exchangeClaims, ...patch })).toString("base64url");
-    writeFileSync(resolve(spec, "examples/poppy-token-exchange-request.example.json"), JSON.stringify({ ...request, client_assertion: parts.join(".") }));
-    await assert.rejects(validateExamples(spec, "assertion regression"), /PAP handshake examples/, JSON.stringify(patch));
-  }
+test("Session and delegation decoded schemas reject wrong types, keys and identity leaks", () => {
+  assert.equal(validate("poppy-session-jwt", read("poppy-session-jwt")), true);
+  assert.equal(validate("poppy-delegation", read("poppy-delegation")), true);
+  for (const patch of [{ typ: "JWT" }, { alg: "PS384" }, { kid: "not-thumbprint" }, { poppy_dlg: "" }]) assert.equal(validate("poppy-session-jwt", { ...read("poppy-session-jwt"), header: { ...read("poppy-session-jwt").header, ...patch } }), false);
+  for (const patch of [{ aud: ["https://demo-toyota.example.com"] }, { sid: "" }, { htu: "https://dealer.example/api?query=1" }, { htu: "https://user:pass@dealer.example/api" }, { htu: "https://dealer.example/has space" }, { jti: "" }, { ath: "bad" }]) assert.equal(validate("poppy-session-jwt", { ...read("poppy-session-jwt"), payload: { ...read("poppy-session-jwt").payload, ...patch } }), false);
+  for (const name of ["sub", "aud", "agent_id"]) { const d = read("poppy-delegation"); d.payload[name] = "identity"; assert.equal(validate("poppy-delegation", d), false); }
+  for (const name of ["d", "p", "q", "dp", "dq", "qi", "oth", "k"]) { const d = read("poppy-delegation"); d.payload.cnf.jwk[name] = "private"; assert.equal(validate("poppy-delegation", d), false); }
+  const wrong = read("poppy-delegation"); wrong.payload.cnf.jwk.crv = "P-384";
+  assert.equal(validate("poppy-delegation", wrong), false);
+  const ps384 = read("poppy-delegation"); ps384.header.alg = "PS384";
+  assert.equal(validate("poppy-delegation", ps384), true, "PS384 identity signature may delegate an ES256 key");
 });
 
-test("PAP 0.3 removes legacy discovery fields and reserves poppy scope names", () => {
-  for (const name of ["direct", "device", "custom_scopes"]) {
-    const document = read("poppy"); document.auth[name] = {};
-    assert.equal(validate("poppy", document), false, name);
-    assert.equal(validate("poppy-document", document), true, "readers ignore old unknown fields");
-  }
-  const metadata = read("poppy-oauth-metadata");
-  for (const field of ["grant_types_supported", "protected_resources"]) {
-    const broken = { ...metadata }; delete broken[field];
-    assert.equal(validate("poppy-oauth-metadata", broken), false, field);
-  }
-  metadata.grant_types_supported = ["urn:ietf:params:oauth:grant-type:jwt-bearer"];
-  assert.equal(validate("poppy-oauth-metadata", metadata), false, "refresh_token is advertised even for guest-only issuers");
-  assert.equal(validate("poppy-oauth-metadata", { ...read("poppy-oauth-metadata"), scopes_supported: ["poppy:read"] }), false);
-  assert.equal(validate("poppy-session-request", { ...read("poppy-session-request"), session_id: "old" }), false);
-  assert.equal(validate("poppy-session-request", { ...read("poppy-session-request"), scope: "" }), false);
-  assert.equal(validate("poppy-session-assertion", { ...read("poppy-session-assertion"), agent_id: "agent_pairwise_opaque" }), true);
-  assert.equal(validate("poppy-session-assertion", { ...read("poppy-session-assertion"), agent_id: "" }), false);
+test("claim validation binds request, client, Company, lifetime and optional access token", () => {
+  assert.deepEqual(checkPoppySessionClaims(read("poppy-session-jwt"), read("poppy-delegation"), context()), []);
+  for (const patch of [{ clientId: "https://other.example/client" }, { companyIdentifier: issuer }, { method: "GET" }, { url: "https://dealer.example/other" }, { now: context().now + 61 }, { accessToken: "token", tokenClientId: context().clientId }]) assert.ok(checkPoppySessionClaims(read("poppy-session-jwt"), read("poppy-delegation"), { ...context(), ...patch }).length);
+  for (const patch of [{ exp: 1790899200 }, { exp: 1790899200 + 86401 }, { iat: 1790899300 }]) { const d = read("poppy-delegation"); Object.assign(d.payload, patch); assert.ok(checkPoppySessionClaims(read("poppy-session-jwt"), d, context()).length); }
+  const s = read("poppy-session-jwt"); s.payload.ath = createHash("sha256").update("token").digest("base64url");
+  assert.ok(checkPoppySessionClaims(s, read("poppy-delegation"), context()).length);
+  assert.deepEqual(checkPoppySessionClaims(s, read("poppy-delegation"), { ...context(), accessToken: "token", tokenClientId: context().clientId }), []);
+  assert.ok(checkPoppySessionClaims(s, read("poppy-delegation"), { ...context(), accessToken: "token", tokenClientId: "other" }).length);
 });
 
-test("loopback redirects allow a variable port, never a different callback or identity host", () => {
-  const client = read("poppy-client-metadata");
-  for (const redirect of ["http://127.0.0.1:49152/callback", "http://[::1]:49152/callback"]) {
-    const metadata = { ...client, redirect_uris: [redirect] };
-    assert.equal(validate("poppy-client-metadata", metadata), true);
-    assert.deepEqual(checkPoppyClientIdentity(metadata, client.client_id), []);
-    assert.equal(poppyRedirectMatches(redirect, redirect.replace("49152", "62400")), true);
-    assert.equal(poppyRedirectMatches(redirect, redirect.replace("callback", "elsewhere")), false);
-    assert.equal(poppyRedirectMatches(redirect, `${redirect}?different`), false);
-    assert.ok(checkPoppyClientIdentity({ ...metadata, jwks_uri: redirect }, client.client_id).length);
-  }
-  for (const redirect of ["http://localhost:49152/callback", "http://127.0.0.2/callback", "http://2130706433/callback", "http://127.1/callback", "http://127.0.0.1.evil.example/callback", "https://other.example/callback", "https://buyer-agent.example/callback#fragment"]) {
-    assert.ok(checkPoppyClientIdentity({ ...client, redirect_uris: [redirect] }, client.client_id).length, redirect);
-  }
-  assert.equal(poppyRedirectMatches("https://buyer-agent.example/callback", "https://buyer-agent.example:443/callback"), false, "HTTPS redirects match exactly");
+test("client_id + sid continuity preserves sub/agent_id and permits delegation rotation", () => {
+  const s = read("poppy-session-jwt"), d = read("poppy-delegation");
+  const previous = { sub: s.payload.sub };
+  assert.deepEqual(checkPoppySessionClaims(s, d, { ...context(), previous }), []);
+  assert.ok(checkPoppySessionClaims(s, d, { ...context(), previous: { sub: "other" } }).length);
+  assert.ok(checkPoppySessionClaims(s, d, { ...context(), previous: { ...previous, agent_id: "old" } }).length);
+  assert.ok(checkPoppySessionClaims(s, d, { ...context(), previous: { ...previous, ended: true } }).includes("session_ended"));
+  // These are structural fixtures only. Cryptographic curve membership/signatures require runtime tests.
+  d.payload.cnf.jwk.x = "A".repeat(43); d.payload.jti = "illustrative_rotated_delegation_0002";
+  s.header.kid = poppyJwkThumbprint(d.payload.cnf.jwk); s.header.poppy_dlg = compact(d);
+  assert.deepEqual(checkPoppySessionClaims(s, d, { ...context(), previous }), []);
 });
 
-test("native PAP MCP requires explicit DPoP resource support or a bound token exchange", () => {
-  const document = read("poppy"), metadata = read("poppy-oauth-metadata");
-  const url = document.extensions["autoagentprotocol.org/aap"].mcp;
-  document.apis.push({ type: "mcp", url, resource: url, description: "Native PAP MCP" });
-  const resource = { resource: url, authorization_servers: [document.auth.issuer] };
-  assert.equal(validate("poppy-mcp-resource-metadata", read("poppy-mcp-resource-metadata")), true);
-  assert.equal(validate("poppy-mcp-resource-metadata", read("poppy-mcp-resource-metadata.dpop")), true);
-  assert.equal(validate("poppy-mcp-resource-metadata", { ...resource, dpop_signing_alg_values_supported: ["RS256"] }), false);
-  assert.equal(validate("poppy-mcp-resource-metadata", { ...resource, bearer_methods_supported: ["query"] }), false);
-  assert.ok(checkPoppyMcpResource(document, metadata, url, resource).some(e => e.includes("token-exchange")));
-  metadata.grant_types_supported.push("urn:ietf:params:oauth:grant-type:token-exchange");
-  assert.deepEqual(checkPoppyMcpResource(document, metadata, url, resource), []);
-  assert.deepEqual(checkPoppyMcpResource(document, read("poppy-oauth-metadata"), url, { ...resource, dpop_signing_alg_values_supported: ["ES256"] }), []);
-  for (const patch of [{ resource: `${url}/` }, { authorization_servers: [`${document.auth.issuer}/`] }, { dpop_signing_alg_values_supported: ["RS256"] }]) {
-    assert.ok(checkPoppyMcpResource(document, metadata, url, { ...resource, ...patch }).length);
+test("ordinary OAuth accepts reduced scopes and Bearer or DPoP without inventing guest/exchange grants", () => {
+  for (const token_type of ["Bearer", "bearer", "DPoP"]) {
+    const token = { ...read("poppy-access-token-response"), token_type };
+    assert.equal(validate("poppy-access-token-response", token), true);
+    assert.deepEqual(checkPoppyTokenResponse(token, { grant: "sign-in", requestedScopes: ["saved_searches:read", "saved_searches:write"] }), []);
   }
-  assert.ok(checkPoppyMcpResource(read("poppy"), metadata, url, resource).length, "an AAP public link alone never authorizes PAP tokens");
-  const exchange = read("poppy-token-exchange-request");
-  assert.equal(validate("poppy-token-exchange-request", exchange), true);
-  for (const field of ["resource", "subject_token", "subject_token_type", "client_assertion"]) {
-    const broken = { ...exchange }; delete broken[field];
-    assert.equal(validate("poppy-token-exchange-request", broken), false, field);
-  }
-  const token = read("poppy-token-exchange-response");
-  assert.equal(validate("poppy-token-exchange-response", token), true);
-  assert.deepEqual(checkPoppyTokenResponse(token, { grant: "exchange", subjectScopes: [] }), []);
-  assert.ok(checkPoppyTokenResponse({ ...token, scope: "saved_searches:read" }, { grant: "exchange", subjectScopes: [] }).length);
-  assert.ok(checkPoppyTokenResponse({ ...token, scope: "write" }, { grant: "exchange", subjectScopes: ["read", "write"], requestedScopes: ["read"] }).length);
-  for (const patch of [{ token_type: "DPoP" }, { issued_token_type: "unknown" }, { refresh_token: "unexpected" }]) {
-    assert.equal(validate("poppy-token-exchange-response", { ...token, ...patch }), false);
-  }
+  const token = read("poppy-access-token-response");
+  assert.ok(checkPoppyTokenResponse(token, { grant: "sign-in", requestedScopes: [] }).length);
+  delete token.refresh_token;
+  assert.ok(checkPoppyTokenResponse(token, { grant: "sign-in", requestedScopes: ["saved_searches:read"] }).length);
+  assert.deepEqual(checkPoppyTokenResponse(token, { grant: "refresh", requestedScopes: ["saved_searches:read"] }), []);
 });
 
-test("browser joins use a code and proof, and alternatives stay on advertised APIs", () => {
-  assert.equal(validate("poppy-browser-session-request", read("poppy-browser-session-request")), true);
-  assert.equal(validate("poppy-browser-session-request", { assertion: "old", return_to: "https://dealer.example" }), false);
-  const excluded = read("poppy-excluded-tasks");
-  assert.equal(validate("poppy-excluded-tasks", excluded), true);
-  excluded.tasks[0].task = "x".repeat(201);
-  assert.equal(validate("poppy-excluded-tasks", excluded), false);
-  const alternative = read("poppy-alternative"), document = read("poppy");
-  assert.equal(validate("poppy-alternative", alternative), true);
-  assert.equal(validate("poppy-alternative", {}), false);
-  assert.equal(validate("poppy-alternative", { references: [{ type: "openapi", url: document.apis[0].url }] }), false);
-  alternative.references.push({ type: "mcp", url: "https://other.example/mcp", tool: "unknown" }, { type: "future", future: true });
-  assert.equal(validate("poppy-alternative", alternative), true, "readers skip future reference types");
-  assert.deepEqual(poppyAlternativeReferences(document, alternative), [alternative.references[0]], "ignore unsupported types and APIs not advertised by this company");
+test("native MCP selection does not impose obsolete token exchange", () => {
+  const native = read("poppy.native-mcp"), metadata = read("poppy-protected-resource-metadata.native-mcp"), url = native.apis[1].url;
+  assert.deepEqual(checkPoppyMcpResource(native, issuer, url, metadata), []);
+  assert.ok(checkPoppyMcpResource(read("poppy"), issuer, url, metadata).length);
+  assert.ok(checkPoppyMcpResource(native, "https://other.example", url, metadata).length);
+  assert.ok(checkPoppyMcpResource(native, issuer, url + "/wrong", metadata).length);
 });
 
-test("feedback receivers accept future kinds and enforce PAP report limits", () => {
-  const report = read("poppy-feedback-request");
-  assert.equal(validate("poppy-feedback-request", { ...report, kind: "future" }), true);
-  assert.equal(validate("poppy-feedback-request", { ...report, task: "x".repeat(201) }), false);
-  assert.equal(validate("poppy-feedback-request", { ...report, description: "x".repeat(2001) }), false);
+test("Session recovery errors are separate from OAuth and AAP business errors", () => {
+  for (const error of ["invalid_session", "session_ended"]) assert.equal(validate("poppy-session-error", { error, error_description: "Use a fresh Session." }), true);
+  for (const error of ["invalid_token", "invalid_grant", "use_dpop_nonce", "insufficient_scope"]) assert.equal(validate("poppy-session-error", { error }), false);
+  assert.equal(validate("poppy-browser-session-authorize", { code: "browser_issued_code" }), true);
+  assert.equal(validate("poppy-browser-session-authorize", { assertion: "old" }), false);
+});
+
+
+test("normative ID and NumericDate readers do not inherit stricter kit publication assumptions", () => {
+  const s = read("poppy-session-jwt"), d = read("poppy-delegation");
+  s.payload.sid = "a"; s.payload.jti = "j"; s.payload.iat += 0.5;
+  d.payload.jti = "j"; d.payload.iat += 0.5; d.payload.exp += 0.5;
+  assert.equal(validate("poppy-session-jwt", s), true, "a schema cannot infer randomness from minimum string length");
+  assert.equal(validate("poppy-delegation", d), true);
+  for (const sid of ["has space", "has/slash", "a".repeat(257)]) assert.equal(validate("poppy-session-jwt", { ...s, payload: { ...s.payload, sid } }), false);
+  assert.equal(validate("poppy-access-token-response", { ...read("poppy-access-token-response"), expires_in: 0.5 }), true);
+});
+
+
+test("signed-out CIMD does not require account sign-in metadata", () => {
+  const full = read("poppy-client-metadata");
+  const minimal = { client_id: full.client_id, jwks_uri: full.jwks_uri };
+  assert.equal(validate("poppy-client-metadata", minimal), true);
+  assert.deepEqual(checkPoppyClientIdentity(minimal, minimal.client_id), []);
+  assert.equal(validate("poppy-client-metadata", { ...minimal, redirect_uris: "invalid" }), false);
+  assert.equal(validate("poppy-client-metadata", { ...minimal, client_secret: "not-public" }), false);
+  for (const client_id of ["https://buyer-agent.example/", "https://buyer-agent.example/a/../client.json", full.client_id + "#fragment"]) assert.ok(checkPoppyClientIdentity({ ...minimal, client_id }, client_id).length);
+});
+
+
+test("signed-out CIMD permits explicit none; account OAuth separately needs private_key_jwt", () => {
+  const full = read("poppy-client-metadata"), minimal = { client_id: full.client_id, jwks_uri: full.jwks_uri };
+  for (const value of [minimal, { ...minimal, token_endpoint_auth_method: "none" }, full]) {
+    assert.equal(validate("poppy-client-metadata", value), true);
+    assert.deepEqual(checkPoppyClientIdentity(value, value.client_id), []);
+  }
+  assert.ok(checkPoppyClientIdentity(minimal, minimal.client_id, true).length);
+  assert.deepEqual(checkPoppyClientIdentity(full, full.client_id, true), []);
+  const plural = { ...minimal, token_endpoint_auth_methods_supported: ["none", "private_key_jwt"] };
+  assert.equal(validate("poppy-client-metadata", plural), true);
+  assert.deepEqual(checkPoppyClientIdentity(plural, plural.client_id, true), []);
+  assert.ok(checkPoppyClientIdentity({ ...full, token_endpoint_auth_methods_supported: ["none"] }, full.client_id).length);
+  assert.equal(validate("poppy-client-metadata", { ...minimal, token_endpoint_auth_methods_supported: ["client_secret_basic"] }), false);
 });

@@ -10,7 +10,7 @@ import { parse } from "yaml";
 import { generateOpenapi } from "../../tools/generate-openapi.js";
 import { DRAFT_VERSION, ROOT } from "../../tools/lib/releases.js";
 
-test("Poppy OpenAPI carries every AAP skill unchanged and requires DPoP", async () => {
+test("Poppy OpenAPI carries every AAP skill unchanged and requires delegated Poppy-Session", async () => {
   const out = mkdtempSync(resolve(tmpdir(), "aap-poppy-api-"));
   try {
     const spec = resolve(ROOT, "spec/latest");
@@ -22,18 +22,21 @@ test("Poppy OpenAPI carries every AAP skill unchanged and requires DPoP", async 
     ajv.addSchema({ $id: "https://test.example/poppy", components: api.components });
     assert.equal(api.openapi, "3.1.0");
     assert.equal(api["x-poppy-protocol-version"], "0.3");
-    assert.equal(api["x-poppy-specification-revision"], "86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7");
+    assert.equal(api["x-poppy-specification-revision"], "6fb46d381ac1b94265795132af13848ec442b6f6");
     assert.equal(api["x-aap-extension"], manifest.extension_uri);
     assert.equal(Object.keys(api.paths).length, manifest.skills.length);
-    assert.equal(api.components.securitySchemes.poppySession.scheme, "DPoP");
+    assert.equal(api.components.securitySchemes.poppySession.name, "Poppy-Session");
+    assert.equal(api.components.securitySchemes.poppySession.in, "header");
     for (const skill of manifest.skills) {
       const op = api.paths[`/skills/${skill.id}`].post;
       assert.equal(op["x-aap-skill"], skill.id);
       assert.deepEqual(op.security, [{ poppySession: [] }]);
-      assert.ok(op.parameters.some((p: any) => p.name === "DPoP" && p.required));
-      assert.deepEqual(op.parameters.filter((p: any) => p.in === "header").map((p: any) => p.name), ["DPoP"], "native PAP must not inherit A2A or MCP headers");
-      assert.ok(op.responses["401"].headers["WWW-Authenticate"]);
-      assert.ok(op.responses["200"].headers["DPoP-Nonce"]);
+      assert.equal(op.parameters, undefined, "no old DPoP or A2A/MCP headers on signed-out PAP");
+      assert.equal(op.responses["401"], undefined, "Session failures are HTTP 400");
+      const failure = ajv.compile({ $id: "https://test.example/poppy-errors/" + skill.id, ...op.responses["400"].content["application/json"].schema, components: api.components });
+      assert.equal(failure({ error: "invalid_session", error_description: "Send a fresh delegated JWT." }), true);
+      assert.equal(failure({ error: "session_ended" }), true);
+      assert.equal(failure({ error: "invalid_token" }), false);
       assert.ok(op.responses["429"].headers["Retry-After"]);
       for (const [schemaUrl, schema] of [
         [skill.request_schema, op.requestBody.content["application/json"].schema],

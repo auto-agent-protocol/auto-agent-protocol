@@ -1,0 +1,15 @@
+{
+  "poppy.schema.json": "0b3385571deaf79098330052880714b2d7c5a126ea4c1a39ee7ddcce6791aee6",
+  "session-jwt.schema.json": "60351055732e25fcda349a71cfb35ed03eddfdf7b52f93e58ef4ac3651052f73",
+  "delegation.schema.json": "5fae80ffead36cbb382b247516e031e743cea0779b06ed8e9d29e0a1bcc64365",
+  "client-metadata.schema.json": "072fbe9b307f40b296b77c15f187bbbe4e4d33ff29f6a3b2711bc53341eac10a",
+  "authorization-server-metadata.schema.json": "beb1be8a78122b64062010742ebdf0f514a31ba9f950aad1b7c1d19a35a39023",
+  "token-response.schema.json": "5c03071f1f5556c7c9538cc49d961a02b0e88d1cd5fb49e1e341af09bc7987e8",
+  "protected-resource-metadata.schema.json": "b7d01704794f1340d121257bb3aa9199dc1a930ff64177a671294063c954957a",
+  "browser-session-authorize.schema.json": "f5d9ef55c6979e6d0c8924dbee0788e184951251d1537f9f4cf0432c019fcd51",
+  "skill-index.schema.json": "f52cb5eb0cd6c70183c716e925605c34e290ce29415ed2028c0b376fe3af7cf8",
+  "error.schema.json": "a72b927a090b46c0595f469d423aff014a5a42507d10c48bd9322268eaee3660",
+  "alternative.schema.json": "3aedbb27d47be37612618afee0e4009819b8057fa3f80673a7999d27236c415f",
+  "excluded-tasks.schema.json": "78b564a6017000c964eaf3a292e53aa2b6638c48bb07d6c8e6e712a13519b15f",
+  "feedback-report.schema.json": "14ea6b7105916845c707bdd247db0d0ed6b393a6751dbb5fdb030ab0c0f1d7b1"
+}

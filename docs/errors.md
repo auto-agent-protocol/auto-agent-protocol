@@ -47,7 +47,7 @@ Validation errors MUST list every currently detectable problem in `details.error
 | A2A | JSON-RPC error, standard `ErrorInfo` first in `error.data[]`, typed error inside `google.protobuf.Struct.value` |
 | PAP OpenAPI | Direct `aap.error` JSON body with the mapped HTTP status |
 
-An unknown MCP tool, malformed protocol request, missing token, DPoP challenge or unsupported upstream version is a **protocol failure**. Do not pretend an automotive skill ran. MCP authorization discovery and PAP OAuth challenges are described in their binding pages.
+An unknown MCP tool, malformed protocol request, missing Session header, OAuth challenge or unsupported upstream version is a **protocol failure**. Do not pretend an automotive skill ran. MCP authorization discovery and PAP OAuth challenges are described in their binding pages.
 
 ### A2A detail encoding
 

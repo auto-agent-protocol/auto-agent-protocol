@@ -2,59 +2,93 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-client-metadata.schema.json",
   "title": "PoppyClientMetadata",
-  "description": "PAP 0.3 personal-agent identity. Verify client_id against the fetched URL. JWKS is HTTPS on that domain; redirects are HTTPS on that domain or RFC 8252 HTTP loopback literals. Public identity keys and per-Session DPoP keys are separate.",
+  "description": "The document at a Personal Agent's client_id URL. Spec section 4.1 (Agent identity). client_id must equal the URL it was fetched from, and jwks_uri and each redirect_uris entry other than a loopback redirect URI must be on the same domain as client_id; those depend on the fetch and are checked separately. Unknown fields are allowed. Signed-out Session verification requires client_id and jwks_uri; client_name, redirect_uris and OAuth authentication method metadata are optional. Direct Sign-In and OAuth authenticate only when their metadata and full flow are implemented.",
   "type": "object",
+  "required": [
+    "client_id",
+    "jwks_uri"
+  ],
   "properties": {
     "client_id": {
-      "type": "string",
-      "format": "uri",
-      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+      "$ref": "#/$defs/https_url"
     },
     "client_name": {
       "type": "string",
       "minLength": 1
     },
     "logo_uri": {
-      "type": "string",
-      "format": "uri",
-      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+      "$ref": "#/$defs/https_url"
     },
     "jwks_uri": {
-      "type": "string",
-      "format": "uri",
-      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+      "$ref": "#/$defs/https_url"
     },
     "redirect_uris": {
       "type": "array",
       "items": {
         "anyOf": [
           {
-            "type": "string",
-            "format": "uri",
-            "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?][^#\\s]*)?$"
+            "$ref": "#/$defs/https_url"
           },
           {
-            "type": "string",
-            "format": "uri",
-            "pattern": "^http://(127\\.0\\.0\\.1|\\[::1\\])(:[0-9]+)?(?:[/?][^#\\s]*)?$"
+            "$ref": "#/$defs/loopback_url"
           }
         ]
-      },
-      "uniqueItems": true
+      }
     },
     "token_endpoint_auth_method": {
-      "const": "private_key_jwt"
+      "enum": [
+        "none",
+        "private_key_jwt"
+      ],
+      "description": "Absent or none is valid for signed-out Sessions. Account OAuth requires advertised private_key_jwt."
     },
     "extensions": {
-      "$ref": "./poppy-document.schema.json#/properties/extensions"
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "version"
+        ],
+        "properties": {
+          "version": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "client_secret": false,
+    "client_secret_expires_at": false,
+    "jwks": false,
+    "token_endpoint_auth_methods_supported": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "not": {
+          "enum": [
+            "client_secret_post",
+            "client_secret_basic",
+            "client_secret_jwt"
+          ]
+        }
+      },
+      "description": "CIMD method choices. Optional OAuth must select private_key_jwt; any singular method must occur here."
     }
   },
-  "required": [
-    "client_id",
-    "client_name",
-    "jwks_uri",
-    "redirect_uris",
-    "token_endpoint_auth_method"
-  ],
-  "additionalProperties": true
+  "$defs": {
+    "https_url": {
+      "type": "string",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\\\\\s]+(?:[/?#][^\\\\\\s]*)?$",
+      "format": "uri"
+    },
+    "loopback_url": {
+      "description": "A loopback redirect URI for an app on the User's computer, RFC 8252 section 7.3.",
+      "type": "string",
+      "pattern": "^http://(127\\.0\\.0\\.1|\\[::1\\])(:[0-9]+)?([/?#]|$)"
+    }
+  },
+  "$comment": "Adapted from personal-agent-protocol at 6fb46d381ac1b94265795132af13848ec442b6f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-0.3. JSON Schema does not verify cryptography or runtime requirements."
 }

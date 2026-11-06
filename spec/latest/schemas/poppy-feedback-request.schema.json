@@ -2,27 +2,23 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-feedback-request.schema.json",
   "title": "PoppyFeedbackRequest",
-  "description": "PAP 0.3 feedback report. Personal agents send kind=missing; receiving Companies must also accept unknown kinds. Send with a Session Token and DPoP, without account scopes, identifiers or secrets. Accept HTTP 202 with no body or HTTP 200 with a PoppyAlternative. Do not report an excluded task.",
+  "description": "The JSON body a Personal Agent posts to {feedback.endpoint} to report a User's task that can't be done through the protocol. Spec 9.3 (Feedback).",
   "type": "object",
+  "required": [
+    "task",
+    "description"
+  ],
   "properties": {
-    "kind": {
-      "type": "string",
-      "minLength": 1,
-      "description": "PAP 0.3 senders use missing. Receivers accept unknown future kinds."
-    },
     "task": {
       "type": "string",
+      "minLength": 1,
       "maxLength": 200
     },
     "description": {
       "type": "string",
+      "minLength": 1,
       "maxLength": 2000
     }
   },
-  "required": [
-    "kind",
-    "task",
-    "description"
-  ],
-  "additionalProperties": true
+  "$comment": "Adapted from personal-agent-protocol at 6fb46d381ac1b94265795132af13848ec442b6f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-0.3. JSON Schema does not verify cryptography or runtime requirements."
 }
