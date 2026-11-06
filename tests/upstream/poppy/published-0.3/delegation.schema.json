@@ -1,0 +1,56 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "delegation.schema.json",
+    "title": "Delegation",
+    "description": "A delegation as its decoded JWT header and payload: signed with ES256 or PS384 by a key in the Personal Agent's jwks_uri, it vouches for the delegated key in cnf.jwk (RFC 7800), which signs the Personal Agent's Session JWTs. Spec section 5.2 (Delegated keys). exp is at most 24 hours after iat. A delegation names no User, Agent ID, or Company. The header and payload are also available on their own as delegation.schema.json#/$defs/header and #/$defs/payload. The Session JWT that carries a delegation in poppy_dlg is session-jwt.schema.json.",
+    "type": "object",
+    "required": ["header", "payload"],
+    "properties": {
+        "header": { "$ref": "#/$defs/header" },
+        "payload": { "$ref": "#/$defs/payload" }
+    },
+    "$defs": {
+        "header": {
+            "type": "object",
+            "required": ["alg", "typ", "kid"],
+            "properties": {
+                "alg": { "enum": ["ES256", "PS384"] },
+                "typ": { "const": "poppy-delegation+jwt" },
+                "kid": { "type": "string", "minLength": 1 }
+            }
+        },
+        "payload": {
+            "type": "object",
+            "required": ["iss", "cnf", "iat", "exp", "jti"],
+            "properties": {
+                "iss": { "type": "string", "pattern": "^https://[^\\s/?#]+", "format": "uri" },
+                "cnf": {
+                    "type": "object",
+                    "required": ["jwk"],
+                    "properties": {
+                        "jwk": {
+                            "type": "object",
+                            "required": ["kty"],
+                            "properties": {
+                                "kty": { "type": "string" },
+                                "d": false,
+                                "p": false,
+                                "q": false,
+                                "dp": false,
+                                "dq": false,
+                                "qi": false,
+                                "k": false
+                            }
+                        }
+                    }
+                },
+                "iat": { "type": "integer", "minimum": 0 },
+                "exp": { "type": "integer", "minimum": 0 },
+                "jti": { "type": "string", "minLength": 22 },
+                "sub": false,
+                "aud": false,
+                "agent_id": false
+            }
+        }
+    }
+}

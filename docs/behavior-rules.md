@@ -20,7 +20,7 @@ description: Shared rules for truthful inventory, evidence, pricing, consent, re
 - Feature claims MUST carry source evidence. Omitted or `unknown` features do not mean absent. Do not infer equipment from trim names or model-level marketing copy.
 - Geography uses the specified origin and rooftop coordinates. Radius and distance ordering follow [search semantics](./skills/inventory-search.md); neither route distance nor a regional text match substitutes for them.
 
-Read skills MUST accept requests without customer information or contact consent. Authentication may still be required by the chosen transport. MCP public reads are recommended; PAP OpenAPI still requires a guest Session and DPoP. `privacy.anonymous: true` means the request carries no buyer identity, not that transport authentication is disabled.
+Read skills MUST accept requests without customer information or contact consent. Authentication may still be required by the chosen transport. MCP public reads are recommended; PAP OpenAPI still requires a verified delegated `Poppy-Session` JWT. `privacy.anonymous: true` means the request carries no buyer identity, not that transport authentication is disabled.
 
 ## Prices an agent can compare
 

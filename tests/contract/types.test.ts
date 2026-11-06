@@ -29,14 +29,14 @@ ${assignments.join("\n")}
 const publicDayHours: AAP.DayHours = { open: "09:00", close: "18:00" };
 const closedDay: AAP.DayHours = null;
 const weeklySchedule: AAP.WeeklyHours = { monday: publicDayHours, sunday: closedDay };
-const guestToken: AAP.PoppyGuestTokenResponse = { access_token: "illustrative", token_type: "DPoP", expires_in: 3600 };
-const browserJoin: AAP.PoppyBrowserSessionRequest = { code: "illustrative", proof: "illustrative" };
-// @ts-expect-error PAP 0.3 removes session_id from the token contract.
-const oldSessionToken: AAP.PoppySessionTokenResponse = { ...guestToken, session_id: "old" };
-// @ts-expect-error PAP 0.3 removes signed_in from the token contract.
-const oldSignedInToken: AAP.PoppySessionTokenResponse = { ...guestToken, signed_in: false };
-// @ts-expect-error Guest token responses omit scope entirely.
-const oldGuestScope: AAP.PoppyGuestTokenResponse = { ...guestToken, scope: "" };
+const accessToken: AAP.PoppyAccessTokenResponse = { access_token: "illustrative", token_type: "Bearer", expires_in: 300 };
+const browserJoin: AAP.PoppyBrowserSessionAuthorize = { code: "illustrative" };
+// @ts-expect-error The AAP 3.2 draft no longer exports a guest OAuth response.
+const oldGuestToken: AAP.PoppyGuestTokenResponse = accessToken;
+// @ts-expect-error API Session signatures require ES256 even when a delegation uses PS384.
+const wrongSessionAlgorithm: AAP.PoppySessionJWT["header"]["alg"] = "PS384";
+// @ts-expect-error Every request JWT carries a delegation in its header.
+const noDelegation: AAP.PoppySessionJWT["header"] = { typ: "poppy-session+jwt", alg: "ES256", kid: "illustrative" };
 // @ts-expect-error Required search result fields cannot disappear into an index signature.
 const emptySearch: AAP.InventorySearchResponse["data"] = {};
 // @ts-expect-error A total is numeric or unknown, never text.

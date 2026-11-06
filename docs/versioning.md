@@ -1,25 +1,25 @@
 ---
 sidebar_position: 9
 title: Versions and migration
-description: AAP 3.1 currency and odometer migration, independent upstream versions, and immutable release artifacts.
+description: AAP 3.2 published PAP 0.3 migration, independent upstream versions, and immutable release artifacts.
 ---
 
 # Versions and migration
 
-**AAP 3.1 adds explicit currency and odometer units.** Existing omitted labels retain USD/mi meanings. Native Canadian amounts require the new fields and a 3.1 endpoint; do not relabel CAD/km numbers on an unchanged 3.0 endpoint. The frozen 3.0 contract remains unchanged.
+**AAP 3.2.0 is the release target for published PAP 0.3.** This approved minor transition requires an authentication migration from the earlier PAP 0.3 profile in frozen AAP 3.1. The next AAP major release is reserved for PAP 1.0. Automotive payloads retain their 3.1 meanings, including explicit currency and odometer units.
 
 ![Edit and verify the draft, freeze a new release, then publish and switch a verified deployment](./img/versioning-timeline.svg)
 
 ## Four independent version numbers
 
-| Identifier | Meaning in AAP 3.1 |
+| Identifier | Meaning in AAP 3.2 |
 |---|---|
-| AAP `3.1.0` / contract `v3.1` | Automotive schemas, bindings and behavior |
+| AAP `3.2.0` / contract `v3.2` | Target automotive schemas, bindings and behavior; draft authoring still uses `0.0.0-dev` |
 | MCP `2026-07-28` + `2025-11-25` | Current wire protocol and explicit compatibility path |
 | A2A `1.0` | Agent Card, Message and JSON-RPC protocol |
-| PAP `0.3` | Pinned in-progress Poppy draft; discovery bridge remains `version: "1"` |
+| PAP `0.3` | Published specification pinned to commit `6fb46d381ac1b94265795132af13848ec442b6f6`; discovery bridge remains `version: "1"` |
 
-A server's software version is separate. A PAP 0.2 client must migrate its authentication flow; a PAP 0.3 client is not automatically an AAP 3.1 client, and MCP version negotiation does not choose an automotive schema version.
+A server's software version is separate. PAP 0.2 and earlier draft 0.3 clients must migrate their authentication flows; a PAP 0.3 client is not automatically an AAP 3.2 client, and MCP version negotiation does not choose an automotive schema version.
 
 ## AAP 3.0 to 3.1
 
@@ -80,38 +80,31 @@ Do not retry an uncertain lead through an older contract with a new key. Preserv
 
 ### PAP 0.3 migration
 
-The target is the [0.3 draft at upstream commit `86f0c8d`](https://github.com/personal-agent-protocol/personal-agent-protocol/blob/86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7/content/versions/0.3/spec.mdx), reviewed 2026-10-26. This is not an upstream final release. Re-review later draft changes explicitly; do not silently follow a moving `main`.
+The editable draft targets [published 0.3 at commit `6fb46d381ac1b94265795132af13848ec442b6f6`](https://github.com/personal-agent-protocol/personal-agent-protocol/blob/6fb46d381ac1b94265795132af13848ec442b6f6/content/versions/0.3/spec.mdx). Frozen AAP 3.1 pins October 26 commit `86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7`, which used the same upstream `0.3` label but a different authentication model. The maintainer approved **AAP 3.2.0** for this migration and reserved the next major for PAP 1.0. Required authentication fields and meanings change, so older clients still require migration. The release tool permits this minor exception only for the reviewed specification hash and the 3.1.0 → 3.2.0 pair. Until release approval, `/latest/`, package versions and all frozen releases remain unchanged.
 
-| Surface | PAP 0.2 | PAP 0.3 action |
+| Surface | Frozen AAP 3.1 profile | AAP 3.2 published PAP 0.3 binding |
 |---|---|---|
-| Discovery | `protocol_version: "0.2"` | Advertise `"0.3"` only after implementing it; unsupported pre-1.0 minors are incompatible |
-| Redirected discovery | Final-host identity | Also retain exact final `/.well-known/poppy.json` path without query |
-| Issuer authorization | `poppy_domains: ["dealer.example"]` | Replace with `protected_resources: ["https://dealer.example"]`; no domain-entry port, path or slash; ignore hostname case only |
-| Grant metadata | JWT grant advertisement optional | Require `grant_types_supported`, including JWT bearer **and `refresh_token`**, even for guest-only issuers |
-| Sign-in discovery | `auth.direct` and `auth.device` | Remove both; use authorization-code/device grants and their required metadata endpoints; any sign-in requires `scopes_supported` |
-| Scopes | Built-in `poppy:read` / `poppy:write`, plus `auth.custom_scopes` | Define company scopes; reserve all `poppy:` names. Replace with `auth.scopes` or listed OpenAPI OAuth descriptions; mediated scopes must be a supported subset |
-| Scope hints | No standard hints | Optional `auth.scope_hints` includes both `changes` and `personal_data`; unknown changes means irreversible, absent hints means unknown |
-| Session identity | Custom `session_id` in requests/responses; DPoP key could span Sessions for one User | Remove `session_id`. Create a new DPoP key per Session; key thumbprint identifies it. Renew with the same key, client, User and optional Agent ID |
-| Session errors | `invalid_session` | Use `invalid_grant`; keep ended-key tombstones when possible; clients discard rejected ended keys and tolerate forgotten-key renewal creating a new Session |
-| Token state | `signed_in`, guest `scope: ""` | Remove both. Guest JWT grant always returns DPoP with scope omitted. Sign-in/Account Token grants are signed in; omitted scope means exactly as requested. Never infer state from scope presence |
-| Agent identity within a User | No Agent ID | Optional pairwise opaque `agent_id` in Session assertion; unchanged or absent on renewal, no separate account/conversation ownership |
-| Native MCP without DPoP | Token issuance could return Bearer without a token-endpoint proof | Require RFC 8693 **token exchange** from a current DPoP Session Token; fresh token-endpoint DPoP still mandatory; return exact-resource Bearer and `issued_token_type`; never widen scopes |
-| Native MCP with DPoP | Resource-bound DPoP | Continue normal grants with DPoP and exact MCP resource. Wrong grant/token target gets `invalid_target`; never exchange to a DPoP-capable server |
-| Direct Sign-In | PKCE and Session ID | Bind code to Session Key via mandatory `dpop_jkt` support or proof on PAR; keep PKCE, state and response-issuer checks. Exchange with the same key |
-| Native client redirects | Same-domain HTTPS only | Also permit RFC 8252 HTTP loopback IP literals, matching exactly except for port; remote identity fetches stay HTTPS |
-| Device Sign-In | Device flow | Apply RFC 10027 protections; bind device code on first token poll, reject key changes |
-| Browser join | Signed browser assertion and return URL | Replace with browser-issued ≤60-second code, `__Host-` join cookie, Session-key DPoP `nonce=code`, one-use verification and required browser isolation headers |
-| Account access error | `sign_in_required` | Use `insufficient_scope`, including for signed-out requests; name required scopes and honor explicit sign-out |
-| Token lifetime / revocation | Account Token expiry implicit | Optional positive `refresh_token_expires_in`; revocation SHOULD invalidate issued Session Tokens; otherwise enforce state/short lifetime |
-| Conversation messages | `sender` | Use `author: {type: "agent" or "human"}`; Company authors may include id/name/image; authorization events require scope |
-| Unavailable tasks | Feedback only, 202 | Optional public `excluded_tasks.url` and alternatives; feedback clients accept **200 + alternative or 202 + no body**; ignore references to unadvertised APIs |
-| Secrets | Credential protection | Keep tokens, private keys, authorization codes, PKCE verifiers and device codes outside model context; use trusted signing/sending code |
+| Signed-out access | OAuth guest JWT grant, two assertions, Session Token and DPoP | Fresh delegated `Poppy-Session` JWT on each request; no guest token grant |
+| Company identity | Required `auth.issuer` | Discover domain protected-resource metadata; optional issuer; domain fallback only after explicit absence, never errors |
+| Existing Company issuer | Mandatory guest issuer | Retain its exact identity; `auth.disabled: true` disables new sign-in without resetting User IDs or Sessions |
+| Session identity | DPoP key thumbprint | `client_id + sid`; same User/Agent IDs, delegated keys may rotate |
+| Delegation | Not defined | Identity-key-signed ES256/PS384 delegation, public ES256 delegated key, at most 24-hour lifetime, no user/company identifiers |
+| Request binding | Token plus DPoP | Session JWT method/URL/time; optional token hash and same-client binding; OAuth DPoP remains separate when used |
+| Failure recovery | Guest token/proof OAuth errors | HTTP 400 `invalid_session` or `session_ended`; safe optional description; new-SID retry once for ended Session |
+| Issuer grants | JWT bearer and refresh required | Ordinary OAuth refresh required; account sign-in optional |
+| Discovery fields | `apis[].resource`, `auth.mediated` | Resource metadata via RFC 9728; mediated sign-in is an extension; optional `auth.disabled`, conversation `access` and `skill_index` |
+| Account token | Session-bound guest/sign-in token flow | Ordinary Bearer or DPoP access token plus refresh; reduced scopes permitted, scope expansion forbidden |
+| Native PAP MCP | Mandatory guest-token exchange for non-DPoP | Session header and ordinary OAuth where needed; no mandatory legacy exchange |
+| Browser join | DPoP nonce containing code in browser form | Agent authorizes code by JSON POST to `/authorize` with Session header, then browser redeems code with cookie |
+| Generated artifacts | Guest/exchange schemas and OpenAPI DPoP scheme | Delegation/Session/error/ordinary OAuth schemas and `Poppy-Session` header security |
 
-Regenerate client/tool schemas and update TypeScript constructors with the new Poppy metadata and token shapes; the old fields are intentionally incompatible. The automotive request/response bodies and bridge `1` are independent of this change. Do not reset a lead's idempotency key during protocol migration or scope deduplication to a changing Session Key. Keep a stable verified caller/User identity and reconcile uncertain writes before changing authentication context.
+Keep the existing endpoint/profile while testing a separately configured replacement. Do not change the meaning of a frozen endpoint or replace default discovery before release and deployment approval. Optional account sign-in, browser, conversation and native MCP surfaces require their complete independent acceptance before advertisement.
+
+Update client constructors and generated schemas together. Preserve automotive payload meaning and the bridge extension version; the AAP contract version is a separate decision. Lead idempotency remains bound to stable verified caller/User identity, never to a rotating delegation key or a newly created Session. Reconcile uncertain writes before migration.
 
 ### PAP 0.2 migration
 
-This heading remains as a historical link. AAP 2.1 used PAP 0.2; its [frozen migration record](https://autoagentprotocol.org/docs/v2.1/versioning#pap-02-migration) documents the earlier 0.1 → 0.2 transition. New AAP 3.1 implementations target **0.3 directly** and apply all final identity, issuer-audience and proof requirements. They do not need an intermediate 0.2 deployment. The historical 2.0 → 2.1 minor-release exception was approved for one specification hash and does not relax the major-version policy.
+This heading remains as a historical link. AAP 2.1 used PAP 0.2; its [frozen migration record](https://autoagentprotocol.org/docs/v2.1/versioning#pap-02-migration) documents the earlier 0.1 → 0.2 transition. AAP 3.2 targets **published 0.3 directly**; frozen AAP 3.1 retains its earlier pinned profile. They do not need an intermediate 0.2 deployment. Both the historical 2.0 → 2.1 and the approved 3.1 → 3.2 minor-release exceptions are pinned to their reviewed specification hashes and do not permit unrelated breaking changes.
 
 ### Breaking migration checklist
 
@@ -130,7 +123,7 @@ Draft schema/extension URLs use `https://draft.autoagentprotocol.invalid`. Relea
 
 ## SemVer and immutability
 
-AAP follows Semantic Versioning. Optional additive behavior can be minor; removed fields, tighter validation, changed required meanings or new mandatory interfaces require a major release. The structural compatibility report is conservative and does not replace semantic review.
+AAP normally follows Semantic Versioning. Optional additive behavior can be minor; removed fields, tighter validation, changed required meanings or new mandatory interfaces normally require a major release. The explicitly approved PAP transitions to AAP 2.1 and 3.2 are exceptions, with required client migrations documented above. The next AAP major is reserved for PAP 1.0. These decisions do not waive compatibility checks for other changes; the structural report remains conservative and does not replace semantic review.
 
 Contract paths contain major/minor only, so the release tool creates `MAJOR.MINOR.0` snapshots. Published snapshots are never edited, including their diagrams. Editorial corrections enter the editable source for a later release.
 
@@ -141,7 +134,7 @@ A release freezes schemas, examples, skills, docs/sidebar/images, generated Type
 Commit reviewed edits to the working sources, then rehearse:
 
 ```bash
-pnpm release:prepare 3.1.0 --dry-run
+pnpm release:prepare 3.2.0 --dry-run
 ```
 
 After reviewing the compatibility report, run without `--dry-run` from a clean tree. The command validates and freezes the new contract, generates artifacts, records the source commit/hashes and updates registry/package versions. It does not commit, tag, push, publish npm packages or deploy the site. See [RELEASING.md](https://github.com/auto-agent-protocol/auto-agent-protocol/blob/main/RELEASING.md).

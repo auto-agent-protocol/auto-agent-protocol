@@ -2,107 +2,59 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-document.schema.json",
   "title": "PoppyDocument",
+  "description": "The discovery document a Company publishes at /.well-known/poppy.json. Spec section 3 (Discovery) and 3.1 (Fields). Unknown fields are allowed: Personal Agents ignore fields they don't recognize.",
   "type": "object",
+  "required": [
+    "protocol_version",
+    "organization"
+  ],
   "properties": {
     "protocol_version": {
-      "type": "string",
-      "const": "0.3",
-      "description": "Supported PAP draft. Pre-1.0 major.minor versions are not implicitly compatible; unknown fields within this version remain allowed."
+      "const": "0.3"
     },
     "organization": {
       "type": "object",
+      "required": [
+        "name",
+        "domain"
+      ],
       "properties": {
         "name": {
           "type": "string",
           "minLength": 1
         },
         "domain": {
-          "type": "string",
-          "format": "hostname"
+          "$ref": "#/$defs/domain"
+        },
+        "logo_uri": {
+          "$ref": "#/$defs/https_url"
         }
-      },
-      "required": [
-        "name",
-        "domain"
-      ],
-      "additionalProperties": true
+      }
     },
     "auth": {
+      "description": "Optional. issuer is required only when the domain's protected resource metadata lists more than one authorization server, and must then be one of them (spec 3.1, 3.2), which is checked separately.",
       "type": "object",
       "properties": {
         "issuer": {
           "type": "string",
           "format": "uri",
-          "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:/[^?#\\s]*)?$"
+          "pattern": "^https://[^/?#@\\\\\\s]+(?:/[^?#\\\\\\s]*)?$"
         },
-        "mediated": {
-          "type": "object",
-          "properties": {
-            "endpoint": {
-              "type": "string",
-              "format": "uri",
-              "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
-            },
-            "fields": {
-              "type": "array",
-              "minItems": 1,
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "label": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "secret": {
-                    "type": "boolean"
-                  }
-                },
-                "required": [
-                  "name",
-                  "label",
-                  "secret"
-                ],
-                "additionalProperties": true
-              }
-            },
-            "scopes": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "pattern": "^(?!poppy:)[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
-              },
-              "uniqueItems": true,
-              "minItems": 1
-            }
-          },
-          "required": [
-            "endpoint",
-            "fields",
-            "scopes"
-          ],
-          "additionalProperties": true
+        "disabled": {
+          "description": "true if the Company offers Personal Agents no sign-in, even though it has an issuer (spec 3.2).",
+          "type": "boolean"
         },
         "scopes": {
+          "description": "Scope descriptions, keyed by scope name, in the same form as an OpenAPI OAuth 2.0 security scheme. Describing offered scopes here or in a listed OpenAPI description is recommended.",
           "type": "object",
-          "propertyNames": {
-            "type": "string",
-            "pattern": "^(?!poppy:)[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
-          },
           "additionalProperties": {
             "type": "string",
             "minLength": 1
           }
         },
         "scope_hints": {
+          "description": "Hints about each scope, keyed by scope name, describing the most consequential operation that requires it.",
           "type": "object",
-          "propertyNames": {
-            "type": "string",
-            "pattern": "^(?!poppy:)[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
-          },
           "additionalProperties": {
             "type": "object",
             "required": [
@@ -112,134 +64,58 @@
             "properties": {
               "changes": {
                 "type": "string",
-                "description": "Readers treat unrecognized values as irreversible; publishers use none, reversible or irreversible."
+                "description": "Readers treat unknown values as irreversible."
               },
               "personal_data": {
                 "type": "boolean"
               }
-            },
-            "additionalProperties": true
+            }
           }
         }
-      },
-      "required": [
-        "issuer"
-      ],
-      "additionalProperties": true
-    },
-    "web": {
-      "type": "object",
-      "properties": {
-        "browser_session_endpoint": {
-          "type": "string",
-          "format": "uri",
-          "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
-        }
-      },
-      "required": [],
-      "additionalProperties": true
-    },
-    "apis": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "minLength": 1
-          },
-          "url": {
-            "type": "string",
-            "format": "uri",
-            "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
-          },
-          "description": {
-            "type": "string",
-            "minLength": 1
-          },
-          "resource": {
-            "type": "string",
-            "format": "uri",
-            "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?][^#\\s]*)?$",
-            "description": "HTTPS resource identifier without a fragment, as required by PAP 0.3 and RFC 8707."
-          }
-        },
-        "required": [
-          "type",
-          "url",
-          "description"
-        ],
-        "additionalProperties": true
       }
     },
     "agent": {
       "type": "object",
+      "required": [
+        "protocols"
+      ],
       "properties": {
         "protocols": {
           "type": "array",
           "minItems": 1,
           "items": {
             "type": "object",
+            "required": [
+              "type",
+              "endpoint"
+            ],
             "properties": {
               "type": {
                 "type": "string",
                 "minLength": 1
               },
               "endpoint": {
-                "type": "string",
-                "format": "uri",
-                "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+                "$ref": "#/$defs/https_url"
               },
-              "resource": {
+              "access": {
                 "type": "string",
-                "format": "uri",
-                "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?][^#\\s]*)?$",
-                "description": "HTTPS resource identifier without a fragment, as required by PAP 0.3 and RFC 8707."
+                "description": "For a poppy protocol entry, session (the default) or signed_in. Unknown values are ignored as an absent hint (spec 3.2)."
               }
-            },
-            "required": [
-              "type",
-              "endpoint"
-            ],
-            "additionalProperties": true
+            }
           }
         }
-      },
-      "required": [
-        "protocols"
-      ],
-      "additionalProperties": true
-    },
-    "extensions": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "object",
-        "properties": {
-          "version": {
-            "type": "string",
-            "minLength": 1,
-            "description": "An extension-defined version string. Readers ignore unknown extensions; the AAP publication profile separately requires bridge version 1."
-          }
-        },
-        "required": [
-          "version"
-        ],
-        "additionalProperties": true
       }
     },
     "feedback": {
       "type": "object",
-      "properties": {
-        "endpoint": {
-          "type": "string",
-          "format": "uri",
-          "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
-        }
-      },
       "required": [
         "endpoint"
       ],
-      "additionalProperties": true
+      "properties": {
+        "endpoint": {
+          "$ref": "#/$defs/https_url"
+        }
+      }
     },
     "excluded_tasks": {
       "type": "object",
@@ -248,75 +124,180 @@
       ],
       "properties": {
         "url": {
-          "type": "string",
-          "format": "uri",
-          "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+          "$ref": "#/$defs/https_url"
         }
-      },
-      "additionalProperties": true
-    }
-  },
-  "required": [
-    "protocol_version",
-    "organization"
-  ],
-  "additionalProperties": true,
-  "description": "Structural validation of Personal Agent Protocol draft 0.3 discovery. Readers ignore unknown fields and skip unsupported interface types. Cross-document identity and runtime security require separate checks.",
-  "anyOf": [
-    {
-      "required": [
-        "web"
-      ]
+      }
     },
-    {
-      "required": [
-        "apis"
-      ]
+    "web": {
+      "type": "object",
+      "properties": {
+        "browser_session_endpoint": {
+          "$ref": "#/$defs/https_url"
+        }
+      }
     },
-    {
-      "required": [
-        "agent"
-      ]
-    }
-  ],
-  "allOf": [
-    {
-      "if": {
-        "anyOf": [
-          {
-            "required": [
-              "agent"
-            ]
+    "apis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "type",
+          "url",
+          "description"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "minLength": 1
           },
-          {
-            "required": [
-              "apis"
-            ]
+          "url": {
+            "$ref": "#/$defs/https_url"
           },
-          {
-            "required": [
-              "feedback"
-            ]
+          "description": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "skill_index": {
+      "$ref": "./poppy-skill-index.schema.json"
+    },
+    "extensions": {
+      "type": "object",
+      "properties": {
+        "mediated-sign-in": {
+          "description": "The Mediated Sign-In extension (Mediated Sign-In 2). Version 1 has the credentials to collect, each sent as a token request parameter of that name, and the scopes it can grant. The grant is at the issuer's token_endpoint, which lists https://personalagentprotocol.org/grant/mediated-sign-in in grant_types_supported.",
+          "type": "object",
+          "required": [
+            "version"
+          ],
+          "properties": {
+            "version": {
+              "type": "string",
+              "minLength": 1
+            }
           },
-          {
+          "if": {
+            "properties": {
+              "version": {
+                "const": "1"
+              }
+            }
+          },
+          "then": {
             "required": [
-              "web"
+              "version",
+              "fields",
+              "scopes"
             ],
             "properties": {
-              "web": {
-                "required": [
-                  "browser_session_endpoint"
-                ]
+              "version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "fields": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "label",
+                    "secret"
+                  ],
+                  "properties": {
+                    "name": {
+                      "description": "Not grant_type, scope, resource, a client authentication parameter such as client_id or client_assertion, or a parameter the extension defines, such as sign_in_id.",
+                      "type": "string",
+                      "minLength": 1,
+                      "not": {
+                        "enum": [
+                          "grant_type",
+                          "scope",
+                          "client_id",
+                          "client_secret",
+                          "client_assertion",
+                          "client_assertion_type",
+                          "resource",
+                          "sign_in_id",
+                          "one_time_code"
+                        ]
+                      }
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "secret": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "scopes": {
+                "$ref": "#/$defs/scopes"
               }
             }
           }
-        ]
+        }
       },
-      "then": {
+      "additionalProperties": {
+        "type": "object",
         "required": [
-          "auth"
-        ]
+          "version"
+        ],
+        "properties": {
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "endpoint": {
+            "$ref": "#/$defs/https_url"
+          }
+        }
       }
     }
-  ]
+  },
+  "allOf": [
+    {
+      "anyOf": [
+        {
+          "required": [
+            "agent"
+          ]
+        },
+        {
+          "required": [
+            "apis"
+          ]
+        },
+        {
+          "required": [
+            "web"
+          ]
+        }
+      ]
+    }
+  ],
+  "$defs": {
+    "https_url": {
+      "type": "string",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\\\\\s]+(?:[/?#][^\\\\\\s]*)?$",
+      "format": "uri"
+    },
+    "domain": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$"
+    },
+    "scopes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
+      }
+    }
+  },
+  "$comment": "Adapted from personal-agent-protocol at 6fb46d381ac1b94265795132af13848ec442b6f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-0.3. JSON Schema does not verify cryptography or runtime requirements."
 }

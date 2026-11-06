@@ -1,0 +1,11 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "browser-session-authorize.schema.json",
+    "title": "Browser-session authorization request",
+    "description": "The JSON body a Personal Agent posts to {browser_session_endpoint}/authorize, with the Session header and, if signed in, its access token, to authorize the one-time code from the browser-session page (spec 6, step 2). The Company responds with HTTP 204, or 400 with invalid_request for a code that is unknown, expired, or already authorized.",
+    "type": "object",
+    "required": ["code"],
+    "properties": {
+        "code": { "type": "string", "minLength": 1 }
+    }
+}

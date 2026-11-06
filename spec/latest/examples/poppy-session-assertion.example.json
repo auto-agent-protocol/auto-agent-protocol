@@ -1,8 +1,0 @@
-{
-  "iss": "https://buyer-agent.example/client.json",
-  "sub": "usr_6d716b833ab5451f840e086e406c949c",
-  "aud": "https://demo-toyota.example.com/poppy",
-  "iat": 1792742400,
-  "exp": 1792742460,
-  "jti": "c0d226b3b77d557b38044aa27fbf497c"
-}

@@ -3,6 +3,7 @@ import { resolve } from "path";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import { glob } from "glob";
 import { DRAFT_VERSION, ROOT, isMain } from "./lib/releases.js";
+import { PAP_SPECIFICATION_REVISION } from "./lib/poppy.js";
 
 interface Skill {
   id: string;
@@ -349,7 +350,39 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
 
   // Historical releases predate Poppy; regenerating a draft must not invent
   // this binding for a spec that does not declare the new discovery contract.
-  if (components.Poppy) {
+  if (components.PoppySessionJwt) {
+    const paths = Object.fromEntries(manifest.skills.map(skill => {
+      const example = (schema: string) => JSON.parse(readFileSync(resolve(specDir, "examples", schema.replace(".schema.json", ".example.json")), "utf8"));
+      const response = (description: string, schema: string, value?: unknown) => ({ description, content: { "application/json": { schema: { $ref: `#/components/schemas/${schema}` }, ...(value === undefined ? {} : { example: value }) } } });
+      return [`/skills/${skill.id}`, { post: {
+        operationId: skill.id.replaceAll(".", "_"), "x-aap-skill": skill.id, summary: skill.name,
+        description: `${skill.description} Uses a verified delegated Poppy-Session JWT. Signed-out access needs no OAuth token. Authentication never supplies customer contact consent.`,
+        security: [{ poppySession: [] }],
+        requestBody: { required: true, content: { "application/json": { schema: { $ref: `#/components/schemas/${toComponentName(skill.request_schema.split("/").pop()!)}` }, example: example(skill.request_schema) } } },
+        responses: {
+          "200": response("Typed AAP response; a lead acknowledgment is not a confirmed appointment or sale.", toComponentName(skill.response_schema.split("/").pop()!), example(skill.response_schema)),
+          "400": { description: "Session authentication failed (invalid_session), remembered Session ended (session_ended), or malformed AAP request. Session failures use HTTP 400, never OAuth 401. No skill execution.", content: { "application/json": { schema: { oneOf: [{ $ref: "#/components/schemas/PoppySessionError" }, { $ref: "#/components/schemas/Error" }] } } } },
+          "403": response("AAP consent or access policy refused the operation. No skill execution.", "Error"),
+          "404": response("Dealer, vehicle or implemented skill not found.", "Error"),
+          "409": response("Vehicle/appointment unavailable or idempotency conflict.", "Error"),
+          "422": response("Invalid AAP payload, unsupported filter/sort, or invalid/expired cursor. Read the typed recovery hint.", "Error"),
+          "429": { ...response("Rate limited. Wait at least Retry-After before retrying.", "Error"), headers: { "Retry-After": { schema: { type: "string" } } } },
+          "500": response("Internal skill failure.", "Error"),
+        },
+      } }];
+    }));
+    const poppy = {
+      openapi: "3.1.0",
+      info: { ...jsonRpc.info, title: "Auto Agent Protocol — PAP signed-out API", description: `Unreleased AAP ${version} payloads over published PAP 0.3. Replace example servers and advertise only implemented skills. Discover the Company identifier through domain protected-resource metadata and verify any selected issuer. Sign a fresh delegated Poppy-Session JWT for each request; no guest OAuth token grant. This reference advertises no account sign-in, native PAP MCP or browser join. Deployment acceptance is required before publication.` },
+      "x-aap-extension": manifest.extension_uri, "x-poppy-protocol-version": "0.3", "x-poppy-specification-revision": PAP_SPECIFICATION_REVISION,
+      externalDocs: { url: "https://personalagentprotocol.org/docs/0.3/spec", description: "Published PAP 0.3" },
+      servers: [{ url: "https://demo-toyota.example.com/poppy", description: "Illustrative API base; replace before publication" }], paths,
+      components: { securitySchemes: { poppySession: { type: "apiKey", in: "header", name: "Poppy-Session", description: "Fresh ES256 poppy-session+jwt carrying a valid poppy_dlg delegation signed by a CIMD identity key. Verify audience, method/URL, time, client_id + sid continuity and delegated-key thumbprint. No static API key or guest token. If account OAuth is separately implemented, also verify its token, ath and client binding, and DPoP when applicable." } }, schemas: components },
+    };
+    const poppyOut = resolve(outDir, "openapi-poppy.yaml");
+    writeFileSync(poppyOut, stringifyYaml(poppy, { lineWidth: 120 }));
+    console.log(`Generated ${poppyOut}`);
+  } else if (components.Poppy) {
     const protocolVersion: string = components.Poppy.allOf[1].properties.protocol_version.const;
     const assertionAudience = protocolVersion === "0.1" ? "token_endpoint" : "auth.issuer";
     const nonce = { schema: { type: "string" }, description: "Use the latest server nonce in a fresh DPoP proof on the next request to this server." };

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-session-error.schema.json",
+  "title": "PoppySessionError",
+  "description": "HTTP 400 Session authentication error. Optional descriptions are static, allowlisted recovery guidance and must never reflect JWTs, keys, claims or request input. OAuth access-token errors use their separate OAuth status/challenge.",
+  "allOf": [
+    {
+      "$ref": "./poppy-error.schema.json"
+    },
+    {
+      "properties": {
+        "error": {
+          "enum": [
+            "invalid_session",
+            "session_ended"
+          ]
+        }
+      }
+    }
+  ]
+}

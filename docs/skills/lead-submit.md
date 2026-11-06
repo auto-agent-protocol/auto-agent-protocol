@@ -14,7 +14,7 @@ description: One consented inquiry, an explicit appointment outcome, and safe re
 |---|---|
 | MCP | `aap_lead_submit` with the typed request as `arguments` |
 | A2A | `SendMessage` with the typed request in `DataPart.data` |
-| PAP | `POST /skills/lead.submit` with the typed request body and Session/DPoP authentication |
+| PAP | `POST /skills/lead.submit` with the typed request body and delegated Session JWT authentication |
 
 All three use the same [request schema](https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-request.schema.json), [response schema](https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-response.schema.json), consent rules and deduplication store. A transport may allow an anonymous caller; a lead still contains identified customer information and explicit consent.
 

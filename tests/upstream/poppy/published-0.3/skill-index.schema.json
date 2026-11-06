@@ -1,0 +1,51 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "skill-index.schema.json",
+    "title": "Personal Agent skill index",
+    "description": "The optional skill_index in poppy.json (spec 9.4). Local validation of the Agent Skills discovery proposal pinned by the spec, not an upstream-published JSON Schema. Unknown schema versions remain opaque to clients.",
+    "type": "object",
+    "required": ["$schema"],
+    "properties": {
+        "$schema": { "type": "string", "minLength": 1 }
+    },
+    "if": {
+        "properties": {
+            "$schema": { "const": "https://schemas.agentskills.io/discovery/0.2.0/schema.json" }
+        },
+        "required": ["$schema"]
+    },
+    "then": {
+        "required": ["skills"],
+        "properties": {
+            "skills": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": ["name", "description", "type", "url", "digest"],
+                    "properties": {
+                        "name": { "type": "string", "minLength": 1 },
+                        "description": { "type": "string", "minLength": 1 },
+                        "type": {
+                            "description": "skill-md or archive. Clients skip unknown types.",
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "url": {
+                            "description": "An HTTPS URL or a relative reference resolved against the final poppy.json URL. Clients check the resolved URL and every redirect under spec section 3.",
+                            "type": "string",
+                            "minLength": 1,
+                            "anyOf": [
+                                { "$ref": "poppy.schema.json#/$defs/https_url" },
+                                { "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)[^\\s\\\\]+$" }
+                            ]
+                        },
+                        "digest": {
+                            "type": "string",
+                            "pattern": "^sha256:[0-9a-f]{64}$"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -8,7 +8,7 @@ description: One dealership identity, three working interfaces, and a readable l
 
 {/* aap-draft-only:start */}
 
-:::info Unreleased AAP 3.1.0
+:::info Unreleased AAP 3.2 draft
 Draft identifiers are not production identifiers. Release preparation replaces them with the pinned release URLs.
 :::
 
@@ -23,7 +23,7 @@ Draft identifiers are not production identifiers. Release preparation replaces t
 | Dealer URL | What an agent learns |
 |---|---|
 | `/.well-known/agent-card.json` | A2A endpoint, selected AAP version, implemented skills, MCP URL and search capabilities |
-| `/.well-known/poppy.json` | PAP 0.3 organization, issuer, native OpenAPI and links to A2A/MCP |
+| `/.well-known/poppy.json` | Published PAP 0.3 organization, optional issuer, native OpenAPI and links to A2A/MCP |
 | `/llms.txt` | A short, readable index of those interfaces and their access requirements |
 
 All three MUST be public over HTTPS. The two discovery documents MUST return JSON. `llms.txt` MUST return UTF-8 Markdown as `text/plain` or `text/markdown`. None of these requests submits a lead or needs a shopper's personal information.
@@ -66,17 +66,17 @@ The card's software `version` is independent of AAP `params.version`. The A2A ex
 
 ## Poppy: an authenticated native API
 
-The [Poppy example](https://draft.autoagentprotocol.invalid/latest/examples/poppy.example.json) publishes PAP `0.3`, an issuer and a native OpenAPI interface. Its `extensions["autoagentprotocol.org/aap"]` links the paired Agent Card, the **same MCP URL**, AAP release and `llms.txt`.
+The [Poppy example](https://draft.autoagentprotocol.invalid/latest/examples/poppy.example.json) publishes PAP `0.3` and a native OpenAPI interface; issuer discovery is optional and uses domain protected-resource metadata. Its `extensions["autoagentprotocol.org/aap"]` links the paired Agent Card, the **same MCP URL**, AAP release and `llms.txt`.
 
-The public MCP pointer belongs in that AAP extension. A top-level `apis` entry with `type: "mcp"` additionally promises PAP Session Tokens, protected-resource metadata and scope enforcement. Only advertise it when those behaviors exist. See [native PAP MCP](./personal-agent-protocol.md#6-optional-poppy-surfaces).
+The public MCP pointer belongs in that AAP extension. A top-level `apis` entry with `type: "mcp"` additionally promises delegated PAP Session JWTs and, when account access is supported, protected-resource metadata and OAuth scope enforcement. Only advertise it when those behaviors exist. See [native PAP MCP](./personal-agent-protocol.md#6-optional-poppy-surfaces).
 
-For redirects, PAP organization identity follows the **final HTTPS discovery host**, comparing case only; `www` is a distinct host. The final URL keeps exactly `/.well-known/poppy.json` without a query. The issuer must authorize that domain through `protected_resources`, with an entry exactly `https://{domain}` (hostname case ignored; no port, path or trailing slash). Keep canonical links consistent after redirects and use one issuer per independent Company. Full rules are in [PAP discovery](./personal-agent-protocol.md#2-paired-discovery).
+For redirects, PAP organization identity follows the **final HTTPS discovery host**, comparing case only; `www` is a distinct host. The final URL keeps exactly `/.well-known/poppy.json` without a query. When an issuer exists, it must authorize that domain through `protected_resources`, with an entry exactly `https://{domain}` (hostname case ignored; no port, path or trailing slash). Keep canonical links consistent after redirects and use one issuer per independent Company. Full rules are in [PAP discovery](./personal-agent-protocol.md#2-paired-discovery).
 
 ## llms.txt: a useful index, not registration
 
 ![A short dealer llms.txt index links the exact MCP endpoint, A2A and PAP discovery, API documentation and inventory](./img/llms-discovery.svg)
 
-The [llms.txt proposal](https://llmstxt.org/) provides a small Markdown index. It does not make every agent automatically discover or trust a website. AAP 3.1 requires this index as an additional entry point, alongside working protocol discovery.
+The [llms.txt proposal](https://llmstxt.org/) provides a small Markdown index. It does not make every agent automatically discover or trust a website. AAP 3.2 requires this index as an additional entry point, alongside working protocol discovery.
 
 Start from the [dealer llms.txt example](https://draft.autoagentprotocol.invalid/latest/examples/llms.txt.example.md). Include the dealer name, selected AAP version, exact MCP URL, public/authenticated access requirements, Agent Card, Poppy document, deployment-specific OpenAPI and a link to human-readable inventory. State that lead submission needs explicit customer contact consent.
 
@@ -105,6 +105,6 @@ Every published endpoint and redirect MUST use HTTPS. Loopback HTTP is allowed o
 
 - **MCP:** public inventory reads are recommended. Protected access follows MCP OAuth discovery and the endpoint's declared authorization policy.
 - **A2A:** follow `securitySchemes` / `securityRequirements`. Portable clients send `A2A-Version: 1.0` and the exact `A2A-Extensions` URI; a [contract-pinned AAP endpoint](./bindings/json-rpc.md#request-headers) also accepts their omission. If an interface declares `tenant`, echo it in every request.
-- **PAP OpenAPI:** use a verified PAP Session Token and DPoP, including for signed-out shoppers.
+- **PAP OpenAPI:** use a verified delegated `Poppy-Session` JWT. Signed-out shopping needs no guest OAuth token.
 
 A link does not authorize credential forwarding. Authenticate to the selected resource under its own rules. See [migration](./versioning.md#for-implementers) for separate version-specific cards and endpoints, and [conformance](./conformance.md) for runtime acceptance.

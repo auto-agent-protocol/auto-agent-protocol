@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-alternative.schema.json",
   "title": "PoppyAlternative",
-  "description": "Another way to do a task: in an excluded task, or as the body of a 200 response to a feedback report. Spec 8.2 (Alternatives). Personal Agents skip reference types they don't recognize.",
+  "description": "Another way to do a task: in an excluded task, or as the body of a 200 response to a feedback report. Spec 9.2 (Alternatives). Personal Agents skip reference types they don't recognize. Web references can point to any HTTPS website or app and don't authorize sending Session JWTs or access tokens. OpenAPI and MCP references name APIs listed in the Company's poppy.json.",
   "type": "object",
   "anyOf": [
     {
@@ -19,8 +19,7 @@
   "properties": {
     "instructions": {
       "type": "string",
-      "minLength": 1,
-      "maxLength": 2000
+      "minLength": 1
     },
     "references": {
       "type": "array",
@@ -41,9 +40,7 @@
           "minLength": 1
         },
         "url": {
-          "type": "string",
-          "format": "uri",
-          "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:[/?#][^\\s]*)?$"
+          "$ref": "./poppy-document.schema.json#/$defs/https_url"
         },
         "operation_id": {
           "type": "string",
@@ -102,5 +99,5 @@
       ]
     }
   },
-  "$comment": "Adapted from personal-agent-protocol/personal-agent-protocol at 86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7 (Apache-2.0). AAP changes schema identifiers, type titles and HTTPS URL validation; original fixtures and license are in tests/upstream/poppy."
+  "$comment": "Adapted from personal-agent-protocol at 6fb46d381ac1b94265795132af13848ec442b6f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-0.3. JSON Schema does not verify cryptography or runtime requirements."
 }

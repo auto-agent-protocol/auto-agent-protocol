@@ -4,21 +4,16 @@
     "name": "Demo Toyota",
     "domain": "demo-toyota.example.com"
   },
-  "auth": {
-    "issuer": "https://demo-toyota.example.com/poppy"
-  },
   "apis": [
     {
       "type": "openapi",
       "url": "https://demo-toyota.example.com/poppy/openapi.yaml",
-      "resource": "https://demo-toyota.example.com/poppy",
-      "description": "Dealer information, inventory facets, search, vehicle details and consented leads using AAP payloads and Poppy guest sessions."
+      "description": "AAP automotive payloads with verified delegated Poppy-Session JWTs. Contact consent is separate."
     },
     {
       "type": "mcp",
       "url": "https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp",
-      "resource": "https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp",
-      "description": "Optional native PAP MCP deployment with resource-bound Session Tokens."
+      "description": "AAP automotive payloads with verified delegated Poppy-Session JWTs. Contact consent is separate."
     }
   ],
   "web": {},
@@ -31,5 +26,9 @@
       "mcp": "https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp",
       "llms_txt": "https://demo-toyota.example.com/llms.txt"
     }
+  },
+  "auth": {
+    "issuer": "https://demo-toyota.example.com/poppy",
+    "disabled": true
   }
 }
