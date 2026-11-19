@@ -1,0 +1,29 @@
+{
+  "type": "trade_in_submit_request",
+  "vehicle": {
+    "year": 2019,
+    "make": "Honda",
+    "model": "Civic",
+    "condition": "fair",
+    "mileage": 88400
+  },
+  "customer": {
+    "first_name": "Grace",
+    "last_name": "Hopper",
+    "email": "grace@example.com"
+  },
+  "consent": {
+    "granted_at": "2026-11-19T10:20:00Z",
+    "allowed_channels": [
+      "email"
+    ],
+    "consent_text": "I authorize Demo Toyota to email me about the trade-in value of my 2019 Honda Civic.",
+    "scope": [
+      "trade_in_submission"
+    ]
+  },
+  "source_agent": {
+    "name": "example-buyer"
+  },
+  "idempotency_key": "01JD9TRADEIN0HONDACIVIC007"
+}

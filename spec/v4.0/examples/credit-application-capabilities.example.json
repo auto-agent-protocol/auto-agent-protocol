@@ -1,0 +1,11 @@
+{
+  "inquiry_types": [
+    "soft",
+    "hard"
+  ],
+  "joint_applications": true,
+  "national_id": "optional",
+  "currencies": [
+    "USD"
+  ]
+}

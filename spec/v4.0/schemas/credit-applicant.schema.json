@@ -1,0 +1,391 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v4.0/schemas/credit-applicant.schema.json",
+  "title": "CreditApplicant",
+  "description": "One person applying for vehicle credit, with their own consent. Monetary amounts are whole units of the application's currency. national_id, date_of_birth and drivers_license are sensitive: transmit them only inside this request, never in URLs, logs, error details or responses. national_id is optional here; a deployment declares in its capabilities whether it requires, accepts or refuses it.",
+  "type": "object",
+  "properties": {
+    "first_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Legal given name."
+    },
+    "middle_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Middle name or initial."
+    },
+    "last_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Legal family name."
+    },
+    "suffix": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10,
+      "description": "Name suffix, such as Jr. or III.",
+      "examples": [
+        "Jr."
+      ]
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of birth as an RFC 3339 full-date (YYYY-MM-DD). Sensitive."
+    },
+    "national_id": {
+      "type": "object",
+      "description": "Optional government identifier used for the credit inquiry. Sensitive.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "ssn",
+            "itin",
+            "sin"
+          ],
+          "description": "ssn: US Social Security Number. itin: US Individual Taxpayer Identification Number. sin: Canadian Social Insurance Number."
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[0-9]{9}$",
+          "description": "Nine digits without spaces or dashes."
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "drivers_license": {
+      "type": "object",
+      "description": "Optional driver's license. Sensitive.",
+      "properties": {
+        "number": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "state": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 3,
+          "description": "Issuing US state or Canadian province code.",
+          "examples": [
+            "CA",
+            "ON"
+          ]
+        },
+        "expires_on": {
+          "type": "string",
+          "format": "date",
+          "description": "Expiry date as an RFC 3339 full-date."
+        }
+      },
+      "required": [
+        "number",
+        "state"
+      ],
+      "additionalProperties": false
+    },
+    "marital_status": {
+      "type": "string",
+      "enum": [
+        "married",
+        "unmarried",
+        "separated"
+      ],
+      "description": "Optional. Provide only where the creditor may lawfully ask, such as joint applications or community-property states."
+    },
+    "relationship": {
+      "type": "string",
+      "enum": [
+        "spouse",
+        "relative",
+        "other"
+      ],
+      "description": "Co-applicant only: relationship to the primary applicant."
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "Applicant email address. At least one of email or phone MUST be present."
+    },
+    "phone": {
+      "type": "string",
+      "pattern": "^\\+[1-9]\\d{1,14}$",
+      "description": "Applicant phone number in E.164 format. At least one of email or phone MUST be present."
+    },
+    "address": {
+      "allOf": [
+        {
+          "$ref": "./_primitives/address.schema.json"
+        }
+      ],
+      "type": "object",
+      "required": [
+        "address_line_1",
+        "city",
+        "state",
+        "zip"
+      ],
+      "description": "Current residential address. Street line, city, state or province, and postal code are required.",
+      "properties": {
+        "address_line_1": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "city": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "state": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "zip": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      }
+    },
+    "housing_status": {
+      "type": "string",
+      "enum": [
+        "own",
+        "mortgage",
+        "rent",
+        "family",
+        "other"
+      ],
+      "description": "own: owned outright. mortgage: owned with a mortgage. rent: rented. family: living with family. other: anything else."
+    },
+    "monthly_housing_payment": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Monthly rent or mortgage payment in whole currency units; 0 when none."
+    },
+    "months_at_address": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1200,
+      "description": "Whole months at the current address."
+    },
+    "previous_address": {
+      "$ref": "./_primitives/address.schema.json",
+      "description": "Previous residential address. Lenders typically need it when months_at_address is under 24."
+    },
+    "months_at_previous_address": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1200,
+      "description": "Whole months at the previous address."
+    },
+    "employment_status": {
+      "type": "string",
+      "enum": [
+        "employed",
+        "self_employed",
+        "military",
+        "retired",
+        "student",
+        "unemployed",
+        "other"
+      ]
+    },
+    "employer_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Current employer or business name. Required when employment_status is employed, self_employed or military."
+    },
+    "occupation": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Job title or occupation."
+    },
+    "employer_phone": {
+      "type": "string",
+      "pattern": "^\\+[1-9]\\d{1,14}$",
+      "description": "Employer phone number in E.164 format."
+    },
+    "months_at_employer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1200,
+      "description": "Whole months with the current employer."
+    },
+    "gross_monthly_income": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Gross monthly income from employment or the primary source, before tax, in whole currency units."
+    },
+    "other_monthly_income": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Optional additional monthly income in whole currency units. Alimony, child support or separate maintenance need not be revealed unless the applicant wants it considered."
+    },
+    "other_income_source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Source of other_monthly_income. Required with it."
+    },
+    "previous_employer_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Previous employer. Lenders typically need it when months_at_employer is under 24."
+    },
+    "months_at_previous_employer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1200,
+      "description": "Whole months with the previous employer."
+    },
+    "consent": {
+      "$ref": "./credit-consent.schema.json",
+      "description": "This applicant's own credit authorization. Required."
+    }
+  },
+  "required": [
+    "first_name",
+    "last_name",
+    "date_of_birth",
+    "address",
+    "housing_status",
+    "monthly_housing_payment",
+    "months_at_address",
+    "employment_status",
+    "gross_monthly_income",
+    "consent"
+  ],
+  "anyOf": [
+    {
+      "required": [
+        "email"
+      ]
+    },
+    {
+      "required": [
+        "phone"
+      ]
+    }
+  ],
+  "dependentRequired": {
+    "other_monthly_income": [
+      "other_income_source"
+    ],
+    "months_at_previous_address": [
+      "previous_address"
+    ],
+    "months_at_previous_employer": [
+      "previous_employer_name"
+    ]
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "email"
+                }
+              }
+            },
+            "required": [
+              "allowed_channels"
+            ]
+          }
+        },
+        "required": [
+          "consent"
+        ]
+      },
+      "then": {
+        "required": [
+          "email"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "phone"
+                }
+              }
+            },
+            "required": [
+              "allowed_channels"
+            ]
+          }
+        },
+        "required": [
+          "consent"
+        ]
+      },
+      "then": {
+        "required": [
+          "phone"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "sms"
+                }
+              }
+            },
+            "required": [
+              "allowed_channels"
+            ]
+          }
+        },
+        "required": [
+          "consent"
+        ]
+      },
+      "then": {
+        "required": [
+          "phone"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "employment_status": {
+            "enum": [
+              "employed",
+              "self_employed",
+              "military"
+            ]
+          }
+        },
+        "required": [
+          "employment_status"
+        ]
+      },
+      "then": {
+        "required": [
+          "employer_name"
+        ]
+      }
+    }
+  ],
+  "additionalProperties": false
+}

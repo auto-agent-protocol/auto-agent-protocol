@@ -1,0 +1,540 @@
+{
+  "schemaVersion": 1,
+  "previous": "3.2.0",
+  "candidate": "4.0.0",
+  "summary": {
+    "additive": 34,
+    "breaking": 54
+  },
+  "changes": [
+    {
+      "kind": "breaking",
+      "file": "_primitives/aap-message.schema.json",
+      "path": "$.properties.type.pattern",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "aap-extension-params.schema.json",
+      "path": "$.properties.skills.properties.dealer.information",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "aap-extension-params.schema.json",
+      "path": "$.properties.skills.properties.inventory.facets",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "aap-extension-params.schema.json",
+      "path": "$.properties.skills.properties.inventory.search",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "aap-extension-params.schema.json",
+      "path": "$.properties.skills.properties.inventory.vehicle",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "aap-extension-params.schema.json",
+      "path": "$.properties.skills.properties.lead.submit",
+      "detail": "removed"
+    },
+    {
+      "kind": "additive",
+      "file": "aap-extension-params.schema.json",
+      "path": "$.properties.skills.properties.dealer_information",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "aap-extension-params.schema.json",
+      "path": "$.properties.skills.properties.inventory_facets",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "aap-extension-params.schema.json",
+      "path": "$.properties.skills.properties.inventory_search",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "aap-extension-params.schema.json",
+      "path": "$.properties.skills.properties.inventory_vehicle",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "aap-extension-params.schema.json",
+      "path": "$.properties.skills.properties.lead_submit",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "aap-extension-params.schema.json",
+      "path": "$.properties.skills.properties.trade_in_submit",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "aap-extension-params.schema.json",
+      "path": "$.properties.skills.properties.credit_application_submit",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "aap-extension-params.schema.json",
+      "path": "$.allOf",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "consent-grant.schema.json",
+      "path": "$.properties.scope.items.enum",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "dealer-information-request.schema.json",
+      "path": "$.properties.type.const",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "dealer-information-response.schema.json",
+      "path": "$.properties.type.const",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "error.schema.json",
+      "path": "$.properties.type.const",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "error.schema.json",
+      "path": "$.properties.details.properties.errors.items.properties.instanceLocation",
+      "detail": "removed"
+    },
+    {
+      "kind": "additive",
+      "file": "error.schema.json",
+      "path": "$.properties.details.properties.errors.items.properties.instance_location",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "error.schema.json",
+      "path": "$.properties.details.properties.errors.items.required",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "event.schema.json",
+      "path": "$.properties.type.const",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "event.schema.json",
+      "path": "$.properties.event_kind.enum",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "event.schema.json",
+      "path": "$.allOf",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "inventory-facets-request.schema.json",
+      "path": "$.properties.type.const",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "inventory-facets-response.schema.json",
+      "path": "$.properties.type.const",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "inventory-search-request.schema.json",
+      "path": "$.properties.type.const",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "inventory-search-response.schema.json",
+      "path": "$.properties.type.const",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "lead-submit-request.schema.json",
+      "path": "$.properties.type.const",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "lead-submit-request.schema.json",
+      "path": "$.allOf",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "lead-submit-response.schema.json",
+      "path": "$.properties.type.const",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-client-metadata.schema.json",
+      "path": "$.properties.extensions",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.protocol_version.const",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.protocol_version.type",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.protocol_version.pattern",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.agent.properties.protocols.items.required",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.agent.properties.protocols.items.properties.description",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.feedback",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.excluded_tasks",
+      "detail": "removed"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.web.properties.disabled",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.web.properties.unscoped",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.skill_index",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.extensions.properties.mediated-sign-in.type",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.extensions.properties.mediated-sign-in.required",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.extensions.properties.mediated-sign-in.properties",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.extensions.properties.mediated-sign-in.if",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.extensions.properties.mediated-sign-in.then",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.extensions.properties.mediated-sign-in.minItems",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.extensions.properties.mediated-sign-in.items",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.extensions.additionalProperties.type",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.extensions.additionalProperties.required",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.extensions.additionalProperties.properties",
+      "detail": "removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.extensions.additionalProperties.minItems",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.extensions.additionalProperties.items",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.supported_versions",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-document.schema.json",
+      "path": "$.properties.tasks",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.$defs.domain.pattern",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-document.schema.json",
+      "path": "$.$defs.domain.not",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-error.schema.json",
+      "path": "$.properties.protocol_version",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-error.schema.json",
+      "path": "$.allOf",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-excluded-tasks.schema.json",
+      "path": "$",
+      "detail": "schema removed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.token_endpoint_auth_signing_alg_values_supported.contains",
+      "detail": "removed"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.pushed_authorization_request_endpoint",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.require_pushed_authorization_requests",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.properties.dpop_signing_alg_values_supported",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-oauth-metadata.schema.json",
+      "path": "$.allOf",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy-session-error.schema.json",
+      "path": "$.allOf",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "poppy.schema.json",
+      "path": "$.allOf",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "vehicle-detail-request.schema.json",
+      "path": "$.properties.type.const",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "breaking",
+      "file": "vehicle-detail-response.schema.json",
+      "path": "$.properties.type.const",
+      "detail": "validation-affecting value changed"
+    },
+    {
+      "kind": "additive",
+      "file": "vehicle.schema.json",
+      "path": "$.properties.rebates",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "additive",
+      "file": "vehicle.schema.json",
+      "path": "$.properties.horsepower",
+      "detail": "optional definition/property added"
+    },
+    {
+      "kind": "breaking",
+      "file": "vehicle.schema.json",
+      "path": "$.dependentSchemas",
+      "detail": "value added outside an optional property map"
+    },
+    {
+      "kind": "additive",
+      "file": "_primitives/rebate.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "credit-applicant.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "credit-application-capabilities.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "credit-application-submit-request.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "credit-application-submit-response.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "credit-consent.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-approval-declined.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-approval-required.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-approval.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-operation-result.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-operation.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "poppy-tasks.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "trade-in-capabilities.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "trade-in-submit-request.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    },
+    {
+      "kind": "additive",
+      "file": "trade-in-submit-response.schema.json",
+      "path": "$",
+      "detail": "schema added"
+    }
+  ],
+  "note": "Structural schema check only. Release URLs and the two generated AAP version identity constants are normalized; business constants are not. Maintainers must review normative behavior and documentation."
+}

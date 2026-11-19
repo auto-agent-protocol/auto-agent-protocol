@@ -1,0 +1,51 @@
+{
+  "protocol_version": "1.0",
+  "supported_versions": {
+    "0.3": "https://demo-toyota.example.com/poppy/0.3.json"
+  },
+  "organization": {
+    "name": "Demo Toyota",
+    "domain": "demo-toyota.example.com",
+    "logo_uri": "https://demo-toyota.example.com/logo.png"
+  },
+  "agent": {
+    "protocols": [
+      {
+        "type": "poppy",
+        "endpoint": "https://demo-toyota.example.com/poppy/conversations",
+        "description": "Questions about this dealership's inventory, pricing, trade-ins, financing and visits. Signed-out conversations only.",
+        "access": "session"
+      }
+    ]
+  },
+  "tasks": {
+    "endpoint": "https://demo-toyota.example.com/poppy/tasks"
+  },
+  "apis": [
+    {
+      "type": "openapi",
+      "url": "https://demo-toyota.example.com/poppy/openapi.yaml",
+      "description": "AAP automotive payloads with verified delegated Poppy-Session JWTs. Contact consent is separate."
+    }
+  ],
+  "web": {
+    "browser_session_endpoint": "https://demo-toyota.example.com/poppy/browser-session"
+  },
+  "extensions": {
+    "autoagentprotocol.org/aap": [
+      {
+        "version": "1",
+        "agent_card": "https://demo-toyota.example.com/.well-known/agent-card.json",
+        "documentation": "https://autoagentprotocol.org/",
+        "aap_version": "4.0.0",
+        "mcp": "https://api.provider.example/aap/4.0.0/demo-toyota/mcp",
+        "llms_txt": "https://demo-toyota.example.com/llms.txt"
+      }
+    ],
+    "operations": [
+      {
+        "version": "3"
+      }
+    ]
+  }
+}

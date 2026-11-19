@@ -1,0 +1,378 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v4.0/schemas/poppy.schema.json",
+  "title": "AAPPoppyDiscovery",
+  "description": "AAP publication profile for PAP 1.0. Requires native OpenAPI and exactly one version-1 AAP bridge entry. Signed-out Sessions use delegated Poppy-Session JWTs with Poppy-Version. Issuer, account access, conversations, browser joining and task coverage are optional.",
+  "allOf": [
+    {
+      "$ref": "./poppy-document.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "protocol_version": {
+          "const": "1.0"
+        },
+        "auth": {
+          "type": "object",
+          "properties": {
+            "issuer": {
+              "type": "string"
+            },
+            "direct": false,
+            "device": false,
+            "custom_scopes": false,
+            "scope_hints": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "changes": {
+                    "enum": [
+                      "none",
+                      "reversible",
+                      "irreversible"
+                    ]
+                  }
+                }
+              }
+            },
+            "mediated": false
+          },
+          "additionalProperties": true
+        },
+        "apis": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "enum": [
+                  "openapi",
+                  "mcp"
+                ]
+              },
+              "resource": false
+            }
+          },
+          "contains": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "openapi"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "extensions": {
+          "type": "object",
+          "properties": {
+            "autoagentprotocol.org/aap": {
+              "type": "array",
+              "minItems": 1,
+              "contains": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "const": "1"
+                  }
+                },
+                "required": [
+                  "version"
+                ]
+              },
+              "minContains": 1,
+              "maxContains": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "version"
+                ],
+                "properties": {
+                  "version": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "if": {
+                  "properties": {
+                    "version": {
+                      "const": "1"
+                    }
+                  },
+                  "required": [
+                    "version"
+                  ]
+                },
+                "then": {
+                  "allOf": [
+                    {
+                      "$ref": "./poppy-aap-extension.schema.json"
+                    },
+                    {
+                      "properties": {
+                        "aap_version": {
+                          "const": "4.0.0"
+                        },
+                        "mcp": {
+                          "type": "string",
+                          "format": "uri",
+                          "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:/[^?#\\s]*)?$"
+                        }
+                      },
+                      "required": [
+                        "aap_version",
+                        "mcp",
+                        "llms_txt"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "required": [
+            "autoagentprotocol.org/aap"
+          ],
+          "additionalProperties": true,
+          "propertyNames": {
+            "description": "Plain names are reserved for extensions defined with PAP 1.0; any other name starts with a domain its owner controls (spec 3.3).",
+            "anyOf": [
+              {
+                "enum": [
+                  "browser-control",
+                  "disclosures",
+                  "links",
+                  "mediated-sign-in",
+                  "operations",
+                  "ucp"
+                ]
+              },
+              {
+                "pattern": "^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+/\\S+$"
+              }
+            ]
+          }
+        },
+        "agent": {
+          "type": "object",
+          "properties": {
+            "protocols": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "resource": false
+                },
+                "required": [
+                  "type",
+                  "endpoint",
+                  "description"
+                ],
+                "description": "Any conversation protocol type may be listed; Personal Agents skip types they do not support. A poppy entry's access hint uses a known value.",
+                "if": {
+                  "properties": {
+                    "type": {
+                      "const": "poppy"
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "access": {
+                      "enum": [
+                        "session",
+                        "signed_in"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "excluded_tasks": false,
+        "skill_index": false,
+        "feedback": false
+      },
+      "required": [
+        "apis",
+        "extensions"
+      ],
+      "additionalProperties": true
+    },
+    {
+      "if": {
+        "required": [
+          "auth"
+        ],
+        "properties": {
+          "auth": {
+            "required": [
+              "disabled"
+            ],
+            "properties": {
+              "disabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "extensions": {
+            "properties": {
+              "mediated-sign-in": false
+            }
+          },
+          "agent": {
+            "properties": {
+              "protocols": {
+                "items": {
+                  "if": {
+                    "properties": {
+                      "type": {
+                        "const": "poppy"
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ]
+                  },
+                  "then": {
+                    "properties": {
+                      "access": {
+                        "not": {
+                          "const": "signed_in"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "web.disabled asks Personal Agents not to browse, so no browser join may be listed (spec section 6).",
+      "if": {
+        "required": [
+          "web"
+        ],
+        "properties": {
+          "web": {
+            "required": [
+              "disabled"
+            ],
+            "properties": {
+              "disabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "web": {
+            "properties": {
+              "browser_session_endpoint": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "web.unscoped describes the signed-in browser join, so the join endpoint must be listed (spec section 6).",
+      "if": {
+        "required": [
+          "web"
+        ],
+        "properties": {
+          "web": {
+            "required": [
+              "unscoped"
+            ],
+            "properties": {
+              "unscoped": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "web": {
+            "required": [
+              "browser_session_endpoint"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "A version document linked from supported_versions carries none itself; the preferred document never lists its own version (spec 3.4).",
+      "properties": {
+        "supported_versions": {
+          "properties": {
+            "1.0": false
+          }
+        }
+      }
+    },
+    {
+      "description": "An operations entry that lists an endpoint asks for approvals on the website, which only a browser joined to a Session can receive (Operations extension, section 2).",
+      "if": {
+        "required": [
+          "extensions"
+        ],
+        "properties": {
+          "extensions": {
+            "required": [
+              "operations"
+            ],
+            "properties": {
+              "operations": {
+                "contains": {
+                  "type": "object",
+                  "required": [
+                    "version",
+                    "endpoint"
+                  ],
+                  "properties": {
+                    "version": {
+                      "const": "3"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "web"
+        ],
+        "properties": {
+          "web": {
+            "required": [
+              "browser_session_endpoint"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "type": "inventory_facets_request",
+  "filters": {
+    "condition": ["used"]
+  }
+}

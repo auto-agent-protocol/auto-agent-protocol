@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v4.0/schemas/poppy-approval.schema.json",
+  "title": "PoppyApproval",
+  "description": "An approval of one revision of an operation, user approved or agent approved (the Personal Agent approved on the User's instruction), sent by the Personal Agent. Operations extension 5 and 6. In a conversation message's extensions.operations.approval, or in an MCP tool call's _meta under personalagentprotocol.org/approval. At APIs, the same members go in the Poppy-Approval header as a Dictionary Structured Field. Unknown members are ignored. A Personal Agent never sends input_type with an agent approval; a Company that receives one ignores it rather than rejecting the approval.",
+  "type": "object",
+  "required": [
+    "operation_id",
+    "revision",
+    "approver"
+  ],
+  "if": {
+    "properties": {
+      "approver": {
+        "const": "agent"
+      }
+    }
+  },
+  "then": {
+    "not": {
+      "required": [
+        "input_type"
+      ]
+    }
+  },
+  "properties": {
+    "operation_id": {
+      "$ref": "#/$defs/id"
+    },
+    "revision": {
+      "$ref": "#/$defs/id"
+    },
+    "approver": {
+      "enum": [
+        "user",
+        "agent"
+      ],
+      "description": "user for a user approval, agent for an agent approval on the User's instruction. Operations extension 5 and 6."
+    },
+    "approved_at": {
+      "type": "integer",
+      "description": "In Unix seconds. With user, when the User approved. With agent, when the Personal Agent approved. Operations extension 6."
+    },
+    "input_type": {
+      "type": "string",
+      "description": "Only with user, never with agent. How the User gave their answer, such as tap, typed, or voice. Other values are allowed. Operations extension 6."
+    },
+    "reference": {
+      "$ref": "#/$defs/id",
+      "description": "An opaque ID for the Personal Agent's own record of the approval, such as a ledger entry. Never the same at two Companies. Operations extension 6."
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,256}$"
+    }
+  },
+  "$comment": "Adapted from personal-agent-protocol at 8c02b4282eda53468a7c09412558bc8b060d95f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-1.0. JSON Schema does not verify cryptography or runtime requirements."
+}

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v4.0/schemas/poppy-tasks.schema.json",
+  "title": "PoppyTasks",
+  "description": "The response to GET {tasks.endpoint}: the tasks a Company chose not to offer through the protocol, the skills it publishes, and its feedback endpoint, for one Session. Spec section 9, 9.1 (Excluded tasks), 9.3 (Feedback), and 9.4 (Agent context). The request carries the Session header and no access token. Unknown fields are allowed.",
+  "type": "object",
+  "properties": {
+    "excluded_tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "task"
+        ],
+        "properties": {
+          "task": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alternative": {
+            "$ref": "./poppy-alternative.schema.json"
+          }
+        }
+      }
+    },
+    "skill_index": {
+      "$ref": "./poppy-skill-index.schema.json"
+    },
+    "feedback": {
+      "type": "object",
+      "required": [
+        "endpoint"
+      ],
+      "properties": {
+        "endpoint": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\\\\\s]+(?:[/?#][^\\\\\\s]*)?$"
+        }
+      }
+    }
+  },
+  "$comment": "Adapted from personal-agent-protocol at 8c02b4282eda53468a7c09412558bc8b060d95f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-1.0. JSON Schema does not verify cryptography or runtime requirements."
+}

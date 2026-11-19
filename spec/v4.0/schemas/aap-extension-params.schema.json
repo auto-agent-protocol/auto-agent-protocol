@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v4.0/schemas/aap-extension-params.schema.json",
+  "title": "AapExtensionParams",
+  "description": "AAP metadata carried in the A2A Agent Card extension params. Links the three bindings without inventing an A2A transport or a PAP conversation protocol. Declares the implemented skill subset, including the optional trade_in_submit and credit_application_submit skills with their capabilities.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Stable deployment identifier. It must not identify a shopper."
+    },
+    "version": {
+      "const": "4.0.0"
+    },
+    "schema_base_url": {
+      "const": "https://autoagentprotocol.org/v4.0/schemas/"
+    },
+    "mcp": {
+      "$ref": "./mcp-endpoint.schema.json"
+    },
+    "poppy": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:/[^?#\\s]*)?$"
+    },
+    "llms_txt": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^/?#@\\s]+(?:/[^?#\\s]*)?$"
+    },
+    "skills": {
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "dealer_information": {
+          "type": "object",
+          "properties": {
+            "request_schema": {
+              "const": "https://autoagentprotocol.org/v4.0/schemas/dealer-information-request.schema.json"
+            },
+            "response_schema": {
+              "const": "https://autoagentprotocol.org/v4.0/schemas/dealer-information-response.schema.json"
+            }
+          },
+          "required": [
+            "request_schema",
+            "response_schema"
+          ],
+          "additionalProperties": true
+        },
+        "inventory_facets": {
+          "type": "object",
+          "properties": {
+            "request_schema": {
+              "const": "https://autoagentprotocol.org/v4.0/schemas/inventory-facets-request.schema.json"
+            },
+            "response_schema": {
+              "const": "https://autoagentprotocol.org/v4.0/schemas/inventory-facets-response.schema.json"
+            }
+          },
+          "required": [
+            "request_schema",
+            "response_schema"
+          ],
+          "additionalProperties": true
+        },
+        "inventory_search": {
+          "type": "object",
+          "properties": {
+            "request_schema": {
+              "const": "https://autoagentprotocol.org/v4.0/schemas/inventory-search-request.schema.json"
+            },
+            "response_schema": {
+              "const": "https://autoagentprotocol.org/v4.0/schemas/inventory-search-response.schema.json"
+            },
+            "capabilities": {
+              "$ref": "./inventory-capabilities.schema.json"
+            }
+          },
+          "required": [
+            "request_schema",
+            "response_schema",
+            "capabilities"
+          ],
+          "additionalProperties": true
+        },
+        "inventory_vehicle": {
+          "type": "object",
+          "properties": {
+            "request_schema": {
+              "const": "https://autoagentprotocol.org/v4.0/schemas/vehicle-detail-request.schema.json"
+            },
+            "response_schema": {
+              "const": "https://autoagentprotocol.org/v4.0/schemas/vehicle-detail-response.schema.json"
+            }
+          },
+          "required": [
+            "request_schema",
+            "response_schema"
+          ],
+          "additionalProperties": true
+        },
+        "lead_submit": {
+          "type": "object",
+          "properties": {
+            "request_schema": {
+              "const": "https://autoagentprotocol.org/v4.0/schemas/lead-submit-request.schema.json"
+            },
+            "response_schema": {
+              "const": "https://autoagentprotocol.org/v4.0/schemas/lead-submit-response.schema.json"
+            }
+          },
+          "required": [
+            "request_schema",
+            "response_schema"
+          ],
+          "additionalProperties": true
+        },
+        "trade_in_submit": {
+          "type": "object",
+          "properties": {
+            "request_schema": {
+              "const": "https://autoagentprotocol.org/v4.0/schemas/trade-in-submit-request.schema.json"
+            },
+            "response_schema": {
+              "const": "https://autoagentprotocol.org/v4.0/schemas/trade-in-submit-response.schema.json"
+            },
+            "capabilities": {
+              "$ref": "./trade-in-capabilities.schema.json"
+            }
+          },
+          "required": [
+            "request_schema",
+            "response_schema",
+            "capabilities"
+          ],
+          "additionalProperties": true
+        },
+        "credit_application_submit": {
+          "type": "object",
+          "properties": {
+            "request_schema": {
+              "const": "https://autoagentprotocol.org/v4.0/schemas/credit-application-submit-request.schema.json"
+            },
+            "response_schema": {
+              "const": "https://autoagentprotocol.org/v4.0/schemas/credit-application-submit-response.schema.json"
+            },
+            "capabilities": {
+              "$ref": "./credit-application-capabilities.schema.json"
+            }
+          },
+          "required": [
+            "request_schema",
+            "response_schema",
+            "capabilities"
+          ],
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "schema_base_url",
+    "mcp",
+    "poppy",
+    "llms_txt",
+    "skills"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "skills": {
+            "properties": {
+              "inventory_search": {
+                "properties": {
+                  "capabilities": {
+                    "properties": {
+                      "filters": {
+                        "contains": {
+                          "enum": [
+                            "features_all",
+                            "features_any"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "filters"
+                    ]
+                  }
+                },
+                "required": [
+                  "capabilities"
+                ]
+              }
+            },
+            "required": [
+              "inventory_search"
+            ]
+          }
+        },
+        "required": [
+          "skills"
+        ]
+      },
+      "then": {
+        "properties": {
+          "skills": {
+            "required": [
+              "inventory_facets"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "skills": {
+            "properties": {
+              "inventory_search": {
+                "properties": {
+                  "capabilities": {
+                    "properties": {
+                      "scope": {
+                        "const": "aggregate"
+                      }
+                    },
+                    "required": [
+                      "scope"
+                    ]
+                  }
+                },
+                "required": [
+                  "capabilities"
+                ]
+              }
+            },
+            "required": [
+              "inventory_search"
+            ]
+          }
+        },
+        "required": [
+          "skills"
+        ]
+      },
+      "then": {
+        "properties": {
+          "skills": {
+            "required": [
+              "dealer_information"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": true
+}

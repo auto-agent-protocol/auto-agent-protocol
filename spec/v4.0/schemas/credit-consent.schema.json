@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v4.0/schemas/credit-consent.schema.json",
+  "title": "CreditConsent",
+  "description": "One applicant's explicit, auditable authorization for one credit_application_submit payload: to send the application to the dealer and its lenders, to obtain the named kind of credit inquiry, and to be contacted on the selected channels. Each applicant grants their own. A session, tool selection, OAuth authorization, PAP operation approval or lead consent is not credit consent. A malformed, expired or inapplicable grant returns INVALID_CONSENT.",
+  "type": "object",
+  "properties": {
+    "granted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339 timestamp at which this applicant authorized the application. MUST include a timezone offset (Z or ±HH:MM)."
+    },
+    "consent_text": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Verbatim text this applicant agreed to, including the credit-report authorization. MUST be non-empty: this is the audit trail of what the applicant actually saw."
+    },
+    "authorized_inquiry": {
+      "type": "string",
+      "enum": [
+        "soft",
+        "hard"
+      ],
+      "description": "The credit inquiry this applicant authorized. soft: prequalification that does not affect the credit score. hard: a full application inquiry. The dealer and its lenders MUST NOT make a hard inquiry on a soft authorization."
+    },
+    "allowed_channels": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "email",
+          "phone",
+          "sms"
+        ]
+      },
+      "description": "Channels this applicant authorized for follow-up about the application."
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Optional deadline for using this grant. When present it must follow granted_at; JSON Schema cannot compare the timestamps, so receivers check this and answer INVALID_CONSENT."
+    }
+  },
+  "required": [
+    "granted_at",
+    "consent_text",
+    "authorized_inquiry",
+    "allowed_channels"
+  ],
+  "additionalProperties": false
+}
