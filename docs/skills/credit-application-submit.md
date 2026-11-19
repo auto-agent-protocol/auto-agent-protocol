@@ -26,6 +26,8 @@ This optional skill is part of the editable AAP 4.0 contract. Draft identifiers 
 | 4. Submit once | Send the request with one `idempotency_key`; keep the key and payload for any retry. |
 | 5. Read status and decision separately | `status` reports the submission; an optional `decision` reports the credit outcome. |
 
+![The MCP tool, A2A skill id and PAP path for each optional skill, all carrying the same request body](../img/optional-skill-bindings.svg)
+
 | Interface | Invocation |
 |---|---|
 | MCP | `aap_credit_application_submit` with the typed request as `arguments` |

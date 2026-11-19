@@ -1,0 +1,25 @@
+{
+  "type": "inventory.search.request",
+  "filters": {
+    "make": [
+      "Toyota"
+    ],
+    "model": [
+      "RAV4"
+    ],
+    "condition": [
+      "new"
+    ],
+    "price_max": 45000
+  },
+  "pagination": {
+    "limit": 20
+  },
+  "sort": {
+    "field": "price",
+    "order": "asc"
+  },
+  "privacy": {
+    "anonymous": true
+  }
+}

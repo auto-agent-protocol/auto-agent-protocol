@@ -214,7 +214,7 @@ export const imageSpecs = {
     eyebrow: "PAP 0.3 TO PAP 1.0",
     title: "Five changes when a dealer moves to PAP 1.0.",
     description: "AAP 4.0 targets PAP 1.0. Every Session request adds Poppy-Version, extensions become lists with one entry per major version, one tasks endpoint replaces three fields, Companies accept ES256 and PS384, and a Session is found by client_id, sid and User ID.",
-    takeaway: "While agents migrate, supported_versions can link the frozen PAP 0.3 document on the same host.",
+    takeaway: "A domain publishes one poppy.json. PAP 0.3 agents need explicit AAP 3.2 configuration until they migrate.",
   },
   "poppy-versions": {
     eyebrow: "PAP 1.0 VERSIONS",
@@ -251,6 +251,12 @@ export const imageSpecs = {
     title: "Five core skills. Two optional skills.",
     description: "Dealer information, facets, search, vehicle detail and lead submission are core. trade_in.submit and credit_application.submit are optional, each declared with a capabilities object on MCP, A2A and PAP.",
     takeaway: "Declare an optional skill only when it works, identically on all three bindings with the same capabilities object.",
+  },
+  "optional-skill-bindings": {
+    eyebrow: "OPTIONAL SKILLS ON EVERY BINDING",
+    title: "One request body. Three native calls.",
+    description: "trade_in.submit and credit_application.submit are called as the MCP tools aap_trade_in_submit and aap_credit_application_submit, as typed A2A DataParts for those skill ids in SendMessage, and as PAP POST requests to /skills/trade_in.submit and /skills/credit_application.submit with Poppy-Version.",
+    takeaway: "Same payload, consent rules and idempotency key everywhere. Offer a skill on all three bindings or on none.",
   },
   "rebates-price": {
     eyebrow: "NEW-VEHICLE REBATES",

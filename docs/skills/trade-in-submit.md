@@ -18,6 +18,8 @@ This optional skill is part of the editable AAP 4.0 contract. Draft identifiers 
 
 ![A trade-in description becomes an anonymous estimate or a consented submission with a valuation](../img/trade-in-valuation.svg)
 
+![The MCP tool, A2A skill id and PAP path for each optional skill, all carrying the same request body](../img/optional-skill-bindings.svg)
+
 | Interface | Invocation |
 |---|---|
 | MCP | `aap_trade_in_submit` with the typed request as `arguments` |

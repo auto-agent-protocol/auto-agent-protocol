@@ -295,6 +295,8 @@ An optional `error_description` holds static recovery guidance. Never reflect a 
 
 **Idempotency.** One business action has one AAP `idempotency_key`, reused for every resend of the same request: after `session_ended`, after `version_unsupported`, after key rotation or token refresh, on an Operations approval, and across MCP, A2A and PAP, which share one store. Bind deduplication to the stable verified caller and User, never to a delegated key or `sid`. Never retry an uncertain write through another contract (such as AAP 3.2 over PAP 0.3) with a new key; reconcile the original first.
 
+AAP write skills carry `idempotency_key` in the request body on every binding, so the native API declares no `Idempotency-Key` header and a PAP agent sends none. The body key identifies the submission across retries, Sessions and bindings.
+
 ## 7. Optional surfaces
 
 Each surface below is optional. Once advertised, its complete PAP 1.0 rules apply and need their own acceptance tests.

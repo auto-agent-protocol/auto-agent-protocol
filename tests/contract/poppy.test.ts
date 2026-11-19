@@ -10,7 +10,7 @@ import { ROOT } from "../../tools/lib/releases.js";
 import {
   PAP_PROTOCOL_VERSION, PAP_SPECIFICATION_REVISION, checkPoppyAssertion, checkPoppyClientIdentity, checkPoppyIdentity, checkPoppyMcpResource, checkPoppySessionClaims,
   checkPoppySupportedVersions, checkPoppyTokenResponse, checkPoppyVersionHeader, choosePoppyVersion, parsePoppyExtensions, poppyAlternativeReferences, poppyCompanyIdentifier,
-  poppyExtensionEntry, poppyJwkThumbprint, poppyScopeChanges, poppySessionDestination, poppyVersionsCompatible,
+  PAP_PROTOCOL_EXTENSIONS, poppyExtensionEntry, poppyExtensionNameAllowed, poppyJwkThumbprint, poppyScopeChanges, poppySessionDestination, poppyVersionsCompatible,
 } from "../../tools/lib/poppy.js";
 
 const ajv = new Ajv2020({ strict: false, allErrors: true }); addFormats(ajv);
@@ -124,6 +124,14 @@ test("extensions are lists with one entry per major version; the AAP bridge stay
   assert.equal(poppyExtensionEntry(document, "autoagentprotocol.org/aap", "1").agent_card, "https://demo-toyota.example.com/.well-known/agent-card.json");
   assert.equal(poppyExtensionEntry(document, "autoagentprotocol.org/aap", "2"), undefined);
   assert.equal(validate("poppy-aap-extension", document.extensions["autoagentprotocol.org/aap"][0]), true);
+  assert.deepEqual(PAP_PROTOCOL_EXTENSIONS, ["browser-control", "disclosures", "links", "mediated-sign-in", "operations", "ucp"], "the six extensions PAP 1.0 defines");
+  for (const [name, allowed] of [["operations", true], ["autoagentprotocol.org/aap", true], ["example.com/gift-wrap", true], ["gift-wrap", false], ["aap", false], ["example.com", false], ["example.com/", false], ["/gift-wrap", false]] as const) {
+    assert.equal(poppyExtensionNameAllowed(name), allowed, name);
+    const named = read("poppy"); named.extensions[name] ??= [{ version: "1" }];
+    assert.equal(validate("poppy", named), allowed, `published name ${name}`);
+    assert.equal(identity(named).length === 0, allowed, `checked name ${name}`);
+    assert.equal(validate("poppy-document", named), true, "a reader ignores names it does not support");
+  }
   const object = read("poppy"); object.extensions["autoagentprotocol.org/aap"] = object.extensions["autoagentprotocol.org/aap"][0];
   assert.equal(validate("poppy", object), false, "the 0.3 object form is not PAP 1.0"); assert.equal(validate("poppy-document", object), false);
   const future = read("poppy"); future.extensions["autoagentprotocol.org/aap"].push({ version: "2", anything: true }); future.extensions["example.com/gift-wrap"] = [{ version: "7", endpoint: "https://demo-toyota.example.com/gift" }];

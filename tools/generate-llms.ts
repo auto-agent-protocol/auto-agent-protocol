@@ -49,6 +49,10 @@ const papInterface = stablePap
   : publishedPap
   ? `Published PAP ${poppyVersion} OpenAPI with delegated Poppy-Session JWTs`
   : `Poppy draft ${poppyVersion} guest OpenAPI with DPoP`;
+// Releases with the optional skills describe them; earlier releases keep their published wording.
+const contractScope = manifest.skills.some((skill) => skill.id === "trade_in.submit" || skill.id === "credit_application.submit")
+  ? "dealership discovery, inventory, pricing with rebates, consented inquiries, and optional trade-in valuations and credit applications"
+  : "dealership discovery, inventory, pricing and consented inquiries";
 const interfaces = `${nativeMcp ? "native MCP Streamable HTTP tools; " : ""}A2A 1.0 SendMessage; ${papInterface}`;
 const sidebar = readJson<{ specSidebar: SidebarItem[] }>(
   join(ROOT, "versioned_sidebars", `version-${contract}-sidebars.json`),
@@ -101,7 +105,7 @@ function indexText(): string {
   const out = [
     "# Auto Agent Protocol",
     "",
-    `> Auto Agent Protocol (AAP) is an open automotive contract for dealership discovery, inventory, pricing and consented inquiries. Current release ${release.version} (contract ${contract}). Interfaces: ${interfaces}.`,
+    `> Auto Agent Protocol (AAP) is an open automotive contract for ${contractScope}. Current release ${release.version} (contract ${contract}). Interfaces: ${interfaces}.`,
     "",
     "This website publishes the specification and examples. It is not a dealer inventory service or a live MCP endpoint. Find working services through a dealership's own discovery documents and use the exact advertised URLs, capabilities and contract version.",
     "",

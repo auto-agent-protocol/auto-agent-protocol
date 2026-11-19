@@ -540,6 +540,24 @@ function renderVisual(name: DiagramName): string {
             + lines(capabilities, x + 24, 566, 494, 17, C.blueDark, true);
         }).join("");
     }
+    case "optional-skill-bindings": {
+      const columns: [Icon, string, string, string, string, number][] = [
+        ["tools", "MCP", "Tool name in tools/call", "aap_trade_in_submit", "aap_credit_application_submit", 340],
+        ["agent", "A2A", "Skill id of the typed DataPart", "trade_in.submit", "credit_application.submit", 340],
+        ["key", "PAP", "POST path, with Poppy-Version: 1.0", "/skills/trade_in.submit", "/skills/credit_application.submit", 388],
+      ];
+      let x = 48;
+      return columns.map(([glyph, binding, how, tradeIn, credit, width]) => {
+        const left = x; x += width + 18;
+        return rect(left, 204, width, 408) + icon(glyph, left + 24, 226, 44, binding === "PAP" ? C.teal : C.blue)
+          + label(binding, left + 84, 250, width - 108, 28, C.ink, 700) + label(how, left + 84, 278, width - 108, 16, C.muted)
+          + ([["Trade-in valuation", tradeIn], ["Credit application", credit]] as const).map(([caption, id], row) => {
+            const top = 312 + row * 146;
+            return rect(left + 12, top, width - 24, 126, C.blueTint, C.blueTint, 14)
+              + label(caption, left + 26, top + 44, width - 52, 18, C.blueDark, 650) + label(id, left + 26, top + 88, width - 52, 16, C.ink, 500, true);
+          }).join("");
+      }).join("");
+    }
     case "rebates-price": {
       const rows: [string, string, string][] = [["List price", "$35,390", C.ink], ["Mandatory fees", "+ $500", C.ink], ["Customer cash, unconditional", "− $1,000", C.teal]];
       return rect(48, 200, 652, 410)

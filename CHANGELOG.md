@@ -13,9 +13,9 @@ AAP adopts the stable **Personal Agent Protocol 1.0**, pinned to upstream `8c02b
 
 ### Personal Agent Protocol 1.0
 
-- Publish `protocol_version: "1.0"`. Readers accept every `1.x` document; `supported_versions` lets a dealer serve the frozen AAP 3.2 document beside it on the same host and for the same Company.
+- Publish `protocol_version: "1.0"`. Readers accept every `1.x` document; `supported_versions` links other served versions on the same host and for the same Company. PAP 0.3 agents never read it, so they stay on explicitly configured AAP 3.2 endpoints until they migrate.
 - Require `Poppy-Version` on every request that carries the Session header, with `Poppy-Extensions` when extensions are used. A missing or unserved version returns HTTP 400 `version_unsupported`; it is never handled under another version.
-- List each extension as entries per major version. The `autoagentprotocol.org/aap` bridge keeps version `1` and its fields; `extension_required` is an HTTP 403 JSON body naming the extension. Client metadata no longer declares extensions.
+- List each extension as entries per major version. The `autoagentprotocol.org/aap` bridge keeps version `1` and its fields; `extension_required` is an HTTP 403 JSON body naming the extension. Extension names are ones PAP defines or start with a domain. Client metadata no longer declares extensions.
 - Replace `excluded_tasks`, `skill_index` and `feedback` in `poppy.json` with one `tasks.endpoint`, read per Session without an access token. `poppy-tasks.schema.json` replaces `poppy-excluded-tasks.schema.json`.
 - Require acceptance of both ES256 and PS384 for client assertions and delegations, and client assertions of at most five minutes. Find a Session by `client_id`, `sid` and User ID.
 - Allow a port in `organization.domain`, send the Session header on website pages fetched without a browser, and add `web.disabled` and `web.unscoped`.
@@ -34,7 +34,7 @@ AAP adopts the stable **Personal Agent Protocol 1.0**, pinned to upstream `8c02b
 ### Tooling and site
 
 - Update every dependency, including React 19, TypeScript 7, Docusaurus 3.10.2 and the CI actions. Keep Node 22 and pnpm 10.
-- Add thirteen diagrams and refresh the PAP, pricing and skill artwork in the shared visual system.
+- Add fourteen diagrams and refresh the PAP, pricing and skill artwork in the shared visual system.
 - Keep the PAP 0.3 helpers and tests pinned to the frozen 3.2 release, and add PAP 1.0 helpers, generated OpenAPI headers and errors, and contract tests for the new skills.
 
 See the [3.2 to 4.0 migration](docs/versioning.md#aap-32-to-40) and [deployment acceptance cases](docs/conformance.md#required-deployment-acceptance-cases). Contract fixtures do not certify a live dealership implementation.

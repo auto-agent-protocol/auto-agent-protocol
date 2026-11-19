@@ -44,6 +44,13 @@ test("rebates are allowed only on new vehicles and never change the price contra
   const search = edit(read("inventory-search-response"), s => Object.assign(s.data.vehicles[0], { condition: "new", rebates: [vehicle.rebates[0]] }));
   assert.equal(validate("inventory-search-response", search), true, ajv.errorsText());
   assert.equal(validate("trade-in-submit-request", edit(read("trade-in-submit-request"), r => r.vehicle.rebates = [])), false, "a trade-in is never a new-vehicle listing");
+  const results = read("inventory-search-response.rebates");
+  assert.equal(validate("inventory-search-request", read("inventory-search-request.rebates")), true, ajv.errorsText());
+  assert.equal(validate("inventory-search-response", results), true, ajv.errorsText());
+  assert.deepEqual(results.data.vehicles.map((listing: any) => Array.isArray(listing.rebates)), [true, false], "rebates are optional on every new listing");
+  for (const listing of results.data.vehicles) assert.deepEqual(checkRebates(listing, new Date("2026-11-19T12:00:00Z")), []);
+  assert.deepEqual(results.data.vehicles.map((listing: any) => listing.price), [34890, 41780], "results are filtered and sorted by price, never by price minus rebates");
+  assert.deepEqual(results.data.facets.price_range, { min: 34890, max: 41780 });
   assert.equal(validate("vehicle", { horsepower: 236 }), true); assert.equal(validate("vehicle", { horsepower: -1 }), false);
 });
 

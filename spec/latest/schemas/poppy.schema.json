@@ -138,7 +138,25 @@
           "required": [
             "autoagentprotocol.org/aap"
           ],
-          "additionalProperties": true
+          "additionalProperties": true,
+          "propertyNames": {
+            "description": "Plain names are reserved for extensions defined with PAP 1.0; any other name starts with a domain its owner controls (spec 3.3).",
+            "anyOf": [
+              {
+                "enum": [
+                  "browser-control",
+                  "disclosures",
+                  "links",
+                  "mediated-sign-in",
+                  "operations",
+                  "ucp"
+                ]
+              },
+              {
+                "pattern": "^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+/\\S+$"
+              }
+            ]
+          }
         },
         "agent": {
           "type": "object",

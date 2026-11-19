@@ -9,6 +9,10 @@ import { poppyJwkThumbprint } from "./poppy-0.3.js";
 export const PAP_PROTOCOL_VERSION = "1.0";
 export const PAP_SPECIFICATION_REVISION = "8c02b4282eda53468a7c09412558bc8b060d95f6";
 export const AAP_BRIDGE_EXTENSION = "autoagentprotocol.org/aap";
+/** Spec 3.3: plain names are reserved for the extensions PAP 1.0 defines; anyone else starts the name with a domain they control. */
+export const PAP_PROTOCOL_EXTENSIONS = ["browser-control", "disclosures", "links", "mediated-sign-in", "operations", "ucp"];
+const DOMAIN_EXTENSION_NAME = /^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+\/\S+$/;
+export const poppyExtensionNameAllowed = (name: string): boolean => PAP_PROTOCOL_EXTENSIONS.includes(name) || DOMAIN_EXTENSION_NAME.test(name);
 export type PoppyResourceDiscovery = { status: 200; document: Record<string, any> } | { status: 404 } | { status: "error" };
 
 const VERSION = /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/;
@@ -109,6 +113,7 @@ export function checkPoppyIdentity(
   }
   if (document.organization.domain.toLowerCase() !== new URL(finalDiscoveryUrl).host.toLowerCase()) errors.push("organization.domain must match the final discovery host, with its port when that is not 443, ignoring case only");
   errors.push(...checkPoppySupportedVersions(document, finalDiscoveryUrl));
+  for (const name of Object.keys(document.extensions ?? {})) if (!poppyExtensionNameAllowed(name)) errors.push(`Extension name ${JSON.stringify(name)} must be defined by PAP or start with a domain`);
   if (document.web?.disabled === true && document.web.browser_session_endpoint) errors.push("web.disabled must not list browser_session_endpoint");
   if (document.web?.disabled === true && !document.agent && !document.apis?.length) errors.push("web.disabled requires agent or apis");
   if (document.web?.unscoped === true && !document.web.browser_session_endpoint) errors.push("web.unscoped requires browser_session_endpoint");
