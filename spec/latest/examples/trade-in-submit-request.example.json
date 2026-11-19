@@ -1,5 +1,5 @@
 {
-  "type": "trade_in.submit.request",
+  "type": "trade_in_submit_request",
   "vehicle": {
     "year": 2020,
     "make": "Volkswagen",
@@ -15,10 +15,34 @@
     "fuel": "gas",
     "horsepower": 174
   },
+  "customer": {
+    "first_name": "Piotr",
+    "last_name": "Nowak",
+    "email": "piotr.nowak@example.com",
+    "preferred_contact": "email"
+  },
+  "consent": {
+    "granted_at": "2026-11-19T10:14:30Z",
+    "allowed_channels": [
+      "email"
+    ],
+    "consent_text": "I authorize Demo Toyota to email me about the trade-in value of my 2020 Volkswagen Passat.",
+    "scope": [
+      "trade_in_submission"
+    ]
+  },
+  "vehicle_of_interest": {
+    "vin": "JTMRWRFV5SD012345",
+    "year": 2026,
+    "make": "Toyota",
+    "model": "RAV4",
+    "condition": "new"
+  },
+  "message": "One owner, no accidents, new tires in September.",
   "source_agent": {
     "name": "example-buyer",
     "url": "https://buyer.example"
   },
   "submitted_at": "2026-11-19T10:15:00Z",
-  "idempotency_key": "01JD9TRADEIN0VWPASSAT00042"
+  "idempotency_key": "01JD9TRADEIN0VWPASSAT00043"
 }

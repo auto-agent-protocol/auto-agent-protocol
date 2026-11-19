@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/credit-application-capabilities.schema.json",
   "title": "CreditApplicationCapabilities",
-  "description": "Actual credit_application.submit behavior of one deployment. Publish in the A2A AAP extension params.skills[\"credit_application.submit\"].capabilities and the MCP credit tool metadata; the same values apply to every binding. Agents read it before collecting applicant data.",
+  "description": "Actual credit_application_submit behavior of one deployment. Publish in the A2A AAP extension params.skills[\"credit_application_submit\"].capabilities and the MCP credit tool metadata; the same values apply to every binding. Agents read it before collecting applicant data.",
   "type": "object",
   "properties": {
     "inquiry_types": {

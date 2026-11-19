@@ -6,7 +6,7 @@ description: AAP 4.0 adopts PAP 1.0 and adds rebates and two optional skills; in
 
 # Versions and migration
 
-**AAP 4.0.0 adopts PAP 1.0.** It is a major release: PAP 1.0 changes required Session headers, discovery shapes and key acceptance, so AAP 3.2 clients and servers must migrate. Automotive payloads keep their meaning; AAP 4.0 adds vehicle rebates and `horsepower` and two optional skills.
+**AAP 4.0.0 adopts PAP 1.0.** It is a major release: PAP 1.0 changes required Session headers, discovery shapes and key acceptance, so AAP 3.2 clients and servers must migrate. Automotive payload fields keep their meaning. AAP 4.0 renames skill ids and message types to snake_case, and adds vehicle rebates, `horsepower` and two optional skills.
 
 ![Edit and verify the draft, freeze a new release, then publish and switch a verified deployment](./img/versioning-timeline.svg)
 
@@ -49,7 +49,36 @@ AAP 4.0 targets [PAP 1.0 at commit `8c02b4282eda53468a7c09412558bc8b060d95f6`](h
 | Operations, if advertised | Not covered | Version 3 approvals for the three write skills | Optional |
 | Native PAP MCP, if advertised | Streamable HTTP | PAP accepts MCP 2025-06-18 or later (AAP keeps its two revisions); token `resource` = the MCP `url` | Re-test resource metadata |
 
-The automotive payloads, consent rules, `lead.submit` and idempotency semantics carry over. Bind idempotency to the stable verified caller and User, never to a delegated key or `sid`, and reconcile uncertain writes before switching.
+The automotive payloads, consent rules, `lead_submit` and idempotency semantics carry over. Bind idempotency to the stable verified caller and User, never to a delegated key or `sid`, and reconcile uncertain writes before switching.
+
+### snake_case names
+
+AAP 4.0 uses one spelling. Skill ids, message types and the two envelope types drop their dots; field names, error codes and MCP tool names were already snake_case. Payload fields keep their meaning.
+
+![AAP 4.0 renames dotted skill ids, message types, the error type and PAP paths to snake_case; MCP tool names are unchanged](./img/naming-snake-case.svg)
+
+| AAP 3.2 and earlier | AAP 4.0 | MCP tool (unchanged) |
+|---|---|---|
+| `dealer.information` | `dealer_information` | `aap_dealer_information` |
+| `inventory.facets` | `inventory_facets` | `aap_inventory_facets` |
+| `inventory.search` | `inventory_search` | `aap_inventory_search` |
+| `inventory.vehicle` | `inventory_vehicle` | `aap_inventory_vehicle` |
+| `lead.submit` | `lead_submit` | `aap_lead_submit` |
+| not available | `trade_in_submit` | `aap_trade_in_submit` |
+| not available | `credit_application_submit` | `aap_credit_application_submit` |
+
+| Where the name appears | Before | In AAP 4.0 |
+|---|---|---|
+| Agent Card `skills[].id` and AAP `params.skills` keys | `lead.submit` | `lead_submit` |
+| Payload `type` | `lead.submit.request`, `lead.submit.response` | `lead_submit_request`, `lead_submit_response` |
+| Error and event `type` | `aap.error`, `aap.event` | `aap_error`, `aap_event` |
+| Error detail field in `details.errors[]` | `instanceLocation` | `instance_location` |
+| Reserved event kinds | `lead.status_changed`, `appointment.status_changed` | `lead_status_changed`, `appointment_status_changed` |
+| PAP path and `x-aap-skill` | `/skills/lead.submit` | `/skills/lead_submit`, equal to the `operationId` |
+| MCP `_meta` skill and type fields | `lead.submit`, `lead.submit.request` | `lead_submit`, `lead_submit_request` |
+| Unchanged | | MCP tool names, PAP `operationId`, media types such as `application/vnd.autoagent.lead-submit-request+json`, schema file names, field names, error codes |
+
+A 3.x payload with a dotted `type` is rejected by the 4.0 schemas. Rename in clients and servers together, on the version-pinned 4.0 endpoints only. The older sections of this page describe earlier releases in the current spelling.
 
 ### Contract additions
 
@@ -58,8 +87,8 @@ The automotive payloads, consent rules, `lead.submit` and idempotency semantics 
 | Rebates | Optional `rebates[]` on the shared Vehicle, new vehicles only. Unconditional programs are already in `price`; conditional ones never are. Omitted means no information. See [pricing](./pricing-and-ftc.md) |
 | `horsepower` | Optional Vehicle number, peak total output in hp |
 | Newly typed names | `rebates` and `horsepower` were free additional vehicle attributes in 3.2. A feed that used either name with another shape, such as `"horsepower": "203 hp"`, must rename or convert it |
-| `trade_in.submit` | Optional skill: anonymous estimate or consented submission, valuation as an amount, a range or both, `estimate` or `offer`. See [trade-in](./skills/trade-in-submit.md) |
-| `credit_application.submit` | Optional skill: individual or joint application with each applicant's own credit consent (soft or hard inquiry). See [credit application](./skills/credit-application-submit.md) |
+| `trade_in_submit` | Optional skill: a consented trade-in submission with the same customer data as a lead; the reply may carry a valuation as an amount, a range or both, `estimate` or `offer`. See [trade-in](./skills/trade-in-submit.md) |
+| `credit_application_submit` | Optional skill: individual or joint application with each applicant's own credit consent (soft or hard inquiry). See [credit application](./skills/credit-application-submit.md) |
 | Consent scope | New `trade_in_submission` for trade-in contact; `lead_submission` is unchanged |
 | Capabilities | Both optional skills require a `capabilities` object in the Agent Card params and the same object in the MCP tool `_meta` |
 | PAP schemas | `poppy-tasks` replaces `poppy-excluded-tasks`; new `poppy-operation`, `poppy-approval`, `poppy-approval-required`, `poppy-operation-result`, `poppy-approval-declined` |
@@ -109,13 +138,13 @@ History: the AAP 2.1 → 3.0 major migration. Implementations coming from 2.1 ap
 | Coordinate names — breaking for deployed clients | Some deployment extensions accept `near.lat` / `near.lng`, including in validation-error hints; these were not AAP 2.1 schema fields | Use `near.latitude` / `near.longitude`. Update handlers, client/tool schemas, examples and error hints together; AAP 3.0 rejects the short keys |
 | Pagination | Offset/limit; schema permits `pagination.limit` up to 1000 | Maximum falls to 100. Update clients requesting 101–1000 to use at most the advertised `max_limit` (never above 100) and follow `next_cursor`; `total` is exact or null; no silent result caps |
 | Search response | `data.limit` is optional | Always return the effective `data.limit`, even when the client omitted it, plus `next_cursor`, `applied_filters` and effective `sort`; include query terms and distance/evidence when applicable |
-| Aggregate seller | Opaque `dealer_id` without a lookup | Expose `dealer.information` with a `dealer_id` selector; echo the same ID and actual seller profile before consent. Parameterless dealer-scoped requests remain valid |
+| Aggregate seller | Opaque `dealer_id` without a lookup | Expose `dealer_information` with a `dealer_id` selector; echo the same ID and actual seller profile before consent. Parameterless dealer-scoped requests remain valid |
 | Inventory listings | Some guarantees only in prose | Require eligible `status`, `updated_at` and a stable identifier in search/detail responses |
 | Lead retries | Optional key; `duplicate` is a lead status | Require `idempotency_key`; retain atomic deduplication for at least 24 hours. Replay the complete original result with `data.replayed: true`, preserving `received`/`rejected`, appointment details and message. `status: "duplicate"` is removed |
 | Contact channels | Consent declaration | Require matching contact data and an authorized preferred channel; reject unusable grants before delivery |
 | Appointment outcome | Some conditions only described | Enforce time on `confirmed` and alternatives on `proposed`. Any appointment included on a rejected lead must also be `rejected` |
 | Errors | Existing automotive vocabulary; retry timing optional and may use seconds | Add `DEALER_NOT_FOUND`, `UNSUPPORTED_FILTER`, `UNSUPPORTED_SORT`, `INVALID_CURSOR`. `RATE_LIMITED` requires `details.retry_after_ms`; multiply seconds by 1,000. `retry_after_seconds` alone is insufficient. HTTP 429 also requires `Retry-After` |
-| Error details | `aap.error.details` accepts unrestricted JSON, including strings, arrays and null | When present, `details` must be an object. Convert custom diagnostics to `details.errors[]`, where each item requires a JSON Pointer `instanceLocation`, a nonempty `keyword` and a nonempty `error`; additional detail fields remain allowed |
+| Error details | `aap_error.details` accepts unrestricted JSON, including strings, arrays and null | When present, `details` must be an object. Convert custom diagnostics to `details.errors[]`, where each item requires a JSON Pointer `instance_location`, a nonempty `keyword` and a nonempty `error`; additional detail fields remain allowed |
 
 The public `DayHours` and `WeeklyHours` TypeScript exports are retained. `DayHours` remains `{open, close} | null`; consumers keep their existing imports.
 

@@ -159,7 +159,7 @@ export const imageSpecs = {
   "error-anatomy": {
     eyebrow: "ACTIONABLE ERRORS",
     title: "One error object, three delivery formats.",
-    description: "The shared aap.error has a code, message, retryable flag and useful details. MCP, A2A and PAP place that object in their native response envelopes.",
+    description: "The shared aap_error has a code, message, retryable flag and useful details. MCP, A2A and PAP place that object in their native response envelopes.",
     takeaway: "Fix a bad request. Wait when rate-limited. Retry a write with its original idempotency key.",
   },
   "adf-bridge": {
@@ -171,7 +171,7 @@ export const imageSpecs = {
   "mcp-wrapper": {
     eyebrow: "NATIVE MCP",
     title: "Native tools, structured automotive results.",
-    description: "An MCP host discovers the implemented AAP tools, calls a named tool with an AAP request and receives a typed success or aap.error in structuredContent.",
+    description: "An MCP host discovers the implemented AAP tools, calls a named tool with an AAP request and receives a typed success or aap_error in structuredContent.",
     takeaway: "Publish a working Streamable HTTP endpoint. A static mcp.json catalog is not a server.",
   },
   "versioning-timeline": {
@@ -209,6 +209,12 @@ export const imageSpecs = {
     title: "Three interfaces. Equivalent automotive behavior.",
     description: "MCP, A2A and PAP expose the same implemented core and optional skills, skill capabilities, inventory visibility, search capabilities, pricing and consent behavior.",
     takeaway: "Different authentication and envelopes. Equivalent facts and business outcomes.",
+  },
+  "naming-snake-case": {
+    eyebrow: "ONE SPELLING IN AAP 4.0",
+    title: "snake_case for every skill, type and tool.",
+    description: "AAP 4.0 renames dotted identifiers to snake_case: skill id lead.submit becomes lead_submit, message type lead.submit.request becomes lead_submit_request, the error envelope aap.error becomes aap_error and the PAP path becomes /skills/lead_submit. The MCP tool name aap_lead_submit is unchanged and now matches the skill id.",
+    takeaway: "Field names, error codes and MCP tool names were already consistent. Payload fields keep their meaning.",
   },
   "pap-migration": {
     eyebrow: "PAP 0.3 TO PAP 1.0",
@@ -249,14 +255,20 @@ export const imageSpecs = {
   "optional-skills": {
     eyebrow: "CORE AND OPTIONAL SKILLS",
     title: "Five core skills. Two optional skills.",
-    description: "Dealer information, facets, search, vehicle detail and lead submission are core. trade_in.submit and credit_application.submit are optional, each declared with a capabilities object on MCP, A2A and PAP.",
+    description: "Dealer information, facets, search, vehicle detail and lead submission are core. trade_in_submit and credit_application_submit are optional, each declared with a capabilities object on MCP, A2A and PAP.",
     takeaway: "Declare an optional skill only when it works, identically on all three bindings with the same capabilities object.",
   },
   "optional-skill-bindings": {
     eyebrow: "OPTIONAL SKILLS ON EVERY BINDING",
     title: "One request body. Three native calls.",
-    description: "trade_in.submit and credit_application.submit are called as the MCP tools aap_trade_in_submit and aap_credit_application_submit, as typed A2A DataParts for those skill ids in SendMessage, and as PAP POST requests to /skills/trade_in.submit and /skills/credit_application.submit with Poppy-Version.",
+    description: "trade_in_submit and credit_application_submit are called as the MCP tools aap_trade_in_submit and aap_credit_application_submit, as typed A2A DataParts for those skill ids in SendMessage, and as PAP POST requests to /skills/trade_in_submit and /skills/credit_application_submit with Poppy-Version.",
     takeaway: "Same payload, consent rules and idempotency key everywhere. Offer a skill on all three bindings or on none.",
+  },
+  "optional-skill-delivery": {
+    eyebrow: "HOW A DEALER DELIVERS THE OPTIONAL SKILLS",
+    title: "Trade-in: ADF or API. Credit: API only.",
+    description: "A dealer can deliver trade_in_submit to its CRM as an ADF/XML lead and reply received, or call a valuation API and reply valued. credit_application_submit goes only through a secure API to the dealer or lender credit system and is never relayed through ADF/XML or email.",
+    takeaway: "Either trade-in path is the same tool. Applicant identifiers never travel through ADF/XML, email or CRM notes.",
   },
   "rebates-price": {
     eyebrow: "NEW-VEHICLE REBATES",
@@ -266,9 +278,9 @@ export const imageSpecs = {
   },
   "trade-in-valuation": {
     eyebrow: "TRADE-IN VALUATION",
-    title: "Value a trade-in, with or without contact.",
-    description: "Year, make, model, condition and mileage describe the vehicle. Without customer and consent the request is an anonymous estimate; with them the dealer may follow up. A valued response carries an amount or a range.",
-    takeaway: "A dealer that requires contact answers an anonymous request with CONTACT_CONSENT_REQUIRED.",
+    title: "One trade-in submission. A value or a follow-up.",
+    description: "Year, make, model, condition and mileage describe the vehicle. Customer and consent are required, as for a lead, so the dealership receives a first-time trade-in like a regular lead. The dealer answers valued with an amount or a range, or received and follows up.",
+    takeaway: "Same customer and consent blocks as a lead. Only this tool returns a valuation; a lead never does.",
   },
   "trade-in-outcomes": {
     eyebrow: "TRADE-IN OUTCOMES",

@@ -1,5 +1,5 @@
 {
-  "type": "credit_application.submit.request",
+  "type": "credit_application_submit_request",
   "application_type": "individual",
   "applicant": {
     "first_name": "Ada",

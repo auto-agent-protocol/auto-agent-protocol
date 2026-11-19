@@ -66,7 +66,7 @@ test("cross-field rules that JSON Schema cannot express are checked by the refer
   const valuation = read("trade-in-submit-response").data.valuation;
   assert.deepEqual(checkValuation(valuation, at("2026-11-20T00:00:00Z")), []);
   for (const bad of [{ amount_min: 17600, amount_max: 15900 }, { amount: 20000, amount_min: 15900, amount_max: 17600 }]) {
-    assert.equal(validate("trade-in-submit-response", { type: "trade_in.submit.response", data: { trade_in_id: "t", status: "valued", valuation: bad } }), true);
+    assert.equal(validate("trade-in-submit-response", { type: "trade_in_submit_response", data: { trade_in_id: "t", status: "valued", valuation: bad } }), true);
     assert.ok(checkValuation(bad).length, JSON.stringify(bad));
   }
   assert.ok(checkValuation(valuation, at("2026-12-01T00:00:00Z")).some(error => error.includes("expired")));
@@ -74,7 +74,7 @@ test("cross-field rules that JSON Schema cannot express are checked by the refer
   assert.deepEqual(checkConsentWindow(consent, at("2026-11-19T10:41:00Z")), []);
   assert.ok(checkConsentWindow({ ...consent, expires_at: "2026-11-18T10:40:00Z" }).length, "expiry before the grant");
   assert.ok(checkConsentWindow(consent, at("2027-01-01T00:00:00Z")).some(error => error === "consent expired"));
-  for (const grant of [read("lead-submit-request").consent, read("trade-in-submit-request.contact").consent]) assert.deepEqual(checkConsentWindow(grant), []);
+  for (const grant of [read("lead-submit-request").consent, read("trade-in-submit-request").consent]) assert.deepEqual(checkConsentWindow(grant), []);
   const capabilities = read("credit-application-capabilities"), individual = read("credit-application-submit-request"), joint = read("credit-application-submit-request.joint");
   assert.deepEqual(checkCreditApplicationAgainstCapabilities(individual, capabilities), []); assert.deepEqual(checkCreditApplicationAgainstCapabilities(joint, capabilities), []);
   assert.ok(checkCreditApplicationAgainstCapabilities(joint, { ...capabilities, joint_applications: false }).length);
@@ -84,33 +84,50 @@ test("cross-field rules that JSON Schema cannot express are checked by the refer
   assert.ok(checkCreditApplicationAgainstCapabilities({ ...individual, currency: "CAD" }, capabilities).length);
 });
 
-test("trade_in.submit requires year, make, model, wear condition and mileage; everything else is optional", () => {
-  for (const name of ["trade-in-submit-request", "trade-in-submit-request.minimal", "trade-in-submit-request.contact", "trade-in-submit-request.canadian"]) assert.equal(validate("trade-in-submit-request", read(name)), true, `${name}: ${ajv.errorsText()}`);
+test("trade_in_submit requires the vehicle basics plus customer and consent, exactly as lead_submit does", () => {
+  for (const name of ["trade-in-submit-request", "trade-in-submit-request.minimal", "trade-in-submit-request.canadian"]) assert.equal(validate("trade-in-submit-request", read(name)), true, `${name}: ${ajv.errorsText()}`);
   const request = read("trade-in-submit-request");
   for (const field of ["year", "make", "model", "condition", "mileage"]) assert.equal(validate("trade-in-submit-request", edit(request, r => delete r.vehicle[field])), false, `${field} is required`);
   for (const field of ["vin", "exterior_color", "driveline", "transmission", "displacement_cc", "fuel", "horsepower", "trim"]) assert.equal(validate("trade-in-submit-request", edit(request, r => delete r.vehicle[field])), true, `${field} is optional`);
   for (const condition of ["new", "used", "cpo", "mint"]) assert.equal(validate("trade-in-submit-request", edit(request, r => r.vehicle.condition = condition)), false, condition);
-  for (const field of ["type", "vehicle", "source_agent", "idempotency_key"]) assert.equal(validate("trade-in-submit-request", edit(request, r => delete r[field])), false, field);
+  const lead = read("lead-submit-request"), leadSchema = ajv.getSchema("https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-request.schema.json")!.schema as any;
+  const tradeInSchema = ajv.getSchema("https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-submit-request.schema.json")!.schema as any;
+  for (const field of ["customer", "consent", "source_agent", "idempotency_key"]) {
+    assert.ok(leadSchema.required.includes(field) && tradeInSchema.required.includes(field), `${field} is required by both skills`);
+    assert.equal(validate("trade-in-submit-request", edit(request, r => delete r[field])), false, `trade-in without ${field}`);
+    assert.equal(validate("lead-submit-request", edit(lead, r => delete r[field])), false, `lead without ${field}`);
+  }
+  assert.deepEqual(tradeInSchema.properties.customer.$ref, leadSchema.properties.customer.$ref, "the same customer block as a lead");
+  assert.deepEqual(tradeInSchema.properties.consent.$ref, leadSchema.properties.consent.$ref, "the same consent grant as a lead");
+  for (const field of ["type", "vehicle"]) assert.equal(validate("trade-in-submit-request", edit(request, r => delete r[field])), false, field);
+  for (const field of ["vehicle_of_interest", "message", "submitted_at"]) assert.equal(validate("trade-in-submit-request", edit(request, r => delete r[field])), true, `${field} is optional`);
   assert.equal(validate("trade-in-submit-request", edit(request, r => r.vehicle.vin = "TOO-SHORT")), false);
   assert.equal(validate("trade-in-submit-request", edit(request, r => r.unexpected = true)), false);
+  assert.equal(validate("trade-in-submit-request", { ...request, customer: lead.customer, consent: { ...request.consent, allowed_channels: ["email", "phone"] } }), true, "a lead's customer block is accepted unchanged");
 });
 
-test("trade-in contact data is optional but always needs its own consent", () => {
-  const request = read("trade-in-submit-request.contact");
-  assert.equal(validate("trade-in-submit-request", edit(request, r => delete r.consent)), false, "customer without consent");
-  assert.equal(validate("trade-in-submit-request", edit(request, r => delete r.customer)), false, "consent without customer");
+test("the trade-in tool is additional: its consent has its own scope and lead_submit keeps its trade_in block", () => {
+  const request = read("trade-in-submit-request");
   assert.equal(validate("trade-in-submit-request", edit(request, r => r.consent.scope = ["lead_submission"])), false, "a lead grant does not cover a trade-in submission");
   assert.equal(validate("lead-submit-request", edit(read("lead-submit-request"), r => r.consent.scope = ["trade_in_submission"])), false, "a trade-in grant does not cover a lead");
-  assert.equal(validate("lead-submit-request", read("lead-submit-request")), true);
   assert.equal(validate("trade-in-submit-request", edit(request, r => r.consent.allowed_channels = ["phone"])), false, "a permitted channel needs its contact data");
   assert.equal(validate("trade-in-submit-request", edit(request, r => r.customer.preferred_contact = "sms")), false, "the preferred channel must be permitted");
   assert.equal(validate("trade-in-submit-request", edit(request, r => r.vehicle_of_interest.condition = "good")), false);
+  const lead = read("lead-submit-request");
+  assert.ok(lead.trade_in, "a lead can still carry a trade-in");
+  assert.equal(validate("lead-submit-request", lead), true);
+  const leadResponse = (data: object) => validate("lead-submit-response", { type: "lead_submit_response", data: { lead_id: "l-1", status: "received", ...data } });
+  assert.equal(leadResponse({}), true);
+  assert.equal(leadResponse({ valuation: { amount: 16800 } }), false, "only the trade-in tool returns a valuation");
+  const tools = read("mcp-manifest").tools.filter((entry: any) => /trade/.test(entry.name));
+  assert.deepEqual(tools.map((entry: any) => entry.name), ["aap_trade_in_submit"], "exactly one trade-in tool");
+  assert.deepEqual(read("agent-card").skills.map((skill: any) => skill.id).filter((id: string) => /trade/.test(id)), ["trade_in_submit"]);
 });
 
 test("a trade-in valuation carries an amount, a range or both; kind and every other detail are optional", () => {
   for (const name of ["trade-in-submit-response", "trade-in-submit-response.offer", "trade-in-submit-response.range", "trade-in-submit-response.received", "trade-in-submit-response.replayed"]) assert.equal(validate("trade-in-submit-response", read(name)), true, `${name}: ${ajv.errorsText()}`);
   const valued = read("trade-in-submit-response");
-  const response = (data: object) => ({ type: "trade_in.submit.response", data: { trade_in_id: "t-1", ...data } });
+  const response = (data: object) => ({ type: "trade_in_submit_response", data: { trade_in_id: "t-1", ...data } });
   assert.equal(validate("trade-in-submit-response", response({ status: "valued", valuation: { amount: 16800 } })), true, "amount alone");
   assert.equal(validate("trade-in-submit-response", response({ status: "valued", valuation: { amount_min: 15900, amount_max: 17600 } })), true, "range alone");
   assert.equal(validate("trade-in-submit-response", response({ status: "valued", valuation: { amount: 16800, kind: "estimate" } })), true);
@@ -130,7 +147,7 @@ test("a trade-in valuation carries an amount, a range or both; kind and every ot
   assert.deepEqual(replay, valued, "a replay repeats the complete original valuation");
 });
 
-test("credit_application.submit requires each applicant's identity, residence, income and own consent", () => {
+test("credit_application_submit requires each applicant's identity, residence, income and own consent", () => {
   for (const name of ["credit-application-submit-request", "credit-application-submit-request.joint", "credit-application-submit-request.minimal"]) assert.equal(validate("credit-application-submit-request", read(name)), true, `${name}: ${ajv.errorsText()}`);
   const request = read("credit-application-submit-request");
   for (const field of ["first_name", "last_name", "date_of_birth", "address", "housing_status", "monthly_housing_payment", "months_at_address", "employment_status", "gross_monthly_income", "consent"]) {
@@ -189,7 +206,7 @@ test("credit consent is per applicant, names the authorized inquiry and is not l
 
 test("credit responses separate the submission from the decision and never repeat applicant data", () => {
   for (const name of ["credit-application-submit-response", "credit-application-submit-response.received", "credit-application-submit-response.rejected", "credit-application-submit-response.replayed"]) assert.equal(validate("credit-application-submit-response", read(name)), true, `${name}: ${ajv.errorsText()}`);
-  const response = (data: object) => ({ type: "credit_application.submit.response", data: { application_id: "a-1", ...data } });
+  const response = (data: object) => ({ type: "credit_application_submit_response", data: { application_id: "a-1", ...data } });
   for (const status of ["received", "rejected"]) assert.equal(validate("credit-application-submit-response", response({ status })), true);
   for (const status of ["action_required", "approved", "duplicate"]) assert.equal(validate("credit-application-submit-response", response({ status })), false, status);
   for (const outcome of ["pending", "prequalified", "approved", "conditionally_approved", "declined"]) assert.equal(validate("credit-application-submit-response", response({ status: "received", decision: { outcome } })), true, outcome);
@@ -207,17 +224,18 @@ test("credit responses separate the submission from the decision and never repea
 test("both optional skills are write tools on MCP with capability schemas and their own media types", () => {
   const manifest = read("mcp-manifest");
   assert.equal(manifest.tools.length, 7);
-  for (const [name, skill, capabilities] of [["aap_trade_in_submit", "trade_in.submit", "trade-in-capabilities"], ["aap_credit_application_submit", "credit_application.submit", "credit-application-capabilities"]]) {
+  for (const [name, skill, capabilities] of [["aap_trade_in_submit", "trade_in_submit", "trade-in-capabilities"], ["aap_credit_application_submit", "credit_application_submit", "credit-application-capabilities"]]) {
     const entry = tool(name), meta = entry._meta["autoagentprotocol.org/aap"];
     assert.deepEqual(entry.annotations, { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true }, name);
     assert.equal(meta.skill, skill); assert.equal(meta.capabilities_schema.endsWith(`${capabilities}.schema.json`), true);
-    assert.equal(entry.inputSchema.type, "object"); assert.equal(entry.inputSchema.properties.type.const, `${skill}.request`);
+    assert.equal(entry.inputSchema.type, "object"); assert.equal(entry.inputSchema.properties.type.const, `${skill}_request`);
     for (const keyword of ["allOf", "anyOf", "oneOf", "if", "not"]) assert.equal(entry.inputSchema[keyword], undefined, `${name}: no ${keyword} at the input schema root`);
     assert.equal(validate(capabilities, read(capabilities)), true);
   }
   const card = read("agent-card"), ids = card.skills.map((skill: any) => skill.id);
-  assert.deepEqual(ids.slice(-2), ["trade_in.submit", "credit_application.submit"]);
+  assert.deepEqual(ids.slice(-2), ["trade_in_submit", "credit_application_submit"]);
   assert.ok(card.defaultInputModes.includes("application/vnd.autoagent.credit-application-submit-request+json"));
-  assert.equal(validate("trade-in-capabilities", { instant_valuation: false, contact_required: true }), true);
-  assert.equal(validate("trade-in-capabilities", { instant_valuation: false, contact_required: false }), false);
+  assert.equal(validate("trade-in-capabilities", { instant_valuation: false }), true, "a dealer delivering over ADF answers received");
+  assert.equal(validate("trade-in-capabilities", { instant_valuation: true, contact_required: false }), false);
+  assert.equal(validate("trade-in-capabilities", {}), false);
 });

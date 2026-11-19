@@ -60,10 +60,10 @@ test("official A2A JS SDK discovers the card and round-trips every typed skill",
       assert.deepEqual(message.parts[0].data, read(skill.response_schema.split("/").pop().replace(".schema.json", ".example.json")));
     }
     for (const [skillId, requestFile, responseFile] of [
-      ["dealer.information", "dealer-information-request.aggregate.example.json", "dealer-information-response.aggregate.example.json"],
-      ["lead.submit", "lead-submit-request.example.json", "lead-submit-response.replayed.example.json"],
-      ["trade_in.submit", "trade-in-submit-request.contact.example.json", "trade-in-submit-response.offer.example.json"],
-      ["credit_application.submit", "credit-application-submit-request.joint.example.json", "credit-application-submit-response.replayed.example.json"],
+      ["dealer_information", "dealer-information-request.aggregate.example.json", "dealer-information-response.aggregate.example.json"],
+      ["lead_submit", "lead-submit-request.example.json", "lead-submit-response.replayed.example.json"],
+      ["trade_in_submit", "trade-in-submit-request.minimal.example.json", "trade-in-submit-response.offer.example.json"],
+      ["credit_application_submit", "credit-application-submit-request.joint.example.json", "credit-application-submit-response.replayed.example.json"],
     ]) {
       const skill = manifest.skills.find((item: any) => item.id === skillId);
       responseExample = responseFile;
@@ -88,13 +88,13 @@ test("official A2A JS SDK discovers the card and round-trips every typed skill",
         assert.equal(headers[name], undefined, `public A2A needs no ${name} header`);
       }
     }
-    const skill = manifest.skills.find((item: any) => item.id === "inventory.search");
+    const skill = manifest.skills.find((item: any) => item.id === "inventory_search");
     await assert.rejects(client.sendMessage(SendMessageRequest.fromJSON({
       message: { messageId: "request-error", role: "ROLE_USER", parts: [{ data: { type: skill.request_type }, mediaType: skill.media_type_request }] },
       configuration: { acceptedOutputModes: [skill.media_type_response] },
     }), { signal: AbortSignal.timeout(5000), serviceParameters: ServiceParameters.create(withA2AExtensions(manifest.extension_uri)) }), (error: any) => {
       assert.equal(error.envelopeCode, -32602);
-      const detail = error.data?.find((item: any) => item["@type"] === "type.googleapis.com/google.protobuf.Struct" && item.value?.type === "aap.error");
+      const detail = error.data?.find((item: any) => item["@type"] === "type.googleapis.com/google.protobuf.Struct" && item.value?.type === "aap_error");
       assert.equal(detail?.value.code, "SCHEMA_VALIDATION_FAILED");
       assert.equal(detail?.value.details.errors.length, 2);
       return true;

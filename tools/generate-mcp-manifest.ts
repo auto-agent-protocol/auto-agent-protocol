@@ -98,13 +98,16 @@ export function generateMcp(specDir: string, outDir: string, version: string): v
   const manifest = parseYaml(readFileSync(resolve(specDir, "skills.yaml"), "utf8")) as SkillsManifest;
   if (manifest.version !== version) throw new Error(`Manifest version ${manifest.version} does not match requested output ${version}`);
   const schemasDir = resolve(specDir, "schemas");
+  const errorType = manifest.skills.some(skill => skill.id.includes(".")) ? "aap.error" : "aap_error";
   const tools = manifest.skills.map(skill => {
-    const readOnly = ["dealer.information", "inventory.facets", "inventory.search", "inventory.vehicle"].includes(skill.id);
-    if (!readOnly && !["lead.submit", "trade_in.submit", "credit_application.submit"].includes(skill.id)) throw new Error(`MCP behavior annotations are not defined for ${skill.id}`);
-    const capabilities = ({ "inventory.search": "inventory-capabilities", "trade_in.submit": "trade-in-capabilities", "credit_application.submit": "credit-application-capabilities" } as Record<string, string>)[skill.id];
+    // Releases before 4.0 used dotted skill ids (lead.submit); compare in the snake_case spelling either way.
+    const id = skill.id.replaceAll(".", "_");
+    const readOnly = ["dealer_information", "inventory_facets", "inventory_search", "inventory_vehicle"].includes(id);
+    if (!readOnly && !["lead_submit", "trade_in_submit", "credit_application_submit"].includes(id)) throw new Error(`MCP behavior annotations are not defined for ${skill.id}`);
+    const capabilities = ({ "inventory_search": "inventory-capabilities", "trade_in_submit": "trade-in-capabilities", "credit_application_submit": "credit-application-capabilities" } as Record<string, string>)[id];
     const inputSchema = nestInputConstraints(bundleSchemas(schemasDir, [skill.request_schema]));
     return {
-      name: `aap_${skill.id.replaceAll(".", "_")}`,
+      name: `aap_${id}`,
       title: skill.name,
       description: skill.description,
       inputSchema,
@@ -137,7 +140,7 @@ export function generateMcp(specDir: string, outDir: string, version: string): v
   const catalog = {
     name: "auto-agent-protocol",
     version: manifest.version,
-    description: "Reference MCP tool catalog for Auto Agent Protocol. Publish the implemented subset through tools/list with deployment-specific capabilities. Tool arguments and structuredContent use the shared AAP payloads; errors use aap.error with isError: true. This catalog is not an MCP endpoint or a JSON-RPC response.",
+    description: `Reference MCP tool catalog for Auto Agent Protocol. Publish the implemented subset through tools/list with deployment-specific capabilities. Tool arguments and structuredContent use the shared AAP payloads; errors use ${errorType} with isError: true. This catalog is not an MCP endpoint or a JSON-RPC response.`,
     protocolVersion: MCP_VERSIONS[0],
     supportedProtocolVersions: MCP_VERSIONS,
     transport: "streamable-http",

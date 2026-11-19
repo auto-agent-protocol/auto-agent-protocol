@@ -1,10 +1,10 @@
 ---
 sidebar_position: 4
-title: inventory.vehicle
+title: inventory_vehicle
 description: Verify one listing's identity, availability, evidence, authoritative price and any new-vehicle rebates.
 ---
 
-# `inventory.vehicle`
+# `inventory_vehicle`
 
 **Inspect the specific vehicle before recommending it or requesting contact.** Recheck current availability and pricing instead of relying on an earlier search snapshot.
 
@@ -12,14 +12,14 @@ description: Verify one listing's identity, availability, evidence, authoritativ
 
 | MCP tool | Shared request → response |
 |---|---|
-| `aap_inventory_vehicle` | `inventory.vehicle.request` → `inventory.vehicle.response` |
+| `aap_inventory_vehicle` | `inventory_vehicle_request` → `inventory_vehicle_response` |
 
 Use the same payload through MCP, A2A or PAP. No customer information or contact consent is needed.
 
 ## Identify one listing
 
 ```json
-{ "type": "inventory.vehicle.request", "vehicle_id": "vehicle_1042" }
+{ "type": "inventory_vehicle_request", "vehicle_id": "vehicle_1042" }
 ```
 
 Supply at least one of `vin`, `stock` or `vehicle_id`. Prefer VIN on a dealer-scoped endpoint when it is known. Identifiers are scoped to the selected endpoint. If several are supplied, they MUST identify the same listing. Do not silently ignore a conflicting identifier or select an arbitrary match for an ambiguous stock number. Return a safe validation error requesting an unambiguous identifier.
@@ -30,7 +30,7 @@ For an aggregate search result, use its returned `vehicle_id`, which is unique w
 
 ```json
 {
-  "type": "inventory.vehicle.response",
+  "type": "inventory_vehicle_response",
   "data": {
     "vehicle_id": "vehicle_1042",
     "year": 2024,

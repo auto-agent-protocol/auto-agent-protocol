@@ -16,5 +16,5 @@ Search defaults are USD prices and miles for odometer comparisons, as advertised
 
 - [Inventory](https://demo-toyota.example.com/inventory): Browse current vehicles. Check availability and complete pricing before recommending a listing.
 - [Contact](https://demo-toyota.example.com/contact): Dealer contact options. Submitting a lead requires explicit permission for the selected contact channels and an idempotency key.
-- [Trade-in valuation](https://demo-toyota.example.com/value-your-trade): Optional AAP skill trade_in.submit. Anonymous estimates need no contact data; sharing contact data requires the owner's consent scoped to trade_in_submission.
-- [Credit application](https://demo-toyota.example.com/financing): Optional AAP skill credit_application.submit. Each applicant must grant their own credit consent naming a soft or hard inquiry; read the published capabilities before collecting any data.
+- [Trade-in valuation](https://demo-toyota.example.com/value-your-trade): Optional AAP skill trade_in_submit. A trade-in submission carries the owner's contact data and consent scoped to trade_in_submission, like a lead.
+- [Credit application](https://demo-toyota.example.com/financing): Optional AAP skill credit_application_submit. Each applicant must grant their own credit consent naming a soft or hard inquiry; read the published capabilities before collecting any data.

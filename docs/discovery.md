@@ -45,7 +45,7 @@ The card remains an ordinary [A2A 1.0 Agent Card](https://a2a-protocol.org/v1.0.
    ```
 
 2. A `JSONRPC` interface with `protocolVersion: "1.0"` in `supportedInterfaces[]`. Prefer it first. Additional A2A interfaces must expose equivalent functionality under A2A's rules. MCP and PAP are **not** A2A `protocolBinding` values.
-3. One or more implemented AAP skills in `skills[]`, with unique IDs and the same subset in the AAP extension's `params.skills`. AAP 4.0 has seven skills: five core (`dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`) and two optional (`trade_in.submit`, `credit_application.submit`).
+3. One or more implemented AAP skills in `skills[]`, with unique IDs and the same subset in the AAP extension's `params.skills`. AAP 4.0 has seven skills: five core (`dealer_information`, `inventory_facets`, `inventory_search`, `inventory_vehicle`, `lead_submit`) and two optional (`trade_in_submit`, `credit_application_submit`).
 4. Complete extension `params` following [aap-extension-params.schema.json](https://draft.autoagentprotocol.invalid/latest/schemas/aap-extension-params.schema.json):
 
 | Params field | Required meaning |
@@ -53,19 +53,19 @@ The card remains an ordinary [A2A 1.0 Agent Card](https://a2a-protocol.org/v1.0.
 | `id` | Stable deployment identifier, never a shopper identifier |
 | `version`, `schema_base_url` | Selected AAP release and its immutable schema base |
 | `skills` | Canonical request/response schema URLs for every implemented skill |
-| `skills["inventory.search"].capabilities` | Actual filters, sort fields, defaults, limits and dealer/aggregate scope |
-| `skills["trade_in.submit"].capabilities`, `skills["credit_application.submit"].capabilities` | Required whenever the optional skill is declared: [trade-in](https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-capabilities.schema.json) valuation, contact and currencies; [credit application](https://draft.autoagentprotocol.invalid/latest/schemas/credit-application-capabilities.schema.json) inquiry types, joint applications, national ID policy and currencies |
+| `skills["inventory_search"].capabilities` | Actual filters, sort fields, defaults, limits and dealer/aggregate scope |
+| `skills["trade_in_submit"].capabilities`, `skills["credit_application_submit"].capabilities` | Required whenever the optional skill is declared: [trade-in](https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-capabilities.schema.json) valuation, contact and currencies; [credit application](https://draft.autoagentprotocol.invalid/latest/schemas/credit-application-capabilities.schema.json) inquiry types, joint applications, national ID policy and currencies |
 | `mcp` | Exact URL, `streamable-http`, supported MCP revisions and `public_read` |
 | `poppy` | Canonical dealer-domain `/.well-known/poppy.json` URL |
 | `llms_txt` | Canonical dealer-domain `/llms.txt` URL |
 
-Search defaults MUST be usable: `default_sort.field` belongs to `sort_fields`, and `default_limit` does not exceed `max_limit`. Feature filters require `inventory.facets` so a client can discover supported feature codes. An unsupported filter is an explicit error, never silently ignored. See [search semantics](./skills/inventory-search.md).
+Search defaults MUST be usable: `default_sort.field` belongs to `sort_fields`, and `default_limit` does not exceed `max_limit`. Feature filters require `inventory_facets` so a client can discover supported feature codes. An unsupported filter is an explicit error, never silently ignored. See [search semantics](./skills/inventory-search.md).
 
 ![Five core skills and two optional skills, each declared with its capabilities on every binding](./img/optional-skills.svg)
 
 Declare an optional skill only when it works, with the same `capabilities` object here, in the MCP tool `_meta["autoagentprotocol.org/aap"]` and behind the PAP operation. Agents read those capabilities before collecting trade-in or credit data. See [trade-in](./skills/trade-in-submit.md) and [credit application](./skills/credit-application-submit.md).
 
-A facets-only deployment omits `inventory.search` and its capabilities. It accepts USD/CAD and mi/km contexts with USD/mi defaults under the [facets-only fallback](./skills/inventory-facets.md#currency-and-odometer-context); clients can explicitly request CAD/km without a search declaration.
+A facets-only deployment omits `inventory_search` and its capabilities. It accepts USD/CAD and mi/km contexts with USD/mi defaults under the [facets-only fallback](./skills/inventory-facets.md#currency-and-odometer-context); clients can explicitly request CAD/km without a search declaration.
 
 The card's software `version` is independent of AAP `params.version`. The A2A extension URI, not the software version, selects the automotive contract.
 

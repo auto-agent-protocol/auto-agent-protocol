@@ -1,5 +1,5 @@
 {
-  "type": "trade_in.submit.response",
+  "type": "trade_in_submit_response",
   "data": {
     "trade_in_id": "trd_dt_90414",
     "status": "valued",

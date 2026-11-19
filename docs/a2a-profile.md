@@ -41,7 +41,7 @@ Portable A2A clients activate that exact URI with `A2A-Extensions`. A contract-p
 ```json
 {
   "data": {
-    "type": "inventory.search.request",
+    "type": "inventory_search_request",
     "filters": { "make": ["Honda"], "status": ["available"] },
     "pagination": { "limit": 20 }
   },

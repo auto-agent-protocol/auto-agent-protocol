@@ -76,13 +76,13 @@ This minimal discovery request omits optional client software identification. Th
 
 | AAP skill | MCP tool | Side effect |
 |---|---|---|
-| `dealer.information` | `aap_dealer_information` | Read |
-| `inventory.facets` | `aap_inventory_facets` | Read |
-| `inventory.search` | `aap_inventory_search` | Read |
-| `inventory.vehicle` | `aap_inventory_vehicle` | Read |
-| `lead.submit` | `aap_lead_submit` | Write: consented dealer contact |
-| `trade_in.submit` (optional) | `aap_trade_in_submit` | Write: stores a trade-in; contact only with consent, otherwise an anonymous estimate |
-| `credit_application.submit` (optional) | `aap_credit_application_submit` | Write: sends a credit application under each applicant's credit consent |
+| `dealer_information` | `aap_dealer_information` | Read |
+| `inventory_facets` | `aap_inventory_facets` | Read |
+| `inventory_search` | `aap_inventory_search` | Read |
+| `inventory_vehicle` | `aap_inventory_vehicle` | Read |
+| `lead_submit` | `aap_lead_submit` | Write: consented dealer contact |
+| `trade_in_submit` (optional) | `aap_trade_in_submit` | Write: consented trade-in submission; the reply may carry a valuation |
+| `credit_application_submit` (optional) | `aap_credit_application_submit` | Write: sends a credit application under each applicant's credit consent |
 
 The release's `mcp.json` is a **reference tool catalog**, not a live server or a JSON-RPC response. A deployment MUST expose only implemented tools, in a deterministic order. Its inventory search tool MUST add actual `capabilities` under `_meta["autoagentprotocol.org/aap"]`, following `inventory-capabilities.schema.json`. That object MUST match the linked Agent Card.
 
@@ -92,26 +92,26 @@ The two optional tools appear only when implemented. Each MUST carry its actual 
 {
   "autoagentprotocol.org/aap": {
     "version": "0.0.0-dev",
-    "skill": "trade_in.submit",
-    "request_type": "trade_in.submit.request",
-    "response_type": "trade_in.submit.response",
+    "skill": "trade_in_submit",
+    "request_type": "trade_in_submit_request",
+    "response_type": "trade_in_submit_response",
     "request_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-submit-request.schema.json",
     "response_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-submit-response.schema.json",
     "error_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/error.schema.json",
     "capabilities_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-capabilities.schema.json",
-    "capabilities": { "instant_valuation": true, "contact_required": false, "currencies": ["USD"] }
+    "capabilities": { "instant_valuation": true, "currencies": ["USD"] }
   }
 }
 ```
 
-If only `inventory.facets` is implemented, omit the search tool and search capabilities. The facets tool follows the [USD/CAD and mi/km fallback](../skills/inventory-facets.md#currency-and-odometer-context), with USD/mi defaults, identically to A2A and PAP.
+If only `inventory_facets` is implemented, omit the search tool and search capabilities. The facets tool follows the [USD/CAD and mi/km fallback](../skills/inventory-facets.md#currency-and-odometer-context), with USD/mi defaults, identically to A2A and PAP.
 
 ### Complete schemas, standard hints
 
 Every tool MUST expose:
 
 - An object `inputSchema` that validates the complete typed AAP request, including `type`.
-- An object `outputSchema` accepting either the matching typed response or `aap.error`. The three write tools also accept the two PAP Operations results, so a dealer that advertises [Operations](../personal-agent-protocol.md#operations-approvals) stays within its own schema.
+- An object `outputSchema` accepting either the matching typed response or `aap_error`. The three write tools also accept the two PAP Operations results, so a dealer that advertises [Operations](../personal-agent-protocol.md#operations-approvals) stays within its own schema.
 - Self-contained JSON Schema 2020-12: referenced definitions are included under `$defs`; no remote fetch is needed to validate a call.
 - Standard `annotations` for read-only, destructive, idempotent and open-world behavior. AAP metadata belongs in namespaced `_meta`, not custom annotation keys.
 - A meaningful description and AAP metadata containing the release version, skill ID, request/response types and canonical schema URLs.
@@ -135,7 +135,7 @@ Set `Mcp-Method: tools/call` and `Mcp-Name: aap_inventory_search`, alongside the
     },
     "name": "aap_inventory_search",
     "arguments": {
-      "type": "inventory.search.request",
+      "type": "inventory_search_request",
       "filters": { "price_max": 35000, "status": ["available"] },
       "pagination": { "limit": 20 },
       "sort": { "field": "price", "order": "asc" },
@@ -154,13 +154,13 @@ A successful current result contains `resultType: "complete"`, `isError: false`,
 | Failure | Response |
 |---|---|
 | Unknown tool or malformed JSON-RPC | MCP protocol error; do not pretend a skill succeeded. |
-| Invalid arguments to a known tool, unsupported filters, expired cursor, unavailable vehicle, missing consent | Completed tool result with `isError: true`; typed `aap.error` in `structuredContent` and matching serialized text. |
+| Invalid arguments to a known tool, unsupported filters, expired cursor, unavailable vehicle, missing consent | Completed tool result with `isError: true`; typed `aap_error` in `structuredContent` and matching serialized text. |
 | Invalid or missing authorization | HTTP 401 with MCP authorization discovery challenge; no skill execution. |
 | Insufficient scope | HTTP 403 with the applicable OAuth challenge; no skill execution. |
 | HTTP-level throttling | HTTP 429 and `Retry-After`. |
-| Skill-level quota | `aap.error` / `RATE_LIMITED`, `isError: true`, and `details.retry_after_ms`. |
+| Skill-level quota | `aap_error` / `RATE_LIMITED`, `isError: true`, and `details.retry_after_ms`. |
 
-The output schema's success/error union keeps structured failures valid. `isError` MUST agree with the payload: true for `aap.error`, false for a successful skill response. Include request paths and a concrete correction in `details`; never include credentials, customer values or internal stack traces.
+The output schema's success/error union keeps structured failures valid. `isError` MUST agree with the payload: true for `aap_error`, false for a successful skill response. Include request paths and a concrete correction in `details`; never include credentials, customer values or internal stack traces.
 
 Supplied metadata headers that conflict with the body return HTTP 400 with `HeaderMismatch` (`-32020`). The [AAP ingress rules](#keep-the-client-requirements-small) below allow omission of redundant headers. An unsupported or unresolvable protocol date returns HTTP 400 with `UnsupportedProtocolVersionError` (`-32022`) and supported versions. Required current body metadata still applies. Correct the request instead of interpreting these errors as a signal to drop into an older protocol.
 
@@ -222,7 +222,7 @@ With the optional [Operations extension](../personal-agent-protocol.md#operation
       "operation_id": "crd_7Hk2Qm",
       "revision": "1792742400-k3Jd9Qx2mW8v",
       "summary": "Send one individual credit application to Demo Toyota and authorize a **soft** credit inquiry. Demo Toyota may contact the applicant by email.",
-      "terms": { "skill": "credit_application.submit", "dealer": "Demo Toyota", "application_type": "individual", "authorized_inquiry": "soft", "allowed_channels": ["email"], "idempotency_key": "4f1c2e8a-9b7d-4c3e-a5f6-0d8b1e2c3a4f" },
+      "terms": { "skill": "credit_application_submit", "dealer": "Demo Toyota", "application_type": "individual", "authorized_inquiry": "soft", "allowed_channels": ["email"], "idempotency_key": "4f1c2e8a-9b7d-4c3e-a5f6-0d8b1e2c3a4f" },
       "expires_at": "2026-10-23T08:20:00Z"
     }
   }
@@ -245,7 +245,7 @@ This is a PAP Operations result, not an AAP response. It validates against the w
 
 Generic MCP clients use standard MCP authorization. Never forward a Session JWT or access token to another resource, A2A endpoint or tenant. An adapter authenticates to downstream services under its own policy. Frozen AAP 3.2 keeps its published PAP 0.3 rules.
 
-`lead.submit` always requires explicit contact consent and a stable idempotency key; `trade_in.submit` requires consent whenever contact data is sent; `credit_application.submit` requires each applicant's credit consent. MCP tool selection, OAuth consent, a PAP Session, an Operations approval or an agent's `source_agent` label never substitutes for them.
+`lead_submit` always requires explicit contact consent and a stable idempotency key; `trade_in_submit` requires consent whenever contact data is sent; `credit_application_submit` requires each applicant's credit consent. MCP tool selection, OAuth consent, a PAP Session, an Operations approval or an agent's `source_agent` label never substitutes for them.
 
 ## Implement once; verify each binding
 

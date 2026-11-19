@@ -91,7 +91,7 @@ AAP 3.2.0 replaces the earlier October 26 PAP 0.3 authentication profile with th
 
 ## PAP 1.0 major release
 
-AAP 4.0.0 adopts PAP 1.0, pinned in [Versions and migration](docs/versioning.md#pap-10-migration), together with vehicle rebates and the optional `trade_in.submit` and `credit_application.submit` skills. It is a normal major release: the compatibility report lists every breaking schema change and no exception hash applies. The frozen 3.2 snapshot keeps its published PAP 0.3 helpers and tests (`tools/lib/poppy-0.3.ts`, `tests/contract/poppy-0.3.test.ts`); PAP 1.0 uses `tools/lib/poppy.ts`. Keep frozen AAP 3.2 endpoints during migration, and complete deployment acceptance before changing default discovery. From PAP 1.0, later 1.x minors are additive, so they can ship in AAP minor releases.
+AAP 4.0.0 adopts PAP 1.0, pinned in [Versions and migration](docs/versioning.md#pap-10-migration), together with vehicle rebates and the optional `trade_in_submit` and `credit_application_submit` skills. It is a normal major release: the compatibility report lists every breaking schema change and no exception hash applies. The frozen 3.2 snapshot keeps its published PAP 0.3 helpers and tests (`tools/lib/poppy-0.3.ts`, `tests/contract/poppy-0.3.test.ts`); PAP 1.0 uses `tools/lib/poppy.ts`. Keep frozen AAP 3.2 endpoints during migration, and complete deployment acceptance before changing default discovery. From PAP 1.0, later 1.x minors are additive, so they can ship in AAP minor releases.
 
 ## Review and publish explicitly
 

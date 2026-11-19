@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/consent-grant.schema.json",
   "title": "ConsentGrant",
-  "description": "Explicit, auditable permission for one lead.submit or trade_in.submit payload and its selected contact channels. A missing grant returns CONTACT_CONSENT_REQUIRED. A malformed, expired or inapplicable grant returns INVALID_CONSENT. A session, tool selection or OAuth authorization is not customer contact consent.",
+  "description": "Explicit, auditable permission for one lead_submit or trade_in_submit payload and its selected contact channels. A missing grant returns CONTACT_CONSENT_REQUIRED. A malformed, expired or inapplicable grant returns INVALID_CONSENT. A session, tool selection or OAuth authorization is not customer contact consent.",
   "type": "object",
   "properties": {
     "granted_at": {
@@ -35,7 +35,7 @@
         "type": "string",
         "enum": ["lead_submission", "trade_in_submission"]
       },
-      "description": "Scope of the consent, exactly one value. `lead_submission` covers the unified `lead.submit` skill (general inquiries, vehicle interest, trade-in and appointments). `trade_in_submission` covers contact data sent with `trade_in.submit`. Each skill accepts only its own value. The request body itself shows what was actually submitted; the meaningful audit granularity is `allowed_channels`."
+      "description": "Scope of the consent, exactly one value. `lead_submission` covers the unified `lead_submit` skill (general inquiries, vehicle interest, trade-in and appointments). `trade_in_submission` covers contact data sent with `trade_in_submit`. Each skill accepts only its own value. The request body itself shows what was actually submitted; the meaningful audit granularity is `allowed_channels`."
     },
     "expires_at": {
       "type": "string",

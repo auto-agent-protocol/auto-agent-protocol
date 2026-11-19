@@ -16,7 +16,7 @@ npm install --save-dev @autoagentprotocol/types@4.0.0
 import type { InventorySearchRequest } from "@autoagentprotocol/types";
 
 const search: InventorySearchRequest = {
-  type: "inventory.search.request",
+  type: "inventory_search_request",
   filters: { body: ["suv"], price_max: 35000, status: ["available"] },
   pagination: { limit: 20 },
   sort: { field: "price", order: "asc" },

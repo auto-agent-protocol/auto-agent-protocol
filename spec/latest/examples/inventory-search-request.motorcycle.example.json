@@ -1,5 +1,5 @@
 {
-  "type": "inventory.search.request",
+  "type": "inventory_search_request",
   "filters": {
     "vehicle_type": ["motorcycle"],
     "make": ["Acme Moto"],

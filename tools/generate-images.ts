@@ -125,9 +125,9 @@ function renderVisual(name: DiagramName): string {
     ]);
     case "buyer-journey": return flow([
       { title: "Discover", icon: "globe", detail: ["Find the dealer", "Read capabilities"], tag: "Dealer domain" },
-      { title: "Compare", icon: "search", detail: ["Apply constraints", "Follow every page"], tag: "inventory.search" },
-      { title: "Verify", icon: "car", detail: ["Check evidence", "Read current status"], tag: "inventory.vehicle" },
-      { title: "Ask", icon: "lead", detail: ["Approve the inquiry", "Choose channels"], tag: "lead.submit" },
+      { title: "Compare", icon: "search", detail: ["Apply constraints", "Follow every page"], tag: "inventory_search" },
+      { title: "Verify", icon: "car", detail: ["Check evidence", "Read current status"], tag: "inventory_vehicle" },
+      { title: "Ask", icon: "lead", detail: ["Approve the inquiry", "Choose channels"], tag: "lead_submit" },
     ]);
     case "agent-etiquette": return flow([
       { title: "Discover", icon: "filter", detail: ["Use advertised", "filters and skills"], tag: "Capabilities" },
@@ -185,14 +185,14 @@ function renderVisual(name: DiagramName): string {
       + rect(106, 322, 996, 246, C.blueTint, C.blue)
       + label("DataPart", 140, 366, 900, 27, C.blueDark, 650)
       + rect(164, 396, 884, 126)
-      + label('data: { type: "inventory.search.request",', 192, 439, 828, 24, C.ink, 500, true)
+      + label('data: { type: "inventory_search_request",', 192, 439, 828, 24, C.ink, 500, true)
       + label('        filters: { make: ["Toyota"] } }', 192, 483, 828, 24, C.ink, 500, true);
     case "jsonrpc-envelope": return pill("A2A-Version: 1.0", 48, 197, 282, C.blueDark, C.blueTint, 22)
       + pill("A2A-Extensions: <exact contract URI>", 354, 197, 798, C.blueDark, C.blueTint, 22)
       + rect(48, 260, 1104, 354) + label('JSON-RPC 2.0  ·  method: "SendMessage"  ·  id', 80, 307, 1040, 25, C.ink, 600, true)
       + rect(106, 338, 992, 230, C.canvas, C.line) + label("params.message", 138, 382, 928, 24, C.muted, 500, true)
       + rect(164, 413, 876, 108, C.blueTint, C.blue)
-      + label('parts[0].data.type: "inventory.search.request"', 192, 477, 820, 23, C.blueDark, 600, true);
+      + label('parts[0].data.type: "inventory_search_request"', 192, 477, 820, 23, C.blueDark, 600, true);
     case "discovery-flow": {
       const rows = [294, 396, 498];
       return rect(48, 202, 652, 414) + rect(48, 202, 652, 62, C.canvas, C.line)
@@ -265,7 +265,7 @@ function renderVisual(name: DiagramName): string {
       + lines(["Payload", "Purpose", "Channels"], 620, 443, 170, 24).replaceAll('text-anchor="start"', 'text-anchor="middle"')
       + arrow(723, 398, 806, 398, C.teal)
       + rect(810, 280, 342, 246) + icon("lead", 840, 309, 58, C.teal)
-      + label("lead.submit", 840, 423, 280, 30, C.ink, 650, true)
+      + label("lead_submit", 840, 423, 280, 30, C.ink, 650, true)
       + label("One idempotent inquiry", 840, 474, 280, 21, C.muted);
     case "pricing-ladder": return rect(48, 210, 632, 398)
       + label("Vehicle price", 80, 258, 566, 28, C.ink, 650)
@@ -329,13 +329,13 @@ function renderVisual(name: DiagramName): string {
       + icon("clock", 976, 255, 64, C.teal) + label("Appointment", 1008, 371, 248, 28, C.ink, 650, false, "middle")
       + lines(["requested / proposed", "confirmed / rejected", "Separate outcome"], 1008, 431, 248, 21, C.teal).replaceAll('text-anchor="start"', 'text-anchor="middle"');
     case "error-anatomy": return rect(48, 210, 622, 398, C.ink, C.ink)
-      + label('type: "aap.error"', 80, 266, 556, 27, C.paper, 600, true)
+      + label('type: "aap_error"', 80, 266, 556, 27, C.paper, 600, true)
       + label('code: "UNSUPPORTED_FILTER"', 80, 334, 556, 25, C.paper, 500, true)
       + label('message: "Filter is not supported"', 80, 395, 556, 23, C.paper, 500, true)
       + label('retryable: false', 80, 456, 556, 25, C.paper, 500, true)
       + label('details: { field: "near" }', 80, 517, 556, 25, C.paper, 500, true)
       + ["MCP structuredContent", "A2A standard detail", "PAP JSON body"].map((v, i) => curve(670, 399, 770, 272 + i * 128) + rect(770, 224 + i * 128, 382, 96) + label(v, 961, 282 + i * 128, 338, 25, C.blueDark, 600, false, "middle")).join("");
-    case "adf-bridge": return tile("AAP lead.submit", "Approved customer inquiry", "lead", 48, 267, 360)
+    case "adf-bridge": return tile("AAP lead_submit", "Approved customer inquiry", "lead", 48, 267, 360)
       + arrow(414, 315, 484) + tile("CRM mapping", "Receiver-specific ADF", "code", 490, 267, 340)
       + arrow(836, 315, 900) + rect(906, 230, 246, 172) + icon("database", 998, 253, 62)
       + label("Dealer CRM", 1029, 365, 218, 28, C.ink, 650, false, "middle")
@@ -350,7 +350,7 @@ function renderVisual(name: DiagramName): string {
       + arrow(624, 515, 366, 515, C.teal) + label("structuredContent", 495, 496, 238, 20, C.teal, 500, true, "middle")
       + rect(630, 220, 522, 370, C.blueTint, C.blue) + icon("tools", 662, 250, 60)
       + label("Dealer MCP server", 662, 367, 458, 34, C.ink, 650)
-      + lines(["aap_inventory_search", "arguments: typed AAP request", "result: response or aap.error"], 662, 431, 458, 22, C.blueDark, true)
+      + lines(["aap_inventory_search", "arguments: typed AAP request", "result: response or aap_error"], 662, 431, 458, 22, C.blueDark, true)
       + pill("Streamable HTTP", 662, 534, 458, C.blueDark, C.paper, 22);
     case "aap-sdk-toolbox": return pill("Reviewed JSON Schema contract", 300, 195, 600, C.blueDark, C.blueTint, 28)
       + [232, 600, 968].map(x => line(600, 235, x, 325)).join("")
@@ -413,6 +413,24 @@ function renderVisual(name: DiagramName): string {
       return rect(48, 202, 1104, 412) + ["MCP", "A2A", "PAP"].map((v, i) => pill(v, columns[i] - 64, 222, 128, C.blueDark, C.blueTint, 26)).join("")
         + rows.map((v, i) => label(v, 80, 320 + i * 63, 500, 25, C.ink, 500) + columns.map(x => icon("check", x - 18, 292 + i * 63, 36, C.teal)).join("")).join("");
     }
+    case "naming-snake-case": {
+      const rows: [string, string, string][] = [
+        ["Skill id", "lead.submit", "lead_submit"],
+        ["Message type", "lead.submit.request", "lead_submit_request"],
+        ["Error type", "aap.error", "aap_error"],
+        ["PAP path", "/skills/lead.submit", "/skills/lead_submit"],
+        ["MCP tool", "aap_lead_submit", "aap_lead_submit, unchanged"],
+      ];
+      return pill("AAP 3.2 and earlier", 232, 192, 404, C.muted, C.paper, 20) + pill("AAP 4.0", 712, 192, 440, C.teal, C.tealTint, 20)
+        + rows.map(([area, before, after], i) => {
+          const y = 246 + i * 74;
+          return label(area, 48, y + 38, 176, 21, C.ink, 650)
+            + rect(232, y, 404, 60, C.canvas, C.line, 14) + label(before, 254, y + 38, 364, 19, C.muted, 400, true)
+            + arrow(646, y + 30, 702)
+            + rect(712, y, 440, 60, C.paper, C.line, 14) + icon("check", 730, y + 16, 28, C.teal)
+            + label(after, 774, y + 38, 360, 19, C.ink, 600, true);
+        }).join("");
+    }
     case "pap-migration": {
       const rows: [string, string, string][] = [
         ["Version", "Poppy-Session only", "+ Poppy-Version: 1.0"],
@@ -459,7 +477,7 @@ function renderVisual(name: DiagramName): string {
         ["Authorization", "Bearer eyJhbGciOi…", "Signed in only", false],
         ["Poppy-Approval", 'operation_id="…", approver="user"', "With Operations", false],
       ];
-      return label("POST /skills/inventory.search", 48, 206, 1000, 21, C.ink, 600, true)
+      return label("POST /skills/inventory_search", 48, 206, 1000, 21, C.ink, 600, true)
         + rows.map(([name, value, tag, required], i) => {
           const y = 226 + i * 78;
           return rect(48, y, 1104, 64, required ? C.tealTint : C.paper, required ? C.tealTint : C.line, 14)
@@ -520,10 +538,10 @@ function renderVisual(name: DiagramName): string {
         + lines(["AAP consent grant in", "the request body", "Same idempotency key", "Declined is final"], 860, 432, 270, 20, C.ink);
     }
     case "optional-skills": {
-      const core: [Icon, string][] = [["dealer", "dealer.information"], ["filter", "inventory.facets"], ["search", "inventory.search"], ["car", "inventory.vehicle"], ["lead", "lead.submit"]];
+      const core: [Icon, string][] = [["dealer", "dealer_information"], ["filter", "inventory_facets"], ["search", "inventory_search"], ["car", "inventory_vehicle"], ["lead", "lead_submit"]];
       const optional: [Icon, string, string, string[]][] = [
-        ["car", "trade_in.submit", "Trade-in valuation", ["instant_valuation · contact_required", "currencies"]],
-        ["document", "credit_application.submit", "Credit application", ["inquiry_types · joint_applications", "national_id · currencies"]],
+        ["car", "trade_in_submit", "Trade-in valuation", ["instant_valuation", "currencies"]],
+        ["document", "credit_application_submit", "Credit application", ["inquiry_types · joint_applications", "national_id · currencies"]],
       ];
       return label("Five core skills", 48, 200, 600, 18, C.muted, 650)
         + core.map(([glyph, operation], i) => {
@@ -543,8 +561,8 @@ function renderVisual(name: DiagramName): string {
     case "optional-skill-bindings": {
       const columns: [Icon, string, string, string, string, number][] = [
         ["tools", "MCP", "Tool name in tools/call", "aap_trade_in_submit", "aap_credit_application_submit", 340],
-        ["agent", "A2A", "Skill id of the typed DataPart", "trade_in.submit", "credit_application.submit", 340],
-        ["key", "PAP", "POST path, with Poppy-Version: 1.0", "/skills/trade_in.submit", "/skills/credit_application.submit", 388],
+        ["agent", "A2A", "Skill id of the typed DataPart", "trade_in_submit", "credit_application_submit", 340],
+        ["key", "PAP", "POST path, with Poppy-Version: 1.0", "/skills/trade_in_submit", "/skills/credit_application_submit", 388],
       ];
       let x = 48;
       return columns.map(([glyph, binding, how, tradeIn, credit, width]) => {
@@ -557,6 +575,19 @@ function renderVisual(name: DiagramName): string {
               + label(caption, left + 26, top + 44, width - 52, 18, C.blueDark, 650) + label(id, left + 26, top + 88, width - 52, 16, C.ink, 500, true);
           }).join("");
       }).join("");
+    }
+    case "optional-skill-delivery": {
+      const card = (x: number, glyph: Icon, id: string, subtitle: string, note: string) => rect(x, 204, 542, 408) + icon(glyph, x + 24, 226, 44)
+        + label(id, x + 84, 250, 434, 22, C.ink, 650, true) + label(subtitle, x + 84, 278, 434, 16, C.muted)
+        + pill(note, x + 24, 552, 494, C.blueDark, C.blueTint, 17);
+      const never = (x: number, y: number) => rect(x, y, 494, 96, C.amberTint, C.amber) + icon("cross", x + 20, y + 23, 44, C.amber)
+        + label("Never ADF or email", x + 82, y + 39, 394, 25, C.amber, 650) + label("Applicant data is sensitive", x + 82, y + 69, 394, 18, C.ink);
+      return card(48, "car", "trade_in_submit", "Two ways to deliver, one tool", "Declare instant_valuation: false or true")
+        + tile("ADF/XML to the CRM", "Reply received · dealer follows up", "lead", 72, 312, 494)
+        + tile("Valuation API", "Reply valued · amount or range now", "code", 72, 424, 494, C.teal)
+        + card(610, "document", "credit_application_submit", "One way to deliver", "Declare inquiry_types and national_id")
+        + tile("Secure API only", "To the dealer or lender credit system", "lock", 634, 312, 494, C.teal)
+        + never(634, 424);
     }
     case "rebates-price": {
       const rows: [string, string, string][] = [["List price", "$35,390", C.ink], ["Mandatory fees", "+ $500", C.ink], ["Customer cash, unconditional", "− $1,000", C.teal]];
@@ -574,25 +605,28 @@ function renderVisual(name: DiagramName): string {
         + lines(["Possible extra saving,", "subject to eligibility"], 760, 478, 362, 21, C.ink)
         + pill("Never subtracted from price", 760, 548, 362, C.amber, C.paper, 19);
     }
-    case "trade-in-valuation": return rect(48, 220, 300, 370) + icon("car", 76, 262, 52)
-      + label("Vehicle facts", 76, 352, 250, 25, C.ink, 650)
-      + lines(["year", "make", "model", "condition", "mileage"], 76, 398, 250, 21, C.blueDark, true)
-      + curve(348, 405, 420, 300, C.blue) + curve(348, 405, 420, 510, C.teal)
-      + rect(420, 210, 384, 180) + icon("lock", 444, 232, 44)
-      + label("Anonymous estimate", 506, 264, 284, 23, C.ink, 650)
-      + lines(["No customer or consent", "Dealer stores no contact data", "No follow-up"], 444, 310, 336, 19)
-      + rect(420, 420, 384, 180, C.tealTint) + icon("shield", 444, 442, 44, C.teal)
-      + label("Contact + consent", 506, 474, 284, 23, C.ink, 650)
-      + lines(["customer + consent together", "scope: trade_in_submission", "Dealer may follow up"], 444, 520, 336, 19)
-      + curve(804, 300, 880, 405, C.blue) + curve(804, 510, 880, 405, C.teal)
-      + rect(880, 290, 272, 230, C.blueTint, C.blue) + icon("check", 990, 312, 52, C.teal)
-      + label("Valuation", 1016, 406, 240, 27, C.ink, 650, false, "middle")
-      + centered(["Amount or range", "Estimate or offer"], 1016, 448, 240, 20)
-      + label("When status is valued", 1016, 500, 240, 17, C.muted, 400, false, "middle");
+    case "trade-in-valuation": return rect(48, 204, 330, 196) + icon("car", 72, 226, 44)
+      + label("Vehicle facts", 128, 256, 236, 20, C.ink, 650)
+      + lines(["year · make · model", "condition · mileage"], 72, 312, 290, 19, C.blueDark, true)
+      + label("Other details optional", 72, 380, 290, 17, C.muted)
+      + rect(48, 416, 330, 196, C.tealTint) + icon("shield", 72, 438, 44, C.teal)
+      + label("Customer + consent", 128, 468, 236, 20, C.ink, 650)
+      + lines(["Required, same as a lead", "scope: trade_in_submission"], 72, 524, 290, 19)
+      + curve(378, 302, 452, 408, C.blue) + curve(378, 514, 452, 408, C.teal)
+      + rect(452, 318, 250, 180, C.blueTint, C.blue) + icon("lead", 553, 340, 48)
+      + label("trade_in_submit", 577, 432, 226, 20, C.ink, 650, true, "middle")
+      + label("One tool, one request", 577, 464, 226, 17, C.muted, 400, false, "middle")
+      + curve(702, 408, 776, 302, C.teal) + curve(702, 408, 776, 514, C.blue)
+      + rect(776, 204, 376, 196, C.tealTint) + icon("check", 800, 226, 44, C.teal)
+      + label("valued", 860, 256, 270, 23, C.teal, 650, true)
+      + lines(["Amount, range or both, now", "Dealer with a valuation API"], 800, 312, 336, 19)
+      + rect(776, 416, 376, 196) + icon("clock", 800, 438, 44)
+      + label("received", 860, 468, 270, 23, C.blueDark, 650, true)
+      + lines(["Dealer follows up", "Dealer delivering to a CRM"], 800, 524, 336, 19);
     case "trade-in-outcomes": {
       const columns: [Icon, string, string[], string, string, string][] = [
         ["check", "valued", ["Amount, range or both", "Estimate or offer", "An offer has expires_at"], C.teal, C.teal, C.tealTint],
-        ["clock", "received", ["No valuation yet", "Dealer follows up later", "Needs consented contact"], C.blue, C.blueDark, C.paper],
+        ["clock", "received", ["No valuation yet", "Dealer follows up", "On the consented channels"], C.blue, C.blueDark, C.paper],
         ["cross", "rejected", ["Not accepted", "Nothing was recorded", "No valuation"], C.muted, C.muted, C.paper],
       ];
       return columns.map(([glyph, status, detail, iconColor, color, fill], i) => {
@@ -607,7 +641,7 @@ function renderVisual(name: DiagramName): string {
         ["document", "Read capabilities", "inquiry_types · joint_applications · national_id"],
         ["filter", "Collect accepted data", "Ask for an identifier only when the dealer accepts it"],
         ["shield", "Record each applicant's consent", "Verbatim text · soft or hard inquiry · channels"],
-        ["lead", "Submit once", "credit_application.submit with an idempotency key"],
+        ["lead", "Submit once", "credit_application_submit with an idempotency key"],
         ["check", "Read the result", "Submission status, then any separate decision"],
       ];
       return steps.map(([glyph, title, detail], i) => {

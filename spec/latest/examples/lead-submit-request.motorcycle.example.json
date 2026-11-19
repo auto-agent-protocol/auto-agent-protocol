@@ -1,5 +1,5 @@
 {
-  "type": "lead.submit.request",
+  "type": "lead_submit_request",
   "customer": {
     "first_name": "Dana",
     "last_name": "Reyes",

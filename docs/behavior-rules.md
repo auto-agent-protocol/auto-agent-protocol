@@ -53,12 +53,12 @@ Dealers SHOULD retain the complete ConsentGrant with the lead's audit record. An
 
 ## Optional skills: trade-in valuations and credit applications
 
-Call [`trade_in.submit`](./skills/trade-in-submit.md) or [`credit_application.submit`](./skills/credit-application-submit.md) only on a dealer that declares it, and read its `capabilities` first. A dealer declares each optional skill identically on all three bindings, with the same capabilities object in the Agent Card and the MCP tool metadata.
+Call [`trade_in_submit`](./skills/trade-in-submit.md) or [`credit_application_submit`](./skills/credit-application-submit.md) only on a dealer that declares it, and read its `capabilities` first. A dealer declares each optional skill identically on all three bindings, with the same capabilities object in the Agent Card and the MCP tool metadata.
 
 | Topic | Trade-in valuation | Credit application |
 |---|---|---|
-| Before calling | Check `instant_valuation` and `contact_required` | Check `inquiry_types`, `joint_applications`, `national_id` and `currencies` before collecting any data |
-| Consent | Optional; with contact data, `scope` is exactly `["trade_in_submission"]`. Without it the request is an anonymous estimate and the dealer stores no contact data. | Required per applicant: verbatim `consent_text`, `authorized_inquiry` (`soft` or `hard`), channels, optional expiry. No hard inquiry on a soft authorization. |
+| Before calling | Check `instant_valuation` | Check `inquiry_types`, `joint_applications`, `national_id` and `currencies` before collecting any data |
+| Consent | Required with the customer data, as for a lead: `scope` is exactly `["trade_in_submission"]`, with a contact value for every permitted channel. | Required per applicant: verbatim `consent_text`, `authorized_inquiry` (`soft` or `hard`), channels, optional expiry. No hard inquiry on a soft authorization. |
 | Never a substitute for consent | A lead grant, Session, sign-in or PAP Operations approval | Lead or trade-in consent, Session, sign-in, OAuth or a PAP Operations approval |
 | Data | Only what the owner stated; never invent a VIN, condition, mileage or equipment | Only what the dealer needs; `national_id` only when the capability is `required` or `optional`. `national_id`, `date_of_birth` and `drivers_license` never appear in URLs, logs, errors, responses or `message`. |
 | Reading the result | `valued`, `received` or `rejected`. A valuation is an estimate unless `kind` is `offer`; an offer still depends on inspection and expires at `expires_at`. | Submission `status` (`received` or `rejected`) is separate from the optional `decision.outcome`. No continuation URL or action-required status. A `declined` outcome is not the creditor's adverse-action notice. |
@@ -71,7 +71,7 @@ Both are write skills with the same idempotency rules as a lead below. AAP state
 
 An appointment is booked only when `data.appointment.status` is `confirmed` with `confirmed_at`. `proposed` requires nonempty `proposed_times`; `requested` awaits scheduling. If a lead is accepted while an appointment is declined, return both actual outcomes in the response. Do not disguise an accepted lead as a failed submission.
 
-Dealers MUST deduplicate every write skill (`lead.submit`, `trade_in.submit`, `credit_application.submit`) atomically for at least 24 hours by dealer, verified caller and key, including the stable PAP User ID where applicable. Anonymous calls use dealer + key. Securely correlated calls across bindings and Session renewals share the same store. A changed payload under the same key returns `IDEMPOTENCY_CONFLICT`. Authorize the caller before replaying stored information; the original grant must have been valid at initial delivery. A replay creates no new delivery, booking, valuation, application or credit inquiry.
+Dealers MUST deduplicate every write skill (`lead_submit`, `trade_in_submit`, `credit_application_submit`) atomically for at least 24 hours by dealer, verified caller and key, including the stable PAP User ID where applicable. Anonymous calls use dealer + key. Securely correlated calls across bindings and Session renewals share the same store. A changed payload under the same key returns `IDEMPOTENCY_CONFLICT`. Authorize the caller before replaying stored information; the original grant must have been valid at initial delivery. A replay creates no new delivery, booking, valuation, application or credit inquiry.
 
 Buyer agents preserve the key and original payload after an uncertain result. They MUST NOT blindly change binding, authentication context or key to retry a write. Reconcile uncertain outcomes before a newly authorized submission. See [lead submission](./skills/lead-submit.md#safe-retries).
 

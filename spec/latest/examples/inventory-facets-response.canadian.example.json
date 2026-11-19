@@ -1,5 +1,5 @@
 {
-  "type": "inventory.facets.response",
+  "type": "inventory_facets_response",
   "data": {
     "currency": "CAD",
     "mileage_unit": "km",

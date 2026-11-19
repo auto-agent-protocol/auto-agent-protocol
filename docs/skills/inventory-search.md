@@ -1,10 +1,10 @@
 ---
 sidebar_position: 3
-title: inventory.search
+title: inventory_search
 description: Find matching vehicles with verified equipment, geographic distance, explicit filters and cursor pagination.
 ---
 
-# `inventory.search`
+# `inventory_search`
 
 ![An agent submits constraints and receives priced, paginated vehicle results](../img/inventory-search-flow.svg)
 
@@ -12,13 +12,13 @@ description: Find matching vehicles with verified equipment, geographic distance
 
 | MCP tool | AAP request → response |
 |---|---|
-| `aap_inventory_search` | `inventory.search.request` → `inventory.search.response` |
+| `aap_inventory_search` | `inventory_search_request` → `inventory_search_response` |
 
 ## Ask for constraints explicitly
 
 ```json
 {
-  "type": "inventory.search.request",
+  "type": "inventory_search_request",
   "filters": {
     "body": ["suv"],
     "price_max": 35000,
@@ -50,21 +50,21 @@ Filter fields combine with **AND**. Values in an array combine with **OR**, exce
 
 ### Know what this endpoint supports
 
-Read `params.skills["inventory.search"].capabilities` on the AAP Agent Card extension, or `tools/list` → the search tool's `_meta["autoagentprotocol.org/aap"].capabilities`. Both follow `inventory-capabilities.schema.json` and MUST agree. PAP clients can follow their discovery document's Agent Card link.
+Read `params.skills["inventory_search"].capabilities` on the AAP Agent Card extension, or `tools/list` → the search tool's `_meta["autoagentprotocol.org/aap"].capabilities`. Both follow `inventory-capabilities.schema.json` and MUST agree. PAP clients can follow their discovery document's Agent Card link.
 
-The capabilities name the endpoint's `scope` (`dealer` or `aggregate`), supported `filters`, `sort_fields`, `default_sort`, `default_limit`, `max_limit`, and support for an offset entry point. An aggregate endpoint MUST reject `rooftops`: names are not globally unique. Aggregate results MUST include the owning `dealer_id` and a stable `vehicle_id` unique within that endpoint. That ID must resolve the same listing through `inventory.vehicle`; a dealer-local stock number alone is insufficient.
+The capabilities name the endpoint's `scope` (`dealer` or `aggregate`), supported `filters`, `sort_fields`, `default_sort`, `default_limit`, `max_limit`, and support for an offset entry point. An aggregate endpoint MUST reject `rooftops`: names are not globally unique. Aggregate results MUST include the owning `dealer_id` and a stable `vehicle_id` unique within that endpoint. That ID must resolve the same listing through `inventory_vehicle`; a dealer-local stock number alone is insufficient.
 
-An aggregate endpoint MUST also expose [`dealer.information`](./dealer-information.md#resolve-a-seller-from-aggregate-inventory), accepting the listing's `dealer_id` and returning that actual seller's profile before consent.
+An aggregate endpoint MUST also expose [`dealer_information`](./dealer-information.md#resolve-a-seller-from-aggregate-inventory), accepting the listing's `dealer_id` and returning that actual seller's profile before consent.
 
-A deployment advertising feature filters MUST also expose [`inventory.facets`](./inventory-facets.md). Its `features` facet supplies the feature codes, labels and counts; include supported codes with zero matches when necessary to preserve the vocabulary. An unknown code produces `UNSUPPORTED_FILTER` with its request path and a recovery hint.
+A deployment advertising feature filters MUST also expose [`inventory_facets`](./inventory-facets.md). Its `features` facet supplies the feature codes, labels and counts; include supported codes with zero matches when necessary to preserve the vocabulary. An unknown code produces `UNSUPPORTED_FILTER` with its request path and a recovery hint.
 
 ### Currency and odometer context
 
-`currency` and `mileage_unit` are optional top-level request fields, separate from `filters`. The same contexts apply to `inventory.facets`.
+`currency` and `mileage_unit` are optional top-level request fields, separate from `filters`. The same contexts apply to `inventory_facets`.
 
 ```json
 {
-  "type": "inventory.search.request",
+  "type": "inventory_search_request",
   "currency": "CAD",
   "mileage_unit": "km",
   "filters": { "price_max": 40000, "mileage_max": 80000 },
@@ -74,7 +74,7 @@ A deployment advertising feature filters MUST also expose [`inventory.facets`](.
 
 The Agent Card and MCP search metadata advertise `currencies`, `default_currency` and `default_mileage_unit`. Omitted capability fields mean `currencies: ["USD"]`, `default_currency: "USD"` and `default_mileage_unit: "mi"`. A default currency MUST be supported. A Canadian dealer may advertise CAD/km defaults; an aggregate may support both currencies with USD/mi defaults. An omitted request context uses the advertised default. Callers can pass both fields explicitly to avoid relying on deployment defaults.
 
-Services implementing only `inventory.facets` use the [facets-only currency fallback](./inventory-facets.md#currency-and-odometer-context) instead of advertising an unimplemented search skill.
+Services implementing only `inventory_facets` use the [facets-only currency fallback](./inventory-facets.md#currency-and-odometer-context) instead of advertising an unimplemented search skill.
 
 - The effective `currency` selects **one denomination for the entire matching set**, including listings without a price. Compare and sort price fields only within it; never sort CAD and USD amounts as interchangeable numbers or invent an exchange rate. A schema-valid but unsupported currency produces `SCHEMA_VALIDATION_FAILED` at `/currency`.
 - `mileage_unit` defines the units of `mileage_max`, mileage sorting and `mileage_range`. Both `mi` and `km` contexts are supported. Convert known native readings using exactly **1 mi = 1.609344 km** before filtering, sorting and range aggregation. Do not round before comparison. Missing odometers never satisfy a mileage bound and sort last in either direction.
@@ -109,7 +109,7 @@ For “hybrid SUV under $35k,” send `fuel`, `body` and `price_max`. Do not rel
 
 ```json
 {
-  "type": "inventory.search.response",
+  "type": "inventory_search_response",
   "data": {
     "total": 1,
     "limit": 20,
@@ -163,4 +163,4 @@ For the first page, omit `cursor` and `skip`. Pass the returned `next_cursor` in
 
 ## Cars, motorcycles and other inventory
 
-The same contract covers `car`, `motorcycle`, `trailer`, `rv` and `other`; omitted `vehicle_type` means `car`. Use `body` and displacement for motorcycles, and electric range, battery and charging fields for EVs of any vehicle type. Populate only relevant fields. See [`inventory.vehicle`](./inventory-vehicle.md) for the shared vehicle shape.
+The same contract covers `car`, `motorcycle`, `trailer`, `rv` and `other`; omitted `vehicle_type` means `car`. Use `body` and displacement for motorcycles, and electric range, battery and charging fields for EVs of any vehicle type. Populate only relevant fields. See [`inventory_vehicle`](./inventory-vehicle.md) for the shared vehicle shape.

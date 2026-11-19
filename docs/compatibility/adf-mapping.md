@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: ADF/XML mapping
-description: Map a consented AAP lead into an existing CRM workflow while retaining the complete AAP record and consent audit.
+description: Map a consented AAP lead or trade-in into an existing CRM workflow while retaining the complete AAP record and consent audit. Credit applications never travel over ADF.
 ---
 
 # ADF/XML mapping
@@ -19,7 +19,7 @@ The [ADF 1.0 specification](https://ldti.syndication.kbb.com/reference/files/ADF
 <details>
 <summary>Field-by-field AAP → ADF mapping</summary>
 
-| AAP field (`lead.submit.request`) | ADF element / attribute | Notes |
+| AAP field (`lead_submit_request`) | ADF element / attribute | Notes |
 |---|---|---|
 | `customer.first_name` + `customer.last_name` | `<customer><contact><name part="full">{first} {last}</name></contact></customer>` | ADF expects a full-name node; AAP keeps first/last separate. The mapper concatenates with a single space. |
 | `customer.email` | `<customer><contact><email>...</email></contact></customer>` | RFC 5322 email. |
@@ -43,7 +43,7 @@ The [ADF 1.0 specification](https://ldti.syndication.kbb.com/reference/files/ADF
 | `submitted_at` | `<requestdate>...</requestdate>` | ISO 8601 (e.g. `2026-04-30T10:15:10Z`). |
 | `message` | `<customer><comments>...</comments></customer>` | Free-text user message. |
 | `source_agent.name` | `<provider><name part="full">{source_agent.name}</name></provider>` | Identifies the originating buyer agent (e.g. `example-buyer`). `source_agent` has been an object since v1.1.0; only its `name` maps here. **Direct integration:** put `source_agent.name` in `<provider><name part="full">`. **Lead-network delivery:** when an intermediary (e.g. the AAP platform) delivers the ADF, it MAY instead set `<provider><name part="full">` to the network brand, carry `source_agent.name` in `<provider><service>`, and add `<provider><url>` for the network — `<vendor>` always stays the selling dealership either way. |
-| Dealer name (from the `dealer.information` rooftop `name`) | `<vendor><vendorname>...</vendorname></vendor>` | Dealer agent fills this from its own profile, not from the buyer agent. |
+| Dealer name (from the `dealer_information` rooftop `name`) | `<vendor><vendorname>...</vendorname></vendor>` | Dealer agent fills this from its own profile, not from the buyer agent. |
 | `trade_in.year` / `make` / `model` / `trim` | A second `<vehicle interest="trade-in">...</vehicle>` block with `<year>`, `<make>`, `<model>`, `<trim>` | Trade-in vehicle goes in its own ADF `<vehicle>` block. |
 | `trade_in.mileage` + `mileage_unit` | `<vehicle interest="trade-in"><odometer units="mi">...</odometer></vehicle>` or `units="km"` | Preserve the native reading and unit; omitted AAP unit means mi. Strongly recommended; ADF `<odometer>`. |
 | `trade_in.condition` | Vehicle `<comments>` in the portable mapping | ADF prose defines `<condition>`, but its appendix omits it from the vehicle content model. Use a receiver-approved condition element only when that CRM supports it. |
@@ -60,11 +60,11 @@ Nothing in `consent` is part of ADF (the format predates structured agent consen
 <details>
 <summary>Consented test-drive inquiry with a trade-in, then its XML mapping</summary>
 
-Given a [`lead.submit`](../skills/lead-submit.md) request bundling a vehicle of interest, a trade-in, and a test-drive appointment:
+Given a [`lead_submit`](../skills/lead-submit.md) request bundling a vehicle of interest, a trade-in, and a test-drive appointment:
 
 ```json
 {
-  "type": "lead.submit.request",
+  "type": "lead_submit_request",
   "customer": {
     "first_name": "Anna",
     "last_name": "Lee",
@@ -176,6 +176,28 @@ The dealer-side ADF/XML payload is:
 - The dealer name `Demo Toyota` is filled from the dealer agent's own profile, not from the buyer agent's request.
 - The user `message` and the appointment time land in customer `<comments>`.
 - This example shows **direct** delivery, so `source_agent` (`example-buyer`) is the `<provider><name>`. Under **lead-network** delivery the network brand is the `<provider><name>` and `example-buyer` rides in `<provider><service>` (see the `source_agent` row above); `<vendor>` is the selling dealership in both cases.
+
+## Optional skills and ADF
+
+![Trade-in can be delivered as an ADF lead or through a valuation API; a credit application goes only through a secure API](../img/optional-skill-delivery.svg)
+
+### `trade_in_submit` over ADF
+
+A dealer may deliver [`trade_in_submit`](../skills/trade-in-submit.md) through the same CRM route as a lead. It then declares `instant_valuation: false` and answers an accepted submission with `status: "received"`. Customer and consent are always present, exactly as for a lead, so the ADF lead carries the contact.
+
+| AAP field | ADF/XML | Notes |
+|---|---|---|
+| `vehicle` (`year`, `make`, `model`, `trim`, `vin`, `mileage` + `mileage_unit`) | `<vehicle interest="trade-in">` with the same elements as a lead's `trade_in` rows above | The trade-in is the main vehicle of this submission. |
+| `vehicle.condition`, `exterior_color`, `driveline`, `transmission`, `displacement_cc`, `fuel`, `horsepower` | `<colorcombination><exteriorcolor>` for the color; vehicle `<comments>` for the rest in the portable mapping | Use receiver-approved elements only where that CRM supports them. |
+| `vehicle_of_interest` | A second `<vehicle interest="buy">` block | Optional. |
+| `customer`, `message`, `source_agent` | As for `lead_submit` | The consent grant, scope `trade_in_submission`, is retained outside the XML. |
+| `idempotency_key`, `trade_in_id` | Not in ADF | Deduplicate before sending XML; return the dealer-assigned `trade_in_id`. |
+
+A dealer with a valuation API uses the same skill and returns `status: "valued"` instead. A purchase inquiry that mentions a trade-in still travels as one `lead_submit` and one ADF lead.
+
+### `credit_application_submit` never travels over ADF
+
+[`credit_application_submit`](../skills/credit-application-submit.md) is implemented by API only. ADF has no fields for applicant identity, residence, income or credit consent, and ADF leads commonly travel by email. A dealer SHOULD NOT relay a credit application through ADF/XML or email, and MUST NOT place `national_id`, `date_of_birth` or `drivers_license` in ADF/XML, email or CRM notes. A dealer without an API integration to its credit or lender system does not declare the skill.
 
 ## What does NOT map to ADF
 

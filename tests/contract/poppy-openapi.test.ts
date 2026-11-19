@@ -37,7 +37,7 @@ test("Poppy OpenAPI carries every AAP skill unchanged and requires delegated Pop
       const op = api.paths[`/skills/${skill.id}`].post;
       assert.equal(op["x-aap-skill"], skill.id);
       assert.deepEqual(op.security, [{ poppySession: [] }]);
-      const write = ["lead.submit", "trade_in.submit", "credit_application.submit"].includes(skill.id);
+      const write = ["lead_submit", "trade_in_submit", "credit_application_submit"].includes(skill.id);
       assert.deepEqual(op.parameters.map((parameter: any) => parameter.$ref.split("/").pop()), ["PoppyVersion", "PoppyExtensions", ...(write ? ["PoppyApproval"] : [])], "PAP 1.0 headers only; no DPoP or A2A/MCP headers on signed-out PAP");
       assert.equal(op.responses["401"], undefined, "Session failures are HTTP 400");
       const failure = ajv.compile({ $id: "https://test.example/poppy-errors/" + skill.id, ...op.responses["400"].content["application/json"].schema, components: api.components });

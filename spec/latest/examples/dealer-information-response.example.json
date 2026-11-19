@@ -1,5 +1,5 @@
 {
-  "type": "dealer.information.response",
+  "type": "dealer_information_response",
   "data": {
     "name": "Demo Auto Group",
     "welcome_message": "Welcome to Demo Auto Group. We're happy to help by phone, video, or in person at either of our Bay Area locations.",

@@ -1,5 +1,5 @@
 {
-  "type": "inventory.search.response",
+  "type": "inventory_search_response",
   "data": {
     "total": 2,
     "limit": 20,

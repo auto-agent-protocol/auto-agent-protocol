@@ -25,16 +25,18 @@ AAP adopts the stable **Personal Agent Protocol 1.0**, pinned to upstream `8c02b
 
 ### Automotive contract
 
+- Use snake_case everywhere. Skill ids and message types drop their dots (`lead.submit` → `lead_submit`, `lead.submit.request` → `lead_submit_request`, `aap.error` → `aap_error`), PAP paths follow (`/skills/lead_submit`), and the error detail field `instanceLocation` becomes `instance_location`. MCP tool names such as `aap_lead_submit` are unchanged. Every A2A and PAP client and server must rename.
 - Add optional `rebates` to new-vehicle listings: `program_id`, `program_name`, `program_value`, and optional `program_number`, `is_conditional` (default `true`) and `expires_at`. An unconditional rebate is already reflected in `price`; a conditional rebate never is.
-- Add the optional `trade_in.submit` skill. Year, make, model, wear condition and mileage are required. Contact data is optional and needs a `trade_in_submission` consent grant; without it the request is an anonymous estimate. A valuation carries an amount, a range or both, as an estimate or an offer.
-- Add the optional `credit_application.submit` skill with per-applicant credit consent, the authorized soft or hard inquiry, an optional government identifier governed by a dealer capability, and separate submission and decision outcomes. Applicant data is never repeated in a response or error.
+- Add the optional `trade_in_submit` skill. Year, make, model, wear condition and mileage are required. Customer and consent are required exactly as for a lead, with a `trade_in_submission` consent scope, so a first-time trade-in reaches the dealership like a regular lead. A dealer may deliver it over ADF and answer `received`, or through a valuation API and answer `valued`. `lead_submit` keeps its trade-in block and never returns a valuation. A valuation carries an amount, a range or both, as an estimate or an offer.
+- Credit applications are implemented by API only and are never relayed through ADF/XML or email.
+- Add the optional `credit_application_submit` skill with per-applicant credit consent, the authorized soft or hard inquiry, an optional government identifier governed by a dealer capability, and separate submission and decision outcomes. Applicant data is never repeated in a response or error.
 - Declare each optional skill with a capabilities object in the Agent Card and the matching MCP tool metadata. A deployment still advertises only the skills it implements, identically on MCP, A2A and PAP.
-- Add the optional `horsepower` vehicle field. `lead.submit` is unchanged apart from enforcing its own `lead_submission` consent scope.
+- Add the optional `horsepower` vehicle field. `lead_submit` is unchanged apart from enforcing its own `lead_submission` consent scope.
 
 ### Tooling and site
 
 - Update every dependency, including React 19, TypeScript 7, Docusaurus 3.10.2 and the CI actions. Keep Node 22 and pnpm 10.
-- Add fourteen diagrams and refresh the PAP, pricing and skill artwork in the shared visual system.
+- Add sixteen diagrams and refresh the PAP, pricing and skill artwork in the shared visual system.
 - Keep the PAP 0.3 helpers and tests pinned to the frozen 3.2 release, and add PAP 1.0 helpers, generated OpenAPI headers and errors, and contract tests for the new skills.
 
 See the [3.2 to 4.0 migration](docs/versioning.md#aap-32-to-40) and [deployment acceptance cases](docs/conformance.md#required-deployment-acceptance-cases). Contract fixtures do not certify a live dealership implementation.

@@ -21,7 +21,7 @@ const validateCard = ajv.getSchema(`${manifest.schema_base_url}agent-card.schema
 
 function deployedTools(card: any): any[] {
   const tools = read("mcp-manifest").tools;
-  for (const skill of ["inventory.search", "trade_in.submit", "credit_application.submit"]) {
+  for (const skill of ["inventory_search", "trade_in_submit", "credit_application_submit"]) {
     tools.find((tool: any) => tool.name === `aap_${skill.replaceAll(".", "_")}`)._meta["autoagentprotocol.org/aap"].capabilities = params(card).skills[skill].capabilities;
   }
   return tools;
@@ -47,8 +47,8 @@ test("discovery rejects missing MCP generations, missing feature vocabulary and 
     (card: any) => delete params(card).mcp,
     (card: any) => params(card).mcp.protocol_versions.pop(),
     (card: any) => params(card).mcp.url += "?token=example",
-    (card: any) => delete params(card).skills["inventory.facets"],
-    (card: any) => params(card).skills["inventory.search"].request_schema = "https://other.example/schema.json",
+    (card: any) => delete params(card).skills["inventory_facets"],
+    (card: any) => params(card).skills["inventory_search"].request_schema = "https://other.example/schema.json",
   ]) {
     const card = read("agent-card");
     change(card);
@@ -61,9 +61,9 @@ test("cross-document checks catch declarations that JSON Schema cannot compare",
     (card: any, poppy: any) => poppy.extensions["autoagentprotocol.org/aap"][0].mcp += "/other",
     (card: any) => card.skills.pop(),
     (card: any) => card.skills.push(card.skills[0]),
-    (card: any) => Object.assign(params(card).skills["inventory.search"].capabilities, { default_limit: 60, max_limit: 50 }),
-    (card: any) => params(card).skills["inventory.search"].capabilities.sort_fields = ["year"],
-    (card: any) => Object.assign(params(card).skills["inventory.search"].capabilities, { currencies: ["CAD"], default_currency: "USD" }),
+    (card: any) => Object.assign(params(card).skills["inventory_search"].capabilities, { default_limit: 60, max_limit: 50 }),
+    (card: any) => params(card).skills["inventory_search"].capabilities.sort_fields = ["year"],
+    (card: any) => Object.assign(params(card).skills["inventory_search"].capabilities, { currencies: ["CAD"], default_currency: "USD" }),
     (card: any) => params(card).llms_txt = "https://another-dealer.example/llms.txt",
     (card: any) => params(card).poppy = "https://another-dealer.example/.well-known/poppy.json",
     (card: any, poppy: any) => poppy.extensions["autoagentprotocol.org/aap"][0].aap_version = "2.1.0",
@@ -79,9 +79,9 @@ test("cross-document checks catch declarations that JSON Schema cannot compare",
   missing.pop();
   assert.ok(checkDiscovery(card, read("poppy"), manifest, cardUrl, missing).some(error => error.includes("same AAP skill subset")));
   const mismatched = deployedTools(card);
-  mismatched.find((tool: any) => tool.name === "aap_inventory_search")._meta["autoagentprotocol.org/aap"].capabilities = { ...params(card).skills["inventory.search"].capabilities, max_limit: 50 };
+  mismatched.find((tool: any) => tool.name === "aap_inventory_search")._meta["autoagentprotocol.org/aap"].capabilities = { ...params(card).skills["inventory_search"].capabilities, max_limit: 50 };
   assert.ok(checkDiscovery(card, read("poppy"), manifest, cardUrl, mismatched).some(error => error.includes("capabilities must agree")));
-  for (const [skill, change] of [["trade_in.submit", { contact_required: true }], ["credit_application.submit", { national_id: "required" }]] as const) {
+  for (const [skill, change] of [["trade_in_submit", { instant_valuation: false }], ["credit_application_submit", { national_id: "required" }]] as const) {
     const optional = deployedTools(card);
     const metadata = optional.find((tool: any) => tool.name === `aap_${skill.replaceAll(".", "_")}`)._meta["autoagentprotocol.org/aap"];
     metadata.capabilities = { ...metadata.capabilities, ...change };
@@ -91,22 +91,22 @@ test("cross-document checks catch declarations that JSON Schema cannot compare",
 
 test("optional skills are declared with capabilities, and a core-only deployment omits them everywhere", () => {
   const card = read("agent-card");
-  for (const skill of ["trade_in.submit", "credit_application.submit"]) {
+  for (const skill of ["trade_in_submit", "credit_application_submit"]) {
     const broken = read("agent-card"); delete params(broken).skills[skill].capabilities;
     assert.equal(validateCard(broken), false, `${skill} requires its capabilities`);
   }
-  const optional = (id: string) => id === "trade_in.submit" || id === "credit_application.submit";
+  const optional = (id: string) => id === "trade_in_submit" || id === "credit_application_submit";
   card.skills = card.skills.filter((skill: any) => !optional(skill.id));
-  for (const skill of ["trade_in.submit", "credit_application.submit"]) delete params(card).skills[skill];
+  for (const skill of ["trade_in_submit", "credit_application_submit"]) delete params(card).skills[skill];
   assert.equal(validateCard(card), true, JSON.stringify(validateCard.errors));
   const tools = deployedTools(read("agent-card")).filter(tool => !optional(tool._meta["autoagentprotocol.org/aap"].skill));
   assert.deepEqual(checkDiscovery(card, read("poppy"), manifest, cardUrl, tools), []);
-  const invalid = read("agent-card"); params(invalid).skills["trade_in.submit"].capabilities = { instant_valuation: false, contact_required: false };
-  assert.equal(validateCard(invalid), false, "a dealer without instant valuation needs contact data to answer later");
+  const invalid = read("agent-card"); params(invalid).skills["trade_in_submit"].capabilities = { instant_valuation: true, contact_required: false };
+  assert.equal(validateCard(invalid), false, "contact is always required, so there is no contact_required capability");
 });
 
 test("discovery compares effective currency and unit defaults across bindings", () => {
-  const card = read("agent-card"), capabilities = params(card).skills["inventory.search"].capabilities;
+  const card = read("agent-card"), capabilities = params(card).skills["inventory_search"].capabilities;
   const tools = deployedTools(card);
   const metadata = tools.find((tool: any) => tool.name === "aap_inventory_search")._meta["autoagentprotocol.org/aap"];
   metadata.capabilities = { ...capabilities };
@@ -125,18 +125,18 @@ test("discovery compares effective currency and unit defaults across bindings", 
 test("facets-only discovery can serve explicit Canadian contexts without claiming a search capability", () => {
   const card = read("agent-card");
   const tools = deployedTools(card).filter(tool => tool.name === "aap_inventory_facets");
-  card.skills = card.skills.filter((skill: any) => skill.id === "inventory.facets");
-  params(card).skills = { "inventory.facets": params(card).skills["inventory.facets"] };
+  card.skills = card.skills.filter((skill: any) => skill.id === "inventory_facets");
+  params(card).skills = { "inventory_facets": params(card).skills["inventory_facets"] };
   assert.equal(validateCard(card), true, JSON.stringify(validateCard.errors));
   assert.deepEqual(checkDiscovery(card, read("poppy"), manifest, cardUrl, tools), []);
-  assert.equal(params(card).skills["inventory.search"], undefined);
+  assert.equal(params(card).skills["inventory_search"], undefined);
   assert.equal(tools[0]._meta["autoagentprotocol.org/aap"].capabilities, undefined);
   const request = ajv.getSchema(`${manifest.schema_base_url}inventory-facets-request.schema.json`)!;
   const response = ajv.getSchema(`${manifest.schema_base_url}inventory-facets-response.schema.json`)!;
   for (const currency of ["USD", "CAD"]) for (const mileage_unit of ["mi", "km"]) {
-    assert.equal(request({ type: "inventory.facets.request", currency, mileage_unit }), true);
-    assert.equal(response({ type: "inventory.facets.response", data: { currency, mileage_unit } }), true,
+    assert.equal(request({ type: "inventory_facets_request", currency, mileage_unit }), true);
+    assert.equal(response({ type: "inventory_facets_response", data: { currency, mileage_unit } }), true,
       "no matching inventory still returns the explicit currency and unit");
   }
-  assert.equal(request({ type: "inventory.facets.request" }), true, "omitted contexts keep the USD/mi fallback");
+  assert.equal(request({ type: "inventory_facets_request" }), true, "omitted contexts keep the USD/mi fallback");
 });

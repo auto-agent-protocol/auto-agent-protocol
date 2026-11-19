@@ -268,13 +268,13 @@ Use the deployment's OpenAPI; replace template servers and advertise only implem
 
 | Skill | Path | `operationId` |
 |---|---|---|
-| `dealer.information` | `/skills/dealer.information` | `dealer_information` |
-| `inventory.facets` | `/skills/inventory.facets` | `inventory_facets` |
-| `inventory.search` | `/skills/inventory.search` | `inventory_search` |
-| `inventory.vehicle` | `/skills/inventory.vehicle` | `inventory_vehicle` |
-| `lead.submit` | `/skills/lead.submit` | `lead_submit` |
-| `trade_in.submit` (optional) | `/skills/trade_in.submit` | `trade_in_submit` |
-| `credit_application.submit` (optional) | `/skills/credit_application.submit` | `credit_application_submit` |
+| `dealer_information` | `/skills/dealer_information` | `dealer_information` |
+| `inventory_facets` | `/skills/inventory_facets` | `inventory_facets` |
+| `inventory_search` | `/skills/inventory_search` | `inventory_search` |
+| `inventory_vehicle` | `/skills/inventory_vehicle` | `inventory_vehicle` |
+| `lead_submit` | `/skills/lead_submit` | `lead_submit` |
+| `trade_in_submit` (optional) | `/skills/trade_in_submit` | `trade_in_submit` |
+| `credit_application_submit` (optional) | `/skills/credit_application_submit` | `credit_application_submit` |
 
 The optional [trade-in](./skills/trade-in-submit.md) and [credit application](./skills/credit-application-submit.md) skills are advertised with the same `capabilities` on every binding.
 
@@ -288,7 +288,7 @@ The optional [trade-in](./skills/trade-in-submit.md) and [credit application](./
 | `invalid_token` | 401 | Refresh, or continue signed out |
 | `insufficient_scope` | 403 | Get the scopes and retry, unless the User signed out |
 | `approval_required`, `approval_declined` | 403 JSON | Only with [Operations](#operations-approvals) |
-| Typed `aap.error` | 400, 403, 404, 409, 422, 500 | Follow the AAP code (`CONTACT_CONSENT_REQUIRED`, `INVALID_CONSENT`, `IDEMPOTENCY_CONFLICT`, …); never treat as success |
+| Typed `aap_error` | 400, 403, 404, 409, 422, 500 | Follow the AAP code (`CONTACT_CONSENT_REQUIRED`, `INVALID_CONSENT`, `IDEMPOTENCY_CONFLICT`, …); never treat as success |
 | Rate limit | 429 with `Retry-After` | Wait at least that long |
 
 An optional `error_description` holds static recovery guidance. Never reflect a JWT, claims, keys, contact data or credit application data.
@@ -369,7 +369,7 @@ A dealer with excluded tasks, a skill index or feedback lists `tasks.endpoint`. 
 
 ![Optional Operations approval: the dealer returns exact terms, the user or agent approves, the same request is resent once](./img/poppy-operations.svg)
 
-A dealer listing `"operations": [{ "version": "3" }]` MAY answer `lead.submit`, `trade_in.submit` or `credit_application.submit` with an operation, but **only** when the request declares `"operations";v="3"`. Without that declaration it handles approval itself or returns `extension_required`. AAP's native API needs no Operations `endpoint`; that is only for website operations and requires `browser_session_endpoint`. The dealer performs nothing until approved:
+A dealer listing `"operations": [{ "version": "3" }]` MAY answer `lead_submit`, `trade_in_submit` or `credit_application_submit` with an operation, but **only** when the request declares `"operations";v="3"`. Without that declaration it handles approval itself or returns `extension_required`. AAP's native API needs no Operations `endpoint`; that is only for website operations and requires `browser_session_endpoint`. The dealer performs nothing until approved:
 
 ```json
 {
@@ -379,7 +379,7 @@ A dealer listing `"operations": [{ "version": "3" }]` MAY answer `lead.submit`, 
     "revision": "1792742400-k3Jd9Qx2mW8v",
     "summary": "Send one individual credit application to Demo Toyota and authorize a **soft** credit inquiry. Demo Toyota may contact the applicant by email.",
     "terms": {
-      "skill": "credit_application.submit",
+      "skill": "credit_application_submit",
       "dealer": "Demo Toyota",
       "application_type": "individual",
       "authorized_inquiry": "soft",
@@ -394,7 +394,7 @@ A dealer listing `"operations": [{ "version": "3" }]` MAY answer `lead.submit`, 
 The terms contain everything that affects the action; the summary may use basic Markdown, and agents never render its links, images or HTML. The User approves through the agent's own interface after seeing the dealer's name and terms, or the agent approves on the User's own instruction when that instruction covers the terms. The agent resends the identical request (same method, URL and JSON body) with the approval. A retry after a failure or timeout carries the same approval; the agent never approves a new operation for the action until it knows whether the first was performed.
 
 ```http
-POST https://demo-toyota.example.com/poppy/skills/credit_application.submit
+POST https://demo-toyota.example.com/poppy/skills/credit_application_submit
 Poppy-Session: <fresh-delegated-session-jwt>
 Poppy-Version: 1.0
 Poppy-Extensions: "operations";v="3"

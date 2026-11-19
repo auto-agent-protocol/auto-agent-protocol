@@ -50,7 +50,7 @@ const papInterface = stablePap
   ? `Published PAP ${poppyVersion} OpenAPI with delegated Poppy-Session JWTs`
   : `Poppy draft ${poppyVersion} guest OpenAPI with DPoP`;
 // Releases with the optional skills describe them; earlier releases keep their published wording.
-const contractScope = manifest.skills.some((skill) => skill.id === "trade_in.submit" || skill.id === "credit_application.submit")
+const contractScope = manifest.skills.some((skill) => skill.id === "trade_in_submit" || skill.id === "credit_application_submit")
   ? "dealership discovery, inventory, pricing with rebates, consented inquiries, and optional trade-in valuations and credit applications"
   : "dealership discovery, inventory, pricing and consented inquiries";
 const interfaces = `${nativeMcp ? "native MCP Streamable HTTP tools; " : ""}A2A 1.0 SendMessage; ${papInterface}`;

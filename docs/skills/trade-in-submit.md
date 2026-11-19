@@ -1,10 +1,10 @@
 ---
 sidebar_position: 6
-title: trade_in.submit
+title: trade_in_submit
 description: Optional AAP 4.0 skill. Describe one trade-in, receive an estimate, a range or an offer, and share contact data only with the owner's consent.
 ---
 
-# `trade_in.submit`
+# `trade_in_submit`
 
 {/* aap-draft-only:start */}
 
@@ -16,7 +16,7 @@ This optional skill is part of the editable AAP 4.0 contract. Draft identifiers 
 
 **Describe the vehicle the buyer wants to trade in and read back the dealer's valuation, or its promise to follow up.** This is an optional skill: call it only on a dealer that declares it.
 
-![A trade-in description becomes an anonymous estimate or a consented submission with a valuation](../img/trade-in-valuation.svg)
+![A trade-in submission carries vehicle facts plus customer and consent, and returns a valuation or a follow-up](../img/trade-in-valuation.svg)
 
 ![The MCP tool, A2A skill id and PAP path for each optional skill, all carrying the same request body](../img/optional-skill-bindings.svg)
 
@@ -24,7 +24,7 @@ This optional skill is part of the editable AAP 4.0 contract. Draft identifiers 
 |---|---|
 | MCP | `aap_trade_in_submit` with the typed request as `arguments` |
 | A2A | `SendMessage` with the typed request in `DataPart.data`; media types `application/vnd.autoagent.trade-in-submit-request+json` → `application/vnd.autoagent.trade-in-submit-response+json` |
-| PAP | `POST /skills/trade_in.submit` (operationId `trade_in_submit`) with the typed request body, the delegated Session JWT and `Poppy-Version: 1.0` |
+| PAP | `POST /skills/trade_in_submit` (operationId `trade_in_submit`) with the typed request body, the delegated Session JWT and `Poppy-Version: 1.0` |
 
 All three use the same [request schema](https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-submit-request.schema.json), [response schema](https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-submit-response.schema.json), [capabilities](https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-capabilities.schema.json) and deduplication store. The MCP tool is a write tool: `readOnlyHint: false`, `destructiveHint: false`, `idempotentHint: false`, `openWorldHint: true`.
 
@@ -32,39 +32,51 @@ All three use the same [request schema](https://draft.autoagentprotocol.invalid/
 
 | Buyer intent | Use |
 |---|---|
-| "What is my car worth?" with a value in the answer | `trade_in.submit` |
-| "Have someone appraise my car and contact me" on a dealer with this skill | `trade_in.submit` with `customer` and `consent` |
-| A purchase inquiry that mentions a trade-in | [`lead.submit`](./lead-submit.md) with its `trade_in` block; it never returns a valuation |
-| The dealer does not declare `trade_in.submit` | `lead.submit` with a `trade_in` block, or the dealer's own channels |
+| "What is my car worth?" with a value in the answer | `trade_in_submit` |
+| "Have someone appraise my car and contact me" on a dealer with this skill | `trade_in_submit` |
+| A purchase inquiry that mentions a trade-in | [`lead_submit`](./lead-submit.md) with its `trade_in` block; it never returns a valuation |
+| The dealer does not declare `trade_in_submit` | `lead_submit` with a `trade_in` block, or the dealer's own channels |
 
-`lead.submit` is unchanged in AAP 4.0. Its consent scope stays `["lead_submission"]` and does not cover a trade-in submission; this skill's scope is `["trade_in_submission"]`.
+`lead_submit` keeps its behavior in AAP 4.0 and still accepts a trade-in inside an inquiry. `trade_in_submit` is the only trade-in tool: it adds the reply. The consent scope of `lead_submit` stays `["lead_submission"]` and does not cover a trade-in submission; this skill's scope is `["trade_in_submission"]`.
+
+## How a dealer implements it
+
+There is one trade-in tool. A dealer chooses how to deliver it, and declares the result in its capabilities.
+
+![Trade-in can be delivered as an ADF lead or through a valuation API; a credit application goes only through a secure API](../img/optional-skill-delivery.svg)
+
+| Delivery | Capability | Reply |
+|---|---|---|
+| **ADF/XML to the CRM**, as a lead with a trade-in vehicle block; see the [ADF mapping](../compatibility/adf-mapping.md#trade_in_submit-over-adf) | `instant_valuation: false` | `received`; the dealer follows up |
+| **Valuation API** | `instant_valuation: true` | `valued`, or `received` when no value is available |
+
+The request, customer data, consent rules and idempotency key are the same on both paths, so an agent never needs to know which one a dealer uses. Either way the dealership receives the customer like a regular lead.
 
 ## Read the capabilities first
 
-Read `params.skills["trade_in.submit"].capabilities` on the AAP Agent Card extension, or `tools/list` → `aap_trade_in_submit` → `_meta["autoagentprotocol.org/aap"].capabilities`. Both follow `trade-in-capabilities.schema.json` and MUST agree. A dealer declares the skill identically on all three bindings or not at all.
+Read `params.skills["trade_in_submit"].capabilities` on the AAP Agent Card extension, or `tools/list` → `aap_trade_in_submit` → `_meta["autoagentprotocol.org/aap"].capabilities`. Both follow `trade-in-capabilities.schema.json` and MUST agree. A dealer declares the skill identically on all three bindings or not at all.
 
 | Capability | Values | What the agent does |
 |---|---|---|
 | `instant_valuation` | required boolean | `true`: an accepted request can return `valued` in the same call. `false`: every accepted submission returns `received`; tell the buyer to expect follow-up. |
-| `contact_required` | required boolean | `true`: an anonymous request returns `CONTACT_CONSENT_REQUIRED`; ask for contact details and consent before calling. `false`: anonymous estimates are served. |
 | `currencies` | optional, default `["USD"]` | Currencies the skill accepts and returns. |
 
-If `instant_valuation` is `false`, `contact_required` MUST be `true`: a dealer that cannot answer immediately needs a way to reply.
+Every submission carries customer data and consent, so a dealer that cannot answer immediately can always follow up.
 
 ```json
-{ "instant_valuation": true, "contact_required": false, "currencies": ["USD"] }
+{ "instant_valuation": true, "currencies": ["USD"] }
 ```
 
 ## Request
 
 | Field | Required | Meaning |
 |---|---|---|
-| `type` | yes | `trade_in.submit.request` |
+| `type` | yes | `trade_in_submit_request` |
 | `vehicle.year`, `vehicle.make`, `vehicle.model` | yes | The vehicle's identity as the owner states it. |
 | `vehicle.condition` | yes | Wear condition: `excellent`, `good`, `fair` or `poor`. Sale conditions (`new`, `used`, `cpo`) are invalid here. |
 | `vehicle.mileage` | yes | Odometer reading in `vehicle.mileage_unit` (`mi` or `km`; omitted = `mi`). |
 | `vehicle.vin`, `trim`, `exterior_color`, `driveline`, `transmission`, `displacement_cc`, `fuel`, `horsepower` | no | Details that improve a valuation. `horsepower` is peak total output in hp. A trade-in never carries `rebates`. |
-| `customer`, `consent` | no, but together | Contact data and the owner's grant. Either both or neither. |
+| `customer`, `consent` | yes | The same customer block and consent grant as `lead_submit`, so a first-time trade-in reaches the dealership like a regular lead. |
 | `vehicle_of_interest` | no | The vehicle the buyer intends to buy; sale condition `new`, `used` or `cpo`. |
 | `message` | no | Free-text note, up to 4,000 characters, such as accident history or recent service. |
 | `submitted_at` | no | When the agent finalized the submission; preserve it on a retry. |
@@ -73,18 +85,22 @@ If `instant_valuation` is `false`, `contact_required` MUST be `true`: a dealer t
 
 Send only what the owner told you. Never invent a VIN, trim, equipment or condition.
 
-## Anonymous estimate or consented contact
+## Customer and consent
 
-| Request | Dealer behavior |
-|---|---|
-| No `customer`, no `consent` | **Anonymous estimate.** The dealer stores no contact data and does not follow up. A dealer with `contact_required: true` answers `CONTACT_CONSENT_REQUIRED`. |
-| `customer` + `consent` | **Consented submission.** The dealer may follow up on the permitted channels only. |
+Both are required, exactly as in `lead_submit`. If the trade-in is the customer's first contact, the dealership receives the same customer data it would get from a lead, and may follow up on the permitted channels only.
+
+| | `lead_submit` | `trade_in_submit` |
+|---|---|---|
+| `customer`, `consent`, `source_agent`, `idempotency_key` | Required | Required |
+| Consent `scope` | `["lead_submission"]` | `["trade_in_submission"]` |
+| Trade-in vehicle | Optional `trade_in` block, any known fields | Required `vehicle` with year, make, model, condition and mileage |
+| Reply | Lead status, never a valuation | Status and an optional valuation |
 
 The grant uses the shared [consent grant](https://draft.autoagentprotocol.invalid/latest/schemas/consent-grant.schema.json) with `scope` exactly `["trade_in_submission"]`. Each permitted channel needs its contact value: `email` requires `customer.email`; `phone` and `sms` require `customer.phone`. A specific `preferred_contact` must be permitted. Record the disclosure the owner actually saw in `consent_text` and the moment of approval in `granted_at`. A Session, sign-in, a PAP Operations approval or a `lead_submission` grant is not trade-in consent.
 
 ```json
 {
-  "type": "trade_in.submit.request",
+  "type": "trade_in_submit_request",
   "vehicle": {
     "year": 2020,
     "make": "Volkswagen",
@@ -126,7 +142,7 @@ The grant uses the shared [consent grant](https://draft.autoagentprotocol.invali
 }
 ```
 
-Drop `customer` and `consent` for an anonymous estimate. See also the [anonymous](https://draft.autoagentprotocol.invalid/latest/examples/trade-in-submit-request.example.json), [minimal](https://draft.autoagentprotocol.invalid/latest/examples/trade-in-submit-request.minimal.example.json) and [Canadian km/CAD](https://draft.autoagentprotocol.invalid/latest/examples/trade-in-submit-request.canadian.example.json) examples.
+See also the [minimal](https://draft.autoagentprotocol.invalid/latest/examples/trade-in-submit-request.minimal.example.json) and [Canadian km/CAD](https://draft.autoagentprotocol.invalid/latest/examples/trade-in-submit-request.canadian.example.json) examples.
 
 ## Response
 
@@ -134,7 +150,7 @@ Drop `customer` and `consent` for an anonymous estimate. See also the [anonymous
 
 ```json
 {
-  "type": "trade_in.submit.response",
+  "type": "trade_in_submit_response",
   "data": {
     "trade_in_id": "trd_dt_90412",
     "status": "valued",
@@ -176,7 +192,7 @@ A dealer without an instant value answers a consented request with `received`:
 
 ```json
 {
-  "type": "trade_in.submit.response",
+  "type": "trade_in_submit_response",
   "data": {
     "trade_in_id": "trd_dt_90415",
     "status": "received",
@@ -201,8 +217,8 @@ Never fill in a VIN, condition, mileage or equipment the owner did not give. Any
 
 | Code | When |
 |---|---|
-| `UNSUPPORTED_SKILL` | The dealer does not implement `trade_in.submit`. |
-| `CONTACT_CONSENT_REQUIRED` | Anonymous request to a dealer with `contact_required: true`. |
+| `UNSUPPORTED_SKILL` | The dealer does not implement `trade_in_submit`. |
+| `CONTACT_CONSENT_REQUIRED` | `customer` or `consent` is missing. |
 | `INVALID_CONSENT` | The grant is malformed, future-dated, expired, has another scope, or permits a channel without its contact value. |
 | `SCHEMA_VALIDATION_FAILED`, `MISSING_REQUIRED_FIELD`, `INVALID_CONDITION` | The request does not match the schema, lacks a required field, or uses a sale condition for the trade-in vehicle or a wear condition for `vehicle_of_interest`. |
 | `IDEMPOTENCY_CONFLICT` | The same key was reused with a different payload. |

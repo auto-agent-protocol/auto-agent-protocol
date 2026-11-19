@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/aap-extension-params.schema.json",
   "title": "AapExtensionParams",
-  "description": "AAP metadata carried in the A2A Agent Card extension params. Links the three bindings without inventing an A2A transport or a PAP conversation protocol. Declares the implemented skill subset, including the optional trade_in.submit and credit_application.submit skills with their capabilities.",
+  "description": "AAP metadata carried in the A2A Agent Card extension params. Links the three bindings without inventing an A2A transport or a PAP conversation protocol. Declares the implemented skill subset, including the optional trade_in_submit and credit_application_submit skills with their capabilities.",
   "type": "object",
   "properties": {
     "id": {
@@ -34,7 +34,7 @@
       "type": "object",
       "minProperties": 1,
       "properties": {
-        "dealer.information": {
+        "dealer_information": {
           "type": "object",
           "properties": {
             "request_schema": {
@@ -50,7 +50,7 @@
           ],
           "additionalProperties": true
         },
-        "inventory.facets": {
+        "inventory_facets": {
           "type": "object",
           "properties": {
             "request_schema": {
@@ -66,7 +66,7 @@
           ],
           "additionalProperties": true
         },
-        "inventory.search": {
+        "inventory_search": {
           "type": "object",
           "properties": {
             "request_schema": {
@@ -86,7 +86,7 @@
           ],
           "additionalProperties": true
         },
-        "inventory.vehicle": {
+        "inventory_vehicle": {
           "type": "object",
           "properties": {
             "request_schema": {
@@ -102,7 +102,7 @@
           ],
           "additionalProperties": true
         },
-        "lead.submit": {
+        "lead_submit": {
           "type": "object",
           "properties": {
             "request_schema": {
@@ -118,7 +118,7 @@
           ],
           "additionalProperties": true
         },
-        "trade_in.submit": {
+        "trade_in_submit": {
           "type": "object",
           "properties": {
             "request_schema": {
@@ -138,7 +138,7 @@
           ],
           "additionalProperties": true
         },
-        "credit_application.submit": {
+        "credit_application_submit": {
           "type": "object",
           "properties": {
             "request_schema": {
@@ -177,7 +177,7 @@
         "properties": {
           "skills": {
             "properties": {
-              "inventory.search": {
+              "inventory_search": {
                 "properties": {
                   "capabilities": {
                     "properties": {
@@ -201,7 +201,7 @@
               }
             },
             "required": [
-              "inventory.search"
+              "inventory_search"
             ]
           }
         },
@@ -213,7 +213,7 @@
         "properties": {
           "skills": {
             "required": [
-              "inventory.facets"
+              "inventory_facets"
             ]
           }
         }
@@ -224,7 +224,7 @@
         "properties": {
           "skills": {
             "properties": {
-              "inventory.search": {
+              "inventory_search": {
                 "properties": {
                   "capabilities": {
                     "properties": {
@@ -243,7 +243,7 @@
               }
             },
             "required": [
-              "inventory.search"
+              "inventory_search"
             ]
           }
         },
@@ -255,7 +255,7 @@
         "properties": {
           "skills": {
             "required": [
-              "dealer.information"
+              "dealer_information"
             ]
           }
         }

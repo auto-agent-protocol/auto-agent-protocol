@@ -19,7 +19,7 @@ const validator = new AAPValidator();
 validator.loadDefaults();
 
 const result = validator.validate("inventory-search-request", {
-  type: "inventory.search.request",
+  type: "inventory_search_request",
   filters: { body: ["suv"], price_max: 35000, status: ["available"] },
   pagination: { limit: 20 },
   sort: { field: "price", order: "asc" },

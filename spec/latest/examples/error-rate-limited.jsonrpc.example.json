@@ -19,7 +19,7 @@
       {
         "@type": "type.googleapis.com/google.protobuf.Struct",
         "value": {
-          "type": "aap.error",
+          "type": "aap_error",
           "error_id": "err_01HZ9RATE01",
           "code": "RATE_LIMITED",
           "message": "Per-key rate limit exceeded.",

@@ -24,7 +24,7 @@ const questions: {
   {
     title: "What changes in AAP 4.0?",
     answer:
-      "AAP 4.0 adopts the stable PAP 1.0: every PAP request carries Poppy-Version: 1.0 next to its delegated Session JWT, and poppy.json declares extensions as per-version lists. New vehicles can list rebates. Two optional skills add trade-in valuation and credit applications. MCP, A2A 1.0 and the five core skills keep their meanings. Frozen AAP 3.2 stays available.",
+      "AAP 4.0 adopts the stable PAP 1.0: every PAP request carries Poppy-Version: 1.0 next to its delegated Session JWT, and poppy.json declares extensions as per-version lists. Skill ids and message types are snake_case everywhere, for example lead_submit and lead_submit_request. New vehicles can list rebates. Two optional skills add trade-in valuation and credit applications. MCP, A2A 1.0 and the five core skills keep their meanings. Frozen AAP 3.2 stays available.",
     link: "versioning",
     label: "Read the migration guide",
   },
@@ -80,14 +80,14 @@ const questions: {
   {
     title: "Does AAP support trade-in valuations?",
     answer:
-      "Yes, through the optional trade_in.submit skill. The agent describes the vehicle (year, make, model, condition and mileage) and, when the dealer values instantly, receives an amount or a range, as an estimate or a time-limited offer; otherwise the dealer follows up. Without contact details and consent it is an anonymous estimate and the dealer does not follow up; a dealer may require contact. Trade-in details inside lead.submit still return no valuation.",
+      "Yes, through the optional trade_in_submit skill. The agent describes the vehicle (year, make, model, condition and mileage) and, when the dealer values instantly, receives an amount or a range, as an estimate or a time-limited offer; otherwise the dealer follows up. It carries the same customer details and consent as a lead, so the dealership receives it like one. Trade-in details inside lead_submit still return no valuation.",
     link: "skills/trade-in-submit",
     label: "Read the trade-in skill",
   },
   {
     title: "Can an agent submit a credit application?",
     answer:
-      "Yes, when the dealer declares the optional credit_application.submit skill. Each applicant grants their own credit consent with the exact text shown and a soft or hard inquiry; a hard inquiry is never made on a soft authorization. The agent reads the dealer’s capabilities first and collects a national identifier only when the dealer accepts one. Identifiers, date of birth and driver’s license data are never echoed in responses, errors, logs or URLs. Sign-in or lead consent never replaces credit consent.",
+      "Yes, when the dealer declares the optional credit_application_submit skill. Each applicant grants their own credit consent with the exact text shown and a soft or hard inquiry; a hard inquiry is never made on a soft authorization. The agent reads the dealer’s capabilities first and collects a national identifier only when the dealer accepts one. Identifiers, date of birth and driver’s license data are never echoed in responses, errors, logs or URLs. Sign-in or lead consent never replaces credit consent. Dealers process applications through a secure API, never through ADF or email.",
     link: "skills/credit-application-submit",
     label: "Read the credit application skill",
   },
@@ -108,7 +108,7 @@ const questions: {
   {
     title: "Does authentication give permission to contact a shopper?",
     answer:
-      "No. Authentication identifies the calling agent. lead.submit separately requires explicit customer contact consent, permitted channels, matching contact details and an idempotency key. A consented trade-in follows the same rule, and a credit application needs separate credit consent from each applicant. The response distinguishes a received inquiry from a confirmed appointment.",
+      "No. Authentication identifies the calling agent. lead_submit separately requires explicit customer contact consent, permitted channels, matching contact details and an idempotency key. A consented trade-in follows the same rule, and a credit application needs separate credit consent from each applicant. The response distinguishes a received inquiry from a confirmed appointment.",
     link: "behavior-rules",
     label: "Read the consent rules",
   },

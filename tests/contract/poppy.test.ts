@@ -287,7 +287,7 @@ test("Session JWTs go only to listed APIs, protocol endpoints and pages on exact
   const servers = { apiServers: ["https://demo-toyota.example.com/poppy"], feedbackEndpoint: "https://api.provider.example/poppy/feedback", oauthEndpoints: ["https://demo-toyota.example.com/poppy/oauth/token"] };
   document.supported_versions = { "0.3": "https://demo-toyota.example.com/poppy/0.3.json" };
   for (const [url, expected] of [
-    ["https://demo-toyota.example.com/poppy/skills/inventory.search", "api"], ["https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp", "api"],
+    ["https://demo-toyota.example.com/poppy/skills/inventory_search", "api"], ["https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp", "api"],
     ["https://api.provider.example/poppy/tasks", "protocol"], ["https://chat.provider.example/poppy/conversations/cnv_1/messages", "protocol"],
     ["https://demo-toyota.example.com/poppy/browser-session/authorize", "protocol"], ["https://demo-toyota.example.com/poppy/operations", "protocol"],
     ["https://demo-toyota.example.com/inventory/dt-3107", "website"], ["https://api.provider.example/poppy/feedback", "protocol"],

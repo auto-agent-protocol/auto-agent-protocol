@@ -1,7 +1,7 @@
 {
   "name": "auto-agent-protocol",
   "version": "0.0.0-dev",
-  "description": "Reference MCP tool catalog for Auto Agent Protocol. Publish the implemented subset through tools/list with deployment-specific capabilities. Tool arguments and structuredContent use the shared AAP payloads; errors use aap.error with isError: true. This catalog is not an MCP endpoint or a JSON-RPC response.",
+  "description": "Reference MCP tool catalog for Auto Agent Protocol. Publish the implemented subset through tools/list with deployment-specific capabilities. Tool arguments and structuredContent use the shared AAP payloads; errors use aap_error with isError: true. This catalog is not an MCP endpoint or a JSON-RPC response.",
   "protocolVersion": "2026-07-28",
   "supportedProtocolVersions": [
     "2026-07-28",
@@ -21,12 +21,12 @@
         "type": "object",
         "examples": [
           {
-            "type": "dealer.information.request"
+            "type": "dealer_information_request"
           }
         ],
         "properties": {
           "type": {
-            "const": "dealer.information.request",
+            "const": "dealer_information_request",
             "description": "AAP message type. Skill ID plus role."
           },
           "dealer_id": {
@@ -54,11 +54,11 @@
         "$defs": {
           "dealer_information_response": {
             "title": "DealerInformationResponse",
-            "description": "Typed AAP response for the `dealer.information` skill. Wraps a DealerInformation object inside the standard AAP response envelope (`{ type, data, message? }`). Shared by MCP structured results, A2A DataParts and native PAP OpenAPI bodies.",
+            "description": "Typed AAP response for the `dealer_information` skill. Wraps a DealerInformation object inside the standard AAP response envelope (`{ type, data, message? }`). Shared by MCP structured results, A2A DataParts and native PAP OpenAPI bodies.",
             "type": "object",
             "properties": {
               "type": {
-                "const": "dealer.information.response"
+                "const": "dealer_information_response"
               },
               "data": {
                 "$ref": "#/$defs/dealer_information"
@@ -77,7 +77,7 @@
           },
           "dealer_information": {
             "title": "DealerInformation",
-            "description": "Public dealership profile. A dealer group has a `name`, an optional `welcome_message`, and one or more `rooftops` (physical locations). Per-location identity, address, geo, contacts, hours, default dealer fees, and service capabilities live on each rooftop. Vehicles reference the rooftop that holds them via `Vehicle.rooftop` = the rooftop's `name`. Rooftop fees are publisher defaults and discovery metadata only: if an inventory publisher emits Vehicle.fees, it materializes the complete effective vehicle itemization, and consumers never join or merge fee arrays. Returned by the `dealer.information` AAP skill, wrapped in `dealer.information.response` and shared by MCP, A2A and PAP.",
+            "description": "Public dealership profile. A dealer group has a `name`, an optional `welcome_message`, and one or more `rooftops` (physical locations). Per-location identity, address, geo, contacts, hours, default dealer fees, and service capabilities live on each rooftop. Vehicles reference the rooftop that holds them via `Vehicle.rooftop` = the rooftop's `name`. Rooftop fees are publisher defaults and discovery metadata only: if an inventory publisher emits Vehicle.fees, it materializes the complete effective vehicle itemization, and consumers never join or merge fee arrays. Returned by the `dealer_information` AAP skill, wrapped in `dealer_information_response` and shared by MCP, A2A and PAP.",
             "type": "object",
             "properties": {
               "dealer_id": {
@@ -462,11 +462,11 @@
           },
           "error": {
             "title": "Error",
-            "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats. message and details never repeat request values: not customer contact data, and never a credit applicant's national_id, date_of_birth or drivers_license. Identify a problem by its JSON Pointer in instanceLocation instead.",
+            "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats. message and details never repeat request values: not customer contact data, and never a credit applicant's national_id, date_of_birth or drivers_license. Identify a problem by its JSON Pointer in instance_location instead.",
             "type": "object",
             "properties": {
               "type": {
-                "const": "aap.error"
+                "const": "aap_error"
               },
               "error_id": {
                 "type": "string",
@@ -526,7 +526,7 @@
                     "items": {
                       "type": "object",
                       "properties": {
-                        "instanceLocation": {
+                        "instance_location": {
                           "type": "string",
                           "pattern": "^(?:/|$)",
                           "description": "JSON Pointer to the invalid request field."
@@ -541,7 +541,7 @@
                         }
                       },
                       "required": [
-                        "instanceLocation",
+                        "instance_location",
                         "keyword",
                         "error"
                       ],
@@ -617,9 +617,9 @@
       "_meta": {
         "autoagentprotocol.org/aap": {
           "version": "0.0.0-dev",
-          "skill": "dealer.information",
-          "request_type": "dealer.information.request",
-          "response_type": "dealer.information.response",
+          "skill": "dealer_information",
+          "request_type": "dealer_information_request",
+          "response_type": "dealer_information_response",
           "request_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/dealer-information-request.schema.json",
           "response_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/dealer-information-response.schema.json",
           "error_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/error.schema.json"
@@ -633,11 +633,11 @@
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "title": "InventoryFacetsRequest",
-        "description": "Typed AAP request for the `inventory.facets` skill. An optional `filters` block scopes the facets to a subset of inventory (e.g. `condition: ['used']`). Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.",
+        "description": "Typed AAP request for the `inventory_facets` skill. An optional `filters` block scopes the facets to a subset of inventory (e.g. `condition: ['used']`). Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.",
         "type": "object",
         "examples": [
           {
-            "type": "inventory.facets.request",
+            "type": "inventory_facets_request",
             "filters": {
               "condition": [
                 "used"
@@ -647,19 +647,19 @@
         ],
         "properties": {
           "type": {
-            "const": "inventory.facets.request"
+            "const": "inventory_facets_request"
           },
           "currency": {
             "$ref": "#/$defs/_primitives_currency",
-            "description": "Single currency of the matching set and price_range, without foreign-exchange conversion. When inventory.search is implemented, use its supported currencies and default_currency; an unsupported currency returns SCHEMA_VALIDATION_FAILED at /currency. Otherwise accept both USD and CAD and default to USD. A supported currency with no matching inventory returns empty facets."
+            "description": "Single currency of the matching set and price_range, without foreign-exchange conversion. When inventory_search is implemented, use its supported currencies and default_currency; an unsupported currency returns SCHEMA_VALIDATION_FAILED at /currency. Otherwise accept both USD and CAD and default to USD. A supported currency with no matching inventory returns empty facets."
           },
           "mileage_unit": {
             "$ref": "#/$defs/_primitives_mileage_unit",
-            "description": "Unit of mileage_max and mileage_range. Both mi and km are supported. When inventory.search is implemented, use its default_mileage_unit; otherwise default to mi. Convert known odometers exactly using 1 mi = 1.609344 km without rounding before comparison or aggregation. Explicit _mi fields remain miles."
+            "description": "Unit of mileage_max and mileage_range. Both mi and km are supported. When inventory_search is implemented, use its default_mileage_unit; otherwise default to mi. Convert known odometers exactly using 1 mi = 1.609344 km without rounding before comparison or aggregation. Explicit _mi fields remain miles."
           },
           "filters": {
             "$ref": "#/$defs/inventory_search_request__defs_filters",
-            "description": "Optional filters to scope facet aggregation. Same shape as inventory.search filters; all fields are optional."
+            "description": "Optional filters to scope facet aggregation. Same shape as inventory_search filters; all fields are optional."
           }
         },
         "required": [
@@ -937,7 +937,7 @@
                   "type": "string",
                   "minLength": 1
                 },
-                "description": "Exact rooftop names from this dealer's dealer.information. Dealer-scoped endpoints MAY support this filter; aggregate endpoints MUST reject it as UNSUPPORTED_FILTER rather than guess across duplicate names. Omit to search every rooftop in the endpoint's scope.",
+                "description": "Exact rooftop names from this dealer's dealer_information. Dealer-scoped endpoints MAY support this filter; aggregate endpoints MUST reject it as UNSUPPORTED_FILTER rather than guess across duplicate names. Omit to search every rooftop in the endpoint's scope.",
                 "examples": [
                   [
                     "Demo Toyota San Francisco"
@@ -1118,11 +1118,11 @@
         "$defs": {
           "inventory_facets_response": {
             "title": "InventoryFacetsResponse",
-            "description": "Typed AAP response for the `inventory.facets` skill. The `data` object is a Facets aggregation. Shared by MCP structured results, A2A DataParts and native PAP OpenAPI bodies.",
+            "description": "Typed AAP response for the `inventory_facets` skill. The `data` object is a Facets aggregation. Shared by MCP structured results, A2A DataParts and native PAP OpenAPI bodies.",
             "type": "object",
             "properties": {
               "type": {
-                "const": "inventory.facets.response"
+                "const": "inventory_facets_response"
               },
               "data": {
                 "$ref": "#/$defs/facets"
@@ -1141,7 +1141,7 @@
           },
           "facets": {
             "title": "Facets",
-            "description": "Counts and ranges across the full matching inventory, before pagination. Shared by inventory.facets and optional search-response facets on every binding. Omitted facets are unavailable; zero counts describe known empty buckets. Feature counts use verified present equipment only.",
+            "description": "Counts and ranges across the full matching inventory, before pagination. Shared by inventory_facets and optional search-response facets on every binding. Omitted facets are unavailable; zero counts describe known empty buckets. Feature counts use verified present equipment only.",
             "type": "object",
             "properties": {
               "currency": {
@@ -1358,11 +1358,11 @@
           },
           "error": {
             "title": "Error",
-            "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats. message and details never repeat request values: not customer contact data, and never a credit applicant's national_id, date_of_birth or drivers_license. Identify a problem by its JSON Pointer in instanceLocation instead.",
+            "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats. message and details never repeat request values: not customer contact data, and never a credit applicant's national_id, date_of_birth or drivers_license. Identify a problem by its JSON Pointer in instance_location instead.",
             "type": "object",
             "properties": {
               "type": {
-                "const": "aap.error"
+                "const": "aap_error"
               },
               "error_id": {
                 "type": "string",
@@ -1422,7 +1422,7 @@
                     "items": {
                       "type": "object",
                       "properties": {
-                        "instanceLocation": {
+                        "instance_location": {
                           "type": "string",
                           "pattern": "^(?:/|$)",
                           "description": "JSON Pointer to the invalid request field."
@@ -1437,7 +1437,7 @@
                         }
                       },
                       "required": [
-                        "instanceLocation",
+                        "instance_location",
                         "keyword",
                         "error"
                       ],
@@ -1513,9 +1513,9 @@
       "_meta": {
         "autoagentprotocol.org/aap": {
           "version": "0.0.0-dev",
-          "skill": "inventory.facets",
-          "request_type": "inventory.facets.request",
-          "response_type": "inventory.facets.response",
+          "skill": "inventory_facets",
+          "request_type": "inventory_facets_request",
+          "response_type": "inventory_facets_response",
           "request_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/inventory-facets-request.schema.json",
           "response_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/inventory-facets-response.schema.json",
           "error_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/error.schema.json"
@@ -1533,7 +1533,7 @@
         "type": "object",
         "examples": [
           {
-            "type": "inventory.search.request",
+            "type": "inventory_search_request",
             "filters": {
               "make": [
                 "Honda"
@@ -1561,7 +1561,7 @@
         ],
         "properties": {
           "type": {
-            "const": "inventory.search.request"
+            "const": "inventory_search_request"
           },
           "currency": {
             "$ref": "#/$defs/_primitives_currency",
@@ -1943,7 +1943,7 @@
                   "type": "string",
                   "minLength": 1
                 },
-                "description": "Exact rooftop names from this dealer's dealer.information. Dealer-scoped endpoints MAY support this filter; aggregate endpoints MUST reject it as UNSUPPORTED_FILTER rather than guess across duplicate names. Omit to search every rooftop in the endpoint's scope.",
+                "description": "Exact rooftop names from this dealer's dealer_information. Dealer-scoped endpoints MAY support this filter; aggregate endpoints MUST reject it as UNSUPPORTED_FILTER rather than guess across duplicate names. Omit to search every rooftop in the endpoint's scope.",
                 "examples": [
                   [
                     "Demo Toyota San Francisco"
@@ -2165,7 +2165,7 @@
             "type": "object",
             "properties": {
               "type": {
-                "const": "inventory.search.response"
+                "const": "inventory_search_response"
               },
               "data": {
                 "type": "object",
@@ -2728,7 +2728,7 @@
                   "string",
                   "null"
                 ],
-                "description": "Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer.information. Nullable; single-rooftop dealers MAY leave it null.",
+                "description": "Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer_information. Nullable; single-rooftop dealers MAY leave it null.",
                 "examples": [
                   "Demo Toyota San Francisco"
                 ]
@@ -2765,7 +2765,7 @@
               "fees": {
                 "type": "array",
                 "uniqueItems": true,
-                "description": "Optional itemized snapshot of mandatory, non-government dealer charges and dealer-required add-ons for this vehicle. When `price` is present, every listed amount is already included in `price`; consumers MUST NOT add these amounts again. Omitted means the itemized breakdown was not provided and does not invalidate an otherwise authoritative `price`. An empty array means the publisher affirmatively reports no mandatory dealer charges. When present, a non-empty array is the complete vehicle-specific list. This array never represents a delta from rooftop fees: consumers MUST NOT join or merge it with `dealer.information`; when vehicle fees differ from rooftop defaults, this array replaces the rooftop array in full. If `list_price` and `fees` are present without `price`, they are informational components only; consumers MUST NOT derive or advertise a replacement price from them.",
+                "description": "Optional itemized snapshot of mandatory, non-government dealer charges and dealer-required add-ons for this vehicle. When `price` is present, every listed amount is already included in `price`; consumers MUST NOT add these amounts again. Omitted means the itemized breakdown was not provided and does not invalidate an otherwise authoritative `price`. An empty array means the publisher affirmatively reports no mandatory dealer charges. When present, a non-empty array is the complete vehicle-specific list. This array never represents a delta from rooftop fees: consumers MUST NOT join or merge it with `dealer_information`; when vehicle fees differ from rooftop defaults, this array replaces the rooftop array in full. If `list_price` and `fees` are present without `price`, they are informational components only; consumers MUST NOT derive or advertise a replacement price from them.",
                 "items": {
                   "$ref": "#/$defs/_primitives_dealer_fee"
                 }
@@ -2795,7 +2795,7 @@
               },
               "vehicle_id": {
                 "type": "string",
-                "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
+                "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory_vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
                 "examples": [
                   "veh_8f3c1a"
                 ],
@@ -3198,7 +3198,7 @@
                 "type": "string",
                 "pattern": "^[a-z][a-z0-9_]*$",
                 "maxLength": 80,
-                "description": "Stable feature code advertised by inventory.facets. Codes have the same meaning across this deployment's bindings.",
+                "description": "Stable feature code advertised by inventory_facets. Codes have the same meaning across this deployment's bindings.",
                 "examples": [
                   "adaptive_cruise_control"
                 ]
@@ -3310,7 +3310,7 @@
           },
           "vehicle_properties_vehicle_id": {
             "type": "string",
-            "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
+            "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory_vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
             "examples": [
               "veh_8f3c1a"
             ],
@@ -3326,7 +3326,7 @@
           },
           "facets": {
             "title": "Facets",
-            "description": "Counts and ranges across the full matching inventory, before pagination. Shared by inventory.facets and optional search-response facets on every binding. Omitted facets are unavailable; zero counts describe known empty buckets. Feature counts use verified present equipment only.",
+            "description": "Counts and ranges across the full matching inventory, before pagination. Shared by inventory_facets and optional search-response facets on every binding. Omitted facets are unavailable; zero counts describe known empty buckets. Feature counts use verified present equipment only.",
             "type": "object",
             "properties": {
               "currency": {
@@ -3775,7 +3775,7 @@
                   "type": "string",
                   "minLength": 1
                 },
-                "description": "Exact rooftop names from this dealer's dealer.information. Dealer-scoped endpoints MAY support this filter; aggregate endpoints MUST reject it as UNSUPPORTED_FILTER rather than guess across duplicate names. Omit to search every rooftop in the endpoint's scope.",
+                "description": "Exact rooftop names from this dealer's dealer_information. Dealer-scoped endpoints MAY support this filter; aggregate endpoints MUST reject it as UNSUPPORTED_FILTER rather than guess across duplicate names. Omit to search every rooftop in the endpoint's scope.",
                 "examples": [
                   [
                     "Demo Toyota San Francisco"
@@ -4083,11 +4083,11 @@
           },
           "error": {
             "title": "Error",
-            "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats. message and details never repeat request values: not customer contact data, and never a credit applicant's national_id, date_of_birth or drivers_license. Identify a problem by its JSON Pointer in instanceLocation instead.",
+            "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats. message and details never repeat request values: not customer contact data, and never a credit applicant's national_id, date_of_birth or drivers_license. Identify a problem by its JSON Pointer in instance_location instead.",
             "type": "object",
             "properties": {
               "type": {
-                "const": "aap.error"
+                "const": "aap_error"
               },
               "error_id": {
                 "type": "string",
@@ -4147,7 +4147,7 @@
                     "items": {
                       "type": "object",
                       "properties": {
-                        "instanceLocation": {
+                        "instance_location": {
                           "type": "string",
                           "pattern": "^(?:/|$)",
                           "description": "JSON Pointer to the invalid request field."
@@ -4162,7 +4162,7 @@
                         }
                       },
                       "required": [
-                        "instanceLocation",
+                        "instance_location",
                         "keyword",
                         "error"
                       ],
@@ -4238,9 +4238,9 @@
       "_meta": {
         "autoagentprotocol.org/aap": {
           "version": "0.0.0-dev",
-          "skill": "inventory.search",
-          "request_type": "inventory.search.request",
-          "response_type": "inventory.search.response",
+          "skill": "inventory_search",
+          "request_type": "inventory_search_request",
+          "response_type": "inventory_search_response",
           "request_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/inventory-search-request.schema.json",
           "response_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/inventory-search-response.schema.json",
           "error_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/error.schema.json",
@@ -4255,17 +4255,17 @@
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "title": "VehicleDetailRequest",
-        "description": "Typed AAP request for the `inventory.vehicle` skill. The request MUST identify a specific listing via at least one of `vin`, `stock`, or `vehicle_id`. Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.",
+        "description": "Typed AAP request for the `inventory_vehicle` skill. The request MUST identify a specific listing via at least one of `vin`, `stock`, or `vehicle_id`. Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.",
         "type": "object",
         "examples": [
           {
-            "type": "inventory.vehicle.request",
+            "type": "inventory_vehicle_request",
             "vin": "1HGCV1F30NA123456"
           }
         ],
         "properties": {
           "type": {
-            "const": "inventory.vehicle.request"
+            "const": "inventory_vehicle_request"
           },
           "vin": {
             "type": "string",
@@ -4332,11 +4332,11 @@
         "$defs": {
           "vehicle_detail_response": {
             "title": "VehicleDetailResponse",
-            "description": "Typed inventory.vehicle response shared by MCP, A2A and PAP. The data object is an InventoryListing with eligible availability, source update time and a stable identifier. It can describe any supported vehicle type; an omitted vehicle_type means car. Sale condition is new, used or cpo.",
+            "description": "Typed inventory_vehicle response shared by MCP, A2A and PAP. The data object is an InventoryListing with eligible availability, source update time and a stable identifier. It can describe any supported vehicle type; an omitted vehicle_type means car. Sale condition is new, used or cpo.",
             "type": "object",
             "properties": {
               "type": {
-                "const": "inventory.vehicle.response"
+                "const": "inventory_vehicle_response"
               },
               "data": {
                 "$ref": "#/$defs/inventory_listing"
@@ -4586,7 +4586,7 @@
                   "string",
                   "null"
                 ],
-                "description": "Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer.information. Nullable; single-rooftop dealers MAY leave it null.",
+                "description": "Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer_information. Nullable; single-rooftop dealers MAY leave it null.",
                 "examples": [
                   "Demo Toyota San Francisco"
                 ]
@@ -4623,7 +4623,7 @@
               "fees": {
                 "type": "array",
                 "uniqueItems": true,
-                "description": "Optional itemized snapshot of mandatory, non-government dealer charges and dealer-required add-ons for this vehicle. When `price` is present, every listed amount is already included in `price`; consumers MUST NOT add these amounts again. Omitted means the itemized breakdown was not provided and does not invalidate an otherwise authoritative `price`. An empty array means the publisher affirmatively reports no mandatory dealer charges. When present, a non-empty array is the complete vehicle-specific list. This array never represents a delta from rooftop fees: consumers MUST NOT join or merge it with `dealer.information`; when vehicle fees differ from rooftop defaults, this array replaces the rooftop array in full. If `list_price` and `fees` are present without `price`, they are informational components only; consumers MUST NOT derive or advertise a replacement price from them.",
+                "description": "Optional itemized snapshot of mandatory, non-government dealer charges and dealer-required add-ons for this vehicle. When `price` is present, every listed amount is already included in `price`; consumers MUST NOT add these amounts again. Omitted means the itemized breakdown was not provided and does not invalidate an otherwise authoritative `price`. An empty array means the publisher affirmatively reports no mandatory dealer charges. When present, a non-empty array is the complete vehicle-specific list. This array never represents a delta from rooftop fees: consumers MUST NOT join or merge it with `dealer_information`; when vehicle fees differ from rooftop defaults, this array replaces the rooftop array in full. If `list_price` and `fees` are present without `price`, they are informational components only; consumers MUST NOT derive or advertise a replacement price from them.",
                 "items": {
                   "$ref": "#/$defs/_primitives_dealer_fee"
                 }
@@ -4653,7 +4653,7 @@
               },
               "vehicle_id": {
                 "type": "string",
-                "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
+                "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory_vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
                 "examples": [
                   "veh_8f3c1a"
                 ],
@@ -5074,7 +5074,7 @@
                 "type": "string",
                 "pattern": "^[a-z][a-z0-9_]*$",
                 "maxLength": 80,
-                "description": "Stable feature code advertised by inventory.facets. Codes have the same meaning across this deployment's bindings.",
+                "description": "Stable feature code advertised by inventory_facets. Codes have the same meaning across this deployment's bindings.",
                 "examples": [
                   "adaptive_cruise_control"
                 ]
@@ -5186,7 +5186,7 @@
           },
           "vehicle_properties_vehicle_id": {
             "type": "string",
-            "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
+            "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory_vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
             "examples": [
               "veh_8f3c1a"
             ],
@@ -5202,11 +5202,11 @@
           },
           "error": {
             "title": "Error",
-            "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats. message and details never repeat request values: not customer contact data, and never a credit applicant's national_id, date_of_birth or drivers_license. Identify a problem by its JSON Pointer in instanceLocation instead.",
+            "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats. message and details never repeat request values: not customer contact data, and never a credit applicant's national_id, date_of_birth or drivers_license. Identify a problem by its JSON Pointer in instance_location instead.",
             "type": "object",
             "properties": {
               "type": {
-                "const": "aap.error"
+                "const": "aap_error"
               },
               "error_id": {
                 "type": "string",
@@ -5266,7 +5266,7 @@
                     "items": {
                       "type": "object",
                       "properties": {
-                        "instanceLocation": {
+                        "instance_location": {
                           "type": "string",
                           "pattern": "^(?:/|$)",
                           "description": "JSON Pointer to the invalid request field."
@@ -5281,7 +5281,7 @@
                         }
                       },
                       "required": [
-                        "instanceLocation",
+                        "instance_location",
                         "keyword",
                         "error"
                       ],
@@ -5357,9 +5357,9 @@
       "_meta": {
         "autoagentprotocol.org/aap": {
           "version": "0.0.0-dev",
-          "skill": "inventory.vehicle",
-          "request_type": "inventory.vehicle.request",
-          "response_type": "inventory.vehicle.response",
+          "skill": "inventory_vehicle",
+          "request_type": "inventory_vehicle_request",
+          "response_type": "inventory_vehicle_response",
           "request_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/vehicle-detail-request.schema.json",
           "response_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/vehicle-detail-response.schema.json",
           "error_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/error.schema.json"
@@ -5377,7 +5377,7 @@
         "type": "object",
         "properties": {
           "type": {
-            "const": "lead.submit.request",
+            "const": "lead_submit_request",
             "description": "AAP message type discriminator."
           },
           "customer": {
@@ -5394,7 +5394,7 @@
           },
           "trade_in": {
             "$ref": "#/$defs/vehicle",
-            "description": "Optional partial description of the buyer’s trade-in. Pass through known information without inventing fields. When condition is present, use excellent, good, fair or poor. This skill does not return an appraisal or valuation; a dealer that values trade-ins offers the optional trade_in.submit skill."
+            "description": "Optional partial description of the buyer’s trade-in. Pass through known information without inventing fields. When condition is present, use excellent, good, fair or poor. This skill does not return an appraisal or valuation; a dealer that values trade-ins offers the optional trade_in_submit skill."
           },
           "appointment": {
             "$ref": "#/$defs/appointment",
@@ -5617,7 +5617,7 @@
           },
           "consent_grant": {
             "title": "ConsentGrant",
-            "description": "Explicit, auditable permission for one lead.submit or trade_in.submit payload and its selected contact channels. A missing grant returns CONTACT_CONSENT_REQUIRED. A malformed, expired or inapplicable grant returns INVALID_CONSENT. A session, tool selection or OAuth authorization is not customer contact consent.",
+            "description": "Explicit, auditable permission for one lead_submit or trade_in_submit payload and its selected contact channels. A missing grant returns CONTACT_CONSENT_REQUIRED. A malformed, expired or inapplicable grant returns INVALID_CONSENT. A session, tool selection or OAuth authorization is not customer contact consent.",
             "type": "object",
             "properties": {
               "granted_at": {
@@ -5657,7 +5657,7 @@
                     "trade_in_submission"
                   ]
                 },
-                "description": "Scope of the consent, exactly one value. `lead_submission` covers the unified `lead.submit` skill (general inquiries, vehicle interest, trade-in and appointments). `trade_in_submission` covers contact data sent with `trade_in.submit`. Each skill accepts only its own value. The request body itself shows what was actually submitted; the meaningful audit granularity is `allowed_channels`."
+                "description": "Scope of the consent, exactly one value. `lead_submission` covers the unified `lead_submit` skill (general inquiries, vehicle interest, trade-in and appointments). `trade_in_submission` covers contact data sent with `trade_in_submit`. Each skill accepts only its own value. The request body itself shows what was actually submitted; the meaningful audit granularity is `allowed_channels`."
               },
               "expires_at": {
                 "type": "string",
@@ -5842,7 +5842,7 @@
                   "string",
                   "null"
                 ],
-                "description": "Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer.information. Nullable; single-rooftop dealers MAY leave it null.",
+                "description": "Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer_information. Nullable; single-rooftop dealers MAY leave it null.",
                 "examples": [
                   "Demo Toyota San Francisco"
                 ]
@@ -5879,7 +5879,7 @@
               "fees": {
                 "type": "array",
                 "uniqueItems": true,
-                "description": "Optional itemized snapshot of mandatory, non-government dealer charges and dealer-required add-ons for this vehicle. When `price` is present, every listed amount is already included in `price`; consumers MUST NOT add these amounts again. Omitted means the itemized breakdown was not provided and does not invalidate an otherwise authoritative `price`. An empty array means the publisher affirmatively reports no mandatory dealer charges. When present, a non-empty array is the complete vehicle-specific list. This array never represents a delta from rooftop fees: consumers MUST NOT join or merge it with `dealer.information`; when vehicle fees differ from rooftop defaults, this array replaces the rooftop array in full. If `list_price` and `fees` are present without `price`, they are informational components only; consumers MUST NOT derive or advertise a replacement price from them.",
+                "description": "Optional itemized snapshot of mandatory, non-government dealer charges and dealer-required add-ons for this vehicle. When `price` is present, every listed amount is already included in `price`; consumers MUST NOT add these amounts again. Omitted means the itemized breakdown was not provided and does not invalidate an otherwise authoritative `price`. An empty array means the publisher affirmatively reports no mandatory dealer charges. When present, a non-empty array is the complete vehicle-specific list. This array never represents a delta from rooftop fees: consumers MUST NOT join or merge it with `dealer_information`; when vehicle fees differ from rooftop defaults, this array replaces the rooftop array in full. If `list_price` and `fees` are present without `price`, they are informational components only; consumers MUST NOT derive or advertise a replacement price from them.",
                 "items": {
                   "$ref": "#/$defs/_primitives_dealer_fee"
                 }
@@ -5909,7 +5909,7 @@
               },
               "vehicle_id": {
                 "type": "string",
-                "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
+                "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory_vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
                 "examples": [
                   "veh_8f3c1a"
                 ],
@@ -6330,7 +6330,7 @@
                 "type": "string",
                 "pattern": "^[a-z][a-z0-9_]*$",
                 "maxLength": 80,
-                "description": "Stable feature code advertised by inventory.facets. Codes have the same meaning across this deployment's bindings.",
+                "description": "Stable feature code advertised by inventory_facets. Codes have the same meaning across this deployment's bindings.",
                 "examples": [
                   "adaptive_cruise_control"
                 ]
@@ -6413,7 +6413,7 @@
           },
           "appointment": {
             "title": "Appointment",
-            "description": "An appointment request piggybacked on a `lead.submit.request`. The vehicle reference for the appointment is IMPLICIT — it is whatever is in the parent `vehicle_of_interest` (or `trade_in` for a trade-in appraisal). A standalone sales or service visit can omit any vehicle.",
+            "description": "An appointment request piggybacked on a `lead_submit_request`. The vehicle reference for the appointment is IMPLICIT — it is whatever is in the parent `vehicle_of_interest` (or `trade_in` for a trade-in appraisal). A standalone sales or service visit can omit any vehicle.",
             "type": "object",
             "examples": [
               {
@@ -6766,7 +6766,7 @@
             "type": "object",
             "properties": {
               "type": {
-                "const": "lead.submit.response",
+                "const": "lead_submit_response",
                 "description": "AAP message type discriminator."
               },
               "data": {
@@ -6951,11 +6951,11 @@
           },
           "error": {
             "title": "Error",
-            "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats. message and details never repeat request values: not customer contact data, and never a credit applicant's national_id, date_of_birth or drivers_license. Identify a problem by its JSON Pointer in instanceLocation instead.",
+            "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats. message and details never repeat request values: not customer contact data, and never a credit applicant's national_id, date_of_birth or drivers_license. Identify a problem by its JSON Pointer in instance_location instead.",
             "type": "object",
             "properties": {
               "type": {
-                "const": "aap.error"
+                "const": "aap_error"
               },
               "error_id": {
                 "type": "string",
@@ -7015,7 +7015,7 @@
                     "items": {
                       "type": "object",
                       "properties": {
-                        "instanceLocation": {
+                        "instance_location": {
                           "type": "string",
                           "pattern": "^(?:/|$)",
                           "description": "JSON Pointer to the invalid request field."
@@ -7030,7 +7030,7 @@
                         }
                       },
                       "required": [
-                        "instanceLocation",
+                        "instance_location",
                         "keyword",
                         "error"
                       ],
@@ -7296,9 +7296,9 @@
       "_meta": {
         "autoagentprotocol.org/aap": {
           "version": "0.0.0-dev",
-          "skill": "lead.submit",
-          "request_type": "lead.submit.request",
-          "response_type": "lead.submit.response",
+          "skill": "lead_submit",
+          "request_type": "lead_submit_request",
+          "response_type": "lead_submit_response",
           "request_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-request.schema.json",
           "response_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-response.schema.json",
           "error_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/error.schema.json"
@@ -7308,15 +7308,15 @@
     {
       "name": "aap_trade_in_submit",
       "title": "Submit Trade-In",
-      "description": "Optional. Describe one trade-in by year, make, model, condition and mileage and, where the dealer supports it, receive an immediate valuation as an amount, a range or both. Contact data is optional and needs consent; without it the request is an anonymous estimate. Require an idempotency key. A valuation is an estimate unless it is marked as an offer.",
+      "description": "Optional. Describe one trade-in by year, make, model, condition and mileage and, where the dealer supports it, receive an immediate valuation as an amount, a range or both. Customer contact data and explicit consent are required, as for a lead. Require an idempotency key. A valuation is an estimate unless it is marked as an offer.",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "title": "TradeInSubmitRequest",
-        "description": "Describe one trade-in vehicle through MCP, A2A or PAP and, where the dealer supports it, receive an immediate valuation. Year, make, model, wear condition and mileage are required. Customer contact data is optional: without it the request is an anonymous estimate and the dealer stores no contact data and makes no follow-up; with it, a consent grant scoped to trade_in_submission is required. A dealer that requires contact declares contact_required in its capabilities.",
+        "description": "Submit one trade-in vehicle through MCP, A2A or PAP and, where the dealer supports it, receive an immediate valuation. Customer, consent, source_agent and idempotency_key are required exactly as in lead_submit, so a trade-in that is the customer's first contact reaches the dealership like a regular lead. The vehicle needs year, make, model, wear condition and mileage; every other vehicle detail is optional. A dealer may deliver the submission to its CRM as an ADF/XML lead and answer received, or call a valuation service and answer valued; the request is the same either way. lead_submit keeps its own trade_in block for a purchase inquiry that mentions a trade-in, and never returns a valuation.",
         "type": "object",
         "properties": {
           "type": {
-            "const": "trade_in.submit.request",
+            "const": "trade_in_submit_request",
             "description": "AAP message type discriminator."
           },
           "vehicle": {
@@ -7348,11 +7348,11 @@
           },
           "customer": {
             "$ref": "#/$defs/customer",
-            "description": "Optional contact data. When present, consent is required and the dealer may follow up on the permitted channels."
+            "description": "Owner contact info, in the same shape as lead_submit. Required."
           },
           "consent": {
             "$ref": "#/$defs/consent_grant",
-            "description": "Required when customer is present. `scope` MUST be [\"trade_in_submission\"]."
+            "description": "Consent record covering this submission. Required. `scope` MUST be [\"trade_in_submission\"]."
           },
           "vehicle_of_interest": {
             "$ref": "#/$defs/vehicle",
@@ -7381,17 +7381,11 @@
         "required": [
           "type",
           "vehicle",
+          "customer",
+          "consent",
           "source_agent",
           "idempotency_key"
         ],
-        "dependentRequired": {
-          "customer": [
-            "consent"
-          ],
-          "consent": [
-            "customer"
-          ]
-        },
         "additionalProperties": false,
         "$defs": {
           "vehicle": {
@@ -7563,7 +7557,7 @@
                   "string",
                   "null"
                 ],
-                "description": "Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer.information. Nullable; single-rooftop dealers MAY leave it null.",
+                "description": "Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer_information. Nullable; single-rooftop dealers MAY leave it null.",
                 "examples": [
                   "Demo Toyota San Francisco"
                 ]
@@ -7600,7 +7594,7 @@
               "fees": {
                 "type": "array",
                 "uniqueItems": true,
-                "description": "Optional itemized snapshot of mandatory, non-government dealer charges and dealer-required add-ons for this vehicle. When `price` is present, every listed amount is already included in `price`; consumers MUST NOT add these amounts again. Omitted means the itemized breakdown was not provided and does not invalidate an otherwise authoritative `price`. An empty array means the publisher affirmatively reports no mandatory dealer charges. When present, a non-empty array is the complete vehicle-specific list. This array never represents a delta from rooftop fees: consumers MUST NOT join or merge it with `dealer.information`; when vehicle fees differ from rooftop defaults, this array replaces the rooftop array in full. If `list_price` and `fees` are present without `price`, they are informational components only; consumers MUST NOT derive or advertise a replacement price from them.",
+                "description": "Optional itemized snapshot of mandatory, non-government dealer charges and dealer-required add-ons for this vehicle. When `price` is present, every listed amount is already included in `price`; consumers MUST NOT add these amounts again. Omitted means the itemized breakdown was not provided and does not invalidate an otherwise authoritative `price`. An empty array means the publisher affirmatively reports no mandatory dealer charges. When present, a non-empty array is the complete vehicle-specific list. This array never represents a delta from rooftop fees: consumers MUST NOT join or merge it with `dealer_information`; when vehicle fees differ from rooftop defaults, this array replaces the rooftop array in full. If `list_price` and `fees` are present without `price`, they are informational components only; consumers MUST NOT derive or advertise a replacement price from them.",
                 "items": {
                   "$ref": "#/$defs/_primitives_dealer_fee"
                 }
@@ -7630,7 +7624,7 @@
               },
               "vehicle_id": {
                 "type": "string",
-                "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
+                "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory_vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
                 "examples": [
                   "veh_8f3c1a"
                 ],
@@ -8051,7 +8045,7 @@
                 "type": "string",
                 "pattern": "^[a-z][a-z0-9_]*$",
                 "maxLength": 80,
-                "description": "Stable feature code advertised by inventory.facets. Codes have the same meaning across this deployment's bindings.",
+                "description": "Stable feature code advertised by inventory_facets. Codes have the same meaning across this deployment's bindings.",
                 "examples": [
                   "adaptive_cruise_control"
                 ]
@@ -8283,7 +8277,7 @@
           },
           "consent_grant": {
             "title": "ConsentGrant",
-            "description": "Explicit, auditable permission for one lead.submit or trade_in.submit payload and its selected contact channels. A missing grant returns CONTACT_CONSENT_REQUIRED. A malformed, expired or inapplicable grant returns INVALID_CONSENT. A session, tool selection or OAuth authorization is not customer contact consent.",
+            "description": "Explicit, auditable permission for one lead_submit or trade_in_submit payload and its selected contact channels. A missing grant returns CONTACT_CONSENT_REQUIRED. A malformed, expired or inapplicable grant returns INVALID_CONSENT. A session, tool selection or OAuth authorization is not customer contact consent.",
             "type": "object",
             "properties": {
               "granted_at": {
@@ -8323,7 +8317,7 @@
                     "trade_in_submission"
                   ]
                 },
-                "description": "Scope of the consent, exactly one value. `lead_submission` covers the unified `lead.submit` skill (general inquiries, vehicle interest, trade-in and appointments). `trade_in_submission` covers contact data sent with `trade_in.submit`. Each skill accepts only its own value. The request body itself shows what was actually submitted; the meaningful audit granularity is `allowed_channels`."
+                "description": "Scope of the consent, exactly one value. `lead_submission` covers the unified `lead_submit` skill (general inquiries, vehicle interest, trade-in and appointments). `trade_in_submission` covers contact data sent with `trade_in_submit`. Each skill accepts only its own value. The request body itself shows what was actually submitted; the meaningful audit granularity is `allowed_channels`."
               },
               "expires_at": {
                 "type": "string",
@@ -8639,11 +8633,11 @@
         "$defs": {
           "trade_in_submit_response": {
             "title": "TradeInSubmitResponse",
-            "description": "Outcome of a trade-in submission, shared by MCP, A2A and PAP. valued carries a valuation with an amount, a range or both. received means the dealer accepted the description and will respond later; it requires consented contact data. rejected means nothing was recorded. A valuation is an estimate unless kind is offer; even an offer depends on the vehicle matching its description at inspection. Retries replay the complete original result with data.replayed true.",
+            "description": "Outcome of a trade-in submission, shared by MCP, A2A and PAP. valued carries a valuation with an amount, a range or both. received means the dealer accepted the submission and will follow up on the consented channels. rejected means nothing was recorded. A valuation is an estimate unless kind is offer; even an offer depends on the vehicle matching its description at inspection. Retries replay the complete original result with data.replayed true.",
             "type": "object",
             "properties": {
               "type": {
-                "const": "trade_in.submit.response",
+                "const": "trade_in_submit_response",
                 "description": "AAP message type discriminator."
               },
               "data": {
@@ -8822,11 +8816,11 @@
           },
           "error": {
             "title": "Error",
-            "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats. message and details never repeat request values: not customer contact data, and never a credit applicant's national_id, date_of_birth or drivers_license. Identify a problem by its JSON Pointer in instanceLocation instead.",
+            "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats. message and details never repeat request values: not customer contact data, and never a credit applicant's national_id, date_of_birth or drivers_license. Identify a problem by its JSON Pointer in instance_location instead.",
             "type": "object",
             "properties": {
               "type": {
-                "const": "aap.error"
+                "const": "aap_error"
               },
               "error_id": {
                 "type": "string",
@@ -8886,7 +8880,7 @@
                     "items": {
                       "type": "object",
                       "properties": {
-                        "instanceLocation": {
+                        "instance_location": {
                           "type": "string",
                           "pattern": "^(?:/|$)",
                           "description": "JSON Pointer to the invalid request field."
@@ -8901,7 +8895,7 @@
                         }
                       },
                       "required": [
-                        "instanceLocation",
+                        "instance_location",
                         "keyword",
                         "error"
                       ],
@@ -9167,9 +9161,9 @@
       "_meta": {
         "autoagentprotocol.org/aap": {
           "version": "0.0.0-dev",
-          "skill": "trade_in.submit",
-          "request_type": "trade_in.submit.request",
-          "response_type": "trade_in.submit.response",
+          "skill": "trade_in_submit",
+          "request_type": "trade_in_submit_request",
+          "response_type": "trade_in_submit_response",
           "request_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-submit-request.schema.json",
           "response_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-submit-response.schema.json",
           "error_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/error.schema.json",
@@ -9184,11 +9178,11 @@
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "title": "CreditApplicationSubmitRequest",
-        "description": "Submit one consented vehicle credit application through MCP, A2A or PAP. Each applicant carries their own credit consent, including the kind of inquiry they authorized. application_type joint requires a co_applicant with a relationship. Every monetary amount uses currency (USD when omitted). The request carries sensitive personal data: send it only to the dealer endpoint selected from verified discovery, and never repeat it in URLs, logs or free text.",
+        "description": "Submit one consented vehicle credit application through MCP, A2A or PAP. Each applicant carries their own credit consent, including the kind of inquiry they authorized. application_type joint requires a co_applicant with a relationship. Every monetary amount uses currency (USD when omitted). The request carries sensitive personal data: send it only to the dealer endpoint selected from verified discovery, and never repeat it in URLs, logs or free text. A dealer processes it through an API integration with its credit or lender system and does not relay it through ADF/XML, email or CRM notes.",
         "type": "object",
         "properties": {
           "type": {
-            "const": "credit_application.submit.request",
+            "const": "credit_application_submit_request",
             "description": "AAP message type discriminator."
           },
           "application_type": {
@@ -9748,7 +9742,7 @@
           },
           "credit_consent": {
             "title": "CreditConsent",
-            "description": "One applicant's explicit, auditable authorization for one credit_application.submit payload: to send the application to the dealer and its lenders, to obtain the named kind of credit inquiry, and to be contacted on the selected channels. Each applicant grants their own. A session, tool selection, OAuth authorization, PAP operation approval or lead consent is not credit consent. A malformed, expired or inapplicable grant returns INVALID_CONSENT.",
+            "description": "One applicant's explicit, auditable authorization for one credit_application_submit payload: to send the application to the dealer and its lenders, to obtain the named kind of credit inquiry, and to be contacted on the selected channels. Each applicant grants their own. A session, tool selection, OAuth authorization, PAP operation approval or lead consent is not credit consent. A malformed, expired or inapplicable grant returns INVALID_CONSENT.",
             "type": "object",
             "properties": {
               "granted_at": {
@@ -9976,7 +9970,7 @@
                   "string",
                   "null"
                 ],
-                "description": "Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer.information. Nullable; single-rooftop dealers MAY leave it null.",
+                "description": "Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer_information. Nullable; single-rooftop dealers MAY leave it null.",
                 "examples": [
                   "Demo Toyota San Francisco"
                 ]
@@ -10013,7 +10007,7 @@
               "fees": {
                 "type": "array",
                 "uniqueItems": true,
-                "description": "Optional itemized snapshot of mandatory, non-government dealer charges and dealer-required add-ons for this vehicle. When `price` is present, every listed amount is already included in `price`; consumers MUST NOT add these amounts again. Omitted means the itemized breakdown was not provided and does not invalidate an otherwise authoritative `price`. An empty array means the publisher affirmatively reports no mandatory dealer charges. When present, a non-empty array is the complete vehicle-specific list. This array never represents a delta from rooftop fees: consumers MUST NOT join or merge it with `dealer.information`; when vehicle fees differ from rooftop defaults, this array replaces the rooftop array in full. If `list_price` and `fees` are present without `price`, they are informational components only; consumers MUST NOT derive or advertise a replacement price from them.",
+                "description": "Optional itemized snapshot of mandatory, non-government dealer charges and dealer-required add-ons for this vehicle. When `price` is present, every listed amount is already included in `price`; consumers MUST NOT add these amounts again. Omitted means the itemized breakdown was not provided and does not invalidate an otherwise authoritative `price`. An empty array means the publisher affirmatively reports no mandatory dealer charges. When present, a non-empty array is the complete vehicle-specific list. This array never represents a delta from rooftop fees: consumers MUST NOT join or merge it with `dealer_information`; when vehicle fees differ from rooftop defaults, this array replaces the rooftop array in full. If `list_price` and `fees` are present without `price`, they are informational components only; consumers MUST NOT derive or advertise a replacement price from them.",
                 "items": {
                   "$ref": "#/$defs/_primitives_dealer_fee"
                 }
@@ -10043,7 +10037,7 @@
               },
               "vehicle_id": {
                 "type": "string",
-                "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
+                "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory_vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
                 "examples": [
                   "veh_8f3c1a"
                 ],
@@ -10455,7 +10449,7 @@
                 "type": "string",
                 "pattern": "^[a-z][a-z0-9_]*$",
                 "maxLength": 80,
-                "description": "Stable feature code advertised by inventory.facets. Codes have the same meaning across this deployment's bindings.",
+                "description": "Stable feature code advertised by inventory_facets. Codes have the same meaning across this deployment's bindings.",
                 "examples": [
                   "adaptive_cruise_control"
                 ]
@@ -10710,7 +10704,7 @@
             "type": "object",
             "properties": {
               "type": {
-                "const": "credit_application.submit.response",
+                "const": "credit_application_submit_response",
                 "description": "AAP message type discriminator."
               },
               "data": {
@@ -10861,11 +10855,11 @@
           },
           "error": {
             "title": "Error",
-            "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats. message and details never repeat request values: not customer contact data, and never a credit applicant's national_id, date_of_birth or drivers_license. Identify a problem by its JSON Pointer in instanceLocation instead.",
+            "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats. message and details never repeat request values: not customer contact data, and never a credit applicant's national_id, date_of_birth or drivers_license. Identify a problem by its JSON Pointer in instance_location instead.",
             "type": "object",
             "properties": {
               "type": {
-                "const": "aap.error"
+                "const": "aap_error"
               },
               "error_id": {
                 "type": "string",
@@ -10925,7 +10919,7 @@
                     "items": {
                       "type": "object",
                       "properties": {
-                        "instanceLocation": {
+                        "instance_location": {
                           "type": "string",
                           "pattern": "^(?:/|$)",
                           "description": "JSON Pointer to the invalid request field."
@@ -10940,7 +10934,7 @@
                         }
                       },
                       "required": [
-                        "instanceLocation",
+                        "instance_location",
                         "keyword",
                         "error"
                       ],
@@ -11206,9 +11200,9 @@
       "_meta": {
         "autoagentprotocol.org/aap": {
           "version": "0.0.0-dev",
-          "skill": "credit_application.submit",
-          "request_type": "credit_application.submit.request",
-          "response_type": "credit_application.submit.response",
+          "skill": "credit_application_submit",
+          "request_type": "credit_application_submit_request",
+          "response_type": "credit_application_submit_response",
           "request_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/credit-application-submit-request.schema.json",
           "response_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/credit-application-submit-response.schema.json",
           "error_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/error.schema.json",

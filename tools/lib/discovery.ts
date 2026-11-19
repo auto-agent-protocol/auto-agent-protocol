@@ -28,7 +28,10 @@ export function checkDiscovery(
       errors.push(`${id}: request and response schema URLs must match the selected manifest`);
     }
   }
-  const capabilities = params.skills["inventory.search"]?.capabilities;
+  // Releases before 4.0 used dotted skill ids (inventory.search).
+  const snake = (id: string) => id.replaceAll(".", "_");
+  const searchId = Object.keys(params.skills).find(id => snake(id) === "inventory_search") ?? "inventory_search";
+  const capabilities = params.skills[searchId]?.capabilities;
   if (capabilities) {
     if (!capabilities.sort_fields.includes(capabilities.default_sort.field)) errors.push("Search default_sort must use a supported sort field");
     if (capabilities.default_limit > capabilities.max_limit) errors.push("Search default_limit must not exceed max_limit");
@@ -60,14 +63,14 @@ export function checkDiscovery(
           metadata.error_schema !== `${manifest.schema_base_url}error.schema.json`) {
         errors.push(`${tool.name}: MCP metadata must match the shared skill contract`);
       }
-      if (skill.id === "inventory.search") {
+      if (snake(skill.id!) === "inventory_search") {
         const normalize = (value: any) => value && ({ ...value, filters: [...value.filters].sort(), sort_fields: [...value.sort_fields].sort(),
           currencies: [...(value.currencies ?? ["USD"])].sort(), default_currency: value.default_currency ?? "USD", default_mileage_unit: value.default_mileage_unit ?? "mi" });
         if (!isDeepStrictEqual(normalize(metadata.capabilities), normalize(capabilities))) errors.push("MCP and Agent Card search capabilities must agree");
       }
-      if (skill.id === "trade_in.submit" || skill.id === "credit_application.submit") {
+      if (snake(skill.id!) === "trade_in_submit" || snake(skill.id!) === "credit_application_submit") {
         const normalize = (value: any) => value && ({ ...value, currencies: [...(value.currencies ?? ["USD"])].sort(), ...(value.inquiry_types ? { inquiry_types: [...value.inquiry_types].sort() } : {}) });
-        if (!isDeepStrictEqual(normalize(metadata.capabilities), normalize(params.skills[skill.id]?.capabilities))) errors.push(`MCP and Agent Card ${skill.id} capabilities must agree`);
+        if (!isDeepStrictEqual(normalize(metadata.capabilities), normalize(params.skills[skill.id!]?.capabilities))) errors.push(`MCP and Agent Card ${skill.id} capabilities must agree`);
       }
     }
   }

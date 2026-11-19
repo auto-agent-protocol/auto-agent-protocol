@@ -107,7 +107,7 @@ Advertise **$34,890**. Do not subtract Customer Cash again, and do not present $
 
 ## Resolve rooftop defaults before publication
 
-A rooftop may publish its default fee schedule through `dealer.information`. The inventory publisher resolves those defaults and any vehicle-specific changes before returning a listing.
+A rooftop may publish its default fee schedule through `dealer_information`. The inventory publisher resolves those defaults and any vehicle-specific changes before returning a listing.
 
 When vehicle `fees` is supplied, it is a complete replacement snapshot. Buyers MUST NOT join, merge or infer fees from the rooftop, another listing or a cached configuration. Vehicle price remains authoritative even when the optional breakdown is unavailable.
 

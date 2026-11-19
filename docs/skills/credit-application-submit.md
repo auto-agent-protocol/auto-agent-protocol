@@ -1,10 +1,10 @@
 ---
 sidebar_position: 7
-title: credit_application.submit
+title: credit_application_submit
 description: Optional AAP 4.0 skill. Submit one vehicle credit application with each applicant's own credit consent, and read the submission status and any decision separately.
 ---
 
-# `credit_application.submit`
+# `credit_application_submit`
 
 {/* aap-draft-only:start */}
 
@@ -32,13 +32,13 @@ This optional skill is part of the editable AAP 4.0 contract. Draft identifiers 
 |---|---|
 | MCP | `aap_credit_application_submit` with the typed request as `arguments` |
 | A2A | `SendMessage` with the typed request in `DataPart.data`; media types `application/vnd.autoagent.credit-application-submit-request+json` → `application/vnd.autoagent.credit-application-submit-response+json` |
-| PAP | `POST /skills/credit_application.submit` (operationId `credit_application_submit`) with the typed request body, the delegated Session JWT and `Poppy-Version: 1.0` |
+| PAP | `POST /skills/credit_application_submit` (operationId `credit_application_submit`) with the typed request body, the delegated Session JWT and `Poppy-Version: 1.0` |
 
 All three use the same [request schema](https://draft.autoagentprotocol.invalid/latest/schemas/credit-application-submit-request.schema.json), [applicant schema](https://draft.autoagentprotocol.invalid/latest/schemas/credit-applicant.schema.json), [credit consent schema](https://draft.autoagentprotocol.invalid/latest/schemas/credit-consent.schema.json), [response schema](https://draft.autoagentprotocol.invalid/latest/schemas/credit-application-submit-response.schema.json) and deduplication store. The MCP tool is a write tool: `readOnlyHint: false`, `destructiveHint: false`, `idempotentHint: false`, `openWorldHint: true`.
 
 ## Read the capabilities first
 
-Read `params.skills["credit_application.submit"].capabilities` on the AAP Agent Card extension, or `tools/list` → `aap_credit_application_submit` → `_meta["autoagentprotocol.org/aap"].capabilities`. Both follow `credit-application-capabilities.schema.json` and MUST agree. A dealer declares the skill identically on all three bindings or not at all.
+Read `params.skills["credit_application_submit"].capabilities` on the AAP Agent Card extension, or `tools/list` → `aap_credit_application_submit` → `_meta["autoagentprotocol.org/aap"].capabilities`. Both follow `credit-application-capabilities.schema.json` and MUST agree. A dealer declares the skill identically on all three bindings or not at all.
 
 | Capability | Values | Effect |
 |---|---|---|
@@ -59,7 +59,7 @@ Read `params.skills["credit_application.submit"].capabilities` on the AAP Agent 
 
 | Field | Required | Meaning |
 |---|---|---|
-| `type` | yes | `credit_application.submit.request` |
+| `type` | yes | `credit_application_submit_request` |
 | `application_type` | yes | `individual` or `joint` |
 | `applicant` | yes | Primary applicant, with their own `consent` |
 | `co_applicant` | iff `joint` | Second applicant, with their own `consent` and a `relationship`; forbidden for `individual` |
@@ -130,7 +130,7 @@ A joint application carries a second applicant object with the same fields and r
 
 ```json
 {
-  "type": "credit_application.submit.request",
+  "type": "credit_application_submit_request",
   "application_type": "individual",
   "applicant": {
     "first_name": "Ada",
@@ -207,6 +207,19 @@ Every applicant object carries its own `consent`. It authorizes this one payload
 - A Session, tool selection, sign-in or OAuth authorization, or a PAP Operations approval is not credit consent.
 - A malformed, expired or inapplicable grant, or an inquiry type the dealer does not offer, returns `INVALID_CONSENT`.
 
+## How a dealer implements it
+
+**By API only.** A dealer processes a credit application through an API integration with its own or its lender's credit system.
+
+![Trade-in can be delivered as an ADF lead or through a valuation API; a credit application goes only through a secure API](../img/optional-skill-delivery.svg)
+
+| Path | Use |
+|---|---|
+| Secure API to the dealer or lender credit system | Yes. The only delivery path for this skill. |
+| ADF/XML, email, or CRM lead notes | No. ADF has no fields for applicant data, commonly travels as email, and offers no confidentiality. A dealer SHOULD NOT relay a credit application this way and MUST NOT place `national_id`, `date_of_birth` or `drivers_license` in ADF/XML, email or CRM notes. |
+
+A dealer without such an integration does not declare `credit_application_submit`. A buyer who wants financing there sends a [`lead_submit`](./lead-submit.md) inquiry and applies with the dealer directly.
+
 ## Sensitive data
 
 | Rule | Applies to |
@@ -223,7 +236,7 @@ The response never repeats applicant data. A validation error names the field pa
 
 ```json
 {
-  "type": "credit_application.submit.response",
+  "type": "credit_application_submit_response",
   "data": {
     "application_id": "app_dt_55120",
     "status": "received",
@@ -271,7 +284,7 @@ See the [received without decision](https://draft.autoagentprotocol.invalid/late
 
 | Code | When |
 |---|---|
-| `UNSUPPORTED_SKILL` | The dealer does not implement `credit_application.submit`. |
+| `UNSUPPORTED_SKILL` | The dealer does not implement `credit_application_submit`. |
 | `INVALID_CONSENT` | An applicant's consent is malformed, expired or inapplicable, or names an inquiry type not in `inquiry_types`. |
 | `MISSING_REQUIRED_FIELD` | A field the dealer requires is absent, such as `national_id` under `national_id: "required"`; the error names the field path. |
 | `SCHEMA_VALIDATION_FAILED` | The request does not match the schema, or contains a `national_id` the dealer does not accept. |

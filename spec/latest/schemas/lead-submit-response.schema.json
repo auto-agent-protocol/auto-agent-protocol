@@ -6,7 +6,7 @@
   "type": "object",
   "properties": {
     "type": {
-      "const": "lead.submit.response",
+      "const": "lead_submit_response",
       "description": "AAP message type discriminator."
     },
     "data": {

@@ -1,5 +1,5 @@
 {
-  "type": "lead.submit.response",
+  "type": "lead_submit_response",
   "data": {
     "lead_id": "lead_2026_04_30_00843",
     "status": "received",

@@ -34,18 +34,18 @@ A full AAP 4.0 dealer deployment implements all three with the same skill subset
 
 | Skill | Answer |
 |---|---|
-| [`dealer.information`](./skills/dealer-information.md) | Who is this dealer, and where are its locations? |
-| [`inventory.facets`](./skills/inventory-facets.md) | Which filters and feature codes are useful here? |
-| [`inventory.search`](./skills/inventory-search.md) | Which vehicles meet every supported constraint? |
-| [`inventory.vehicle`](./skills/inventory-vehicle.md) | What is known about this specific listing? |
-| [`lead.submit`](./skills/lead-submit.md) | Can the dealer receive this explicitly authorized inquiry? |
+| [`dealer_information`](./skills/dealer-information.md) | Who is this dealer, and where are its locations? |
+| [`inventory_facets`](./skills/inventory-facets.md) | Which filters and feature codes are useful here? |
+| [`inventory_search`](./skills/inventory-search.md) | Which vehicles meet every supported constraint? |
+| [`inventory_vehicle`](./skills/inventory-vehicle.md) | What is known about this specific listing? |
+| [`lead_submit`](./skills/lead-submit.md) | Can the dealer receive this explicitly authorized inquiry? |
 
 Two optional skills extend the journey for dealers that offer them:
 
 | Optional skill | Answer |
 |---|---|
-| [`trade_in.submit`](./skills/trade-in-submit.md) | What is this trade-in worth, as an estimate, a range or an offer? |
-| [`credit_application.submit`](./skills/credit-application-submit.md) | Can the dealer receive this credit application, with each applicant's own credit consent? |
+| [`trade_in_submit`](./skills/trade-in-submit.md) | What is this trade-in worth, as an estimate, a range or an offer? |
+| [`credit_application_submit`](./skills/credit-application-submit.md) | Can the dealer receive this credit application, with each applicant's own credit consent? |
 
 ![Five core skills and two optional skills, each declared with its capabilities on every binding](./img/optional-skills.svg)
 

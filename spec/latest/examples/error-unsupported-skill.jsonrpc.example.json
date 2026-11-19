@@ -3,7 +3,7 @@
   "id": "req-unsupported-skill",
   "error": {
     "code": -32602,
-    "message": "Invalid params: unsupported AAP skill inventory.vehicle",
+    "message": "Invalid params: unsupported AAP skill inventory_vehicle",
     "data": [
       {
         "@type": "type.googleapis.com/google.rpc.ErrorInfo",
@@ -19,13 +19,13 @@
       {
         "@type": "type.googleapis.com/google.protobuf.Struct",
         "value": {
-          "type": "aap.error",
+          "type": "aap_error",
           "error_id": "err_01HZ9UNSUPPORTED",
           "code": "UNSUPPORTED_SKILL",
-          "message": "This dealer does not implement inventory.vehicle.",
+          "message": "This dealer does not implement inventory_vehicle.",
           "retryable": false,
           "details": {
-            "skill": "inventory.vehicle"
+            "skill": "inventory_vehicle"
           },
           "created_at": "2026-04-30T10:17:00Z"
         }

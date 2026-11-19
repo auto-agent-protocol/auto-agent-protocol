@@ -2,11 +2,11 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-submit-request.schema.json",
   "title": "TradeInSubmitRequest",
-  "description": "Describe one trade-in vehicle through MCP, A2A or PAP and, where the dealer supports it, receive an immediate valuation. Year, make, model, wear condition and mileage are required. Customer contact data is optional: without it the request is an anonymous estimate and the dealer stores no contact data and makes no follow-up; with it, a consent grant scoped to trade_in_submission is required. A dealer that requires contact declares contact_required in its capabilities.",
+  "description": "Submit one trade-in vehicle through MCP, A2A or PAP and, where the dealer supports it, receive an immediate valuation. Customer, consent, source_agent and idempotency_key are required exactly as in lead_submit, so a trade-in that is the customer's first contact reaches the dealership like a regular lead. The vehicle needs year, make, model, wear condition and mileage; every other vehicle detail is optional. A dealer may deliver the submission to its CRM as an ADF/XML lead and answer received, or call a valuation service and answer valued; the request is the same either way. lead_submit keeps its own trade_in block for a purchase inquiry that mentions a trade-in, and never returns a valuation.",
   "type": "object",
   "properties": {
     "type": {
-      "const": "trade_in.submit.request",
+      "const": "trade_in_submit_request",
       "description": "AAP message type discriminator."
     },
     "vehicle": {
@@ -38,11 +38,11 @@
     },
     "customer": {
       "$ref": "./customer.schema.json",
-      "description": "Optional contact data. When present, consent is required and the dealer may follow up on the permitted channels."
+      "description": "Owner contact info, in the same shape as lead_submit. Required."
     },
     "consent": {
       "$ref": "./consent-grant.schema.json",
-      "description": "Required when customer is present. `scope` MUST be [\"trade_in_submission\"]."
+      "description": "Consent record covering this submission. Required. `scope` MUST be [\"trade_in_submission\"]."
     },
     "vehicle_of_interest": {
       "$ref": "./vehicle.schema.json",
@@ -71,17 +71,11 @@
   "required": [
     "type",
     "vehicle",
+    "customer",
+    "consent",
     "source_agent",
     "idempotency_key"
   ],
-  "dependentRequired": {
-    "customer": [
-      "consent"
-    ],
-    "consent": [
-      "customer"
-    ]
-  },
   "additionalProperties": false,
   "allOf": [
     {

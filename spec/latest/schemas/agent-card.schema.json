@@ -116,7 +116,7 @@
     "skills": {
       "type": "array",
       "minItems": 1,
-      "description": "Skills the agent exposes. AAP defines 5 core skill IDs (`dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`) and 2 optional ones (`trade_in.submit`, `credit_application.submit`); a compliant agent declares the subset it implements. Buyer agents MUST inspect `skills[]` to discover what is supported.",
+      "description": "Skills the agent exposes. AAP defines 5 core skill IDs (`dealer_information`, `inventory_facets`, `inventory_search`, `inventory_vehicle`, `lead_submit`) and 2 optional ones (`trade_in_submit`, `credit_application_submit`); a compliant agent declares the subset it implements. Buyer agents MUST inspect `skills[]` to discover what is supported.",
       "items": { "$ref": "#/$defs/skill" }
     },
     "securitySchemes": {
@@ -198,7 +198,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "description": "Skill identifier. AAP standard skill IDs: `dealer.information`, `inventory.facets`, `inventory.search`, `inventory.vehicle`, `lead.submit`, and the optional `trade_in.submit` and `credit_application.submit`. Agents MAY declare any subset, plus additional non-AAP skill IDs."
+          "description": "Skill identifier. AAP standard skill IDs: `dealer_information`, `inventory_facets`, `inventory_search`, `inventory_vehicle`, `lead_submit`, and the optional `trade_in_submit` and `credit_application_submit`. Agents MAY declare any subset, plus additional non-AAP skill IDs."
         },
         "name": { "type": "string" },
         "description": { "type": "string" },

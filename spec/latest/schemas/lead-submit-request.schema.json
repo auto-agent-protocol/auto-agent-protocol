@@ -6,7 +6,7 @@
   "type": "object",
   "properties": {
     "type": {
-      "const": "lead.submit.request",
+      "const": "lead_submit_request",
       "description": "AAP message type discriminator."
     },
     "customer": {
@@ -23,7 +23,7 @@
     },
     "trade_in": {
       "$ref": "./vehicle.schema.json",
-      "description": "Optional partial description of the buyer’s trade-in. Pass through known information without inventing fields. When condition is present, use excellent, good, fair or poor. This skill does not return an appraisal or valuation; a dealer that values trade-ins offers the optional trade_in.submit skill."
+      "description": "Optional partial description of the buyer’s trade-in. Pass through known information without inventing fields. When condition is present, use excellent, good, fair or poor. This skill does not return an appraisal or valuation; a dealer that values trade-ins offers the optional trade_in_submit skill."
     },
     "appointment": {
       "$ref": "./appointment.schema.json",

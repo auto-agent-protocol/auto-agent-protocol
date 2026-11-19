@@ -1,6 +1,6 @@
 {
-  "type": "aap.event",
-  "event_kind": "lead.status_changed",
+  "type": "aap_event",
+  "event_kind": "lead_status_changed",
   "entity_id": "lead_2026_04_29_00842",
   "status": "working",
   "occurred_at": "2026-04-30T14:08:00Z",

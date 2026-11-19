@@ -21,7 +21,7 @@ const ajv = new Ajv2020({ strict: false, formats: fullFormats });
 ajv.addSchema(allSchemas);
 const validate = ajv.compile(inventorySearchRequestSchema);
 const payload = {
-  type: "inventory.search.request",
+  type: "inventory_search_request",
   filters: { body: ["suv"], price_max: 35000, status: ["available"] },
   pagination: { limit: 20 },
   sort: { field: "price", order: "asc" },

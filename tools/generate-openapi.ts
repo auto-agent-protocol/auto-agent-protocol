@@ -76,13 +76,13 @@ function rewriteRefs(node: any, selfComponent: string): any {
 // deterministic across regenerations. The buyer agent generates a fresh
 // `messageId` per call in production; these are only example values.
 const REQUEST_MESSAGE_IDS: Record<string, string> = {
-  "dealer.information": "01HZ9G5N8D1Y4M6SP9C4XKVW3Q",
-  "inventory.facets": "01HZ9H6P9E2Z5N7TQ0D5YMWX4R",
-  "inventory.search": "01HZ9F4M7C0X3K5RN8B3WJTW2P",
-  "inventory.vehicle": "01HZ9J7Q0F3A6P8VR1E6ZNXY5S",
-  "lead.submit": "01HZ9K8R1G4B7Q9WS2F7APYZ6T",
-  "trade_in.submit": "01JD9M2T4H6C8R0XU3G8BQZA7V",
-  "credit_application.submit": "01JD9N3V5J7D9S1YW4H9CRAB8W",
+  "dealer_information": "01HZ9G5N8D1Y4M6SP9C4XKVW3Q",
+  "inventory_facets": "01HZ9H6P9E2Z5N7TQ0D5YMWX4R",
+  "inventory_search": "01HZ9F4M7C0X3K5RN8B3WJTW2P",
+  "inventory_vehicle": "01HZ9J7Q0F3A6P8VR1E6ZNXY5S",
+  "lead_submit": "01HZ9K8R1G4B7Q9WS2F7APYZ6T",
+  "trade_in_submit": "01JD9M2T4H6C8R0XU3G8BQZA7V",
+  "credit_application_submit": "01JD9N3V5J7D9S1YW4H9CRAB8W",
 };
 
 export async function generateOpenapi(specDir: string, outDir: string, version: string): Promise<void> {
@@ -91,6 +91,9 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
   mkdirSync(outDir, { recursive: true });
 
     const manifest = parseYaml(readFileSync(skillsFile, "utf-8")) as SkillsManifest;
+    // Releases before 4.0 used dotted skill ids and the aap.error envelope; their generated descriptions stay unchanged.
+    const dotted = manifest.skills.some(skill => skill.id.includes("."));
+    const errorType = dotted ? "aap.error" : "aap_error";
     if (manifest.version !== version) throw new Error(`Manifest version ${manifest.version} does not match requested output ${version}`);
 
     // Collect schemas → OpenAPI components
@@ -106,7 +109,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
     }
 
     function exampleMessageId(skillId: string): string {
-      return REQUEST_MESSAGE_IDS[skillId] ?? "01HZ9F4M7C0X3K5RN8B3WJTW2P";
+      return REQUEST_MESSAGE_IDS[skillId.replaceAll(".", "_")] ?? "01HZ9F4M7C0X3K5RN8B3WJTW2P";
     }
 
     // Build the JSON-RPC binding doc (A2A v1.0)
@@ -138,7 +141,9 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
             operationId: "sendMessage",
             summary: "A2A SendMessage (carries any AAP skill request)",
             description:
-              "All AAP skills are invoked through the A2A `SendMessage` JSON-RPC method. The skill is dispatched by the typed DataPart payload (`type: <scope>.<thing>.request`, e.g. `inventory.search.request`).",
+              dotted
+                ? "All AAP skills are invoked through the A2A `SendMessage` JSON-RPC method. The skill is dispatched by the typed DataPart payload (`type: <scope>.<thing>.request`, e.g. `inventory.search.request`)."
+                : "All AAP skills are invoked through the A2A `SendMessage` JSON-RPC method. The skill is dispatched by the typed DataPart payload (`type: <skill>_request`, e.g. `inventory_search_request`).",
             parameters: [
               {
                 name: "A2A-Version",
@@ -273,7 +278,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
               message: { type: "string" },
               data: {
                 type: "array",
-                description: "A2A ProtoJSON Any details. Locate the AAP payload in a google.protobuf.Struct detail whose value.type is aap.error.",
+                description: `A2A ProtoJSON Any details. Locate the AAP payload in a google.protobuf.Struct detail whose value.type is ${errorType}.`,
                 items: {
                   type: "object",
                   properties: {
@@ -296,7 +301,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
                       if: {
                         properties: {
                           "@type": { const: "type.googleapis.com/google.protobuf.Struct" },
-                          value: { type: "object", properties: { type: { const: "aap.error" } }, required: ["type"] },
+                          value: { type: "object", properties: { type: { const: errorType } }, required: ["type"] },
                         },
                         required: ["@type", "value"],
                       },
@@ -357,7 +362,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
     // PAP 1.0 documents carry the tasks response schema; AAP 3.2 targets published PAP 0.3.
     const pap1 = !!components.PoppyTasks;
     const papVersion = pap1 ? PAP_PROTOCOL_VERSION : "0.3";
-    const writes = ["lead.submit", "trade_in.submit", "credit_application.submit"];
+    const writes = ["lead_submit", "trade_in_submit", "credit_application_submit"].flatMap(id => [id, id.replace(/_submit$/, ".submit")]);
     const parameters = {
       PoppyVersion: { name: "Poppy-Version", in: "header", required: true, description: "The PAP version the Personal Agent implements, as major.minor, on every request that carries the Session header. The same value throughout a Session. A missing or incompatible value returns HTTP 400 version_unsupported.", schema: { type: "string", pattern: "^[0-9]+\\.[0-9]+$" }, example: PAP_PROTOCOL_VERSION },
       PoppyExtensions: { name: "Poppy-Extensions", in: "header", required: false, description: "RFC 9651 List of Strings naming each PAP extension the Personal Agent uses with this Company, with its major version in the v parameter. The same value throughout a Session. Absent or unparsable declares no extensions.", schema: { type: "string" }, example: '"autoagentprotocol.org/aap";v="1"' },
@@ -376,7 +381,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
           "200": response(pap1 ? "Typed AAP response. An accepted lead, valuation or credit application is not a confirmed appointment, purchase or loan." : "Typed AAP response; a lead acknowledgment is not a confirmed appointment or sale.", toComponentName(skill.response_schema.split("/").pop()!), example(skill.response_schema)),
           "400": { description: pap1 ? "Session verification failed (invalid_session), a remembered Session ended (session_ended), Poppy-Version is missing or not served (version_unsupported), or the AAP request is malformed. Session and version failures use HTTP 400, never OAuth 401. No skill execution." : "Session authentication failed (invalid_session), remembered Session ended (session_ended), or malformed AAP request. Session failures use HTTP 400, never OAuth 401. No skill execution.", content: { "application/json": { schema: { oneOf: [{ $ref: "#/components/schemas/PoppySessionError" }, { $ref: "#/components/schemas/Error" }] } } } },
           "403": pap1
-            ? { description: `AAP consent or access policy refused the operation (aap.error), or a PAP extension is required (extension_required, naming it in extension).${writes.includes(skill.id) ? " With the optional Operations extension declared, approval_required returns the exact terms to approve and approval_declined is final." : ""} No skill execution.`, content: { "application/json": { schema: { anyOf: [{ $ref: "#/components/schemas/Error" }, { $ref: "#/components/schemas/PoppyError" }, ...(writes.includes(skill.id) ? [{ $ref: "#/components/schemas/PoppyApprovalRequired" }, { $ref: "#/components/schemas/PoppyApprovalDeclined" }] : [])] } } } }
+            ? { description: `AAP consent or access policy refused the operation (aap_error), or a PAP extension is required (extension_required, naming it in extension).${writes.includes(skill.id) ? " With the optional Operations extension declared, approval_required returns the exact terms to approve and approval_declined is final." : ""} No skill execution.`, content: { "application/json": { schema: { anyOf: [{ $ref: "#/components/schemas/Error" }, { $ref: "#/components/schemas/PoppyError" }, ...(writes.includes(skill.id) ? [{ $ref: "#/components/schemas/PoppyApprovalRequired" }, { $ref: "#/components/schemas/PoppyApprovalDeclined" }] : [])] } } } }
             : response("AAP consent or access policy refused the operation. No skill execution.", "Error"),
           "404": response("Dealer, vehicle or implemented skill not found.", "Error"),
           "409": response("Vehicle/appointment unavailable or idempotency conflict.", "Error"),

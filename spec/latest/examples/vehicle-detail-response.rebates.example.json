@@ -1,5 +1,5 @@
 {
-  "type": "inventory.vehicle.response",
+  "type": "inventory_vehicle_response",
   "data": {
     "dealer_id": "dealer_demo_toyota",
     "vehicle_id": "veh_dt_3107",

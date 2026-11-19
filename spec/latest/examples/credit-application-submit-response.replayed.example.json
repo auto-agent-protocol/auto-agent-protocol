@@ -1,5 +1,5 @@
 {
-  "type": "credit_application.submit.response",
+  "type": "credit_application_submit_response",
   "data": {
     "application_id": "app_dt_55120",
     "status": "received",

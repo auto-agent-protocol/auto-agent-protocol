@@ -11,7 +11,7 @@
     "sid": "illustrative_session_id_0001",
     "sub": "opaque_company_scoped_user",
     "htm": "POST",
-    "htu": "https://demo-toyota.example.com/poppy/skills/inventory.search",
+    "htu": "https://demo-toyota.example.com/poppy/skills/inventory_search",
     "iat": 1790899201,
     "jti": "illustrative_request_id_0001"
   }

@@ -114,7 +114,7 @@
     },
     "rooftop": {
       "type": ["string", "null"],
-      "description": "Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer.information. Nullable; single-rooftop dealers MAY leave it null.",
+      "description": "Which dealership location/rooftop holds this vehicle, identified by the rooftop's `name` from dealer_information. Nullable; single-rooftop dealers MAY leave it null.",
       "examples": ["Demo Toyota San Francisco"]
     },
     "currency": {
@@ -143,7 +143,7 @@
     "fees": {
       "type": "array",
       "uniqueItems": true,
-      "description": "Optional itemized snapshot of mandatory, non-government dealer charges and dealer-required add-ons for this vehicle. When `price` is present, every listed amount is already included in `price`; consumers MUST NOT add these amounts again. Omitted means the itemized breakdown was not provided and does not invalidate an otherwise authoritative `price`. An empty array means the publisher affirmatively reports no mandatory dealer charges. When present, a non-empty array is the complete vehicle-specific list. This array never represents a delta from rooftop fees: consumers MUST NOT join or merge it with `dealer.information`; when vehicle fees differ from rooftop defaults, this array replaces the rooftop array in full. If `list_price` and `fees` are present without `price`, they are informational components only; consumers MUST NOT derive or advertise a replacement price from them.",
+      "description": "Optional itemized snapshot of mandatory, non-government dealer charges and dealer-required add-ons for this vehicle. When `price` is present, every listed amount is already included in `price`; consumers MUST NOT add these amounts again. Omitted means the itemized breakdown was not provided and does not invalidate an otherwise authoritative `price`. An empty array means the publisher affirmatively reports no mandatory dealer charges. When present, a non-empty array is the complete vehicle-specific list. This array never represents a delta from rooftop fees: consumers MUST NOT join or merge it with `dealer_information`; when vehicle fees differ from rooftop defaults, this array replaces the rooftop array in full. If `list_price` and `fees` are present without `price`, they are informational components only; consumers MUST NOT derive or advertise a replacement price from them.",
       "items": { "$ref": "./_primitives/dealer-fee.schema.json" }
     },
     "rebates": {
@@ -165,7 +165,7 @@
     },
     "vehicle_id": {
       "type": "string",
-      "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory.vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
+      "description": "Stable listing identifier, unique within the selected endpoint. Aggregate inventory results must include it so inventory_vehicle can resolve the listing without guessing across duplicate VINs or stock numbers.",
       "examples": ["veh_8f3c1a"],
       "minLength": 1
     },

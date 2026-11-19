@@ -9,7 +9,7 @@
       "parts": [
         {
           "data": {
-            "type": "inventory.search.request",
+            "type": "inventory_search_request",
             "filters": {
               "make": ["Honda", "BMW"],
               "model": ["CR-V"],

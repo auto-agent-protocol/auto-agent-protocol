@@ -222,7 +222,7 @@ function Hero(): JSX.Element {
 }
 
 const searchRequest = {
-  type: "inventory.search.request",
+  type: "inventory_search_request",
   filters: { body: ["suv"], price_max: 35000, status: ["available"] },
   pagination: { limit: 20 },
   sort: { field: "price", order: "asc" },
@@ -297,7 +297,7 @@ const protocols = [
     codeTitle: "PAP 1.0 HTTP request · signed-out, Session JWT shortened",
     codeLanguage: "text",
     code: [
-      "POST /poppy/skills/inventory.search HTTP/1.1",
+      "POST /poppy/skills/inventory_search HTTP/1.1",
       "Host: demo-toyota.example.com",
       "Poppy-Session: eyJ0eXAiOiJwb3BweS1zZXNzaW9uK2p3dCJ9…",
       "Poppy-Version: 1.0",
@@ -399,7 +399,7 @@ function ProtocolExplorer(): JSX.Element {
           </ol>
           <details className={styles.codeDetails} key={active.name}>
             <summary>
-              See the request shape <code>inventory.search</code>
+              See the request shape <code>inventory_search</code>
             </summary>
             <p>{active.codeTitle}</p>
             <CodeBlock language={active.codeLanguage}>{active.code}</CodeBlock>
@@ -416,31 +416,31 @@ const skills: [IconName, string, string, string][] = [
   [
     "dealer",
     "Know the dealer",
-    "dealer.information",
+    "dealer_information",
     "Locations, hours and services",
   ],
   [
     "filter",
     "Learn the inventory",
-    "inventory.facets",
+    "inventory_facets",
     "Values, ranges and feature codes",
   ],
   [
     "search",
     "Find a match",
-    "inventory.search",
+    "inventory_search",
     "Constraints, distance and pages",
   ],
   [
     "car",
     "Verify the vehicle",
-    "inventory.vehicle",
+    "inventory_vehicle",
     "Current facts and source evidence",
   ],
   [
     "lead",
     "Connect with consent",
-    "lead.submit",
+    "lead_submit",
     "One approved, idempotent inquiry",
   ],
 ];
@@ -454,14 +454,14 @@ const optionalSkills: {
   {
     icon: "tradeIn",
     title: "Value a trade-in",
-    id: "trade_in.submit",
+    id: "trade_in_submit",
     description: "A valuation of the shopper’s current vehicle, instant where the dealer offers it",
-    tags: ["Estimate or offer", "Amount or range", "Anonymous or consented"],
+    tags: ["Estimate or offer", "Amount or range", "Same customer data as a lead"],
   },
   {
     icon: "credit",
     title: "Apply for credit",
-    id: "credit_application.submit",
+    id: "credit_application_submit",
     description: "A consented application with its status and decision",
     tags: [
       "Consent per applicant",
@@ -486,7 +486,7 @@ function Skills(): JSX.Element {
           {skills.map(([icon, title, id, description], index) => (
             <Link
               key={id}
-              to={`${docs}/skills/${id.replaceAll(".", "-")}`}
+              to={`${docs}/skills/${id.replaceAll("_", "-")}`}
               className={styles.skill}
             >
               <span className={styles.skillNumber}>0{index + 1}</span>
@@ -519,7 +519,7 @@ function Skills(): JSX.Element {
             {optionalSkills.map(({ icon, title, id, description, tags }) => (
               <Link
                 key={id}
-                to={`${docs}/skills/${id.replaceAll(/[._]/g, "-")}`}
+                to={`${docs}/skills/${id.replaceAll("_", "-")}`}
                 className={`${styles.skill} ${styles.optionalSkill}`}
               >
                 <span className={styles.optionalBadge}>Optional</span>

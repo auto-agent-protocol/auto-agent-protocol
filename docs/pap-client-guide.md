@@ -32,14 +32,14 @@ Keep every key, JWT and token in code the model can't read.
 For each request, sign a new `poppy-session+jwt` with the delegated key: header `alg: ES256`, `kid` = the key's RFC 7638 thumbprint, `poppy_dlg` = the delegation; claims `iss`, `aud` (Company identifier), `sid`, `sub`, `htm`, `htu` (no query or fragment), `iat`, `jti`. Signed out, omit `ath` and send no token.
 
 ```http
-POST https://demo-toyota.example.com/poppy/skills/inventory.search
+POST https://demo-toyota.example.com/poppy/skills/inventory_search
 Poppy-Session: <fresh-delegated-session-jwt>
 Poppy-Version: 1.0
 Poppy-Extensions: "autoagentprotocol.org/aap";v="1"
 Content-Type: application/json
 
 {
-  "type": "inventory.search.request",
+  "type": "inventory_search_request",
   "filters": { "condition": ["used"], "price_max": 25000 },
   "pagination": { "limit": 5 },
   "sort": { "field": "price", "order": "asc" },

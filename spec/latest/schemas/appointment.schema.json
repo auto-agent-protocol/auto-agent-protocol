@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/appointment.schema.json",
   "title": "Appointment",
-  "description": "An appointment request piggybacked on a `lead.submit.request`. The vehicle reference for the appointment is IMPLICIT — it is whatever is in the parent `vehicle_of_interest` (or `trade_in` for a trade-in appraisal). A standalone sales or service visit can omit any vehicle.",
+  "description": "An appointment request piggybacked on a `lead_submit_request`. The vehicle reference for the appointment is IMPLICIT — it is whatever is in the parent `vehicle_of_interest` (or `trade_in` for a trade-in appraisal). A standalone sales or service visit can omit any vehicle.",
   "type": "object",
   "examples": [
     {

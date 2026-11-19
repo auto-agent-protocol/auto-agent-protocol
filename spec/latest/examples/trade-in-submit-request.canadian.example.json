@@ -1,5 +1,5 @@
 {
-  "type": "trade_in.submit.request",
+  "type": "trade_in_submit_request",
   "vehicle": {
     "year": 2021,
     "make": "Toyota",
@@ -8,6 +8,26 @@
     "mileage": 54000,
     "mileage_unit": "km",
     "currency": "CAD"
+  },
+  "customer": {
+    "first_name": "Margaret",
+    "last_name": "Hamilton",
+    "email": "margaret@example.ca",
+    "address": {
+      "city": "Toronto",
+      "state": "ON",
+      "country": "CA"
+    }
+  },
+  "consent": {
+    "granted_at": "2026-11-19T15:05:00Z",
+    "allowed_channels": [
+      "email"
+    ],
+    "consent_text": "I authorize Demo Toyota to email me about the trade-in value of my 2021 Toyota Corolla.",
+    "scope": [
+      "trade_in_submission"
+    ]
   },
   "source_agent": {
     "name": "example-buyer",

@@ -21,7 +21,7 @@ of coordinated disclosure before publishing details.
   `securitySchemes` / `securityRequirements`; [PAP](docs/personal-agent-protocol.md)
   requires a delegated `Poppy-Session` JWT and `Poppy-Version` on every
   native API request, including signed-out access.
-- `lead.submit` requires explicit customer contact consent, permitted channels,
+- `lead_submit` requires explicit customer contact consent, permitted channels,
   matching contact details and an idempotency key. Authentication or tool
   selection does not grant contact consent. Follow the shared
   [consent, retry and monitoring rules](docs/behavior-rules.md) on every binding.

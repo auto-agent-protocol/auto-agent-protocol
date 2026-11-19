@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/credit-consent.schema.json",
   "title": "CreditConsent",
-  "description": "One applicant's explicit, auditable authorization for one credit_application.submit payload: to send the application to the dealer and its lenders, to obtain the named kind of credit inquiry, and to be contacted on the selected channels. Each applicant grants their own. A session, tool selection, OAuth authorization, PAP operation approval or lead consent is not credit consent. A malformed, expired or inapplicable grant returns INVALID_CONSENT.",
+  "description": "One applicant's explicit, auditable authorization for one credit_application_submit payload: to send the application to the dealer and its lenders, to obtain the named kind of credit inquiry, and to be contacted on the selected channels. Each applicant grants their own. A session, tool selection, OAuth authorization, PAP operation approval or lead consent is not credit consent. A malformed, expired or inapplicable grant returns INVALID_CONSENT.",
   "type": "object",
   "properties": {
     "granted_at": {

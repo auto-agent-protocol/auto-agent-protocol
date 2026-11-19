@@ -44,7 +44,7 @@ Start from the [Agent Card](spec/v4.0/examples/agent-card.example.json), [Poppy 
 
 **Core:** [Dealer information](docs/skills/dealer-information.md) · [Facets](docs/skills/inventory-facets.md) · [Search](docs/skills/inventory-search.md) · [Vehicle detail](docs/skills/inventory-vehicle.md) · [Lead submission](docs/skills/lead-submit.md)
 
-**Optional:** [Trade-in valuation](docs/skills/trade-in-submit.md) (`trade_in.submit`) · [Credit application](docs/skills/credit-application-submit.md) (`credit_application.submit`)
+**Optional:** [Trade-in valuation](docs/skills/trade-in-submit.md) (`trade_in_submit`) · [Credit application](docs/skills/credit-application-submit.md) (`credit_application_submit`)
 
 ![Five core skills and two optional skills, each declared with its capabilities on every binding](docs/img/optional-skills.svg)
 
@@ -53,10 +53,11 @@ Browse without shopper contact details. Submit a lead only with explicit consent
 ## What is new in 4.0
 
 - **PAP 1.0:** every request with the delegated `Poppy-Session` JWT also sends `Poppy-Version: 1.0`; a missing or incompatible version returns HTTP 400 `version_unsupported`. Extensions are per-version lists, one optional `tasks.endpoint` replaces the separate task links, Companies accept ES256 and PS384, and Sessions are looked up by client, SID and User ID.
+- **snake_case everywhere:** skill ids and message types drop their dots (`lead.submit` → `lead_submit`, `lead.submit.request` → `lead_submit_request`, `aap.error` → `aap_error`). MCP tool names such as `aap_lead_submit` are unchanged.
 - **Rebates:** new vehicles can list `rebates[]`. Unconditional rebates are already in `price`; conditional rebates stay separate as possible savings.
-- **Optional `trade_in.submit`:** an anonymous estimate or a consented submission, valued as an amount or range, as an estimate or an offer.
-- **Optional `credit_application.submit`:** one application with credit consent from each applicant, a soft or hard inquiry, and sensitive data that is never echoed.
-- **Preserved automotive behavior:** the five core skills, currency, odometer units, pricing, equipment evidence, lead consent, MCP, A2A 1.0 and bridge version `1` retain their meanings.
+- **Optional `trade_in_submit`:** a consented trade-in submission carrying the same customer data as a lead; the reply may add a valuation as an amount or range, an estimate or an offer.
+- **Optional `credit_application_submit`:** one application with credit consent from each applicant, a soft or hard inquiry, and sensitive data that is never echoed. Dealers implement it by API, never through ADF/XML or email.
+- **Preserved automotive behavior:** the five core skills, currency, odometer units, pricing, equipment evidence, lead consent, MCP, A2A 1.0 and bridge version `1` retain their meanings. `lead_submit` still accepts a trade-in and never returns a valuation.
 
 ![Unconditional rebates are already inside the advertised price; conditional rebates stay separate](docs/img/rebates-price.svg)
 
