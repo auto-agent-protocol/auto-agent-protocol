@@ -17,13 +17,13 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "ajv": "^8.17.0",
-    "ajv-formats": "^3.0.0",
-    "@autoagentprotocol/schemas": "workspace:*"
+    "@autoagentprotocol/schemas": "workspace:*",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "typescript": "^5.7.0"
+    "@types/node": "^22.19.17",
+    "typescript": "^7.0.2"
   },
   "repository": {
     "type": "git",

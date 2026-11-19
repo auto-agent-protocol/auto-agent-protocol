@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import React, { type ReactNode } from "react";
 import styles from "./FieldCard.module.css";
 

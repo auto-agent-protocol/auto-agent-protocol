@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import { useRef, useState, type KeyboardEvent } from "react";
 import Link from "@docusaurus/Link";
 import Head from "@docusaurus/Head";

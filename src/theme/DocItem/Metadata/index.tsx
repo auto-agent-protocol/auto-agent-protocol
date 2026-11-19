@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import Head from "@docusaurus/Head";
 import { useDoc } from "@docusaurus/plugin-content-docs/client";
 import OriginalMetadata from "@theme-original/DocItem/Metadata";

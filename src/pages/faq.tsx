@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 import releases from "../../releases.json";
