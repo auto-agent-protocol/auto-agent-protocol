@@ -1,0 +1,41 @@
+{
+  "repository": "https://github.com/personal-agent-protocol/personal-agent-protocol",
+  "commit": "8c02b4282eda53468a7c09412558bc8b060d95f6",
+  "specification": {
+    "path": "content/versions/1.0/spec.mdx",
+    "sha256": "559a191127cb81d4e77360cd1cfae35233178a89b71b39c0534142a2bab918d6"
+  },
+  "schemas": {
+    "alternative.schema.json": "3aedbb27d47be37612618afee0e4009819b8057fa3f80673a7999d27236c415f",
+    "approval-declined.schema.json": "08fb341b7ac6477d8e275ed27381871a5831be479131a0945a9c7d056f33d27a",
+    "approval.schema.json": "a6678d0d99770ccf14873d27e51272d3101dedf0a1c469a15adff14e8e5eee9f",
+    "authorization-server-metadata.schema.json": "bf109a1ca3a9e2b184ce3963dc87d01a98a227023ebb991dda3216836d9df0c7",
+    "browser-session-authorize.schema.json": "f5d9ef55c6979e6d0c8924dbee0788e184951251d1537f9f4cf0432c019fcd51",
+    "client-metadata.schema.json": "63e5353df01558a106baffa914ba2532f5a5a0fb4592292daa6cd22c825560d7",
+    "conversation-action-request.schema.json": "b2e8936a15a43c1242b6f3cf9e06bd3b686fc5c65d544a6ce8fd199359363ca8",
+    "conversation-message-request.schema.json": "a29b7aec2805305b4153f0e907232f7ffeead974ab132356585a173dbbc68bac",
+    "conversation-request.schema.json": "b89b90ec2001762a57b160f55b7791ffb6c00f9989df52b8c22fe4f17ca75d7f",
+    "conversation-response.schema.json": "3f32ce7b6bd5c229c0673932c9ced2da70e3609f13b2058aa342fbbc56fd135d",
+    "delegation.schema.json": "5fae80ffead36cbb382b247516e031e743cea0779b06ed8e9d29e0a1bcc64365",
+    "device-authorization-response.schema.json": "0e2280abd02fd493e15f25b526d3890befbf2f54356cc0f6e573e929b60ce448",
+    "disclosures-content.schema.json": "bf8a116dc951919c4367dea99c622f640c6ef6a3e92fbc122088fd10d558f42c",
+    "error.schema.json": "c3b0f3810f621b6070de1ee49c580852fce07080a176e0d3d9f77f222718d5f7",
+    "event.schema.json": "c5483c7b83554eeb385c359e7485e03806a214a1e951f4a5b074cc1c56ac995d",
+    "events-response.schema.json": "cc79253ea0cdea26ee9edc3be186f6e282ed168be337b172d9c5aa9c9490b67a",
+    "feedback-report.schema.json": "cce0b2eaed5dad7172bd2698466dbbbdbc4671505be7d65b98bcd50973fa235a",
+    "links-content.schema.json": "63819d5de8d271af2d5b1d615ad0ea2a5215965613911c137c262842591c9c63",
+    "mediated-code-request.schema.json": "ab32f9f8b308ccf9b60fecf5700d84e5e3a3cb3418355f46259cba437902751e",
+    "mediated-sign-in-request.schema.json": "2c3fb3017e0e69ffaa79357defe27d7d5ba986c3ef254a90e2716a93f3e6a32d",
+    "mediated-sign-in-response.schema.json": "82ffc0409fa355b8f80f2d274d4873f430e6eb7e32b406a46a41f24fd4ae5ca0",
+    "message.schema.json": "08b1bf32a64a391d9b3ebf03cfc2e96faf5aa7eafcc20be7d4ac619d35f52edd",
+    "oauth-error.schema.json": "7e80ccabe73a301bf9036ed2ff4c04cde74d51fd7ae2f96dd2529db5df69f3e3",
+    "operation.schema.json": "67aa4f9d4a6a03bfb28ee7175a6ed49fdb7b4f503ae6cc303120ecf48f686dc6",
+    "operations-content.schema.json": "4080178ff77c7bc7fd3cab02be6aecb1360245104c7be54d300abe34f89c598f",
+    "poppy.schema.json": "3b4ade4931b77ca6a511c28f98eb03762122f1878b62982b6b0e1bb595d86142",
+    "protected-resource-metadata.schema.json": "b7d01704794f1340d121257bb3aa9199dc1a930ff64177a671294063c954957a",
+    "session-jwt.schema.json": "60351055732e25fcda349a71cfb35ed03eddfdf7b52f93e58ef4ac3651052f73",
+    "skill-index.schema.json": "082c06cbde336b2f946a78f479df406bd78c14765d3a61b91d0ef687fff9b62c",
+    "tasks.schema.json": "50f2ff48c0bb6e48bc048d70504aa9cd796d6128af61845e821e5ba11f7293e1",
+    "token-response.schema.json": "5c03071f1f5556c7c9538cc49d961a02b0e88d1cd5fb49e1e341af09bc7987e8"
+  }
+}

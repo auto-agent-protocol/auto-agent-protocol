@@ -1,0 +1,17 @@
+{
+  "type": "trade_in.submit.response",
+  "data": {
+    "trade_in_id": "trd_dt_90413",
+    "status": "valued",
+    "valuation": {
+      "amount": 16500,
+      "kind": "offer",
+      "expires_at": "2026-11-22T23:59:59-08:00",
+      "disclaimer": "Offer valid if the vehicle matches its description at inspection and the title is clear."
+    },
+    "dealer": {
+      "name": "Demo Toyota",
+      "phone": "+14155550100"
+    }
+  }
+}

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-skill-index.schema.json",
   "title": "PoppySkillIndex",
-  "description": "The optional skill_index in poppy.json (spec 9.4). Local validation of the Agent Skills discovery proposal pinned by the spec, not an upstream-published JSON Schema. Unknown schema versions remain opaque to clients.",
+  "description": "The optional skill_index in the tasks response (spec 9.4). Local validation of the Agent Skills discovery proposal pinned by the spec, not an upstream-published JSON Schema. Unknown schema versions remain opaque to clients.",
   "type": "object",
   "required": [
     "$schema"
@@ -75,5 +75,5 @@
       }
     }
   },
-  "$comment": "Adapted from personal-agent-protocol at 6fb46d381ac1b94265795132af13848ec442b6f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-0.3. JSON Schema does not verify cryptography or runtime requirements."
+  "$comment": "Adapted from personal-agent-protocol at 8c02b4282eda53468a7c09412558bc8b060d95f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-1.0. JSON Schema does not verify cryptography or runtime requirements."
 }

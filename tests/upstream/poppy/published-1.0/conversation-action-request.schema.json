@@ -1,0 +1,14 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "conversation-action-request.schema.json",
+    "title": "Conversation action request",
+    "description": "The JSON body of POST {endpoint}/{id}/handoff, POST {endpoint}/{id}/handoff/cancel (spec 8.9), and POST {endpoint}/{id}/close (8.12). id is the request ID the Personal Agent chooses (8.3).",
+    "type": "object",
+    "required": ["id"],
+    "properties": {
+        "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,256}$"
+        }
+    }
+}

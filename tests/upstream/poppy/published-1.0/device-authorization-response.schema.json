@@ -1,0 +1,20 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "device-authorization-response.schema.json",
+    "title": "Device authorization response",
+    "description": "The response from the device_authorization_endpoint that starts Device Sign-In (RFC 8628 section 3.2). Spec section 4.3 (Device Sign-In). Unknown fields are allowed.",
+    "type": "object",
+    "required": ["device_code", "user_code", "verification_uri", "expires_in"],
+    "properties": {
+        "device_code": { "type": "string", "minLength": 1 },
+        "user_code": { "type": "string", "minLength": 1 },
+        "verification_uri": { "type": "string", "pattern": "^https://[^\\s/?#]+", "format": "uri" },
+        "verification_uri_complete": {
+            "type": "string",
+            "pattern": "^https://[^\\s/?#]+",
+            "format": "uri"
+        },
+        "expires_in": { "type": "integer", "minimum": 1 },
+        "interval": { "type": "integer", "minimum": 1 }
+    }
+}

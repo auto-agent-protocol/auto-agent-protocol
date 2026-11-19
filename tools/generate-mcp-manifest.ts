@@ -100,7 +100,8 @@ export function generateMcp(specDir: string, outDir: string, version: string): v
   const schemasDir = resolve(specDir, "schemas");
   const tools = manifest.skills.map(skill => {
     const readOnly = ["dealer.information", "inventory.facets", "inventory.search", "inventory.vehicle"].includes(skill.id);
-    if (!readOnly && skill.id !== "lead.submit") throw new Error(`MCP behavior annotations are not defined for ${skill.id}`);
+    if (!readOnly && !["lead.submit", "trade_in.submit", "credit_application.submit"].includes(skill.id)) throw new Error(`MCP behavior annotations are not defined for ${skill.id}`);
+    const capabilities = ({ "inventory.search": "inventory-capabilities", "trade_in.submit": "trade-in-capabilities", "credit_application.submit": "credit-application-capabilities" } as Record<string, string>)[skill.id];
     const inputSchema = nestInputConstraints(bundleSchemas(schemasDir, [skill.request_schema]));
     return {
       name: `aap_${skill.id.replaceAll(".", "_")}`,
@@ -123,8 +124,8 @@ export function generateMcp(specDir: string, outDir: string, version: string): v
           request_schema: `${manifest.schema_base_url}${skill.request_schema}`,
           response_schema: `${manifest.schema_base_url}${skill.response_schema}`,
           error_schema: `${manifest.schema_base_url}error.schema.json`,
-          ...(skill.id === "inventory.search" && existsSync(resolve(schemasDir, "inventory-capabilities.schema.json"))
-            ? { capabilities_schema: `${manifest.schema_base_url}inventory-capabilities.schema.json` }
+          ...(capabilities && existsSync(resolve(schemasDir, `${capabilities}.schema.json`))
+            ? { capabilities_schema: `${manifest.schema_base_url}${capabilities}.schema.json` }
             : {}),
         },
       },

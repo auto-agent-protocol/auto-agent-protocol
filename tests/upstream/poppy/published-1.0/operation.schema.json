@@ -1,0 +1,19 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "operation.schema.json",
+    "title": "Operation",
+    "description": "An action the Company performs only once its exact terms are approved, by the User or by the Personal Agent on the User's instruction. Operations extension 3 (The operation). Returned in the body of an approval_required API error, in structuredContent of an MCP tool result, or in a Company message's extensions.operations.operation (Operations 4).",
+    "type": "object",
+    "required": ["operation_id", "revision", "terms", "expires_at"],
+    "properties": {
+        "operation_id": { "$ref": "message.schema.json#/$defs/id" },
+        "revision": { "$ref": "message.schema.json#/$defs/id" },
+        "summary": { "type": "string", "minLength": 1 },
+        "terms": { "type": "object" },
+        "expires_at": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?([Zz]|[+-][0-9]{2}:[0-9]{2})$",
+            "format": "date-time"
+        }
+    }
+}

@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-aap-extension.schema.json",
   "title": "PoppyAapExtension",
+  "description": "One entry of the autoagentprotocol.org/aap list in a PAP 1.0 poppy.json extensions object (spec 3.3). The entry fields and bridge version 1 are unchanged from AAP 3.x; only the PAP container became a list with one entry per extension major version.",
   "type": "object",
   "properties": {
     "version": {

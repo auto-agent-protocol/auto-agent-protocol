@@ -11,7 +11,7 @@ import { ROOT } from "../../tools/lib/releases.js";
 
 // A protocol fixture, not a production dealer or a claim of deployed conformance.
 // The upstream SDK performs real discovery and serializes/parses real HTTP bytes.
-test("official A2A JS SDK discovers the card and round-trips all five typed skills", { timeout: 10000 }, async () => {
+test("official A2A JS SDK discovers the card and round-trips every typed skill", { timeout: 10000 }, async () => {
   const read = (file: string) => JSON.parse(readFileSync(resolve(ROOT, "spec/latest/examples", file), "utf8"));
   const card = read("agent-card.example.json");
   const manifest = parse(readFileSync(resolve(ROOT, "spec/latest/skills.yaml"), "utf8"));
@@ -62,6 +62,8 @@ test("official A2A JS SDK discovers the card and round-trips all five typed skil
     for (const [skillId, requestFile, responseFile] of [
       ["dealer.information", "dealer-information-request.aggregate.example.json", "dealer-information-response.aggregate.example.json"],
       ["lead.submit", "lead-submit-request.example.json", "lead-submit-response.replayed.example.json"],
+      ["trade_in.submit", "trade-in-submit-request.contact.example.json", "trade-in-submit-response.offer.example.json"],
+      ["credit_application.submit", "credit-application-submit-request.joint.example.json", "credit-application-submit-response.replayed.example.json"],
     ]) {
       const skill = manifest.skills.find((item: any) => item.id === skillId);
       responseExample = responseFile;
@@ -73,7 +75,7 @@ test("official A2A JS SDK discovers the card and round-trips all five typed skil
       assert.deepEqual((Message.toJSON(result) as any).parts[0].data, read(responseFile), "seller identity and recovered booking survive the transport unchanged");
     }
     responseExample = undefined;
-    assert.equal(calls.length, 7);
+    assert.equal(calls.length, manifest.skills.length + 4);
     for (const { request, headers } of calls) {
       assert.equal(request.method, "SendMessage");
       assert.equal(request.jsonrpc, "2.0");

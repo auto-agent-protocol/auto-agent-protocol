@@ -1,0 +1,22 @@
+{
+  "type": "trade_in.submit.response",
+  "data": {
+    "trade_in_id": "trd_dt_90412",
+    "status": "valued",
+    "valuation": {
+      "amount": 16800,
+      "amount_min": 15900,
+      "amount_max": 17600,
+      "currency": "USD",
+      "kind": "estimate",
+      "expires_at": "2026-11-26T10:15:00Z",
+      "source": "Dealer appraisal desk with regional auction data",
+      "disclaimer": "Estimate based on the description provided. The final value depends on an in-person inspection and a clear title."
+    },
+    "dealer": {
+      "name": "Demo Toyota",
+      "phone": "+14155550100"
+    }
+  },
+  "message": "Bring the vehicle in for a 20-minute inspection to turn this estimate into a firm offer."
+}

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-capabilities.schema.json",
+  "title": "TradeInCapabilities",
+  "description": "Actual trade_in.submit behavior of one deployment. Publish in the A2A AAP extension params.skills[\"trade_in.submit\"].capabilities and the MCP trade-in tool metadata; the same values apply to every binding.",
+  "type": "object",
+  "properties": {
+    "instant_valuation": {
+      "type": "boolean",
+      "description": "true when the dealer can answer with status valued in the same call. false means every accepted submission returns received."
+    },
+    "contact_required": {
+      "type": "boolean",
+      "description": "true when the dealer rejects a request without customer and consent with CONTACT_CONSENT_REQUIRED. false means anonymous estimates are served."
+    },
+    "currencies": {
+      "type": "array",
+      "items": {
+        "$ref": "./_primitives/currency.schema.json"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "default": [
+        "USD"
+      ],
+      "description": "Currencies this skill accepts and returns. Omitted means only USD."
+    }
+  },
+  "required": [
+    "instant_valuation",
+    "contact_required"
+  ],
+  "additionalProperties": false,
+  "if": {
+    "properties": {
+      "instant_valuation": {
+        "const": false
+      }
+    },
+    "required": [
+      "instant_valuation"
+    ]
+  },
+  "then": {
+    "properties": {
+      "contact_required": {
+        "const": true
+      }
+    }
+  }
+}

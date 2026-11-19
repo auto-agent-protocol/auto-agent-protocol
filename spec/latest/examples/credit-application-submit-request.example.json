@@ -1,0 +1,60 @@
+{
+  "type": "credit_application.submit.request",
+  "application_type": "individual",
+  "applicant": {
+    "first_name": "Ada",
+    "middle_name": "M",
+    "last_name": "Lovelace",
+    "date_of_birth": "1988-12-10",
+    "email": "ada@example.com",
+    "phone": "+14155550123",
+    "address": {
+      "address_line_1": "1280 Howard Street",
+      "address_line_2": "Apt 5",
+      "city": "San Francisco",
+      "state": "CA",
+      "zip": "94103",
+      "country": "US"
+    },
+    "housing_status": "rent",
+    "monthly_housing_payment": 2850,
+    "months_at_address": 41,
+    "employment_status": "employed",
+    "employer_name": "Analytical Engines Inc.",
+    "occupation": "Software Engineer",
+    "employer_phone": "+14155550188",
+    "months_at_employer": 30,
+    "gross_monthly_income": 9800,
+    "consent": {
+      "granted_at": "2026-11-19T10:40:00Z",
+      "consent_text": "I, Ada M Lovelace, authorize Demo Toyota and the lenders it works with to obtain my consumer credit report through a soft inquiry and to use the information in this application to evaluate my request for vehicle financing. Demo Toyota may contact me about this application by email.",
+      "authorized_inquiry": "soft",
+      "allowed_channels": [
+        "email"
+      ],
+      "expires_at": "2026-12-19T10:40:00Z"
+    }
+  },
+  "financing": {
+    "deal_type": "finance",
+    "down_payment": 4000,
+    "requested_term_months": 60,
+    "requested_amount": 30890
+  },
+  "vehicle_of_interest": {
+    "vin": "JTMRWRFV5SD012345",
+    "stock": "DT-3107",
+    "year": 2026,
+    "make": "Toyota",
+    "model": "RAV4",
+    "trim": "XLE",
+    "condition": "new",
+    "price": 34890
+  },
+  "source_agent": {
+    "name": "example-buyer",
+    "url": "https://buyer.example"
+  },
+  "submitted_at": "2026-11-19T10:41:00Z",
+  "idempotency_key": "01JD9CREDIT0ADALOVELACE0001"
+}

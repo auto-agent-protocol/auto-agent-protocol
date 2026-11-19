@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-client-assertion.schema.json",
   "title": "PoppyClientAssertion",
-  "description": "Decoded optional OAuth private_key_jwt claims. iss and sub equal client_id, aud is exactly the Company issuer, iat/exp are short-lived and jti unique. Verify signatures independently; this is never a Session JWT.",
+  "description": "Decoded optional OAuth private_key_jwt claims. iss and sub equal client_id, aud is exactly the Company issuer, exp is at most 5 minutes after iat and jti is unique and unguessable (spec 4.1). Companies accept ES256 and PS384 signatures. Verify signatures independently; this is never a Session JWT.",
   "type": "object",
   "properties": {
     "iss": {

@@ -137,7 +137,7 @@ test("MCP input schemas avoid the reported host root-keyword restriction without
 });
 
 for (const modern of [true, false]) {
-  test(`official MCP ${modern ? "2.4.0 current" : "1.32.2 legacy"} client discovers and calls all five tools`, { timeout: 15000 }, async () => {
+  test(`official MCP ${modern ? "2.4.0 current" : "1.32.2 legacy"} client discovers and calls every tool`, { timeout: 15000 }, async () => {
     const calls: Array<{ request: any; headers: Record<string, unknown>; result?: any }> = [];
     let responseExample: string | undefined;
     const servedTools = structuredClone(catalog.tools);

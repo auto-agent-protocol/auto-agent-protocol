@@ -1,0 +1,125 @@
+{
+  "type": "credit_application.submit.request",
+  "application_type": "joint",
+  "applicant": {
+    "first_name": "Ada",
+    "middle_name": "M",
+    "last_name": "Lovelace",
+    "date_of_birth": "1988-12-10",
+    "email": "ada@example.com",
+    "phone": "+14155550123",
+    "address": {
+      "address_line_1": "1280 Howard Street",
+      "address_line_2": "Apt 5",
+      "city": "San Francisco",
+      "state": "CA",
+      "zip": "94103",
+      "country": "US"
+    },
+    "housing_status": "rent",
+    "monthly_housing_payment": 2850,
+    "months_at_address": 14,
+    "employment_status": "employed",
+    "employer_name": "Analytical Engines Inc.",
+    "occupation": "Software Engineer",
+    "employer_phone": "+14155550188",
+    "months_at_employer": 9,
+    "gross_monthly_income": 9800,
+    "consent": {
+      "granted_at": "2026-11-19T10:40:00Z",
+      "consent_text": "I, Ada M Lovelace Jr., authorize Demo Toyota and the lenders it works with to obtain my consumer credit report through a hard inquiry and to use the information in this application to evaluate my request for vehicle financing. Demo Toyota may contact me about this application by email or phone.",
+      "authorized_inquiry": "hard",
+      "allowed_channels": [
+        "email",
+        "phone"
+      ],
+      "expires_at": "2026-12-19T10:40:00Z"
+    },
+    "suffix": "Jr.",
+    "national_id": {
+      "type": "ssn",
+      "value": "000000000"
+    },
+    "drivers_license": {
+      "number": "D0000000",
+      "state": "CA",
+      "expires_on": "2029-12-10"
+    },
+    "marital_status": "married",
+    "previous_address": {
+      "address_line_1": "44 Tehama Street",
+      "city": "San Francisco",
+      "state": "CA",
+      "zip": "94105"
+    },
+    "months_at_previous_address": 36,
+    "previous_employer_name": "Difference Machines LLC",
+    "months_at_previous_employer": 52,
+    "other_monthly_income": 600,
+    "other_income_source": "Rental income"
+  },
+  "co_applicant": {
+    "first_name": "Grace",
+    "last_name": "Hopper",
+    "relationship": "spouse",
+    "date_of_birth": "1986-12-09",
+    "phone": "+14155550124",
+    "address": {
+      "address_line_1": "1280 Howard Street",
+      "address_line_2": "Apt 5",
+      "city": "San Francisco",
+      "state": "CA",
+      "zip": "94103"
+    },
+    "housing_status": "rent",
+    "monthly_housing_payment": 0,
+    "months_at_address": 14,
+    "employment_status": "self_employed",
+    "employer_name": "Hopper Consulting",
+    "months_at_employer": 84,
+    "gross_monthly_income": 7200,
+    "consent": {
+      "granted_at": "2026-11-19T10:40:00Z",
+      "consent_text": "I, Grace Hopper, authorize Demo Toyota and the lenders it works with to obtain my consumer credit report through a hard inquiry and to use the information in this application to evaluate my request for vehicle financing. Demo Toyota may contact me about this application by phone or sms.",
+      "authorized_inquiry": "hard",
+      "allowed_channels": [
+        "phone",
+        "sms"
+      ],
+      "expires_at": "2026-12-19T10:40:00Z"
+    }
+  },
+  "currency": "USD",
+  "financing": {
+    "deal_type": "finance",
+    "down_payment": 2500,
+    "requested_term_months": 72,
+    "requested_amount": 26500
+  },
+  "vehicle_of_interest": {
+    "vin": "JTMRWRFV5SD012345",
+    "stock": "DT-3107",
+    "year": 2026,
+    "make": "Toyota",
+    "model": "RAV4",
+    "trim": "XLE",
+    "condition": "new",
+    "price": 34890
+  },
+  "trade_in": {
+    "year": 2020,
+    "make": "Volkswagen",
+    "model": "Passat",
+    "condition": "good",
+    "mileage": 62000,
+    "payoff_amount": 5890,
+    "lienholder": "Example Credit Union"
+  },
+  "message": "We would like to keep the payment under 550 a month.",
+  "source_agent": {
+    "name": "example-buyer",
+    "url": "https://buyer.example"
+  },
+  "submitted_at": "2026-11-19T10:45:00Z",
+  "idempotency_key": "01JD9CREDIT0JOINTLOVELACE02"
+}

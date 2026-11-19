@@ -1,0 +1,8 @@
+{
+  "type": "credit_application.submit.response",
+  "data": {
+    "application_id": "app_dt_55122",
+    "status": "rejected"
+  },
+  "message": "We cannot take joint applications online. Please visit the dealership to apply together."
+}

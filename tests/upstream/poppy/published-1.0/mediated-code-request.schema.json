@@ -1,0 +1,25 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "mediated-code-request.schema.json",
+    "title": "Mediated Sign-In one-time code request",
+    "description": "The form parameters of the second Mediated Sign-In token request, as an object (Mediated Sign-In 4): the same grant type with the sign_in_id from code_required, the one-time code, and the client assertion, but not the credentials.",
+    "type": "object",
+    "required": [
+        "grant_type",
+        "sign_in_id",
+        "one_time_code",
+        "client_id",
+        "client_assertion_type",
+        "client_assertion"
+    ],
+    "properties": {
+        "grant_type": { "const": "https://personalagentprotocol.org/grant/mediated-sign-in" },
+        "sign_in_id": { "type": "string", "minLength": 1 },
+        "one_time_code": { "type": "string", "minLength": 1 },
+        "client_id": { "type": "string", "pattern": "^https://[^\\s/?#]+", "format": "uri" },
+        "client_assertion_type": {
+            "const": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+        },
+        "client_assertion": { "type": "string", "minLength": 1 }
+    }
+}

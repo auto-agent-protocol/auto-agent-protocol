@@ -1,0 +1,24 @@
+{
+  "type": "trade_in.submit.request",
+  "vehicle": {
+    "year": 2020,
+    "make": "Volkswagen",
+    "model": "Passat",
+    "trim": "SE",
+    "condition": "good",
+    "mileage": 62000,
+    "vin": "1VWSA7A39LC012345",
+    "exterior_color": "Pure White",
+    "driveline": "fwd",
+    "transmission": "automatic",
+    "displacement_cc": 1984,
+    "fuel": "gas",
+    "horsepower": 174
+  },
+  "source_agent": {
+    "name": "example-buyer",
+    "url": "https://buyer.example"
+  },
+  "submitted_at": "2026-11-19T10:15:00Z",
+  "idempotency_key": "01JD9TRADEIN0VWPASSAT00042"
+}

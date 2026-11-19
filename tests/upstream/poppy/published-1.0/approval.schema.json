@@ -1,0 +1,30 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "approval.schema.json",
+    "title": "Approval",
+    "description": "An approval of one revision of an operation, user approved or agent approved (the Personal Agent approved on the User's instruction), sent by the Personal Agent. Operations extension 5 and 6. In a conversation message's extensions.operations.approval, or in an MCP tool call's _meta under personalagentprotocol.org/approval. At APIs, the same members go in the Poppy-Approval header as a Dictionary Structured Field. Unknown members are ignored.",
+    "type": "object",
+    "required": ["operation_id", "revision", "approver"],
+    "if": { "properties": { "approver": { "const": "agent" } } },
+    "then": { "not": { "required": ["input_type"] } },
+    "properties": {
+        "operation_id": { "$ref": "message.schema.json#/$defs/id" },
+        "revision": { "$ref": "message.schema.json#/$defs/id" },
+        "approver": {
+            "enum": ["user", "agent"],
+            "description": "user for a user approval, agent for an agent approval on the User's instruction. Operations extension 5 and 6."
+        },
+        "approved_at": {
+            "type": "integer",
+            "description": "In Unix seconds. With user, when the User approved. With agent, when the Personal Agent approved. Operations extension 6."
+        },
+        "input_type": {
+            "type": "string",
+            "description": "Only with user, never with agent. How the User gave their answer, such as tap, typed, or voice. Other values are allowed. Operations extension 6."
+        },
+        "reference": {
+            "$ref": "message.schema.json#/$defs/id",
+            "description": "An opaque ID for the Personal Agent's own record of the approval, such as a ledger entry. Never the same at two Companies. Operations extension 6."
+        }
+    }
+}

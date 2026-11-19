@@ -10,8 +10,10 @@ export function checkDiscovery(
 ): string[] {
   const errors: string[] = [];
   const params = card.capabilities.extensions.find((entry: any) => entry.uri === manifest.extension_uri)?.params;
-  const bridge = poppy.extensions["autoagentprotocol.org/aap"];
+  const listed = poppy.extensions["autoagentprotocol.org/aap"];
+  const bridge = Array.isArray(listed) ? listed.find((entry: any) => entry?.version === "1") : listed;
   if (!params) return ["Agent Card must declare the selected AAP extension and its params"];
+  if (!bridge) return ["Poppy document must list the version-1 AAP bridge entry"];
   if (params.version !== manifest.version || params.schema_base_url !== manifest.schema_base_url || bridge.aap_version !== manifest.version) {
     errors.push("Discovery documents must identify the same AAP contract as the manifest");
   }
@@ -41,7 +43,7 @@ export function checkDiscovery(
   if (bridge.agent_card !== cardUrl) errors.push("Poppy bridge must link the paired Agent Card");
   if (bridge.mcp !== params.mcp.url) errors.push("Both discovery documents must link the same MCP endpoint");
   for (const api of poppy.apis.filter((entry: any) => entry.type === "mcp")) {
-    if (api.url !== params.mcp.url || api.resource !== params.mcp.url) errors.push("Native PAP MCP must use the advertised MCP URL as both url and resource");
+    if (api.url !== params.mcp.url || (!Array.isArray(listed) && api.resource !== params.mcp.url)) errors.push("Native PAP MCP must use the advertised MCP URL, which is also its protected resource");
   }
   if (tools) {
     const aapTools = tools.filter(tool => tool._meta?.["autoagentprotocol.org/aap"]);
@@ -62,6 +64,10 @@ export function checkDiscovery(
         const normalize = (value: any) => value && ({ ...value, filters: [...value.filters].sort(), sort_fields: [...value.sort_fields].sort(),
           currencies: [...(value.currencies ?? ["USD"])].sort(), default_currency: value.default_currency ?? "USD", default_mileage_unit: value.default_mileage_unit ?? "mi" });
         if (!isDeepStrictEqual(normalize(metadata.capabilities), normalize(capabilities))) errors.push("MCP and Agent Card search capabilities must agree");
+      }
+      if (skill.id === "trade_in.submit" || skill.id === "credit_application.submit") {
+        const normalize = (value: any) => value && ({ ...value, currencies: [...(value.currencies ?? ["USD"])].sort(), ...(value.inquiry_types ? { inquiry_types: [...value.inquiry_types].sort() } : {}) });
+        if (!isDeepStrictEqual(normalize(metadata.capabilities), normalize(params.skills[skill.id]?.capabilities))) errors.push(`MCP and Agent Card ${skill.id} capabilities must agree`);
       }
     }
   }

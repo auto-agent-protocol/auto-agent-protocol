@@ -1,0 +1,11 @@
+{
+  "type": "trade_in.submit.response",
+  "data": {
+    "trade_in_id": "trd_dt_90414",
+    "status": "valued",
+    "valuation": {
+      "amount_min": 9200,
+      "amount_max": 10400
+    }
+  }
+}

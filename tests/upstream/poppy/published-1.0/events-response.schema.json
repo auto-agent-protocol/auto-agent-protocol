@@ -1,0 +1,47 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "events-response.schema.json",
+    "title": "Events response",
+    "description": "The response to GET {endpoint}/{id}/events, and to a POST with the wait query parameter. Spec sections 8.5 (Reading events) and 8.7 (State). Every successful read includes conversation_id, events, cursor, has_more, and the state fields working, handoff, responder, and closed, with events empty when there are none. cursor is the last event returned, or the request's cursor if there were none; the spec doesn't say what it is for an empty read without a cursor, so null is allowed.",
+    "type": "object",
+    "required": [
+        "conversation_id",
+        "events",
+        "cursor",
+        "has_more",
+        "working",
+        "handoff",
+        "responder",
+        "closed"
+    ],
+    "properties": {
+        "conversation_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,256}$"
+        },
+        "events": {
+            "type": "array",
+            "items": {
+                "$ref": "event.schema.json"
+            }
+        },
+        "cursor": {
+            "type": ["string", "null"]
+        },
+        "has_more": {
+            "type": "boolean"
+        },
+        "working": {
+            "type": "boolean"
+        },
+        "handoff": {
+            "enum": ["none", "pending"]
+        },
+        "responder": {
+            "enum": ["agent", "human"]
+        },
+        "closed": {
+            "type": "boolean"
+        }
+    }
+}

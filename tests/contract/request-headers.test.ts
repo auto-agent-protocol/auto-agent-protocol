@@ -19,7 +19,7 @@ addFormats(ajv);
 for (const file of globSync("spec/latest/schemas/**/*.schema.json", { cwd: ROOT })) ajv.addSchema(JSON.parse(readFileSync(resolve(ROOT, file), "utf8")));
 
 for (const binding of ["a2a", "mcp"] as const) {
-  test(`${binding} compatibility ingress accepts all five skills with omitted redundant headers`, { timeout: 15000 }, async () => {
+  test(`${binding} compatibility ingress accepts every skill with omitted redundant headers`, { timeout: 15000 }, async () => {
     const executed: Headers[] = [];
     // Local protocol fixture: validates real HTTP requests and shared payloads;
     // it does not represent a deployed dealer or deliver any leads.

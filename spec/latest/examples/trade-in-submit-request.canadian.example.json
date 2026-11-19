@@ -1,0 +1,17 @@
+{
+  "type": "trade_in.submit.request",
+  "vehicle": {
+    "year": 2021,
+    "make": "Toyota",
+    "model": "Corolla",
+    "condition": "excellent",
+    "mileage": 54000,
+    "mileage_unit": "km",
+    "currency": "CAD"
+  },
+  "source_agent": {
+    "name": "example-buyer",
+    "url": "https://buyer.example"
+  },
+  "idempotency_key": "01JD9TRADEIN0CACOROLLA0011"
+}

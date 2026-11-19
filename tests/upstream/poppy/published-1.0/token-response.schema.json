@@ -1,0 +1,31 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "token-response.schema.json",
+    "title": "Token response",
+    "description": "A successful token endpoint response from sign-in, including Mediated Sign-In, or refresh (spec 4.7): an access token, Bearer by default or DPoP if the Company binds its tokens (spec 4.5), and a refresh token. The response isn't tied to a Session: signed-in requests carry the access token with the Session header. refresh_token is present after sign-in and when the Company rotates it. scope is left out only when the granted scopes equal those requested, and expires_in is recommended (RFC 6749 section 5.1). Unknown fields are allowed.",
+    "type": "object",
+    "required": ["access_token", "token_type"],
+    "properties": {
+        "access_token": {
+            "type": "string",
+            "minLength": 1
+        },
+        "token_type": {
+            "description": "Compared ignoring case (RFC 6749 section 5.1).",
+            "type": "string",
+            "pattern": "^([Dd][Pp][Oo][Pp]|[Bb][Ee][Aa][Rr][Ee][Rr])$"
+        },
+        "expires_in": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "scope": {
+            "type": "string",
+            "pattern": "^[\\x21\\x23-\\x5B\\x5D-\\x7E]+( [\\x21\\x23-\\x5B\\x5D-\\x7E]+)*$"
+        },
+        "refresh_token": {
+            "type": "string",
+            "minLength": 1
+        }
+    }
+}

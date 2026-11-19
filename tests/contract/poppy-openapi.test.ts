@@ -22,8 +22,13 @@ test("Poppy OpenAPI carries every AAP skill unchanged and requires delegated Pop
     ajv.addSchema({ $id: "https://test.example/poppy", components: api.components });
     assert.equal(api.openapi, "3.1.0");
     assert.match(api.info.description, /^Unreleased AAP 0\.0\.0-dev payloads/);
-    assert.equal(api["x-poppy-protocol-version"], "0.3");
-    assert.equal(api["x-poppy-specification-revision"], "6fb46d381ac1b94265795132af13848ec442b6f6");
+    assert.equal(api["x-poppy-protocol-version"], "1.0");
+    assert.equal(api["x-poppy-specification-revision"], "8c02b4282eda53468a7c09412558bc8b060d95f6");
+    assert.equal(api.externalDocs.url, "https://personalagentprotocol.org/docs/1.0/spec");
+    assert.equal(manifest.skills.length, 7);
+    assert.deepEqual(api.components.parameters.PoppyVersion, { ...api.components.parameters.PoppyVersion, name: "Poppy-Version", in: "header", required: true, example: "1.0" });
+    assert.equal(api.components.parameters.PoppyExtensions.required, false);
+    assert.equal(api.components.parameters.PoppyApproval.required, false);
     assert.equal(api["x-aap-extension"], manifest.extension_uri);
     assert.equal(Object.keys(api.paths).length, manifest.skills.length);
     assert.equal(api.components.securitySchemes.poppySession.name, "Poppy-Session");
@@ -32,11 +37,18 @@ test("Poppy OpenAPI carries every AAP skill unchanged and requires delegated Pop
       const op = api.paths[`/skills/${skill.id}`].post;
       assert.equal(op["x-aap-skill"], skill.id);
       assert.deepEqual(op.security, [{ poppySession: [] }]);
-      assert.equal(op.parameters, undefined, "no old DPoP or A2A/MCP headers on signed-out PAP");
+      const write = ["lead.submit", "trade_in.submit", "credit_application.submit"].includes(skill.id);
+      assert.deepEqual(op.parameters.map((parameter: any) => parameter.$ref.split("/").pop()), ["PoppyVersion", "PoppyExtensions", ...(write ? ["PoppyApproval"] : [])], "PAP 1.0 headers only; no DPoP or A2A/MCP headers on signed-out PAP");
       assert.equal(op.responses["401"], undefined, "Session failures are HTTP 400");
       const failure = ajv.compile({ $id: "https://test.example/poppy-errors/" + skill.id, ...op.responses["400"].content["application/json"].schema, components: api.components });
       assert.equal(failure({ error: "invalid_session", error_description: "Send a fresh delegated JWT." }), true);
       assert.equal(failure({ error: "session_ended" }), true);
+      assert.equal(failure({ error: "version_unsupported" }), true);
+      const refused = ajv.compile({ $id: "https://test.example/poppy-refusals/" + skill.id, ...op.responses["403"].content["application/json"].schema, components: api.components });
+      assert.equal(refused({ error: "extension_required", extension: "operations" }), true);
+      const refusals = op.responses["403"].content["application/json"].schema.anyOf.map((entry: any) => entry.$ref.split("/").pop());
+      assert.deepEqual(refusals, ["Error", "PoppyError", ...(write ? ["PoppyApprovalRequired", "PoppyApprovalDeclined"] : [])], "only write skills can ask for an Operations approval");
+      if (write) for (const name of ["poppy-approval-required", "poppy-approval-declined"]) assert.equal(refused(JSON.parse(readFileSync(resolve(spec, `examples/${name}.example.json`), "utf8"))), true, name);
       assert.equal(failure({ error: "invalid_token" }), false);
       assert.ok(op.responses["429"].headers["Retry-After"]);
       for (const [schemaUrl, schema] of [

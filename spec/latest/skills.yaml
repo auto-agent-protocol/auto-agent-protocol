@@ -56,3 +56,25 @@ skills:
     response_type: lead.submit.response
     media_type_request: application/vnd.autoagent.lead-submit-request+json
     media_type_response: application/vnd.autoagent.lead-submit-response+json
+
+  - id: trade_in.submit
+    name: Submit Trade-In
+    description: Optional. Describe one trade-in by year, make, model, condition and mileage and, where the dealer supports it, receive an immediate valuation as an amount, a range or both. Contact data is optional and needs consent; without it the request is an anonymous estimate. Require an idempotency key. A valuation is an estimate unless it is marked as an offer.
+    tags: [trade-in, valuation, appraisal, estimate, automotive, motorcycles, powersports]
+    request_schema: trade-in-submit-request.schema.json
+    response_schema: trade-in-submit-response.schema.json
+    request_type: trade_in.submit.request
+    response_type: trade_in.submit.response
+    media_type_request: application/vnd.autoagent.trade-in-submit-request+json
+    media_type_response: application/vnd.autoagent.trade-in-submit-response+json
+
+  - id: credit_application.submit
+    name: Submit Credit Application
+    description: Optional. Submit one vehicle credit application with each applicant's own credit consent, including the soft or hard inquiry they authorized. Require an idempotency key; duplicate suppression lasts at least 24 hours. Report the submission and any credit decision separately. Applicant data is sensitive and is never repeated in a response or error.
+    tags: [credit, financing, application, prequalification, consent, automotive, motorcycles, powersports]
+    request_schema: credit-application-submit-request.schema.json
+    response_schema: credit-application-submit-response.schema.json
+    request_type: credit_application.submit.request
+    response_type: credit_application.submit.response
+    media_type_request: application/vnd.autoagent.credit-application-submit-request+json
+    media_type_response: application/vnd.autoagent.credit-application-submit-response+json

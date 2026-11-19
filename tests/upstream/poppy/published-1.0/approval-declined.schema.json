@@ -1,0 +1,19 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "approval-declined.schema.json",
+    "title": "Declined approval",
+    "description": "A Company's final refusal of an approval that passed its checks: it performs nothing and returns no new operation. Operations extension 6 (Declining an approval). At an API, and at the extension's endpoint, the body of an HTTP 403 with error approval_declined. In an MCP tool error result's structuredContent, with error approval_declined. In a Company message's extensions.operations.declined, without error. reason and alternative are content from the Company (spec 10.1), and there are no reason codes. Unknown members are allowed.",
+    "type": "object",
+    "required": ["operation_id", "revision"],
+    "properties": {
+        "error": { "const": "approval_declined" },
+        "operation_id": { "$ref": "message.schema.json#/$defs/id" },
+        "revision": { "$ref": "message.schema.json#/$defs/id" },
+        "reason": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Why, in short plain language for the User. Nothing the Session couldn't already see."
+        },
+        "alternative": { "$ref": "alternative.schema.json" }
+    }
+}

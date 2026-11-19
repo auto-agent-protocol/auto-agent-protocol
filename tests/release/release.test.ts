@@ -70,13 +70,18 @@ test("minor compatibility normalizes only the two known generated version consta
   });
   assert.deepEqual(normalizeReleaseIdentifiers(schema, "unrelated.schema.json", "3.1.0"), schema);
   assert.deepEqual(normalizeReleaseIdentifiers(schema, file, "3.0.0"), schema, "an unexpected version value is not normalized");
-  const poppy = readJson<any>(join(ROOT, "spec/latest/schemas/poppy.schema.json"));
-  const path = (value: any) => value.allOf[1].properties.extensions.properties["autoagentprotocol.org/aap"].allOf[1].properties.aap_version;
-  path(poppy).const = "3.1.0";
-  poppy.properties = { business_value: { const: "3.1.0" } };
-  const normalized = normalizeReleaseIdentifiers(poppy, "poppy.schema.json", "3.1.0") as any;
-  assert.equal(path(normalized).const, "{release-version}");
-  assert.equal(normalized.properties.business_value.const, "3.1.0");
+  const bridge = (value: any) => value.allOf[1].properties.extensions.properties["autoagentprotocol.org/aap"];
+  for (const [source, path] of [
+    ["spec/latest/schemas/poppy.schema.json", (value: any) => bridge(value).items.then.allOf[1].properties.aap_version],
+    ["spec/v3.2/schemas/poppy.schema.json", (value: any) => bridge(value).allOf[1].properties.aap_version],
+  ] as const) {
+    const poppy = readJson<any>(join(ROOT, source));
+    path(poppy).const = "3.1.0";
+    poppy.properties = { business_value: { const: "3.1.0" } };
+    const normalized = normalizeReleaseIdentifiers(poppy, "poppy.schema.json", "3.1.0") as any;
+    assert.equal(path(normalized).const, "{release-version}", source);
+    assert.equal(normalized.properties.business_value.const, "3.1.0");
+  }
 });
 
 test("minor dependencies are additive only when old objects forbid every triggering property", () => {

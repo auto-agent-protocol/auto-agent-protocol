@@ -1,0 +1,35 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "protected-resource-metadata.schema.json",
+    "title": "OAuth Protected Resource Metadata",
+    "description": "RFC 9728 protected resource metadata, with the fields Poppy needs. The Company's domain publishes it at https://{domain}/.well-known/oauth-protected-resource with resource exactly https://{domain}, and authorization_servers names its issuer when it has one (spec 3.2). An issuerless Company may omit authorization_servers or use an empty array. A listed MCP server publishes it with resource set to its URL and the Company's issuer in authorization_servers (spec 7), as does any service that accepts only tokens issued for it (spec 4.5). Other fields are allowed.",
+    "type": "object",
+    "required": ["resource"],
+    "properties": {
+        "resource": {
+            "type": "string",
+            "pattern": "^https://[^\\s/?#]+",
+            "format": "uri"
+        },
+        "authorization_servers": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "pattern": "^https://[^\\s/?#]+",
+                "format": "uri"
+            }
+        },
+        "bearer_methods_supported": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "scopes_supported": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    }
+}

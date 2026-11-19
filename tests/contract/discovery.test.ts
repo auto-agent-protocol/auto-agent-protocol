@@ -21,7 +21,9 @@ const validateCard = ajv.getSchema(`${manifest.schema_base_url}agent-card.schema
 
 function deployedTools(card: any): any[] {
   const tools = read("mcp-manifest").tools;
-  tools.find((tool: any) => tool.name === "aap_inventory_search")._meta["autoagentprotocol.org/aap"].capabilities = params(card).skills["inventory.search"].capabilities;
+  for (const skill of ["inventory.search", "trade_in.submit", "credit_application.submit"]) {
+    tools.find((tool: any) => tool.name === `aap_${skill.replaceAll(".", "_")}`)._meta["autoagentprotocol.org/aap"].capabilities = params(card).skills[skill].capabilities;
+  }
   return tools;
 }
 
@@ -31,11 +33,13 @@ test("paired discovery and deployed MCP metadata agree on contract, skills and c
   assert.deepEqual(checkDiscovery(card, poppy, manifest, cardUrl, deployedTools(card)), []);
   poppy.organization.domain = poppy.organization.domain.toUpperCase();
   assert.deepEqual(checkDiscovery(card, poppy, manifest, cardUrl), [], "DNS case does not change dealer identity");
-  const nativeMcp = { type: "mcp", url: params(card).mcp.url, resource: params(card).mcp.url };
+  const nativeMcp = { type: "mcp", url: params(card).mcp.url, description: "AAP automotive tools with the Poppy Session header." };
   poppy.apis.push(nativeMcp);
   assert.deepEqual(checkDiscovery(card, poppy, manifest, cardUrl), []);
-  nativeMcp.resource += "/different";
-  assert.ok(checkDiscovery(card, poppy, manifest, cardUrl).some(error => error.includes("both url and resource")));
+  nativeMcp.url += "/different";
+  assert.ok(checkDiscovery(card, poppy, manifest, cardUrl).some(error => error.includes("advertised MCP URL")));
+  const unlisted = read("poppy"); unlisted.extensions["autoagentprotocol.org/aap"][0].version = "2";
+  assert.ok(checkDiscovery(card, unlisted, manifest, cardUrl).some(error => error.includes("version-1 AAP bridge")));
 });
 
 test("discovery rejects missing MCP generations, missing feature vocabulary and unpinned schemas", () => {
@@ -54,7 +58,7 @@ test("discovery rejects missing MCP generations, missing feature vocabulary and 
 
 test("cross-document checks catch declarations that JSON Schema cannot compare", () => {
   for (const change of [
-    (card: any, poppy: any) => poppy.extensions["autoagentprotocol.org/aap"].mcp += "/other",
+    (card: any, poppy: any) => poppy.extensions["autoagentprotocol.org/aap"][0].mcp += "/other",
     (card: any) => card.skills.pop(),
     (card: any) => card.skills.push(card.skills[0]),
     (card: any) => Object.assign(params(card).skills["inventory.search"].capabilities, { default_limit: 60, max_limit: 50 }),
@@ -62,7 +66,7 @@ test("cross-document checks catch declarations that JSON Schema cannot compare",
     (card: any) => Object.assign(params(card).skills["inventory.search"].capabilities, { currencies: ["CAD"], default_currency: "USD" }),
     (card: any) => params(card).llms_txt = "https://another-dealer.example/llms.txt",
     (card: any) => params(card).poppy = "https://another-dealer.example/.well-known/poppy.json",
-    (card: any, poppy: any) => poppy.extensions["autoagentprotocol.org/aap"].aap_version = "2.1.0",
+    (card: any, poppy: any) => poppy.extensions["autoagentprotocol.org/aap"][0].aap_version = "2.1.0",
   ]) {
     const card = read("agent-card"), poppy = read("poppy");
     change(card, poppy);
@@ -77,6 +81,28 @@ test("cross-document checks catch declarations that JSON Schema cannot compare",
   const mismatched = deployedTools(card);
   mismatched.find((tool: any) => tool.name === "aap_inventory_search")._meta["autoagentprotocol.org/aap"].capabilities = { ...params(card).skills["inventory.search"].capabilities, max_limit: 50 };
   assert.ok(checkDiscovery(card, read("poppy"), manifest, cardUrl, mismatched).some(error => error.includes("capabilities must agree")));
+  for (const [skill, change] of [["trade_in.submit", { contact_required: true }], ["credit_application.submit", { national_id: "required" }]] as const) {
+    const optional = deployedTools(card);
+    const metadata = optional.find((tool: any) => tool.name === `aap_${skill.replaceAll(".", "_")}`)._meta["autoagentprotocol.org/aap"];
+    metadata.capabilities = { ...metadata.capabilities, ...change };
+    assert.ok(checkDiscovery(card, read("poppy"), manifest, cardUrl, optional).some(error => error.includes(`${skill} capabilities must agree`)));
+  }
+});
+
+test("optional skills are declared with capabilities, and a core-only deployment omits them everywhere", () => {
+  const card = read("agent-card");
+  for (const skill of ["trade_in.submit", "credit_application.submit"]) {
+    const broken = read("agent-card"); delete params(broken).skills[skill].capabilities;
+    assert.equal(validateCard(broken), false, `${skill} requires its capabilities`);
+  }
+  const optional = (id: string) => id === "trade_in.submit" || id === "credit_application.submit";
+  card.skills = card.skills.filter((skill: any) => !optional(skill.id));
+  for (const skill of ["trade_in.submit", "credit_application.submit"]) delete params(card).skills[skill];
+  assert.equal(validateCard(card), true, JSON.stringify(validateCard.errors));
+  const tools = deployedTools(read("agent-card")).filter(tool => !optional(tool._meta["autoagentprotocol.org/aap"].skill));
+  assert.deepEqual(checkDiscovery(card, read("poppy"), manifest, cardUrl, tools), []);
+  const invalid = read("agent-card"); params(invalid).skills["trade_in.submit"].capabilities = { instant_valuation: false, contact_required: false };
+  assert.equal(validateCard(invalid), false, "a dealer without instant valuation needs contact data to answer later");
 });
 
 test("discovery compares effective currency and unit defaults across bindings", () => {

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/aap-extension-params.schema.json",
   "title": "AapExtensionParams",
-  "description": "AAP 3.1 metadata carried in the A2A Agent Card extension params. Links the three bindings without inventing an A2A transport or a PAP conversation protocol.",
+  "description": "AAP metadata carried in the A2A Agent Card extension params. Links the three bindings without inventing an A2A transport or a PAP conversation protocol. Declares the implemented skill subset, including the optional trade_in.submit and credit_application.submit skills with their capabilities.",
   "type": "object",
   "properties": {
     "id": {
@@ -115,6 +115,46 @@
           "required": [
             "request_schema",
             "response_schema"
+          ],
+          "additionalProperties": true
+        },
+        "trade_in.submit": {
+          "type": "object",
+          "properties": {
+            "request_schema": {
+              "const": "https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-submit-request.schema.json"
+            },
+            "response_schema": {
+              "const": "https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-submit-response.schema.json"
+            },
+            "capabilities": {
+              "$ref": "./trade-in-capabilities.schema.json"
+            }
+          },
+          "required": [
+            "request_schema",
+            "response_schema",
+            "capabilities"
+          ],
+          "additionalProperties": true
+        },
+        "credit_application.submit": {
+          "type": "object",
+          "properties": {
+            "request_schema": {
+              "const": "https://draft.autoagentprotocol.invalid/latest/schemas/credit-application-submit-request.schema.json"
+            },
+            "response_schema": {
+              "const": "https://draft.autoagentprotocol.invalid/latest/schemas/credit-application-submit-response.schema.json"
+            },
+            "capabilities": {
+              "$ref": "./credit-application-capabilities.schema.json"
+            }
+          },
+          "required": [
+            "request_schema",
+            "response_schema",
+            "capabilities"
           ],
           "additionalProperties": true
         }

@@ -1,0 +1,12 @@
+{
+  "type": "trade_in.submit.response",
+  "data": {
+    "trade_in_id": "trd_dt_90415",
+    "status": "received",
+    "dealer": {
+      "name": "Demo Toyota",
+      "phone": "+14155550100"
+    }
+  },
+  "message": "An appraiser will email a value within one business day."
+}

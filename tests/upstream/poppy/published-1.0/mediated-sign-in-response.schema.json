@@ -1,0 +1,28 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "mediated-sign-in-response.schema.json",
+    "title": "Mediated Sign-In error response",
+    "description": "An OAuth error response from the token endpoint to a Mediated Sign-In token request, with HTTP 400 (Mediated Sign-In 4, 5). code_required has the sign_in_id to send with the one-time code, sent_to, saying where the code went, and expires_in, in seconds. The other errors are invalid_grant, expired_token, access_denied, invalid_scope, and the usual token endpoint errors (oauth-error.schema.json). A successful sign-in returns token-response.schema.json. Unknown fields are allowed.",
+    "type": "object",
+    "required": ["error"],
+    "properties": {
+        "error": { "type": "string", "minLength": 1 },
+        "error_description": { "type": "string" }
+    },
+    "allOf": [
+        {
+            "if": {
+                "properties": { "error": { "const": "code_required" } },
+                "required": ["error"]
+            },
+            "then": {
+                "required": ["sign_in_id", "expires_in"],
+                "properties": {
+                    "sign_in_id": { "type": "string", "minLength": 1 },
+                    "sent_to": { "type": "string", "minLength": 1 },
+                    "expires_in": { "type": "integer", "minimum": 1 }
+                }
+            }
+        }
+    ]
+}

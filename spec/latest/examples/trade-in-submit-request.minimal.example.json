@@ -1,0 +1,14 @@
+{
+  "type": "trade_in.submit.request",
+  "vehicle": {
+    "year": 2019,
+    "make": "Honda",
+    "model": "Civic",
+    "condition": "fair",
+    "mileage": 88400
+  },
+  "source_agent": {
+    "name": "example-buyer"
+  },
+  "idempotency_key": "01JD9TRADEIN0HONDACIVIC007"
+}
