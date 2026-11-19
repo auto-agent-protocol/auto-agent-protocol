@@ -232,7 +232,7 @@ export const imageSpecs = {
     eyebrow: "PAP 1.0 TASK COVERAGE",
     title: "One tasks endpoint, answered per Session.",
     description: "GET tasks.endpoint with the Session header and no access token returns excluded tasks, the skill index and the feedback endpoint for that Session.",
-    takeaway: "Reuse the response only within its Session. PAP skill_index entries are SKILL.md files, not AAP skills.",
+    takeaway: "Reuse the response only within its Session. PAP skill_index lists Agent Skills artifacts, not AAP skills.",
   },
   "poppy-compliance-map": {
     eyebrow: "PAP 1.0 IN AAP 4.0",

@@ -469,7 +469,7 @@ function renderVisual(name: DiagramName): string {
         }).join("");
     }
     case "poppy-tasks": {
-      const rows: [string, string][] = [["excluded_tasks", "Tasks not offered, with alternatives"], ["skill_index", "Agent Skills index of SKILL.md files"], ["feedback.endpoint", "Report a task the agent could not do"]];
+      const rows: [string, string][] = [["excluded_tasks", "Tasks not offered, with alternatives"], ["skill_index", "Agent Skills index, not AAP skills"], ["feedback.endpoint", "Report a task the agent could not do"]];
       return rect(48, 200, 392, 360) + icon("document", 76, 244, 52)
         + label("GET tasks.endpoint", 76, 350, 336, 24, C.blueDark, 600, true)
         + lines(["Poppy-Session header", "Poppy-Version: 1.0"], 76, 404, 336, 21, C.ink)

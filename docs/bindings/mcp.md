@@ -201,7 +201,7 @@ These omission rules are an AAP compatibility extension, not the strict upstream
 
 Public inventory reads SHOULD work without customer sign-in or personal information. An operator may require MCP OAuth credentials; it MUST disclose that requirement and publish protected resource metadata rather than an undocumented API-key prerequisite.
 
-A public MCP link in the AAP Poppy bridge entry does **not** claim native PAP support, and PAP clients send it no Session header. Listing `apis: [{"type":"mcp", ...}]` in `poppy.json` additionally requires the [PAP 1.0 MCP rules](../personal-agent-protocol.md#native-pap-mcp):
+A public MCP link in the AAP Poppy bridge entry alone does **not** claim native PAP support, and PAP clients send it no Session header unless the same URL is also listed as a native `mcp` API. Listing `apis: [{"type":"mcp", ...}]` in `poppy.json` additionally requires the [PAP 1.0 MCP rules](../personal-agent-protocol.md#native-pap-mcp):
 
 | Rule | Requirement |
 |---|---|
@@ -223,7 +223,7 @@ With the optional [Operations extension](../personal-agent-protocol.md#operation
       "revision": "1792742400-k3Jd9Qx2mW8v",
       "summary": "Send one individual credit application to Demo Toyota and authorize a **soft** credit inquiry. Demo Toyota may contact the applicant by email.",
       "terms": { "skill": "credit_application.submit", "dealer": "Demo Toyota", "application_type": "individual", "authorized_inquiry": "soft", "allowed_channels": ["email"], "idempotency_key": "4f1c2e8a-9b7d-4c3e-a5f6-0d8b1e2c3a4f" },
-      "expires_at": "2026-10-20T00:20:00Z"
+      "expires_at": "2026-10-23T08:20:00Z"
     }
   }
 }

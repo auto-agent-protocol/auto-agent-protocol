@@ -202,7 +202,7 @@ Never fill in a VIN, condition, mileage or equipment the owner did not give. Any
 | `UNSUPPORTED_SKILL` | The dealer does not implement `trade_in.submit`. |
 | `CONTACT_CONSENT_REQUIRED` | Anonymous request to a dealer with `contact_required: true`. |
 | `INVALID_CONSENT` | The grant is malformed, future-dated, expired, has another scope, or permits a channel without its contact value. |
-| `SCHEMA_VALIDATION_FAILED`, `MISSING_REQUIRED_FIELD`, `INVALID_CONDITION` | The request does not match the schema, lacks a required field, or uses a sale condition for the trade-in. |
+| `SCHEMA_VALIDATION_FAILED`, `MISSING_REQUIRED_FIELD`, `INVALID_CONDITION` | The request does not match the schema, lacks a required field, or uses a sale condition for the trade-in vehicle or a wear condition for `vehicle_of_interest`. |
 | `IDEMPOTENCY_CONFLICT` | The same key was reused with a different payload. |
 | `RATE_LIMITED`, `INTERNAL_ERROR` | Retryable; keep the same key and payload. |
 

@@ -322,6 +322,7 @@ test("optional Operations approvals carry exact terms and never replace AAP cons
   const required = read("poppy-approval-required"), approval = read("poppy-approval"), declined = read("poppy-approval-declined");
   for (const [name, value] of [["poppy-approval-required", required], ["poppy-operation", read("poppy-operation")], ["poppy-approval", approval], ["poppy-approval-declined", declined]] as const) assert.equal(validate(name, value), true, `${name}: ${ajv.errorsText()}`);
   assert.equal(approval.operation_id, required.operation.operation_id); assert.equal(approval.revision, required.operation.revision);
+  assert.ok(approval.approved_at * 1000 < Date.parse(required.operation.expires_at), "the example approval falls inside the revision's validity window");
   assert.equal(required.operation.terms.idempotency_key.length > 0, true, "the terms identify the AAP submission they approve");
   for (const missing of ["operation_id", "revision", "terms", "expires_at"]) { const operation = { ...required.operation }; delete operation[missing]; assert.equal(validate("poppy-operation", operation), false, missing); }
   assert.equal(validate("poppy-approval", { ...approval, approver: undefined }), false, "approver is required");

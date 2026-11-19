@@ -15,7 +15,7 @@ description: Discover a dealership, choose PAP 1.0, sign delegated Session JWTs 
 2. Check `organization.domain` equals the final host (with its port when not 443), ignoring case only.
 3. Choose the newest version, among `protocol_version` and `supported_versions`, that is compatible with one you implement (same major; before 1.0, same minor). For AAP 4.0 that is `1.0`. Load a `supported_versions` document only from the same host, without redirects, and only if its `protocol_version` matches. If nothing is compatible, stop.
 4. Read `https://{organization.domain}/.well-known/oauth-protected-resource`. HTTP 404 or no authorization servers: the Company identifier is `https://{organization.domain}`. One or more servers: select the issuer (`auth.issuer` when several), fetch its metadata, and check `issuer` and `protected_resources` both ways. On a timeout or error, stop; never fall back to the domain.
-5. Read the AAP bridge entry with `version: "1"` in `extensions["autoagentprotocol.org/aap"]` and the `openapi` entry in `apis`. Fetch the OpenAPI and pick an implemented operation. The bridge `mcp` link is public AAP MCP, not a PAP destination.
+5. Read the AAP bridge entry with `version: "1"` in `extensions["autoagentprotocol.org/aap"]` and the `openapi` entry in `apis`. Fetch the OpenAPI and pick an implemented operation. The bridge `mcp` link is public AAP MCP: send it a Session header only when the same URL is also listed in `apis` with `type: "mcp"`.
 6. If `tasks.endpoint` is listed, GET it (step 3 headers, no access token) before starting a task, and respect excluded tasks.
 
 ## 2. Prepare signing code

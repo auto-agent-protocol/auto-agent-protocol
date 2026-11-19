@@ -34,7 +34,7 @@ AAP 4.0 targets [PAP 1.0 at commit `8c02b4282eda53468a7c09412558bc8b060d95f6`](h
 | `protocol_version` | `"0.3"` | `"1.0"`; readers accept every 1.x document and ignore unknown fields | Publish `1.0` |
 | Version selection | One version per document | Optional `supported_versions` on the same host, same domain and issuer; newest compatible version wins | Link the frozen document while both are served |
 | Request headers | `Poppy-Session` | Also `Poppy-Version: 1.0` on every request; `Poppy-Extensions` (RFC 9651, e.g. `"autoagentprotocol.org/aap";v="1"`) when using extensions; same values per Session | Send them; servers verify `Poppy-Version` before every skill |
-| Version errors | None | HTTP 400 `version_unsupported`; the client refetches, starts a new Session and resends once | Implement on both sides; no omission leniency |
+| Version errors | None | HTTP 400 `version_unsupported`; the client refetches `poppy.json` and chooses again. Only if it chooses another version does it start a new Session and resend once; otherwise it stops | Implement on both sides; no omission leniency |
 | Extensions | One object per name | A list with one entry per major version; AAP bridge entry `version: "1"` with unchanged fields | Wrap the bridge object in a list |
 | Extension errors | None | HTTP 403 JSON `{"error":"extension_required","extension":…}`; never for the AAP bridge | Handle it; remove `extensions` from client metadata |
 | Task coverage | `excluded_tasks.url`, `skill_index`, `feedback.endpoint` in `poppy.json` | One `tasks.endpoint`; GET with the Session header and no token returns the Session's excluded tasks, skill index and feedback endpoint | Move them to the tasks response (`poppy-tasks`) |
@@ -62,7 +62,7 @@ The automotive payloads, consent rules, `lead.submit` and idempotency semantics 
 | `credit_application.submit` | Optional skill: individual or joint application with each applicant's own credit consent (soft or hard inquiry). See [credit application](./skills/credit-application-submit.md) |
 | Consent scope | New `trade_in_submission` for trade-in contact; `lead_submission` is unchanged |
 | Capabilities | Both optional skills require a `capabilities` object in the Agent Card params and the same object in the MCP tool `_meta` |
-| PAP schemas | `poppy-tasks` replaces `poppy-excluded-tasks`; new `poppy-operation`, `poppy-approval`, `poppy-approval-required`, `poppy-approval-declined` |
+| PAP schemas | `poppy-tasks` replaces `poppy-excluded-tasks`; new `poppy-operation`, `poppy-approval`, `poppy-approval-required`, `poppy-operation-result`, `poppy-approval-declined` |
 | Errors | No new AAP error codes |
 
 A dealer declares only the skills it implements, identically on all three bindings. Clients must not assume the optional skills exist.

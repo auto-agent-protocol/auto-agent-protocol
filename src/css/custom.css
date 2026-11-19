@@ -213,6 +213,17 @@ body {
   line-height: 1.03;
 }
 
+/* Skill identifiers are long unbreakable words; keep them on one line instead of splitting mid-word. */
+.theme-doc-markdown h1 code {
+  font-size: 0.64em;
+}
+
+@media (max-width: 480px) {
+  .theme-doc-markdown h1 code {
+    font-size: 0.54em;
+  }
+}
+
 .theme-doc-markdown h2 {
   margin-top: 3.4rem;
   padding-top: 0.5rem;

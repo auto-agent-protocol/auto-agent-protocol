@@ -11,8 +11,6 @@ const release = releases.releases.find(
   (item) => item.contract === releases.stable,
 )!;
 const docs = `/docs/${release.contract}`;
-// Pages that exist only in the editable 4.0 documentation. Frozen v3.2 docs do not have them.
-const latestDocs = "/docs/latest";
 const github = "https://github.com/auto-agent-protocol/auto-agent-protocol";
 const icons = {
   arrow: <path d="M5 12h14m-6-6 6 6-6 6" />,
@@ -457,7 +455,7 @@ const optionalSkills: {
     icon: "tradeIn",
     title: "Value a trade-in",
     id: "trade_in.submit",
-    description: "Instant valuation of the shopper’s current vehicle",
+    description: "A valuation of the shopper’s current vehicle, instant where the dealer offers it",
     tags: ["Estimate or offer", "Amount or range", "Anonymous or consented"],
   },
   {
@@ -521,7 +519,7 @@ function Skills(): JSX.Element {
             {optionalSkills.map(({ icon, title, id, description, tags }) => (
               <Link
                 key={id}
-                to={`${latestDocs}/skills/${id.replaceAll(/[._]/g, "-")}`}
+                to={`${docs}/skills/${id.replaceAll(/[._]/g, "-")}`}
                 className={`${styles.skill} ${styles.optionalSkill}`}
               >
                 <span className={styles.optionalBadge}>Optional</span>

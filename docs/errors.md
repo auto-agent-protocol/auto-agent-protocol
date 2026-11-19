@@ -141,7 +141,7 @@ AAP 4.0 adds no error codes. The optional skills use the existing vocabulary:
 | `INVALID_CONSENT` | Grant malformed, expired, future-dated, wrong scope, or a channel without its contact value | An applicant's credit consent is malformed, expired or inapplicable, or its `authorized_inquiry` is not in `inquiry_types` |
 | `MISSING_REQUIRED_FIELD` | A required field is absent | A required field is absent, including `national_id` when the capability is `required` |
 | `SCHEMA_VALIDATION_FAILED` | Invalid request | Invalid request, including a `national_id` sent to a dealer with `national_id: "not_accepted"` (the value is discarded) |
-| `INVALID_CONDITION` | A sale condition on the trade-in vehicle | A sale condition on `trade_in`, or a wear condition on `vehicle_of_interest` |
+| `INVALID_CONDITION` | A sale condition on the trade-in vehicle, or a wear condition on `vehicle_of_interest` | A sale condition on `trade_in`, or a wear condition on `vehicle_of_interest` |
 | `IDEMPOTENCY_CONFLICT` | Same key, different payload | Same key, different payload |
 | `RATE_LIMITED`, `INTERNAL_ERROR` | Retry with the same key and payload | Retry with the same key and payload |
 
@@ -153,7 +153,7 @@ PAP 1.0 adds two transport-level errors at the native API. They use PAP's JSON e
 
 | Error | HTTP | Cause |
 |---|---|---|
-| `version_unsupported` | 400 | The request with the Session header lacks `Poppy-Version` or names an incompatible version. Refetch `poppy.json`, start a new Session if you choose another version, and retry once. |
+| `version_unsupported` | 400 | The request with the Session header lacks `Poppy-Version` or names an incompatible version. Refetch `poppy.json` and choose again. If you choose another version, start a new Session and resend once; otherwise stop sending the request. |
 | `extension_required` | 403 | The endpoint requires an extension the request did not declare in `Poppy-Extensions`; the body names it in `extension`. |
 
 ```json

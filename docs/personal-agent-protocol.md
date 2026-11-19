@@ -256,7 +256,7 @@ Agents SHOULD also sign Session requests with Web Bot Auth (RFC 9421), covering 
 | Website pages on exactly `organization.domain`, fetched with the agent's own HTTP client | SHOULD | Never; always signed out |
 | Browsers, including headless ones | No; they use [browser join](#browser-join) | — |
 | `poppy.json`, version documents, metadata, CIMD, OpenAPI descriptions, the Agent Card, `llms.txt`, OAuth endpoints | No | OAuth endpoints use client assertions |
-| The bridge `mcp` link, A2A endpoints, any other host | No | — |
+| The bridge `mcp` link (unless the same URL is also listed in `apis` with `type: "mcp"`), A2A endpoints, any other host | No | — |
 
 - A shared hostname never makes another URL a destination.
 - On a website page redirect, the agent signs a new JWT only while the host is still `organization.domain`. A page that verifies the header rejects a failure with `invalid_session`; the agent MAY refetch without it. Otherwise agents never omit the header to look like a person.
@@ -288,7 +288,7 @@ The optional [trade-in](./skills/trade-in-submit.md) and [credit application](./
 | `invalid_token` | 401 | Refresh, or continue signed out |
 | `insufficient_scope` | 403 | Get the scopes and retry, unless the User signed out |
 | `approval_required`, `approval_declined` | 403 JSON | Only with [Operations](#operations-approvals) |
-| Typed `aap.error` | 400, 403, 404, 409, 422 | Follow the AAP code (`CONTACT_CONSENT_REQUIRED`, `INVALID_CONSENT`, `IDEMPOTENCY_CONFLICT`, …); never treat as success |
+| Typed `aap.error` | 400, 403, 404, 409, 422, 500 | Follow the AAP code (`CONTACT_CONSENT_REQUIRED`, `INVALID_CONSENT`, `IDEMPOTENCY_CONFLICT`, …); never treat as success |
 | Rate limit | 429 with `Retry-After` | Wait at least that long |
 
 An optional `error_description` holds static recovery guidance. Never reflect a JWT, claims, keys, contact data or credit application data.
@@ -336,7 +336,7 @@ Advertise `apis[]` with `type: "mcp"` ([example](https://draft.autoagentprotocol
 
 Advertise `web.browser_session_endpoint` only with all three steps. When it is listed, agents join their browser before browsing, and only a browser they control.
 
-1. **Page.** The browser GETs the endpoint. The page holds a one-time, short-lived, unguessable `code` in a form, sets a cookie in the same response that ties the code to that browser (not sent cross-site, not settable by other hosts), and is `no-store`, unframeable and opener-isolated. Loading it changes no Session or cookie.
+1. **Page.** The browser GETs the endpoint. The page holds a one-time, short-lived, unguessable `code` in a form, sets a cookie in the same response that ties the code to that browser (not sent cross-site, not settable by other hosts), and is `no-store`, unframeable and opener-isolated. Loading it starts, ends or changes no Session and changes none of the browser's other cookies.
 2. **Authorize.** Trusted agent code reads the code from its own browser's page only and POSTs [`{code}`](https://draft.autoagentprotocol.invalid/latest/examples/poppy-browser-session-authorize.example.json) to `{browser_session_endpoint}/authorize` with the Session header, `Poppy-Version` and optionally a token: HTTP 204, or 400 `invalid_request`. A token without `poppy:browser-sign-in` gets `insufficient_scope`; the agent authorizes signed out or gets the scope and restarts.
 3. **Redeem.** The browser submits the code with its cookie. The first submission consumes the code whatever the result. On success the dealer sets its Session cookie, clears the join cookie and redirects.
 
@@ -360,8 +360,8 @@ A dealer with excluded tasks, a skill index or feedback lists `tasks.endpoint`. 
 
 - Different answers per Session require verifying the header first and `Cache-Control: private` or `no-store`. The agent SHOULD fetch before starting a task, reuses the answer only in that Session, and treats no answer as nothing listed.
 - An excluded task is offered by no interface. Account-specific limits are errors, not exclusions. An `alternative` has `instructions`, `references` or both; `openapi` and `mcp` references name listed APIs or are ignored, unknown reference types are skipped, and a `web` reference never receives a Session JWT or token.
-- Feedback is a POST to `feedback.endpoint` with the Session header: `task` ≤ 200 and `description` ≤ 2000 characters, no identifiers, personal data or secrets, one report per task, none for excluded tasks. The dealer answers 202 with no body or 200 with an alternative, treats the text as data, and verifies the header before attributing it.
-- `skill_index` follows the pinned Agent Skills discovery revision (`0.2.0`). Agents resolve each `url` against `tasks.endpoint`, verify the `sha256:` digest, ignore unknown `$schema`, and never run a skill's scripts without explicit permission. A PAP skill is a `SKILL.md` document; it is not an AAP skill and grants no access or approval.
+- Feedback is a POST to `feedback.endpoint` with the Session header: `task` ≤ 200 and `description` ≤ 2000 characters, with no identifiers such as order or account numbers. Agents MUST NOT include secrets, SHOULD NOT include personal data, SHOULD send one report per task rather than per attempt, and SHOULD NOT report a task the dealer lists as excluded. The dealer answers 202 with no body or 200 with an alternative, treats the text as data, and verifies the header before attributing it.
+- `skill_index` follows the pinned Agent Skills discovery revision (`0.2.0`). Agents resolve each `url` against `tasks.endpoint`, verify the `sha256:` digest, ignore unknown `$schema`, and never run a skill's scripts without explicit permission. A PAP skill is an Agent Skills artifact, a single `SKILL.md` file or an archive with supporting files; it is not an AAP skill and grants no access or approval.
 
 ### Operations approvals
 
@@ -384,7 +384,7 @@ A dealer listing `"operations": [{ "version": "3" }]` MAY answer `lead.submit`, 
       "allowed_channels": ["email"],
       "idempotency_key": "4f1c2e8a-9b7d-4c3e-a5f6-0d8b1e2c3a4f"
     },
-    "expires_at": "2026-10-20T00:20:00Z"
+    "expires_at": "2026-10-23T08:20:00Z"
   }
 }
 ```

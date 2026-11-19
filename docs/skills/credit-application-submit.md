@@ -273,6 +273,7 @@ See the [received without decision](https://draft.autoagentprotocol.invalid/late
 | `INVALID_CONSENT` | An applicant's consent is malformed, expired or inapplicable, or names an inquiry type not in `inquiry_types`. |
 | `MISSING_REQUIRED_FIELD` | A field the dealer requires is absent, such as `national_id` under `national_id: "required"`; the error names the field path. |
 | `SCHEMA_VALIDATION_FAILED` | The request does not match the schema, or contains a `national_id` the dealer does not accept. |
+| `INVALID_CONDITION` | A sale condition on `trade_in`, or a wear condition on `vehicle_of_interest`. |
 | `IDEMPOTENCY_CONFLICT` | The same key was reused with a different payload. |
 | `RATE_LIMITED`, `INTERNAL_ERROR` | Retryable; keep the same key and payload. |
 

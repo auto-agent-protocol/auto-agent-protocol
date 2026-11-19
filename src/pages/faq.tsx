@@ -8,14 +8,11 @@ const release = releases.releases.find(
   (item) => item.contract === releases.stable,
 )!;
 const docs = `/docs/${release.contract}`;
-// Content that exists only in the editable 4.0 documentation, not in frozen v3.2.
-const latestDocs = "/docs/latest";
 const questions: {
   title: string;
   answer: string;
   link: string;
   label: string;
-  latest?: boolean;
 }[] = [
   {
     title: "What is Auto Agent Protocol?",
@@ -30,7 +27,6 @@ const questions: {
       "AAP 4.0 adopts the stable PAP 1.0: every PAP request carries Poppy-Version: 1.0 next to its delegated Session JWT, and poppy.json declares extensions as per-version lists. New vehicles can list rebates. Two optional skills add trade-in valuation and credit applications. MCP, A2A 1.0 and the five core skills keep their meanings. Frozen AAP 3.2 stays available.",
     link: "versioning",
     label: "Read the migration guide",
-    latest: true,
   },
   {
     title: "Which PAP version does AAP use?",
@@ -38,7 +34,6 @@ const questions: {
       "AAP 4.0 uses PAP 1.0, the first stable Personal Agent Protocol release. Readers accept any 1.x poppy.json. Every request with the Poppy-Session header also sends Poppy-Version: 1.0; an endpoint rejects a missing or incompatible version with HTTP 400 version_unsupported. Frozen AAP 3.2 keeps Published PAP 0.3, and a dealer can link that document from supported_versions while clients migrate.",
     link: "personal-agent-protocol",
     label: "Read the PAP profile",
-    latest: true,
   },
   {
     title: "Does AAP define a real MCP server?",
@@ -85,10 +80,9 @@ const questions: {
   {
     title: "Does AAP support trade-in valuations?",
     answer:
-      "Yes, through the optional trade_in.submit skill. The agent describes the vehicle (year, make, model, condition and mileage) and receives an amount or a range, as an estimate or a time-limited offer. Without contact details and consent it is an anonymous estimate and the dealer does not follow up; a dealer may require contact. Trade-in details inside lead.submit still return no valuation.",
+      "Yes, through the optional trade_in.submit skill. The agent describes the vehicle (year, make, model, condition and mileage) and, when the dealer values instantly, receives an amount or a range, as an estimate or a time-limited offer; otherwise the dealer follows up. Without contact details and consent it is an anonymous estimate and the dealer does not follow up; a dealer may require contact. Trade-in details inside lead.submit still return no valuation.",
     link: "skills/trade-in-submit",
     label: "Read the trade-in skill",
-    latest: true,
   },
   {
     title: "Can an agent submit a credit application?",
@@ -96,7 +90,6 @@ const questions: {
       "Yes, when the dealer declares the optional credit_application.submit skill. Each applicant grants their own credit consent with the exact text shown and a soft or hard inquiry; a hard inquiry is never made on a soft authorization. The agent reads the dealer’s capabilities first and collects a national identifier only when the dealer accepts one. Identifiers, date of birth and driver’s license data are never echoed in responses, errors, logs or URLs. Sign-in or lead consent never replaces credit consent.",
     link: "skills/credit-application-submit",
     label: "Read the credit application skill",
-    latest: true,
   },
   {
     title: "What are rebates and are they included in the price?",
@@ -104,7 +97,6 @@ const questions: {
       "Rebates are incentive programs listed on new vehicles. An unconditional rebate is available to every buyer and is already included in the price, so it is never subtracted again. A conditional rebate depends on eligibility, such as military service, and is shown separately as a possible saving; it is never deducted from the advertised price. No rebate list means no information, not “no rebates”.",
     link: "pricing-and-ftc#rebates-on-new-vehicles",
     label: "Read the rebate rules",
-    latest: true,
   },
   {
     title: "How are prices and equipment kept trustworthy?",
@@ -167,7 +159,7 @@ export default function Faq(): JSX.Element {
                 <div>
                   <p>{question.answer}</p>
                   <Link
-                    to={`${question.latest ? latestDocs : docs}/${question.link}`}
+                    to={`${docs}/${question.link}`}
                   >
                     {question.label} <span aria-hidden="true">↗</span>
                   </Link>
