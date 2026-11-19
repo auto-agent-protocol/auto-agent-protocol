@@ -102,7 +102,7 @@ test("both documented mapping tables preserve the reviewed numeric code for ever
     }
   }
   for (const { file, value } of envelopes().filter(({ value }) => value.error)) {
-    const payload = value.error.data.find((detail: any) => detail["@type"] === "type.googleapis.com/google.protobuf.Struct" && detail.value?.type === "aap.error")?.value;
+    const payload = value.error.data.find((detail: any) => detail["@type"] === "type.googleapis.com/google.protobuf.Struct" && detail.value?.type === "aap_error")?.value;
     if (payload) assert.equal(value.error.code, mappings[payload.code as keyof typeof mappings], file);
   }
 });
@@ -135,7 +135,7 @@ test("published and documented errors preserve A2A details and the AAP payload",
       assert.ok(value.error.message.includes(info.metadata.requiredHeader), `${file}: message-only SDKs need the header name`);
       continue;
     }
-    const struct = value.error.data.find((detail: Record<string, any>) => detail["@type"] === "type.googleapis.com/google.protobuf.Struct" && detail.value?.type === "aap.error");
+    const struct = value.error.data.find((detail: Record<string, any>) => detail["@type"] === "type.googleapis.com/google.protobuf.Struct" && detail.value?.type === "aap_error");
     assert.ok(struct, `${file}: missing typed AAP Struct detail`);
     const payload = struct.value;
     assert.ok(validate(payload), `${file}: ${JSON.stringify(validate.errors)}`);
@@ -166,7 +166,7 @@ test("generated OpenAPI accepts wire examples and rejects malformed error envelo
     { jsonrpc: "2.0", id: "req", result: {} },
     { ...error, error: { code: "RATE_LIMITED", message: "Throttled" } },
     { ...error, error: { code: -32000 } },
-    { ...error, error: { code: -32000, message: "Throttled", data: { type: "aap.error" } } },
+    { ...error, error: { code: -32000, message: "Throttled", data: { type: "aap_error" } } },
     { ...error, error: { code: -32000, message: "Throttled", data: [{}] } },
   ]) assert.equal(response(invalid), false, JSON.stringify(invalid));
 });
@@ -222,7 +222,7 @@ test("generated error details validate the reachable AAP component without swall
   ajv.addSchema(doc, "openapi");
   const response = ajv.getSchema("openapi#/components/schemas/JsonRpcResponse")!;
   const envelope = structuredClone(envelopes().find(({ value }) => value.error?.code === -32602)!.value);
-  const payload = envelope.error.data.find((detail: any) => detail["@type"] === "type.googleapis.com/google.protobuf.Struct" && detail.value?.type === "aap.error").value;
+  const payload = envelope.error.data.find((detail: any) => detail["@type"] === "type.googleapis.com/google.protobuf.Struct" && detail.value?.type === "aap_error").value;
   assert.ok(response(envelope), JSON.stringify(response.errors));
   payload.retryable = "false";
   assert.equal(response(envelope), false, "known AAP type must not fall through the generic detail branch");
@@ -231,11 +231,11 @@ test("generated error details validate the reachable AAP component without swall
   delete payload.code;
   assert.equal(response(envelope), false);
   assert.ok(response.errors?.some(error => error.keyword === "required" && error.params.missingProperty === "code"));
-  envelope.error.data = [{ "@type": "https://autoagentprotocol.org/extensions/aap/error", type: "aap.error" }];
+  envelope.error.data = [{ "@type": "https://autoagentprotocol.org/extensions/aap/error", type: "aap_error" }];
   assert.equal(response(envelope), false, "the old JSON-only pseudo-Any is invalid");
-  envelope.error.data = [{ "@type": "type.googleapis.com/google.protobuf.Struct", value: { type: "aap.error" } }];
+  envelope.error.data = [{ "@type": "type.googleapis.com/google.protobuf.Struct", value: { type: "aap_error" } }];
   assert.equal(response(envelope), false, "an incomplete AAP payload cannot hide in Struct");
-  envelope.error.data = [{ "@type": "type.googleapis.com/google.protobuf.Struct", type: "aap.error" }];
+  envelope.error.data = [{ "@type": "type.googleapis.com/google.protobuf.Struct", type: "aap_error" }];
   assert.equal(response(envelope), false, "Struct Any uses a value member");
   envelope.error.data = [{ "@type": "type.googleapis.com/google.protobuf.Struct", value: { future: true }, unexpected: "outer" }];
   assert.equal(response(envelope), false, "Struct Any cannot have extra outer fields");
@@ -268,7 +268,7 @@ test("generated A2A headers are optional at AAP ingress but supplied values must
 test("the standalone typed AAP error payload has no ProtoJSON Any tag", () => {
   const error = JSON.parse(readFileSync(resolve(examplesDir, "error.example.json"), "utf8")) as Record<string, unknown>;
   assert.equal(error["@type"], undefined);
-  assert.equal(error.type, "aap.error");
+  assert.equal(error.type, "aap_error");
   const ajv = new Ajv2020({ strict: false, allErrors: true });
   addFormats(ajv);
   const validate = ajv.compile(JSON.parse(readFileSync(resolve(ROOT, "spec/latest/schemas/error.schema.json"), "utf8")));

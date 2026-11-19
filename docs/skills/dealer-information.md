@@ -1,10 +1,10 @@
 ---
 sidebar_position: 1
-title: dealer.information
+title: dealer_information
 description: Dealership identity, physical locations, hours and contact details through the same read skill on all three bindings.
 ---
 
-# `dealer.information`
+# `dealer_information`
 
 **Learn who the dealer is and where to go.** One dealer group can have several physical locations, called rooftops.
 
@@ -12,14 +12,14 @@ description: Dealership identity, physical locations, hours and contact details 
 
 | MCP tool | Shared request → response |
 |---|---|
-| `aap_dealer_information` | `dealer.information.request` → `dealer.information.response` |
+| `aap_dealer_information` | `dealer_information_request` → `dealer_information_response` |
 
 Use the typed request as MCP arguments, an A2A DataPart or a PAP OpenAPI body. No customer information or contact consent is needed; transport authentication still applies.
 
 ## Request
 
 ```json
-{ "type": "dealer.information.request" }
+{ "type": "dealer_information_request" }
 ```
 
 Omit `dealer_id` for the endpoint's default profile. Unknown request properties are invalid.
@@ -29,12 +29,12 @@ Omit `dealer_id` for the endpoint's default profile. Unknown request properties 
 An endpoint advertising `scope: "aggregate"` MUST expose this skill through every binding. Before requesting permission to contact a seller, resolve the listing's opaque `dealer_id` on that same endpoint:
 
 ```json
-{ "type": "dealer.information.request", "dealer_id": "d-7" }
+{ "type": "dealer_information_request", "dealer_id": "d-7" }
 ```
 
 ```json
 {
-  "type": "dealer.information.response",
+  "type": "dealer_information_response",
   "data": {
     "dealer_id": "d-7",
     "name": "Demo Toyota",
@@ -54,7 +54,7 @@ An ordinary dealer-scoped endpoint needs no additional lookup before consent: it
 
 ```json
 {
-  "type": "dealer.information.response",
+  "type": "dealer_information_response",
   "data": {
     "name": "Demo Auto Group",
     "rooftops": [{
@@ -77,7 +77,7 @@ An ordinary dealer-scoped endpoint needs no additional lookup before consent: it
 | `address`, `geo` | Physical location; latitude/longitude use WGS84 coordinates |
 | `emails`, `phones` | Labeled contact values such as Sales or Service |
 | `schedules`, `timezone` | Named weekly hours such as sales, service or parts in rooftop local time; a day is `{open, close}` or `null` when closed |
-| `capabilities` | Service tags such as sales, service, trade_in, delivery or motorcycle_sales |
+| `capabilities` | Service tags such as sales, service, trade_in, financing, delivery or motorcycle_sales; descriptive only, they do not declare the optional `trade_in_submit` or `credit_application_submit` skills |
 | `fees` | Optional default fee schedule for the publisher; never an extra charge for the buyer to add |
 | `currency` | Currency of that rooftop's fee amounts: `USD` or `CAD`; omitted means USD even when its address is Canadian |
 

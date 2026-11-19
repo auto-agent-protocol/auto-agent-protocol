@@ -1,5 +1,5 @@
 {
-  "type": "dealer.information.response",
+  "type": "dealer_information_response",
   "data": {
     "dealer_id": "d-7",
     "name": "Demo Toyota",

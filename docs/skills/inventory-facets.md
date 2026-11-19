@@ -1,10 +1,10 @@
 ---
 sidebar_position: 2
-title: inventory.facets
+title: inventory_facets
 description: Discover actual inventory values, ranges and feature vocabulary before constructing a search.
 ---
 
-# `inventory.facets`
+# `inventory_facets`
 
 **Ask what can be searched before guessing a filter value.** Facets expose counts, numeric ranges and the deployment's supported feature codes.
 
@@ -12,7 +12,7 @@ description: Discover actual inventory values, ranges and feature vocabulary bef
 
 | MCP tool | Shared request → response |
 |---|---|
-| `aap_inventory_facets` | `inventory.facets.request` → `inventory.facets.response` |
+| `aap_inventory_facets` | `inventory_facets_request` → `inventory_facets_response` |
 
 The same typed payload works through MCP, A2A and PAP. It needs no customer information or contact consent.
 
@@ -20,7 +20,7 @@ The same typed payload works through MCP, A2A and PAP. It needs no customer info
 
 ```json
 {
-  "type": "inventory.facets.request",
+  "type": "inventory_facets_request",
   "filters": { "condition": ["used"], "status": ["available"] }
 }
 ```
@@ -31,13 +31,13 @@ When search is implemented, facets use its advertised filter capabilities and th
 
 ## Currency and odometer context
 
-Top-level `currency` and `mileage_unit` select the same [query contexts](./inventory-search.md#currency-and-odometer-context) as search. When `inventory.search` is implemented, facets MUST use its advertised supported currencies and defaults.
+Top-level `currency` and `mileage_unit` select the same [query contexts](./inventory-search.md#currency-and-odometer-context) as search. When `inventory_search` is implemented, facets MUST use its advertised supported currencies and defaults.
 
-When `inventory.search` is **not** implemented, `inventory.facets` MUST accept both `USD` and `CAD`, and both `mi` and `km`. Omitted request fields mean `USD` and `mi`. This fallback needs no search capability declaration and does not imply that inventory exists in both currencies: a currency with no matching inventory returns empty facets. A Canadian facets-only service is queried explicitly as follows, without `filters`:
+When `inventory_search` is **not** implemented, `inventory_facets` MUST accept both `USD` and `CAD`, and both `mi` and `km`. Omitted request fields mean `USD` and `mi`. This fallback needs no search capability declaration and does not imply that inventory exists in both currencies: a currency with no matching inventory returns empty facets. A Canadian facets-only service is queried explicitly as follows, without `filters`:
 
 ```json
 {
-  "type": "inventory.facets.request",
+  "type": "inventory_facets_request",
   "currency": "CAD",
   "mileage_unit": "km"
 }
@@ -49,7 +49,7 @@ Apply this fallback consistently across A2A, MCP and PAP. It does not change the
 
 ```json
 {
-  "type": "inventory.facets.response",
+  "type": "inventory_facets_response",
   "data": {
     "makes": [{ "value": "Honda", "count": 8 }, { "value": "Toyota", "count": 12 }],
     "conditions": [{ "value": "used", "count": 20 }],
@@ -72,7 +72,7 @@ Apply this fallback consistently across A2A, MCP and PAP. It does not change the
 
 Term entries use `{value, count}`; values are strings, integers or booleans as appropriate. Counts are nonnegative exact counts. `dc_fast_charge` uses actual booleans. Range fields use `{min, max}` with `min <= max` and the source field's units.
 
-Only known authoritative prices in the effective query currency contribute to `price_range`; omit it when none are known. Missing facets mean unavailable data. Empty/zero buckets are allowed when meaningful; do not invent an observed value.
+Only known authoritative prices in the effective query currency contribute to `price_range`; omit it when none are known. New-vehicle `rebates` never adjust it. Missing facets mean unavailable data. Empty/zero buckets are allowed when meaningful; do not invent an observed value.
 
 Return the effective labels in `data.currency` and `data.mileage_unit`; omission means USD/mi, never an inherited Canadian default. All counts and ranges come from the same currency-scoped matching set. `mileage_range` contains exact converted bounds in the query unit and may be fractional; do not aggregate raw mi and km numbers together. `electric_range_mi_range` remains miles. Facets embedded in a search response MUST use that search's effective contexts, including when empty. Vehicle odometers retain their own native units independently of the facet mileage range.
 

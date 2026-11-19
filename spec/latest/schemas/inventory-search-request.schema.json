@@ -6,7 +6,7 @@
   "type": "object",
   "examples": [
     {
-      "type": "inventory.search.request",
+      "type": "inventory_search_request",
       "filters": {
         "make": ["Honda"],
         "condition": ["new"],
@@ -20,7 +20,7 @@
     }
   ],
   "properties": {
-    "type": { "const": "inventory.search.request" },
+    "type": { "const": "inventory_search_request" },
     "currency": {
       "$ref": "./_primitives/currency.schema.json",
       "description": "Single currency of the matching inventory and all price bounds, price sorts and price facets. Omit to use capabilities.default_currency, or USD when that capability is absent. Every matched vehicle has this effective currency, including listings without a price. No foreign-exchange conversion or country inference occurs. A schema-valid currency not advertised by capabilities.currencies returns SCHEMA_VALIDATION_FAILED at /currency."
@@ -109,7 +109,7 @@
         "displacement_cc_max": { "type": "integer", "minimum": 0, "description": "Maximum engine displacement in cc, applied against `displacement_cc`.", "examples": [1200] },
         "exterior_color": {"type": "array", "items": {"type": "string", "minLength": 1}, "examples": [["black"]], "minItems": 1, "uniqueItems": true},
         "interior_color": {"type": "array", "items": {"type": "string", "minLength": 1}, "examples": [["black"]], "minItems": 1, "uniqueItems": true},
-        "rooftops": {"type": "array", "items": {"type": "string", "minLength": 1}, "description": "Exact rooftop names from this dealer's dealer.information. Dealer-scoped endpoints MAY support this filter; aggregate endpoints MUST reject it as UNSUPPORTED_FILTER rather than guess across duplicate names. Omit to search every rooftop in the endpoint's scope.", "examples": [["Demo Toyota San Francisco"]], "minItems": 1, "uniqueItems": true},
+        "rooftops": {"type": "array", "items": {"type": "string", "minLength": 1}, "description": "Exact rooftop names from this dealer's dealer_information. Dealer-scoped endpoints MAY support this filter; aggregate endpoints MUST reject it as UNSUPPORTED_FILTER rather than guess across duplicate names. Omit to search every rooftop in the endpoint's scope.", "examples": [["Demo Toyota San Francisco"]], "minItems": 1, "uniqueItems": true},
         "year_min": { "type": "integer", "minimum": 1900, "maximum": 2100, "examples": [2023] },
         "year_max": { "type": "integer", "minimum": 1900, "maximum": 2100, "examples": [2025] },
         "price_min": { "type": "integer", "minimum": 0, "description": "Minimum price in whole units of the effective query currency, applied against the authoritative advertised `price` field. Vehicles without `price` do not match this filter.", "examples": [20000] },

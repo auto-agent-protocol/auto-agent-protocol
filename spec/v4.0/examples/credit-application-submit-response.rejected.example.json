@@ -1,0 +1,8 @@
+{
+  "type": "credit_application_submit_response",
+  "data": {
+    "application_id": "app_dt_55122",
+    "status": "rejected"
+  },
+  "message": "We can only take applications from residents of the states where we are licensed to sell. No credit inquiry was made."
+}

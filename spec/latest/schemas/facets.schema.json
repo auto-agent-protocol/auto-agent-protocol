@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/facets.schema.json",
   "title": "Facets",
-  "description": "Counts and ranges across the full matching inventory, before pagination. Shared by inventory.facets and optional search-response facets on every binding. Omitted facets are unavailable; zero counts describe known empty buckets. Feature counts use verified present equipment only.",
+  "description": "Counts and ranges across the full matching inventory, before pagination. Shared by inventory_facets and optional search-response facets on every binding. Omitted facets are unavailable; zero counts describe known empty buckets. Feature counts use verified present equipment only.",
   "type": "object",
   "$defs": {
     "term_facet": {

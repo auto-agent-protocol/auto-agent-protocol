@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v4.0/schemas/poppy-approval-required.schema.json",
+  "title": "PoppyApprovalRequired",
+  "description": "HTTP 403 JSON body of an API that asks for approval before performing an action, and the structuredContent of the matching MCP tool error result. Operations extension version 3, section 4. Returned only to a request that declares the extension in Poppy-Extensions. Other members are allowed.",
+  "type": "object",
+  "required": [
+    "error",
+    "operation"
+  ],
+  "properties": {
+    "error": {
+      "const": "approval_required"
+    },
+    "operation": {
+      "$ref": "./poppy-operation.schema.json"
+    }
+  },
+  "$comment": "Adapted from personal-agent-protocol at 8c02b4282eda53468a7c09412558bc8b060d95f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-1.0. JSON Schema does not verify cryptography or runtime requirements."
+}

@@ -1,10 +1,10 @@
 ---
 sidebar_position: 5
-title: lead.submit
+title: lead_submit
 description: One consented inquiry, an explicit appointment outcome, and safe retries across all three bindings.
 ---
 
-# `lead.submit`
+# `lead_submit`
 
 **Send one inquiry with the buyer's permission.** Include a vehicle of interest, a trade-in, an appointment request, or any combination. Customer contact is a side effect; browsing is not permission to submit.
 
@@ -14,7 +14,7 @@ description: One consented inquiry, an explicit appointment outcome, and safe re
 |---|---|
 | MCP | `aap_lead_submit` with the typed request as `arguments` |
 | A2A | `SendMessage` with the typed request in `DataPart.data` |
-| PAP | `POST /skills/lead.submit` with the typed request body and delegated Session JWT authentication |
+| PAP | `POST /skills/lead_submit` with the typed request body, delegated Session JWT authentication and `Poppy-Version: 1.0` |
 
 All three use the same [request schema](https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-request.schema.json), [response schema](https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-response.schema.json), consent rules and deduplication store. A transport may allow an anonymous caller; a lead still contains identified customer information and explicit consent.
 
@@ -22,7 +22,7 @@ All three use the same [request schema](https://draft.autoagentprotocol.invalid/
 
 ```json
 {
-  "type": "lead.submit.request",
+  "type": "lead_submit_request",
   "customer": {
     "first_name": "Ada",
     "last_name": "Lovelace",
@@ -55,6 +55,8 @@ The consent text and timestamp record the actual user's decision; this fictional
 
 Vehicle blocks need no invented identifiers or specifications. An incomplete vehicle or appointment may need staff follow-up; do not pretend it is a confirmed booking. Motorcycle demo rides use `test_drive` with `vehicle_type: "motorcycle"`.
 
+A lead never returns a valuation or a credit decision. A valuation needs the optional [`trade_in_submit`](./trade-in-submit.md) skill and a credit application needs the optional [`credit_application_submit`](./credit-application-submit.md) skill, each on a dealer that declares it with its own consent. A lead's consent `scope` stays `["lead_submission"]`.
+
 See the [vehicle + trade-in example](https://draft.autoagentprotocol.invalid/latest/examples/lead-submit-request.example.json) and [ADF mapping](../compatibility/adf-mapping.md) for CRM delivery.
 
 ## Consent is a separate gate
@@ -63,7 +65,7 @@ See the [vehicle + trade-in example](https://draft.autoagentprotocol.invalid/lat
 
 Before submission, the buyer agent MUST obtain permission to send the selected customer information, inquiry and contact channels to this dealer. It MUST preserve the disclosure in `consent_text` and record `granted_at`. `scope` is exactly `["lead_submission"]`; `allowed_channels` contains at least one of `email`, `phone`, `sms`.
 
-For a listing found through an aggregate endpoint, resolve its `dealer_id` with [`dealer.information`](./dealer-information.md#resolve-a-seller-from-aggregate-inventory) before obtaining consent. Retain its `dealer_id` and `vehicle_id` in `vehicle_of_interest` and name the resolved receiving dealership in the disclosure. The operator MUST reject an ambiguous or changed recipient before delivery; it must never broadcast the inquiry to other dealers without their own explicit customer authorization.
+For a listing found through an aggregate endpoint, resolve its `dealer_id` with [`dealer_information`](./dealer-information.md#resolve-a-seller-from-aggregate-inventory) before obtaining consent. Retain its `dealer_id` and `vehicle_id` in `vehicle_of_interest` and name the resolved receiving dealership in the disclosure. The operator MUST reject an ambiguous or changed recipient before delivery; it must never broadcast the inquiry to other dealers without their own explicit customer authorization.
 
 Each permitted channel needs its contact value: `email` requires `customer.email`; `phone` and `sms` require `customer.phone`. A specific `preferred_contact` must be permitted by the grant. `any` means any **permitted** channel. Do not include unrelated customer information.
 
@@ -75,7 +77,7 @@ OAuth authorization, a PAP Session, an MCP tool hint and caller-supplied `source
 
 ```json
 {
-  "type": "lead.submit.response",
+  "type": "lead_submit_response",
   "data": { "lead_id": "lead_example_001", "status": "received" },
   "message": "Your inquiry was received. The dealer will reply by email."
 }
@@ -86,7 +88,7 @@ OAuth authorization, a PAP Session, an MCP tool hint and caller-supplied `source
 | `received` | Accepted for dealer follow-up; not a sale or a guaranteed response time. |
 | `rejected` | No accepted lead or booking. Explain the reason safely. |
 
-`data.replayed: true` identifies a retry; `data.status` still reports the original `received` or `rejected` outcome. The former `duplicate` status is not valid in AAP 3.0.
+`data.replayed: true` identifies a retry; `data.status` still reports the original `received` or `rejected` outcome. The former `duplicate` status has not been valid since AAP 3.0.
 
 An appointment has its own outcome:
 
@@ -97,7 +99,7 @@ An appointment has its own outcome:
 | `confirmed` | Booked at the required `confirmed_at` timestamp. |
 | `rejected` | This appointment was declined; the lead may still be accepted. |
 
-The dealer MUST NOT report `confirmed` without a real booking. When the lead is `rejected`, any included appointment MUST also have status `rejected`; `requested`, `proposed` and `confirmed` are invalid for that lead. If the lead was accepted but the appointment failed, return the accepted lead with the appointment's actual status; do not hide acceptance inside an `aap.error`. `APPOINTMENT_TIME_UNAVAILABLE` means the entire submission was rejected because no requested or alternative time could be accepted.
+The dealer MUST NOT report `confirmed` without a real booking. When the lead is `rejected`, any included appointment MUST also have status `rejected`; `requested`, `proposed` and `confirmed` are invalid for that lead. If the lead was accepted but the appointment failed, return the accepted lead with the appointment's actual status; do not hide acceptance inside an `aap_error`. `APPOINTMENT_TIME_UNAVAILABLE` means the entire submission was rejected because no requested or alternative time could be accepted.
 
 ## Safe retries
 

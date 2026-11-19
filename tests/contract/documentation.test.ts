@@ -40,7 +40,7 @@ test("every copyable JSON example in the current specification parses and uses v
     }
   }
   for (const type of byType.keys()) {
-    if (type === "aap.event") continue;
+    if (type === "aap_event") continue;
     assert.ok(seen.has(type), `missing documented ${type} payload`);
   }
 });

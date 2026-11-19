@@ -7,9 +7,9 @@
   "properties": {
     "type": {
       "type": "string",
-      "description": "AAP message type identifier. For skill calls: '<scope>.<thing>.request' or '<scope>.<thing>.response' (e.g. 'inventory.search.request', 'lead.submit.response'). For envelopes: 'aap.event', 'aap.error'.",
-      "pattern": "^[a-z_]+(\\.[a-z_]+){1,2}$",
-      "examples": ["inventory.search.request", "dealer.information.response", "aap.error"]
+      "description": "AAP message type identifier in snake_case. For skill calls: '<skill>_request' or '<skill>_response' (e.g. 'inventory_search_request', 'lead_submit_response'). For envelopes: 'aap_event', 'aap_error'.",
+      "pattern": "^[a-z][a-z_]*[a-z]$",
+      "examples": ["inventory_search_request", "dealer_information_response", "aap_error"]
     },
     "data": {
       "type": "object",

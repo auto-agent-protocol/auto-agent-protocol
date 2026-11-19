@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-submit-response.schema.json",
+  "title": "TradeInSubmitResponse",
+  "description": "Outcome of a trade-in submission, shared by MCP, A2A and PAP. valued carries a valuation with an amount, a range or both. received means the dealer accepted the submission and will follow up on the consented channels. rejected means nothing was recorded. A valuation is an estimate unless kind is offer; even an offer depends on the vehicle matching its description at inspection. Retries replay the complete original result with data.replayed true.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "trade_in_submit_response",
+      "description": "AAP message type discriminator."
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "trade_in_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Dealer-assigned identifier for this trade-in submission."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "valued",
+            "received",
+            "rejected"
+          ],
+          "description": "valued: a valuation is included. received: accepted for dealer follow-up without an immediate valuation. rejected: not accepted; nothing was recorded. An idempotent replay preserves this value."
+        },
+        "valuation": {
+          "type": "object",
+          "description": "Present iff status is valued. Carries amount, the amount_min/amount_max range, or both. amount_min never exceeds amount_max, and an amount given with a range lies inside it; JSON Schema cannot compare the numbers, so publishers and receivers check this.",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Single headline value in whole units of currency."
+            },
+            "amount_min": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Lower bound of the valuation range in whole units of currency. Present only together with amount_max."
+            },
+            "amount_max": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Upper bound of the valuation range in whole units of currency. Present only together with amount_min."
+            },
+            "currency": {
+              "$ref": "./_primitives/currency.schema.json",
+              "default": "USD",
+              "description": "Currency of every valuation amount. Omitted means USD."
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "estimate",
+                "offer"
+              ],
+              "description": "estimate: non-binding indication. offer: the dealer commits to the valuation until expires_at if the vehicle matches its description at inspection. Omitted means estimate."
+            },
+            "expires_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Last moment the valuation stands, as an ISO 8601 / RFC 3339 timestamp with timezone offset. Required when kind is offer."
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "Valuation provider or method, such as a named guide book or the dealer's appraisal desk."
+            },
+            "disclaimer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000,
+              "description": "Conditions the customer must see with the valuation, such as inspection or title requirements."
+            }
+          },
+          "anyOf": [
+            {
+              "required": [
+                "amount"
+              ]
+            },
+            {
+              "required": [
+                "amount_min",
+                "amount_max"
+              ]
+            }
+          ],
+          "dependentRequired": {
+            "amount_min": [
+              "amount_max"
+            ],
+            "amount_max": [
+              "amount_min"
+            ]
+          },
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "offer"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "expires_at"
+            ]
+          },
+          "additionalProperties": false
+        },
+        "dealer": {
+          "type": "object",
+          "description": "Convenience contact summary for the buyer agent to surface follow-up details to the user.",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "phone": {
+              "type": "string",
+              "pattern": "^\\+[1-9]\\d{1,14}$",
+              "description": "E.164 phone number for buyer follow-up."
+            }
+          },
+          "additionalProperties": false
+        },
+        "replayed": {
+          "type": "boolean",
+          "description": "True on an idempotent replay. Every other response field repeats the original result, including the valuation. False or absent on the original result."
+        }
+      },
+      "required": [
+        "trade_in_id",
+        "status"
+      ],
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "status": {
+            "const": "valued"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "valuation"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "valuation"
+          ]
+        }
+      }
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Contextual note from the dealer, such as how to book an inspection."
+    }
+  },
+  "required": [
+    "type",
+    "data"
+  ],
+  "additionalProperties": false
+}

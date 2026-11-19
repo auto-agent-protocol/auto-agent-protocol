@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/_primitives/rebate.schema.json",
+  "title": "Rebate",
+  "description": "One manufacturer or dealer incentive program attached to a new-vehicle listing. program_value is in whole units of the enclosing Vehicle.currency (USD when omitted). A rebate never changes the meaning of Vehicle.price: an unconditional rebate (is_conditional false) is already reflected in price and MUST NOT be subtracted again; a conditional rebate (is_conditional true, the default) is never reflected in price and is only a possible additional saving for buyers who qualify.",
+  "type": "object",
+  "properties": {
+    "program_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "\\S",
+      "description": "Stable identifier of the incentive program, unique within one rebates array. JSON Schema cannot compare array members by one field, so publishers and receivers check uniqueness.",
+      "examples": [
+        "toyota-2026-11-military"
+      ]
+    },
+    "program_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "\\S",
+      "description": "Buyer-facing program name.",
+      "examples": [
+        "Military Rebate",
+        "Customer Cash"
+      ]
+    },
+    "program_number": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60,
+      "pattern": "\\S",
+      "description": "Optional manufacturer or lender program number, as printed on the incentive bulletin.",
+      "examples": [
+        "13834"
+      ]
+    },
+    "program_value": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Rebate amount in whole units of the enclosing vehicle's currency (USD when omitted).",
+      "examples": [
+        500,
+        1000
+      ]
+    },
+    "is_conditional": {
+      "type": "boolean",
+      "default": true,
+      "description": "true (the default when omitted): the buyer must meet eligibility conditions, such as military service, loyalty, recent graduation or financing with a named lender; never reflected in price. false: available to every buyer and already reflected in price when price is present."
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Optional ISO 8601 / RFC 3339 timestamp with timezone offset after which the program no longer applies. Publishers remove expired programs; consumers MUST NOT present a rebate after this time.",
+      "examples": [
+        "2026-11-30T23:59:59-08:00"
+      ]
+    }
+  },
+  "required": [
+    "program_id",
+    "program_name",
+    "program_value"
+  ],
+  "additionalProperties": false
+}

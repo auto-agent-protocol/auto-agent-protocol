@@ -45,7 +45,9 @@ if (!readFileSync(join(build, "search.html")).equals(readFileSync(join(build, "s
 }
 const poppyVersion = readJson<{protocol_version: string}>(join(build, stable.contract, "examples/poppy.example.json")).protocol_version;
 const publishedPap = existsSync(join(build, stable.contract, "schemas/poppy-session-jwt.schema.json"));
-const papLabel = publishedPap ? `Published PAP ${poppyVersion}` : `Poppy draft ${poppyVersion}`;
+// PAP 1.0 releases carry the tasks response schema and are no longer described as a "published draft".
+const stablePap = existsSync(join(build, stable.contract, "schemas/poppy-tasks.schema.json"));
+const papLabel = stablePap ? `PAP ${poppyVersion}` : publishedPap ? `Published PAP ${poppyVersion}` : `Poppy draft ${poppyVersion}`;
 for (const file of ["llms.txt", "llms-full.txt"]) {
   const header = readFileSync(join(build, file), "utf8").split("\n").find(line => line.startsWith(file === "llms.txt" ? "> " : "Interfaces: "));
   const expected = publishedPap ? `${papLabel} OpenAPI with delegated Poppy-Session JWTs` : `${papLabel} guest OpenAPI`;
@@ -55,6 +57,7 @@ for (const file of ["llms.txt", "llms-full.txt"]) {
 }
 const faq = readFileSync(join(build, "faq.html"), "utf8").match(/<article\b[^>]*>([\s\S]*?)<\/article>/)?.[1];
 if (!faq?.includes(papLabel)) throw new Error("FAQ must describe the stable PAP authentication profile");
+if (stablePap && !faq.includes("Poppy-Version")) throw new Error("FAQ must mention the Poppy-Version header required by the stable PAP binding");
 if (publishedPap && /guest Sessions and DPoP|guest OpenAPI uses verified Sessions and DPoP/.test(faq)) throw new Error("FAQ teaches the retired guest-token flow as the stable PAP binding");
 for (const [, contract] of faq.matchAll(/href="\/docs\/(v\d+\.\d+)\//g)) {
   if (contract !== stable.contract) throw new Error(`FAQ must link the stable contract ${stable.contract}, not ${contract}`);

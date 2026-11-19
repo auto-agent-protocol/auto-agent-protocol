@@ -1,0 +1,157 @@
+{
+  "type": "inventory_search_response",
+  "data": {
+    "total": 2,
+    "limit": 20,
+    "vehicles": [
+      {
+        "dealer_id": "dealer_demo_toyota",
+        "vehicle_id": "veh_dt_3107",
+        "vin": "JTMRWRFV5SD012345",
+        "stock": "DT-3107",
+        "rooftop": "Demo Toyota San Francisco",
+        "year": 2026,
+        "make": "Toyota",
+        "model": "RAV4",
+        "trim": "XLE",
+        "condition": "new",
+        "status": "available",
+        "body": "suv",
+        "driveline": "awd",
+        "transmission": "automatic",
+        "fuel": "hybrid",
+        "horsepower": 236,
+        "exterior_color": "Lunar Rock",
+        "currency": "USD",
+        "msrp": 36140,
+        "list_price": 35390,
+        "price": 34890,
+        "fees": [
+          {
+            "name": "Documentation fee",
+            "amount": 500
+          }
+        ],
+        "rebates": [
+          {
+            "program_id": "toyota-2026-11-customer-cash",
+            "program_name": "Customer Cash",
+            "program_number": "TC2611",
+            "program_value": 1000,
+            "is_conditional": false,
+            "expires_at": "2026-11-30T23:59:59-08:00"
+          },
+          {
+            "program_id": "toyota-2026-military",
+            "program_name": "Military Rebate",
+            "program_number": "MIL500",
+            "program_value": 500,
+            "is_conditional": true,
+            "expires_at": "2027-01-02T23:59:59-08:00"
+          },
+          {
+            "program_id": "toyota-2026-college-grad",
+            "program_name": "College Graduate Rebate",
+            "program_value": 500
+          }
+        ],
+        "mileage": 8,
+        "updated_at": "2026-11-19T08:42:00Z",
+        "vdp_url": "https://demo-toyota.example.com/inventory/dt-3107"
+      },
+      {
+        "dealer_id": "dealer_demo_toyota",
+        "vehicle_id": "veh_dt_3120",
+        "vin": "JTMB6RFV4SD067890",
+        "stock": "DT-3120",
+        "rooftop": "Demo Toyota San Francisco",
+        "year": 2026,
+        "make": "Toyota",
+        "model": "RAV4",
+        "trim": "Limited",
+        "condition": "new",
+        "status": "intransit",
+        "body": "suv",
+        "driveline": "awd",
+        "transmission": "automatic",
+        "fuel": "hybrid",
+        "horsepower": 236,
+        "exterior_color": "Midnight Black",
+        "currency": "USD",
+        "msrp": 41280,
+        "price": 41780,
+        "fees": [
+          {
+            "name": "Documentation fee",
+            "amount": 500
+          }
+        ],
+        "mileage": 5,
+        "updated_at": "2026-11-19T08:42:00Z",
+        "vdp_url": "https://demo-toyota.example.com/inventory/dt-3120"
+      }
+    ],
+    "facets": {
+      "makes": [
+        {
+          "value": "Toyota",
+          "count": 2
+        }
+      ],
+      "models": [
+        {
+          "value": "RAV4",
+          "count": 2
+        }
+      ],
+      "trims": [
+        {
+          "value": "XLE",
+          "count": 1
+        },
+        {
+          "value": "Limited",
+          "count": 1
+        }
+      ],
+      "conditions": [
+        {
+          "value": "new",
+          "count": 2
+        }
+      ],
+      "statuses": [
+        {
+          "value": "available",
+          "count": 1
+        },
+        {
+          "value": "intransit",
+          "count": 1
+        }
+      ],
+      "price_range": {
+        "min": 34890,
+        "max": 41780
+      }
+    },
+    "applied_filters": {
+      "make": [
+        "Toyota"
+      ],
+      "model": [
+        "RAV4"
+      ],
+      "condition": [
+        "new"
+      ],
+      "price_max": 45000
+    },
+    "sort": {
+      "field": "price",
+      "order": "asc"
+    },
+    "next_cursor": null
+  },
+  "message": "2 new Toyota RAV4s match. The first lists three rebate programs: its price already reflects the unconditional customer cash; the military and college rebates are possible extra savings for buyers who qualify. The second lists no rebate information."
+}

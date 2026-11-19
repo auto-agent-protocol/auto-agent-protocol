@@ -1,0 +1,4 @@
+{
+  "error": "invalid_session",
+  "error_description": "Provide a fresh delegated Poppy-Session JWT bound to this request."
+}

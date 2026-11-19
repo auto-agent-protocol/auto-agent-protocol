@@ -5,7 +5,7 @@
   "description": "Evidence about equipment on this specific vehicle. A trim name, model-year default or unverified marketing claim is not proof that equipment is installed. A missing entry means unknown, not absent.",
   "type": "object",
   "properties": {
-    "code": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 80, "description": "Stable feature code advertised by inventory.facets. Codes have the same meaning across this deployment's bindings.", "examples": ["adaptive_cruise_control"] },
+    "code": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 80, "description": "Stable feature code advertised by inventory_facets. Codes have the same meaning across this deployment's bindings.", "examples": ["adaptive_cruise_control"] },
     "label": { "type": "string", "minLength": 1, "maxLength": 200, "pattern": "\\S", "examples": ["Adaptive cruise control"] },
     "status": { "type": "string", "enum": ["present", "absent", "unknown"], "description": "present and absent are verified claims for this vehicle. Unknown never satisfies a required-feature filter." },
     "source": { "type": "string", "enum": ["inventory", "manufacturer", "dealer"], "description": "Origin of the vehicle-specific evidence. Required for present or absent claims." },

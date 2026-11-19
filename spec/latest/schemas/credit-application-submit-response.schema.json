@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/credit-application-submit-response.schema.json",
+  "title": "CreditApplicationSubmitResponse",
+  "description": "Outcome of a credit application submission, shared by MCP, A2A and PAP. status reports the submission: received or rejected. The optional decision reports the credit outcome separately and may arrive later through the dealer instead. The response never repeats applicant data. A declined outcome here is not the adverse-action notice the creditor must send. Retries replay the complete original result with data.replayed true.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "credit_application_submit_response",
+      "description": "AAP message type discriminator."
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "application_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Dealer-assigned identifier for this application."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "received",
+            "rejected"
+          ],
+          "description": "Submission outcome. received: accepted for processing. rejected: not accepted; no application was created and no credit inquiry was made. An idempotent replay preserves this value."
+        },
+        "decision": {
+          "type": "object",
+          "description": "Optional credit outcome known at response time. Absent when the dealer or lender answers later.",
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "prequalified",
+                "approved",
+                "conditionally_approved",
+                "declined"
+              ],
+              "description": "pending: under review. prequalified: soft-inquiry indication, not a commitment. approved: approved on the stated terms. conditionally_approved: approved subject to conditions. declined: not approved."
+            },
+            "lender_name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Lender that produced this outcome."
+            },
+            "apr": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Annual percentage rate, in percent.",
+              "examples": [
+                6.49
+              ]
+            },
+            "term_months": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 120
+            },
+            "amount_financed": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Amount financed in whole units of currency."
+            },
+            "monthly_payment": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Estimated monthly payment in currency, to the cent."
+            },
+            "currency": {
+              "$ref": "./_primitives/currency.schema.json",
+              "default": "USD",
+              "description": "Currency of amount_financed and monthly_payment. Omitted means USD."
+            },
+            "expires_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Last moment the stated terms stand, as an ISO 8601 / RFC 3339 timestamp with timezone offset."
+            },
+            "conditions": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000,
+              "description": "Conditions or stipulations the applicant must see, such as proof of income."
+            }
+          },
+          "required": [
+            "outcome"
+          ],
+          "additionalProperties": false
+        },
+        "dealer": {
+          "type": "object",
+          "description": "Convenience contact summary for the buyer agent to surface follow-up details to the user.",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "phone": {
+              "type": "string",
+              "pattern": "^\\+[1-9]\\d{1,14}$",
+              "description": "E.164 phone number for buyer follow-up."
+            }
+          },
+          "additionalProperties": false
+        },
+        "replayed": {
+          "type": "boolean",
+          "description": "True on an idempotent replay. Every other response field repeats the original result. False or absent on the original result. This is the original outcome, not a live application-status lookup."
+        }
+      },
+      "required": [
+        "application_id",
+        "status"
+      ],
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "status": {
+            "const": "rejected"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "decision"
+          ]
+        }
+      }
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Contextual note from the dealer, such as when a finance manager will call."
+    }
+  },
+  "required": [
+    "type",
+    "data"
+  ],
+  "additionalProperties": false
+}

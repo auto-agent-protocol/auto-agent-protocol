@@ -32,7 +32,7 @@
       {
         "@type": "type.googleapis.com/google.protobuf.Struct",
         "value": {
-          "type": "aap.error",
+          "type": "aap_error",
           "error_id": "err_01HZ9EXAMPLE",
           "code": "SCHEMA_VALIDATION_FAILED",
           "message": "request failed validation with 2 errors",
@@ -40,12 +40,12 @@
           "details": {
             "errors": [
               {
-                "instanceLocation": "/filters/year_min",
+                "instance_location": "/filters/year_min",
                 "keyword": "type",
                 "error": "must be an integer"
               },
               {
-                "instanceLocation": "/filters/made_up",
+                "instance_location": "/filters/made_up",
                 "keyword": "additionalProperties",
                 "error": "unknown filter key"
               }

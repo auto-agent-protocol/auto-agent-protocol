@@ -1,5 +1,5 @@
 {
-  "protocol_version": "0.3",
+  "protocol_version": "1.0",
   "organization": {
     "name": "Demo Toyota",
     "domain": "demo-toyota.example.com"
@@ -13,14 +13,16 @@
   ],
   "web": {},
   "extensions": {
-    "autoagentprotocol.org/aap": {
-      "version": "1",
-      "agent_card": "https://demo-toyota.example.com/.well-known/agent-card.json",
-      "documentation": "https://autoagentprotocol.org/",
-      "aap_version": "0.0.0-dev",
-      "mcp": "https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp",
-      "llms_txt": "https://demo-toyota.example.com/llms.txt"
-    }
+    "autoagentprotocol.org/aap": [
+      {
+        "version": "1",
+        "agent_card": "https://demo-toyota.example.com/.well-known/agent-card.json",
+        "documentation": "https://autoagentprotocol.org/",
+        "aap_version": "0.0.0-dev",
+        "mcp": "https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp",
+        "llms_txt": "https://demo-toyota.example.com/llms.txt"
+      }
+    ]
   },
   "auth": {
     "issuer": "https://demo-toyota.example.com/poppy",

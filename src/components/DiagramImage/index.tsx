@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import type { ComponentProps } from "react";
 import OriginalImage from "@theme-original/MDXComponents/Img";
 import styles from "./styles.module.css";

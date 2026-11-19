@@ -28,7 +28,7 @@ def main():
                     payload = struct_pb2.Struct()
                     if not message.Unpack(payload):
                         raise ValueError("Cannot unpack Struct")
-                    if json_format.MessageToDict(payload).get("type") == "aap.error":
+                    if json_format.MessageToDict(payload).get("type") == "aap_error":
                         payloads += 1
                 details += 1
             except (json_format.ParseError, ValueError) as error:

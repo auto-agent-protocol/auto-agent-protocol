@@ -1,0 +1,34 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "conversation-request.schema.json",
+    "title": "Conversation request",
+    "description": "The JSON body of POST {endpoint} (start a conversation, spec 8.3, or a Direct Conversation with parent_conversation_id, 8.10). id is the request ID the Personal Agent chooses, which is also the first message's ID. Only this opening POST accepts user_requested_event_id and can omit message when accepting that event. Follow-up messages use conversation-message-request.schema.json.",
+    "type": "object",
+    "if": {
+        "required": ["user_requested_event_id"]
+    },
+    "then": {
+        "required": ["parent_conversation_id"]
+    },
+    "else": {
+        "required": ["message"]
+    },
+    "properties": {
+        "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,256}$"
+        },
+        "message": {
+            "$ref": "message.schema.json"
+        },
+        "parent_conversation_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,256}$"
+        },
+        "user_requested_event_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,256}$"
+        }
+    },
+    "required": ["id"]
+}

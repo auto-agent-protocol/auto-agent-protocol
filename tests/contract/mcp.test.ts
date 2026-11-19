@@ -126,8 +126,8 @@ test("MCP input schemas avoid the reported host root-keyword restriction without
       }
       mutate(original);
     }
-    if (tool.name === "aap_inventory_search") variants.push({ type: "inventory.search.request", sort: { field: "distance_mi", order: "asc" } });
-    if (tool.name === "aap_inventory_vehicle") variants.push({ type: "inventory.vehicle.request", vehicle_id: "listing-42" });
+    if (tool.name === "aap_inventory_search") variants.push({ type: "inventory_search_request", sort: { field: "distance_mi", order: "asc" } });
+    if (tool.name === "aap_inventory_vehicle") variants.push({ type: "inventory_vehicle_request", vehicle_id: "listing-42" });
     for (const value of variants) {
       assert.equal(tool.input(value), validate(value), `${tool.name}: validation differs for ${JSON.stringify(value)}`);
       comparisons++;
@@ -137,7 +137,7 @@ test("MCP input schemas avoid the reported host root-keyword restriction without
 });
 
 for (const modern of [true, false]) {
-  test(`official MCP ${modern ? "2.4.0 current" : "1.32.2 legacy"} client discovers and calls all five tools`, { timeout: 15000 }, async () => {
+  test(`official MCP ${modern ? "2.4.0 current" : "1.32.2 legacy"} client discovers and calls every tool`, { timeout: 15000 }, async () => {
     const calls: Array<{ request: any; headers: Record<string, unknown>; result?: any }> = [];
     let responseExample: string | undefined;
     const servedTools = structuredClone(catalog.tools);
@@ -205,7 +205,7 @@ for (const modern of [true, false]) {
         assert.equal(tools.find((tool: any) => tool.name === name).output(result.structuredContent), true);
       }
       responseExample = undefined;
-      const failure = await client.callTool({ name: "aap_inventory_search", arguments: { type: "inventory.search.request", filters: { unknown: true } } });
+      const failure = await client.callTool({ name: "aap_inventory_search", arguments: { type: "inventory_search_request", filters: { unknown: true } } });
       assert.equal(failure.isError, true);
       assert.deepEqual(failure.structuredContent, read("error.example.json"));
       if (modern) {

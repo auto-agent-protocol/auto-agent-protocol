@@ -1,0 +1,4 @@
+{
+  "error": "version_unsupported",
+  "error_description": "Send Poppy-Version: 1.0 with the Session header."
+}

@@ -5,7 +5,8 @@ import { readFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { ROOT, isMain } from "./lib/releases.js";
 import * as legacyPoppy from "./lib/poppy-legacy.js";
-import * as publishedPoppy from "./lib/poppy.js";
+import * as publishedPoppy from "./lib/poppy-0.3.js";
+import * as poppy from "./lib/poppy.js";
 import { checkDiscovery } from "./lib/discovery.js";
 import { validateManifest } from "./validate-manifest.js";
 
@@ -36,6 +37,33 @@ export async function validateExamples(specDir: string, label: string): Promise<
   if (files.includes("poppy.example.json")) {
     const read = (name: string) => JSON.parse(readFileSync(resolve(examplesDir, `${name}.example.json`), "utf8"));
     const document = read("poppy");
+    if (schemas.has("poppy-tasks")) {
+      const discovery = `https://${document.organization.domain}/.well-known/poppy.json`;
+      const session = read("poppy-session-jwt"), client = read("poppy-client-metadata");
+      const native = read("poppy.native-mcp"), nativeResource = read("poppy-protected-resource-metadata.native-mcp");
+      const bridge = poppy.poppyExtensionEntry(document, poppy.AAP_BRIDGE_EXTENSION, "1");
+      const errors = [
+        ...poppy.checkPoppyIdentity(document, discovery, undefined, discovery, { status: 200, document: read("poppy-protected-resource-metadata") }),
+        ...poppy.checkPoppyIdentity(read("poppy.existing-issuer"), discovery, read("poppy-oauth-metadata"), discovery, { status: 200, document: read("poppy-protected-resource-metadata.existing-issuer") }),
+        ...poppy.checkPoppyIdentity(native, discovery, read("poppy-oauth-metadata.native-mcp"), discovery, { status: 200, document: read("poppy-protected-resource-metadata.existing-issuer") }),
+        ...poppy.checkPoppyMcpResource(native, native.auth.issuer, nativeResource.resource, nativeResource),
+        ...poppy.checkPoppyClientIdentity(client, client.client_id),
+        ...poppy.checkPoppySessionClaims(session, read("poppy-delegation"), { clientId: client.client_id, companyIdentifier: `https://${document.organization.domain}`, method: "POST", url: session.payload.htu, now: session.payload.iat, windowSeconds: 60 }),
+        ...poppy.checkPoppyAssertion(read("poppy-client-assertion"), client.client_id, read("poppy-oauth-metadata").issuer),
+        ...poppy.checkPoppyTokenResponse(read("poppy-access-token-response"), { grant: "sign-in", requestedScopes: ["saved_searches:read"] }),
+      ];
+      if (!bridge) errors.push("poppy.json must list the version-1 AAP bridge entry");
+      const tasks = read("poppy-tasks");
+      for (const alternative of [read("poppy-alternative"), ...tasks.excluded_tasks.map((task: any) => task.alternative).filter(Boolean)]) {
+        if (poppy.poppyAlternativeReferences(document, alternative).length !== (alternative.references ?? []).length) errors.push("Alternative references an unadvertised API");
+      }
+      const approval = read("poppy-approval"), operation = read("poppy-approval-required").operation;
+      if (approval.operation_id !== operation.operation_id || approval.revision !== operation.revision) errors.push("Approval example must approve the example operation revision");
+      if (errors.length) throw new Error(`${label}/PAP 1.0 examples: ${errors.join("; ")}`);
+      const discoveryErrors = checkDiscovery(read("agent-card"), document, validateManifest(specDir, label), bridge!.agent_card);
+      if (discoveryErrors.length) throw new Error(`${label}/discovery: ${discoveryErrors.join("; ")}`);
+      return { total: files.length, validated };
+    }
     if (schemas.has("poppy-session-jwt")) {
       const discovery = `https://${document.organization.domain}/.well-known/poppy.json`;
       const session = read("poppy-session-jwt"), client = read("poppy-client-metadata");

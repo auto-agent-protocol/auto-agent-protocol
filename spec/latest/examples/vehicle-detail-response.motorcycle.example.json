@@ -1,5 +1,5 @@
 {
-  "type": "inventory.vehicle.response",
+  "type": "inventory_vehicle_response",
   "data": {
     "vehicle_type": "motorcycle",
     "dealer_id": "dealer_demo_powersports",

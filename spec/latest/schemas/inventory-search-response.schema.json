@@ -5,7 +5,7 @@
   "description": "Typed inventory search result shared by MCP, A2A and PAP. Reports the effective filters and ordering, a continuation cursor and listings with evidence and freshness. A page-size limit never limits the total traversable matching set.",
   "type": "object",
   "properties": {
-    "type": { "const": "inventory.search.response" },
+    "type": { "const": "inventory_search_response" },
     "data": {
       "type": "object",
       "properties": {

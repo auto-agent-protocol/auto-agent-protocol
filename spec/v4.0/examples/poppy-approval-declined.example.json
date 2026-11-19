@@ -1,0 +1,15 @@
+{
+  "error": "approval_declined",
+  "operation_id": "crd_7Hk2Qm",
+  "revision": "1792742400-k3Jd9Qx2mW8v",
+  "reason": "Credit applications need the applicant's own approval.",
+  "alternative": {
+    "instructions": "The applicant can apply on the dealership website.",
+    "references": [
+      {
+        "type": "web",
+        "url": "https://demo-toyota.example.com/finance/apply"
+      }
+    ]
+  }
+}

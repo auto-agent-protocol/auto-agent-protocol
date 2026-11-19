@@ -1,0 +1,28 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "links-content.schema.json",
+    "title": "Links extension message content",
+    "description": "The value of extensions.links in a Company message (spec 8.4, Links 3).",
+    "type": "object",
+    "required": ["items"],
+    "properties": {
+        "items": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["url"],
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "pattern": "^https://",
+                        "format": "uri"
+                    },
+                    "title": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,6 @@
+{
+  "resource": "https://demo-toyota.example.com",
+  "authorization_servers": [
+    "https://demo-toyota.example.com/poppy"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "session-jwt.schema.json",
+    "title": "Session JWT",
+    "description": "The JWT in the Poppy-Session header, as its decoded header and payload (spec 5.2). The Personal Agent signs one for each request with a delegated key: kid is the delegated key's JWK thumbprint, and poppy_dlg is the delegation that vouches for it (delegation.schema.json). The Company verifies it as spec 5.3 describes. agent_id is optional, and ath is present only when the request carries an access token. The header and payload are also available on their own as session-jwt.schema.json#/$defs/header and #/$defs/payload.",
+    "type": "object",
+    "required": ["header", "payload"],
+    "properties": {
+        "header": { "$ref": "#/$defs/header" },
+        "payload": { "$ref": "#/$defs/payload" }
+    },
+    "$defs": {
+        "header": {
+            "type": "object",
+            "required": ["typ", "alg", "kid", "poppy_dlg"],
+            "properties": {
+                "typ": { "const": "poppy-session+jwt" },
+                "alg": { "const": "ES256" },
+                "kid": { "type": "string", "pattern": "^[A-Za-z0-9_-]{43}$" },
+                "poppy_dlg": { "type": "string", "minLength": 1 }
+            }
+        },
+        "payload": {
+            "type": "object",
+            "required": ["iss", "aud", "sid", "sub", "htm", "htu", "iat", "jti"],
+            "properties": {
+                "iss": { "type": "string", "pattern": "^https://[^\\s/?#]+", "format": "uri" },
+                "aud": { "type": "string", "pattern": "^https://[^\\s/?#]+", "format": "uri" },
+                "sid": { "type": "string", "pattern": "^[A-Za-z0-9_-]{22,256}$" },
+                "sub": { "type": "string", "minLength": 1 },
+                "agent_id": { "type": "string", "minLength": 1 },
+                "htm": { "type": "string", "pattern": "^[A-Z]+$" },
+                "htu": { "type": "string", "pattern": "^https://[^?#]+$" },
+                "iat": { "type": "integer", "minimum": 0 },
+                "jti": { "type": "string", "minLength": 22 },
+                "ath": { "type": "string", "pattern": "^[A-Za-z0-9_-]{43}$" }
+            }
+        }
+    }
+}

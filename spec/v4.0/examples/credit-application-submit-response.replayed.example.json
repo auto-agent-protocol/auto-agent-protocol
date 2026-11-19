@@ -1,0 +1,24 @@
+{
+  "type": "credit_application_submit_response",
+  "data": {
+    "application_id": "app_dt_55120",
+    "status": "received",
+    "decision": {
+      "outcome": "prequalified",
+      "lender_name": "Example Auto Finance",
+      "apr": 6.49,
+      "term_months": 60,
+      "amount_financed": 30890,
+      "monthly_payment": 604.31,
+      "currency": "USD",
+      "expires_at": "2026-12-19T10:41:00Z",
+      "conditions": "Prequalification from a soft inquiry. Final approval needs a full application, identity verification and proof of income."
+    },
+    "dealer": {
+      "name": "Demo Toyota",
+      "phone": "+14155550100"
+    },
+    "replayed": true
+  },
+  "message": "A finance manager will email you within one business hour to review your options."
+}

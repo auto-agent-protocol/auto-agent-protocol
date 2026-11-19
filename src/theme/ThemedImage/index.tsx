@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import React from 'react';
 import {ThemedComponent} from '@docusaurus/theme-common';
 import type {Props} from '@theme/ThemedImage';

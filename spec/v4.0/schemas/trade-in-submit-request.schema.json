@@ -1,0 +1,314 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v4.0/schemas/trade-in-submit-request.schema.json",
+  "title": "TradeInSubmitRequest",
+  "description": "Submit one trade-in vehicle through MCP, A2A or PAP and, where the dealer supports it, receive an immediate valuation. Customer, consent, source_agent and idempotency_key are required exactly as in lead_submit, so a trade-in that is the customer's first contact reaches the dealership like a regular lead. The vehicle needs year, make, model, wear condition and mileage; every other vehicle detail is optional. A dealer may deliver the submission to its CRM as an ADF/XML lead and answer received, or call a valuation service and answer valued; the request is the same either way. lead_submit keeps its own trade_in block for a purchase inquiry that mentions a trade-in, and never returns a valuation.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "trade_in_submit_request",
+      "description": "AAP message type discriminator."
+    },
+    "vehicle": {
+      "allOf": [
+        {
+          "$ref": "./vehicle.schema.json"
+        }
+      ],
+      "type": "object",
+      "required": [
+        "year",
+        "make",
+        "model",
+        "condition",
+        "mileage"
+      ],
+      "properties": {
+        "condition": {
+          "enum": [
+            "excellent",
+            "good",
+            "fair",
+            "poor"
+          ]
+        },
+        "rebates": false
+      },
+      "description": "The vehicle offered for trade-in. Required: year, make, model, wear condition (excellent, good, fair or poor) and mileage in mileage_unit (mi when omitted). Optional details that improve a valuation: vin, trim, exterior_color, driveline, transmission, displacement_cc, fuel and horsepower. Pass only what the customer provided; never invent a VIN or equipment."
+    },
+    "customer": {
+      "$ref": "./customer.schema.json",
+      "description": "Owner contact info, in the same shape as lead_submit. Required."
+    },
+    "consent": {
+      "$ref": "./consent-grant.schema.json",
+      "description": "Consent record covering this submission. Required. `scope` MUST be [\"trade_in_submission\"]."
+    },
+    "vehicle_of_interest": {
+      "$ref": "./vehicle.schema.json",
+      "description": "Optional vehicle the customer intends to buy; some dealers value a trade-in in the context of a purchase. When condition is set it MUST be new, used or cpo."
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 4000,
+      "description": "Optional free-text note about the vehicle, such as accident history or recent service."
+    },
+    "source_agent": {
+      "$ref": "./lead-submit-request.schema.json#/properties/source_agent"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339 timestamp at which the buyer agent finalized this submission."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Required client-generated key (UUID recommended) for this trade-in submission. Preserve the key and payload after a timeout or session renewal. Deduplicate for at least 24 hours by dealer and verified caller, including the stable PAP User ID where applicable; anonymous calls use dealer and key. The same caller and key across bindings return the complete original result with data.replayed true; a changed payload returns IDEMPOTENCY_CONFLICT. A replay creates no new record, valuation or delivery."
+    }
+  },
+  "required": [
+    "type",
+    "vehicle",
+    "customer",
+    "consent",
+    "source_agent",
+    "idempotency_key"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "The consent grant must be scoped to trade-in submission",
+      "properties": {
+        "consent": {
+          "properties": {
+            "scope": {
+              "const": [
+                "trade_in_submission"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "vehicle_of_interest"
+        ],
+        "properties": {
+          "vehicle_of_interest": {
+            "type": "object",
+            "required": [
+              "condition"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "vehicle_of_interest": {
+            "properties": {
+              "condition": {
+                "enum": [
+                  "new",
+                  "used",
+                  "cpo"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "description": "vehicle_of_interest.condition (when set) must be in the sale-condition vocabulary"
+    },
+    {
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "email"
+                }
+              }
+            },
+            "required": [
+              "allowed_channels"
+            ]
+          }
+        },
+        "required": [
+          "consent"
+        ]
+      },
+      "then": {
+        "properties": {
+          "customer": {
+            "required": [
+              "email"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "customer": {
+            "properties": {
+              "preferred_contact": {
+                "const": "email"
+              }
+            },
+            "required": [
+              "preferred_contact"
+            ]
+          }
+        },
+        "required": [
+          "customer"
+        ]
+      },
+      "then": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "email"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "phone"
+                }
+              }
+            },
+            "required": [
+              "allowed_channels"
+            ]
+          }
+        },
+        "required": [
+          "consent"
+        ]
+      },
+      "then": {
+        "properties": {
+          "customer": {
+            "required": [
+              "phone"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "customer": {
+            "properties": {
+              "preferred_contact": {
+                "const": "phone"
+              }
+            },
+            "required": [
+              "preferred_contact"
+            ]
+          }
+        },
+        "required": [
+          "customer"
+        ]
+      },
+      "then": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "phone"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "sms"
+                }
+              }
+            },
+            "required": [
+              "allowed_channels"
+            ]
+          }
+        },
+        "required": [
+          "consent"
+        ]
+      },
+      "then": {
+        "properties": {
+          "customer": {
+            "required": [
+              "phone"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "customer": {
+            "properties": {
+              "preferred_contact": {
+                "const": "sms"
+              }
+            },
+            "required": [
+              "preferred_contact"
+            ]
+          }
+        },
+        "required": [
+          "customer"
+        ]
+      },
+      "then": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "allowed_channels": {
+                "contains": {
+                  "const": "sms"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "conversation-message-request.schema.json",
+    "title": "Conversation message request",
+    "description": "The JSON body of POST {endpoint}/{id}/messages (send another message, spec 8.3). id is the request ID the Personal Agent chooses, which is also the message's ID. A message is always required, including in a Direct Conversation.",
+    "type": "object",
+    "required": ["id", "message"],
+    "properties": {
+        "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,256}$"
+        },
+        "message": {
+            "$ref": "message.schema.json"
+        }
+    }
+}

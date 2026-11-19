@@ -1,0 +1,80 @@
+version: "4.0.0"
+extension_uri: https://autoagentprotocol.org/extensions/aap/v4.0
+schema_base_url: https://autoagentprotocol.org/v4.0/schemas/
+skills:
+  - id: dealer_information
+    name: Dealer Information
+    description: Read dealership identity, rooftops, coordinates, hours, contact channels and default fee disclosures. On aggregate inventory, resolve a listing's dealer_id to the actual seller before consent.
+    tags: [dealer, dealership, profile, hours, contact, locations, fees, automotive, motorcycles, powersports]
+    request_schema: dealer-information-request.schema.json
+    response_schema: dealer-information-response.schema.json
+    request_type: dealer_information_request
+    response_type: dealer_information_response
+    media_type_request: application/vnd.autoagent.dealer-information-request+json
+    media_type_response: application/vnd.autoagent.dealer-information-response+json
+
+  - id: inventory_facets
+    name: Inventory Facets
+    description: Discover inventory values, numeric ranges and supported feature codes with verified-present counts.
+    tags: [inventory, facets, aggregation, filters, automotive, motorcycles, powersports]
+    request_schema: inventory-facets-request.schema.json
+    response_schema: inventory-facets-response.schema.json
+    request_type: inventory_facets_request
+    response_type: inventory_facets_response
+    media_type_request: application/vnd.autoagent.inventory-facets-request+json
+    media_type_response: application/vnd.autoagent.inventory-facets-response+json
+
+  - id: inventory_search
+    name: Inventory Search
+    description: Find vehicles using advertised constraints, source-backed equipment, rooftop radius and complete cursor pagination. Return applied filters, freshness and authoritative prices.
+    tags: [inventory, vehicles, search, cars, motorcycles, powersports, automotive]
+    request_schema: inventory-search-request.schema.json
+    response_schema: inventory-search-response.schema.json
+    request_type: inventory_search_request
+    response_type: inventory_search_response
+    media_type_request: application/vnd.autoagent.inventory-search-request+json
+    media_type_response: application/vnd.autoagent.inventory-search-response+json
+
+  - id: inventory_vehicle
+    name: Vehicle Detail
+    description: Read one listing by VIN, stock or vehicle ID, including current status, equipment evidence, pricing and relevant specifications.
+    tags: [inventory, vehicle, vin, stock, detail, automotive, motorcycles, powersports]
+    request_schema: vehicle-detail-request.schema.json
+    response_schema: vehicle-detail-response.schema.json
+    request_type: inventory_vehicle_request
+    response_type: inventory_vehicle_response
+    media_type_request: application/vnd.autoagent.vehicle-detail-request+json
+    media_type_response: application/vnd.autoagent.vehicle-detail-response+json
+
+  - id: lead_submit
+    name: Submit Lead
+    description: Submit one explicitly consented inquiry with optional vehicle, trade-in and appointment details. Require an idempotency key; duplicate suppression lasts at least 24 hours. Reconcile uncertain outcomes before retrying after that window. Report lead and booking outcomes separately.
+    tags: [lead, contact, consent, sales, appointment, automotive, motorcycles, powersports]
+    request_schema: lead-submit-request.schema.json
+    response_schema: lead-submit-response.schema.json
+    request_type: lead_submit_request
+    response_type: lead_submit_response
+    media_type_request: application/vnd.autoagent.lead-submit-request+json
+    media_type_response: application/vnd.autoagent.lead-submit-response+json
+
+  - id: trade_in_submit
+    name: Submit Trade-In
+    description: Optional. Describe one trade-in by year, make, model, condition and mileage and, where the dealer supports it, receive an immediate valuation as an amount, a range or both. Customer contact data and explicit consent are required, as for a lead. Require an idempotency key. A valuation is an estimate unless it is marked as an offer.
+    tags: [trade-in, valuation, appraisal, estimate, automotive, motorcycles, powersports]
+    request_schema: trade-in-submit-request.schema.json
+    response_schema: trade-in-submit-response.schema.json
+    request_type: trade_in_submit_request
+    response_type: trade_in_submit_response
+    media_type_request: application/vnd.autoagent.trade-in-submit-request+json
+    media_type_response: application/vnd.autoagent.trade-in-submit-response+json
+
+  - id: credit_application_submit
+    name: Submit Credit Application
+    description: Optional. Submit one vehicle credit application with each applicant's own credit consent, including the soft or hard inquiry they authorized. Require an idempotency key; duplicate suppression lasts at least 24 hours. Report the submission and any credit decision separately. Applicant data is sensitive and is never repeated in a response or error.
+    tags: [credit, financing, application, prequalification, consent, automotive, motorcycles, powersports]
+    request_schema: credit-application-submit-request.schema.json
+    response_schema: credit-application-submit-response.schema.json
+    request_type: credit_application_submit_request
+    response_type: credit_application_submit_response
+    media_type_request: application/vnd.autoagent.credit-application-submit-request+json
+    media_type_response: application/vnd.autoagent.credit-application-submit-response+json

@@ -8,6 +8,7 @@ if (!stableRelease) throw new Error(`Stable release ${releases.stable} is missin
 const stableContract = stableRelease.contract;
 const [stableMajor, stableMinor] = stableRelease.version.split(".").map(Number);
 const publishedPap = stableMajor > 3 || stableMajor === 3 && stableMinor >= 2;
+const stablePap = stableMajor >= 4;
 const releasedDocs = Object.fromEntries(
   releases.releases.map((release) => [
     release.contract,
@@ -240,7 +241,9 @@ const config: Config = {
           items: [
             { label: "MCP specification", href: "https://modelcontextprotocol.io/specification/2026-07-28" },
             { label: "A2A 1.0 specification", href: "https://a2a-protocol.org/v1.0.0/specification/" },
-            { label: publishedPap ? "Published PAP 0.3 specification" : "PAP draft 0.3 specification", href: "https://personalagentprotocol.org/docs/0.3/spec" },
+            stablePap
+              ? { label: "PAP 1.0 specification", href: "https://personalagentprotocol.org/docs/1.0/spec" }
+              : { label: publishedPap ? "Published PAP 0.3 specification" : "PAP draft 0.3 specification", href: "https://personalagentprotocol.org/docs/0.3/spec" },
           ],
         },
         {

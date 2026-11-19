@@ -19,6 +19,7 @@ const validate = (name: string, value: unknown) => ajv.getSchema(schema(name).$i
 test("3.0 automotive examples remain valid and omitted labels retain their original defaults", () => {
   for (const name of ["inventory-search-request", "inventory-search-response", "inventory-facets-request", "inventory-facets-response", "vehicle-detail-response", "dealer-information-response", "lead-submit-request"]) {
     const value = JSON.parse(readFileSync(resolve(ROOT, `spec/v3.0/examples/${name}.example.json`), "utf8"));
+    value.type = value.type.replaceAll(".", "_"); // AAP 4.0 renamed message types to snake_case; the automotive fields are unchanged
     const before = structuredClone(value);
     assert.equal(validate(name, value), true, name);
     assert.deepEqual(value, before, "validation does not infer or rewrite currency or odometer units");

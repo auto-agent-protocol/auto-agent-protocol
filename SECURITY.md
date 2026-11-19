@@ -19,8 +19,9 @@ of coordinated disclosure before publishing details.
   follows the selected binding: [MCP](docs/bindings/mcp.md) declares public reads
   or standard OAuth protection; [A2A](docs/a2a-profile.md) uses the Agent Card's
   `securitySchemes` / `securityRequirements`; [PAP](docs/personal-agent-protocol.md)
-  requires verified Sessions and DPoP even for signed-out OpenAPI access.
-- `lead.submit` requires explicit customer contact consent, permitted channels,
+  requires a delegated `Poppy-Session` JWT and `Poppy-Version` on every
+  native API request, including signed-out access.
+- `lead_submit` requires explicit customer contact consent, permitted channels,
   matching contact details and an idempotency key. Authentication or tool
   selection does not grant contact consent. Follow the shared
   [consent, retry and monitoring rules](docs/behavior-rules.md) on every binding.

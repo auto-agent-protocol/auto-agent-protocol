@@ -24,7 +24,9 @@ export function validateManifest(specDir: string, label: string): SkillsManifest
   for (const skill of manifest.skills) {
     if (!skill.id || ids.has(skill.id)) throw new Error(`${label}: missing or duplicate skill id ${skill.id ?? "(missing)"}`);
     ids.add(skill.id);
-    if (skill.request_type !== `${skill.id}.request` || skill.response_type !== `${skill.id}.response`) throw new Error(`${label}/${skill.id}: request/response type does not match the skill id`);
+    // AAP 4.0 uses snake_case ids and types (lead_submit_request); earlier releases used dots (lead.submit.request).
+    const separator = skill.id.includes(".") ? "." : "_";
+    if (skill.request_type !== `${skill.id}${separator}request` || skill.response_type !== `${skill.id}${separator}response`) throw new Error(`${label}/${skill.id}: request/response type does not match the skill id`);
     for (const [kind, name, type] of [["request", skill.request_schema, skill.request_type], ["response", skill.response_schema, skill.response_type]] as const) {
       if (!name || basename(name) !== name || !name.endsWith(".schema.json")) throw new Error(`${label}/${skill.id}: unsafe ${kind} schema path`);
       const file = resolve(specDir, "schemas", name);

@@ -34,7 +34,7 @@ test("lead contact channels require matching customer data and permission", () =
 });
 
 test("appointment outcomes cannot claim a booking or alternatives without their times", () => {
-  const response = (appointment: unknown, status = "received") => ({ type: "lead.submit.response", data: { lead_id: "lead_1", status, appointment } });
+  const response = (appointment: unknown, status = "received") => ({ type: "lead_submit_response", data: { lead_id: "lead_1", status, appointment } });
   const appointment = { appointment_id: "appt_1", status: "confirmed", confirmed_at: "2026-11-01T14:00:00Z" };
   assert.equal(validate("lead-submit-response", response(appointment)), true);
   for (const value of [
@@ -48,7 +48,7 @@ test("appointment outcomes cannot claim a booking or alternatives without their 
 });
 
 test("a retry marker cannot replace the original lead outcome", () => {
-  const response = { type: "lead.submit.response", data: { lead_id: "l-1", status: "duplicate" } };
+  const response = { type: "lead_submit_response", data: { lead_id: "l-1", status: "duplicate" } };
   assert.equal(validate("lead-submit-response", response), false, "an ambiguous duplicate-only result cannot recover a lost response");
   for (const status of ["received", "rejected"]) {
     assert.equal(validate("lead-submit-response", { ...response, data: { lead_id: "l-1", status, replayed: true } }), true);

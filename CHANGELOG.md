@@ -7,6 +7,52 @@ versioning policy is described in the
 
 ## [Unreleased]
 
+## [4.0.0] — 2026-11-19
+
+AAP adopts the stable **Personal Agent Protocol 1.0**, pinned to upstream `8c02b4282eda53468a7c09412558bc8b060d95f6`, and adds vehicle rebates and two optional skills. This major release requires a PAP client and server migration; MCP `2026-07-28` + `2025-11-25` and A2A `1.0` are unchanged, and every earlier release remains immutable.
+
+### Personal Agent Protocol 1.0
+
+- Publish `protocol_version: "1.0"`. Readers accept every `1.x` document; `supported_versions` links other served versions on the same host and for the same Company. PAP 0.3 agents never read it, so they stay on explicitly configured AAP 3.2 endpoints until they migrate.
+- Require `Poppy-Version` on every request that carries the Session header, with `Poppy-Extensions` when extensions are used. A missing or unserved version returns HTTP 400 `version_unsupported`; it is never handled under another version.
+- List each extension as entries per major version. The `autoagentprotocol.org/aap` bridge keeps version `1` and its fields; `extension_required` is an HTTP 403 JSON body naming the extension. Extension names are ones PAP defines or start with a domain. Client metadata no longer declares extensions.
+- Replace `excluded_tasks`, `skill_index` and `feedback` in `poppy.json` with one `tasks.endpoint`, read per Session without an access token. `poppy-tasks.schema.json` replaces `poppy-excluded-tasks.schema.json`.
+- Require acceptance of both ES256 and PS384 for client assertions and delegations, and client assertions of at most five minutes. Find a Session by `client_id`, `sid` and User ID.
+- Allow a port in `organization.domain`, send the Session header on website pages fetched without a browser, and add `web.disabled` and `web.unscoped`.
+- Update the optional surfaces: Direct Sign-In preference, Pushed Authorization Requests, `prompt=consent`, the same DPoP key at refresh, one sign-in for every resource, the `poppy:browser-sign-in` scope, described conversation entries and four-field conversation state.
+- Map the optional Operations extension, version 3, onto the write skills: `approval_required`, `Poppy-Approval` and `approval_declined`. An approval never replaces the consent carried in the AAP request.
+- Verify the profile against all 31 unmodified upstream 1.0 kit schemas, pinned by SHA-256, and document a section-by-section compliance matrix.
+
+### Automotive contract
+
+- Use snake_case everywhere. Skill ids and message types drop their dots (`lead.submit` → `lead_submit`, `lead.submit.request` → `lead_submit_request`, `aap.error` → `aap_error`), PAP paths follow (`/skills/lead_submit`), and the error detail field `instanceLocation` becomes `instance_location`. MCP tool names such as `aap_lead_submit` are unchanged. Every A2A and PAP client and server must rename.
+- Add optional `rebates` to new-vehicle listings: `program_id`, `program_name`, `program_value`, and optional `program_number`, `is_conditional` (default `true`) and `expires_at`. An unconditional rebate is already reflected in `price`; a conditional rebate never is.
+- Add the optional `trade_in_submit` skill. Year, make, model, wear condition and mileage are required. Customer and consent are required exactly as for a lead, with a `trade_in_submission` consent scope, so a first-time trade-in reaches the dealership like a regular lead. A dealer may deliver it over ADF and answer `received`, or through a valuation API and answer `valued`. `lead_submit` keeps its trade-in block and never returns a valuation. A valuation carries an amount, a range or both, as an estimate or an offer.
+- Credit applications are implemented by API only and are never relayed through ADF/XML or email.
+- Add the optional `credit_application_submit` skill with per-applicant credit consent, the authorized soft or hard inquiry, an optional government identifier governed by a dealer capability, and separate submission and decision outcomes. Applicant data is never repeated in a response or error.
+- Declare each optional skill with a capabilities object in the Agent Card and the matching MCP tool metadata. A deployment still advertises only the skills it implements, identically on MCP, A2A and PAP.
+- Add the optional `horsepower` vehicle field. `lead_submit` is unchanged apart from enforcing its own `lead_submission` consent scope.
+
+### Tooling and site
+
+- Update every dependency, including React 19, TypeScript 7, Docusaurus 3.10.2 and the CI actions. Keep Node 22 and pnpm 10.
+- Add sixteen diagrams and refresh the PAP, pricing and skill artwork in the shared visual system.
+- Keep the PAP 0.3 helpers and tests pinned to the frozen 3.2 release, and add PAP 1.0 helpers, generated OpenAPI headers and errors, and contract tests for the new skills.
+
+See the [3.2 to 4.0 migration](docs/versioning.md#aap-32-to-40) and [deployment acceptance cases](docs/conformance.md#required-deployment-acceptance-cases). Contract fixtures do not certify a live dealership implementation.
+
+## [3.2.0] — 2026-11-06
+
+This release replaces the earlier October 26 PAP 0.3 authentication profile with **published PAP 0.3**, pinned to upstream `6fb46d381ac1b94265795132af13848ec442b6f6`. It changes discovery and authentication; automotive payloads, MCP, A2A and bridge version `1` keep their meanings. The 3.2.0 label is an explicit exception to the major-release policy for this PAP transition.
+
+- Replace the OAuth guest token grant with a fresh delegated `Poppy-Session` JWT on every request, signed by a short-lived delegated key that an identity key vouches for.
+- Discover the Company identifier through domain protected-resource metadata; the issuer becomes optional and `auth.disabled` preserves an existing identity without sign-in.
+- Return Session failures as HTTP 400 `invalid_session` or `session_ended`, separate from OAuth challenges.
+- Use ordinary OAuth access and refresh tokens for optional account access, remove the mandatory MCP token exchange, and authorize browser joins by a Session-authenticated JSON request.
+- Add delegation, Session JWT, Session error and protected-resource schemas, regenerate the PAP OpenAPI, and verify against the pinned upstream kit schemas.
+
+See the [frozen 3.2 migration record](https://autoagentprotocol.org/docs/v3.2/versioning#pap-03-migration).
+
 ## [3.1.0] — 2026-10-27
 
 This additive release preserves native Canadian prices and odometers without changing the meaning of existing USD/mi payloads. MCP, A2A and PAP wire versions are unchanged.

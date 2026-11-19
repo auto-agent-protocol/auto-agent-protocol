@@ -8,7 +8,7 @@ description: Complete A2A 1.0 headers, messages and errors for the shared automo
 
 {/* aap-draft-only:start */}
 
-This is the unreleased **AAP 3.2.0** contract. Do not deploy draft identifiers.
+This is the unreleased **AAP 4.0.0** contract. Do not deploy draft identifiers.
 
 {/* aap-draft-only:end */}
 
@@ -84,7 +84,7 @@ The request below uses only advertised search capabilities. The `type` and `medi
       "parts": [
         {
           "data": {
-            "type": "inventory.search.request",
+            "type": "inventory_search_request",
             "filters": {
               "make": [
                 "Honda"
@@ -130,7 +130,7 @@ The request below uses only advertised search capabilities. The `type` and `medi
       "parts": [
         {
           "data": {
-            "type": "inventory.search.response",
+            "type": "inventory_search_response",
             "data": {
               "total": 1,
               "limit": 20,
@@ -172,7 +172,19 @@ The request below uses only advertised search capabilities. The `type` and `medi
 
 </details>
 
-All five skills use this envelope. The complete [request](https://draft.autoagentprotocol.invalid/latest/examples/inventory-search-request.jsonrpc.example.json) and [response](https://draft.autoagentprotocol.invalid/latest/examples/inventory-search-response.jsonrpc.example.json) fixtures, [skill schemas](../intro.md#five-skills-one-shopping-journey) and generated OpenAPI provide copyable machine-readable forms.
+Every skill uses this envelope, with its own media types:
+
+| Skill | Request `mediaType` | Response `mediaType` |
+|---|---|---|
+| `dealer_information` | `application/vnd.autoagent.dealer-information-request+json` | `application/vnd.autoagent.dealer-information-response+json` |
+| `inventory_facets` | `application/vnd.autoagent.inventory-facets-request+json` | `application/vnd.autoagent.inventory-facets-response+json` |
+| `inventory_search` | `application/vnd.autoagent.inventory-search-request+json` | `application/vnd.autoagent.inventory-search-response+json` |
+| `inventory_vehicle` | `application/vnd.autoagent.vehicle-detail-request+json` | `application/vnd.autoagent.vehicle-detail-response+json` |
+| `lead_submit` | `application/vnd.autoagent.lead-submit-request+json` | `application/vnd.autoagent.lead-submit-response+json` |
+| `trade_in_submit` (optional) | `application/vnd.autoagent.trade-in-submit-request+json` | `application/vnd.autoagent.trade-in-submit-response+json` |
+| `credit_application_submit` (optional) | `application/vnd.autoagent.credit-application-submit-request+json` | `application/vnd.autoagent.credit-application-submit-response+json` |
+
+The complete [request](https://draft.autoagentprotocol.invalid/latest/examples/inventory-search-request.jsonrpc.example.json) and [response](https://draft.autoagentprotocol.invalid/latest/examples/inventory-search-response.jsonrpc.example.json) fixtures, [skill schemas](../intro.md#five-core-skills-two-optional-one-shopping-journey) and generated OpenAPI provide copyable machine-readable forms.
 
 ## Error mapping (A2A Section 9.5)
 
@@ -216,7 +228,7 @@ A failed skill returns a JSON-RPC error. `error.data` is an array of standard Pr
       {
         "@type": "type.googleapis.com/google.protobuf.Struct",
         "value": {
-          "type": "aap.error",
+          "type": "aap_error",
           "error_id": "err_01HZ9EXAMPLE",
           "code": "SCHEMA_VALIDATION_FAILED",
           "message": "request failed validation with 2 errors",
@@ -224,12 +236,12 @@ A failed skill returns a JSON-RPC error. `error.data` is an array of standard Pr
           "details": {
             "errors": [
               {
-                "instanceLocation": "/filters/year_min",
+                "instance_location": "/filters/year_min",
                 "keyword": "type",
                 "error": "must be an integer"
               },
               {
-                "instanceLocation": "/filters/made_up",
+                "instance_location": "/filters/made_up",
                 "keyword": "additionalProperties",
                 "error": "unknown filter key"
               }
@@ -264,4 +276,4 @@ A failed skill returns a JSON-RPC error. `error.data` is an array of standard Pr
 | `RATE_LIMITED` | -32000 | Generic JSON-RPC server error. NOT -32002: A2A §5.4 assigns that code to `TaskNotCancelableError`, which both reference SDKs decode as a terminal task-lifecycle failure rather than a retryable throttle. |
 | `INTERNAL_ERROR` | -32603 | JSON-RPC "Internal error". |
 
-Validation responses MUST include every detectable field problem in `details.errors[]`, with `instanceLocation`, `keyword` and a safe `error` message. A2A protocol/authentication failures remain distinct from automotive skill failures. See [errors and retries](../errors.md) for extraction, recovery and throttling.
+Validation responses MUST include every detectable field problem in `details.errors[]`, with `instance_location`, `keyword` and a safe `error` message. A2A protocol/authentication failures remain distinct from automotive skill failures. See [errors and retries](../errors.md) for extraction, recovery and throttling.

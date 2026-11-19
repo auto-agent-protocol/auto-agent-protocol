@@ -1,0 +1,12 @@
+{
+  "type": "credit_application_submit_response",
+  "data": {
+    "application_id": "app_dt_55121",
+    "status": "received",
+    "dealer": {
+      "name": "Demo Toyota",
+      "phone": "+14155550100"
+    }
+  },
+  "message": "Your application is with our finance team. We will call you with a decision."
+}

@@ -543,11 +543,11 @@
   margin-top: auto;
   color: var(--aap-muted);
 }
-.skill:last-child {
+.skills > .skill:last-child {
   background: var(--aap-teal-tint);
 }
-.skill:last-child > svg:first-of-type,
-.skill:last-child code {
+.skills > .skill:last-child > svg:first-of-type,
+.skills > .skill:last-child code {
   color: var(--aap-teal);
 }
 .consentLine {
@@ -575,6 +575,90 @@
   flex: 0 0 18px;
   width: 18px;
   height: 18px;
+}
+.optionalSkills {
+  margin-top: 46px;
+}
+.optionalLabel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0 0 14px;
+  color: var(--ifm-color-content-secondary);
+  font-size: 0.78rem;
+}
+.optionalLabel > span,
+.optionalBadge {
+  padding: 3px 9px;
+  border: 1px solid var(--ifm-color-primary);
+  border-radius: 30px;
+  background: var(--aap-soft-blue);
+  color: var(--ifm-color-primary-dark);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.optionalGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.optionalSkill {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 20px;
+  gap: 6px 20px;
+  align-items: start;
+  border-style: dashed;
+  border-color: var(--ifm-color-primary);
+}
+.optionalSkill:hover {
+  border-style: solid;
+}
+.optionalBadge {
+  position: absolute;
+  top: 22px;
+  right: 18px;
+}
+.optionalSkill > svg:first-of-type {
+  grid-column: 1;
+  grid-row: 1 / 5;
+  margin: 2px 0 0;
+}
+.optionalSkill h3 {
+  grid-column: 2;
+  min-height: 0;
+  margin: 0;
+  padding-right: 84px;
+}
+.optionalSkill code,
+.optionalSkill p,
+.optionalSkill .skillTags {
+  grid-column: 2;
+}
+.optionalSkill p {
+  margin: 6px 0 0;
+}
+.optionalSkill .skillArrow {
+  grid-column: 3;
+  grid-row: 1 / 5;
+  align-self: end;
+}
+.skillTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.skillTags li {
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--aap-canvas);
+  color: var(--ifm-color-content-secondary);
+  font-size: 0.66rem;
 }
 .factsGrid {
   display: grid;
@@ -679,6 +763,67 @@
   font-size: 0.58rem;
   font-weight: 400;
   letter-spacing: 0;
+}
+.rebates {
+  margin: 0 26px 14px;
+}
+.rebates ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rebates li {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--aap-line);
+  border-radius: 10px;
+  font-size: 0.78rem;
+}
+.rebates li strong {
+  font-weight: 600;
+}
+.rebateIncluded,
+.rebatePossible {
+  justify-self: start;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 0.6rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.rebateIncluded {
+  background: var(--aap-teal-tint);
+  color: var(--aap-teal);
+}
+.rebatePossible {
+  border: 1px dashed var(--ifm-color-primary);
+  background: var(--aap-soft-blue);
+  color: var(--ifm-color-primary-dark);
+}
+.rebateValue {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.74rem;
+  color: var(--ifm-heading-color);
+}
+.rebates li:last-child {
+  border-style: dashed;
+}
+.rebates li:last-child .rebateValue {
+  color: var(--ifm-color-content-secondary);
+}
+.rebates code {
+  display: block;
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ifm-color-content-secondary);
+  font-size: 0.6rem;
 }
 .evidence {
   margin: 0 26px 21px;
@@ -1159,6 +1304,23 @@
   .consentLine {
     grid-template-columns: 1fr 1fr;
   }
+  .optionalSkill {
+    padding: 25px 20px;
+  }
+  .optionalSkill > svg:first-of-type {
+    margin: 2px 0 0;
+  }
+  .rebates {
+    margin-right: 18px;
+    margin-left: 18px;
+  }
+  .rebates li {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .rebates li strong {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
   .factsGrid {
     grid-template-columns: 1fr 1fr;
     gap: 35px;
@@ -1439,35 +1601,58 @@
   .skill p {
     font-size: 0.74rem;
   }
-  .skill:last-child {
+  .skills > .skill:last-child {
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: 44px 1fr auto;
     gap: 8px 18px;
     align-items: center;
   }
-  .skill:last-child > svg:first-of-type {
+  .skills > .skill:last-child > svg:first-of-type {
     grid-row: 1 / 4;
     margin: 0;
   }
-  .skill:last-child h3 {
+  .skills > .skill:last-child h3 {
     grid-column: 2;
     min-height: 0;
     margin: 0;
   }
-  .skill:last-child code {
+  .skills > .skill:last-child code {
     grid-column: 2;
   }
-  .skill:last-child p {
+  .skills > .skill:last-child p {
     grid-column: 2;
     margin: 3px 0 0;
   }
-  .skill:last-child .skillArrow {
+  .skills > .skill:last-child .skillArrow {
     grid-column: 3;
     grid-row: 3;
   }
-  .skill:last-child .skillNumber {
+  .skills > .skill:last-child .skillNumber {
     top: 19px;
+  }
+  .optionalSkills {
+    margin-top: 34px;
+  }
+  .optionalGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .optionalSkill {
+    grid-template-columns: 36px minmax(0, 1fr) 20px;
+    gap: 6px 14px;
+    padding: 20px 16px;
+  }
+  .optionalSkill > svg:first-of-type {
+    width: 34px;
+    height: 34px;
+  }
+  .optionalBadge {
+    top: 18px;
+    right: 14px;
+  }
+  .optionalSkill h3 {
+    min-height: 0;
   }
   .consentLine {
     display: flex;
@@ -1512,6 +1697,19 @@
   .evidence code {
     margin-left: 29px;
     font-size: 0.58rem;
+  }
+  .rebates {
+    margin-right: 20px;
+    margin-left: 20px;
+  }
+  .rebates li {
+    grid-template-columns: 78px minmax(0, 1fr) auto;
+    gap: 10px;
+    font-size: 0.72rem;
+  }
+  .rebates li strong {
+    grid-column: auto;
+    grid-row: auto;
   }
   .vehicleMeta {
     grid-template-columns: 1fr 1fr;
@@ -1654,6 +1852,17 @@
   .evidence code {
     margin-left: 0;
     font-size: 0.56rem;
+  }
+  .rebates li {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .rebates li strong {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .optionalSkill h3 {
+    padding-right: 0;
+    padding-top: 26px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autoagentprotocol.org/v4.0/schemas/credit-application-submit-request.schema.json",
+  "title": "CreditApplicationSubmitRequest",
+  "description": "Submit one consented vehicle credit application through MCP, A2A or PAP. Each applicant carries their own credit consent, including the kind of inquiry they authorized. application_type joint requires a co_applicant with a relationship. Every monetary amount uses currency (USD when omitted). The request carries sensitive personal data: send it only to the dealer endpoint selected from verified discovery, and never repeat it in URLs, logs or free text. A dealer processes it through an API integration with its credit or lender system and does not relay it through ADF/XML, email or CRM notes.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "credit_application_submit_request",
+      "description": "AAP message type discriminator."
+    },
+    "application_type": {
+      "type": "string",
+      "enum": [
+        "individual",
+        "joint"
+      ],
+      "description": "individual: one applicant. joint: applicant and co_applicant apply together."
+    },
+    "applicant": {
+      "$ref": "./credit-applicant.schema.json",
+      "description": "Primary applicant. Required."
+    },
+    "co_applicant": {
+      "$ref": "./credit-applicant.schema.json",
+      "description": "Second applicant of a joint application, with their own consent and a relationship. Required iff application_type is joint."
+    },
+    "currency": {
+      "$ref": "./_primitives/currency.schema.json",
+      "default": "USD",
+      "description": "Currency of every monetary amount in this application: income, housing payment, down payment, requested amount and payoff. Omitted means USD."
+    },
+    "financing": {
+      "type": "object",
+      "description": "Optional description of the financing the applicant wants.",
+      "properties": {
+        "deal_type": {
+          "type": "string",
+          "enum": [
+            "finance",
+            "lease"
+          ]
+        },
+        "down_payment": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Cash down payment in whole currency units."
+        },
+        "requested_term_months": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 120,
+          "description": "Requested term in months."
+        },
+        "requested_amount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Amount the applicant wants to finance, in whole currency units."
+        }
+      },
+      "additionalProperties": false
+    },
+    "vehicle_of_interest": {
+      "$ref": "./vehicle.schema.json",
+      "description": "Optional vehicle the applicant wants to finance. When condition is set it MUST be new, used or cpo."
+    },
+    "trade_in": {
+      "allOf": [
+        {
+          "$ref": "./vehicle.schema.json"
+        }
+      ],
+      "type": "object",
+      "properties": {
+        "payoff_amount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Remaining loan balance on the trade-in, in whole currency units."
+        },
+        "lienholder": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Lender holding the lien on the trade-in."
+        }
+      },
+      "description": "Optional trade-in for this deal, with its loan payoff. When condition is present, use excellent, good, fair or poor."
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 4000,
+      "description": "Optional free-text note. Never place identifiers, account numbers or other sensitive data here."
+    },
+    "source_agent": {
+      "$ref": "./lead-submit-request.schema.json#/properties/source_agent"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339 timestamp at which the buyer agent finalized this submission."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Required client-generated key (UUID recommended) for this credit application. Preserve the key and payload after a timeout or session renewal. Deduplicate for at least 24 hours by dealer and verified caller, including the stable PAP User ID where applicable; anonymous calls use dealer and key. The same caller and key across bindings return the complete original result with data.replayed true; a changed payload returns IDEMPOTENCY_CONFLICT. A replay creates no new record, valuation or delivery."
+    }
+  },
+  "required": [
+    "type",
+    "application_type",
+    "applicant",
+    "source_agent",
+    "idempotency_key"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "relationship belongs to the co-applicant only",
+      "properties": {
+        "applicant": {
+          "properties": {
+            "relationship": false
+          }
+        },
+        "co_applicant": {
+          "required": [
+            "relationship"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "application_type": {
+            "const": "joint"
+          }
+        },
+        "required": [
+          "application_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "co_applicant"
+        ]
+      },
+      "else": {
+        "properties": {
+          "co_applicant": false
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "vehicle_of_interest"
+        ],
+        "properties": {
+          "vehicle_of_interest": {
+            "type": "object",
+            "required": [
+              "condition"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "vehicle_of_interest": {
+            "properties": {
+              "condition": {
+                "enum": [
+                  "new",
+                  "used",
+                  "cpo"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "description": "vehicle_of_interest.condition (when set) must be in the sale-condition vocabulary"
+    },
+    {
+      "description": "trade_in.condition (when set) must be in the wear-condition vocabulary",
+      "if": {
+        "type": "object",
+        "required": [
+          "trade_in"
+        ],
+        "properties": {
+          "trade_in": {
+            "type": "object",
+            "required": [
+              "condition"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "trade_in": {
+            "properties": {
+              "condition": {
+                "enum": [
+                  "excellent",
+                  "good",
+                  "fair",
+                  "poor"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

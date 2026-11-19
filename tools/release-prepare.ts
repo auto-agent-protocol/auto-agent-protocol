@@ -31,9 +31,11 @@ export function normalizeReleaseIdentifiers(value: unknown, file: string, versio
   if (typeof value === "string") {
     // Only these two contract-identity constants are generated from the release version.
     // An automotive/business constant that happens to equal the version must still be compared.
-    const identityPath = file === "aap-extension-params.schema.json" ? ["properties", "version", "const"]
-      : file === "poppy.schema.json" ? ["allOf", "1", "properties", "extensions", "properties", "autoagentprotocol.org/aap", "allOf", "1", "properties", "aap_version", "const"] : undefined;
-    if (value === version && identityPath && JSON.stringify(path) === JSON.stringify(identityPath)) return "{release-version}";
+    // PAP 1.0 lists extension entries, so the AAP 4.0 bridge constant sits below items/then; earlier releases published one object.
+    const bridge = ["allOf", "1", "properties", "extensions", "properties", "autoagentprotocol.org/aap"], identity = ["allOf", "1", "properties", "aap_version", "const"];
+    const identityPaths = file === "aap-extension-params.schema.json" ? [["properties", "version", "const"]]
+      : file === "poppy.schema.json" ? [[...bridge, ...identity], [...bridge, "items", "then", ...identity]] : [];
+    if (value === version && identityPaths.some(identityPath => JSON.stringify(path) === JSON.stringify(identityPath))) return "{release-version}";
     return value
       .replaceAll(/https:\/\/autoagentprotocol\.org\/v\d+\.\d+\//g, `${SITE}/v{release}/`)
       .replaceAll(/https:\/\/autoagentprotocol\.org\/extensions\/(?:aap|a2a-automotive-retail)\/v\d+\.\d+/g, `${SITE}/extensions/aap/v{release}`);

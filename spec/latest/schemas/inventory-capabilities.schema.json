@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/inventory-capabilities.schema.json",
   "title": "InventoryCapabilities",
-  "description": "Actual search behavior of one deployment. Publish in the A2A AAP extension params.skills.inventory.search.capabilities and the MCP search tool metadata. The same scope, supported filters, sort fields and limits apply to every binding.",
+  "description": "Actual search behavior of one deployment. Publish in the A2A AAP extension params.skills.inventory_search.capabilities and the MCP search tool metadata. The same scope, supported filters, sort fields and limits apply to every binding.",
   "type": "object",
   "properties": {
     "currencies": {
@@ -131,7 +131,7 @@
     },
     "offset": {
       "type": "boolean",
-      "description": "Whether pagination.skip is accepted as an entry point. If false, supplying skip returns SCHEMA_VALIDATION_FAILED at /pagination/skip. Cursor continuation is required for every inventory.search implementation."
+      "description": "Whether pagination.skip is accepted as an entry point. If false, supplying skip returns SCHEMA_VALIDATION_FAILED at /pagination/skip. Cursor continuation is required for every inventory_search implementation."
     }
   },
   "required": [

@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 import releases from "../../releases.json";
@@ -7,23 +8,32 @@ const release = releases.releases.find(
   (item) => item.contract === releases.stable,
 )!;
 const docs = `/docs/${release.contract}`;
-const [releaseMajor, releaseMinor] = release.version.split(".").map(Number);
-const publishedPap = releaseMajor > 3 || releaseMajor === 3 && releaseMinor >= 2;
-const questions = [
+const questions: {
+  title: string;
+  answer: string;
+  link: string;
+  label: string;
+}[] = [
   {
     title: "What is Auto Agent Protocol?",
     answer:
-      "AAP is an independent, open automotive contract. It defines what dealership information, inventory, prices, equipment evidence and consented inquiries mean across Model Context Protocol (MCP), Agent2Agent (A2A) and Personal Agent Protocol (PAP).",
+      "AAP is an independent, open automotive contract. It defines what dealership information, inventory, prices, rebates, equipment evidence and consented inquiries mean across Model Context Protocol (MCP), Agent2Agent (A2A) and Personal Agent Protocol (PAP). Dealers can also offer optional trade-in valuation and credit applications.",
     link: "intro",
     label: "Start with the specification",
   },
   {
-    title: publishedPap ? "What changes in AAP 3.2?" : "What changes in AAP 3.1?",
-    answer: publishedPap
-      ? "AAP 3.2 adopts published PAP 0.3: delegated Poppy-Session JWTs replace the earlier guest-token flow. This maintainer-approved minor exception requires PAP client migration, even though both profiles use the upstream label 0.3. Automotive payloads, MCP, A2A and the discovery bridge retain their meanings. Frozen AAP 3.1 stays available; the next major is reserved for PAP 1.0."
-      : "Currency and odometer labels preserve native USD/CAD amounts and mi/km readings. Search and facets select one currency and a mileage comparison unit, with explicit capability defaults and result context. Omitted vehicle labels keep their USD/miles meaning. This additive release retains the three native interfaces and frozen 3.0 contract.",
+    title: "What changes in AAP 4.0?",
+    answer:
+      "AAP 4.0 adopts the stable PAP 1.0: every PAP request carries Poppy-Version: 1.0 next to its delegated Session JWT, and poppy.json declares extensions as per-version lists. Skill ids and message types are snake_case everywhere, for example lead_submit and lead_submit_request. New vehicles can list rebates. Two optional skills add trade-in valuation and credit applications. MCP, A2A 1.0 and the five core skills keep their meanings. Frozen AAP 3.2 stays available.",
     link: "versioning",
     label: "Read the migration guide",
+  },
+  {
+    title: "Which PAP version does AAP use?",
+    answer:
+      "AAP 4.0 uses PAP 1.0, the first stable Personal Agent Protocol release. Readers accept any 1.x poppy.json. Every request with the Poppy-Session header also sends Poppy-Version: 1.0; an endpoint rejects a missing or incompatible version with HTTP 400 version_unsupported. Frozen AAP 3.2 keeps Published PAP 0.3, and a dealer can link that document from supported_versions while clients migrate.",
+    link: "personal-agent-protocol",
+    label: "Read the PAP profile",
   },
   {
     title: "Does AAP define a real MCP server?",
@@ -34,9 +44,8 @@ const questions = [
   },
   {
     title: "How do the three interfaces fit together?",
-    answer: publishedPap
-      ? "MCP carries tool calls. A2A 1.0 carries typed automotive DataParts through SendMessage. Published PAP 0.3 OpenAPI uses delegated Poppy-Session JWTs for personal agents. Signed-out calls need no OAuth token; optional account access uses ordinary OAuth separately. The same automotive payloads and behavior apply to all three."
-      : "MCP carries tool calls. A2A 1.0 carries typed automotive DataParts through SendMessage. Poppy draft 0.3 guest OpenAPI uses verified Sessions and DPoP for personal agents. The same automotive payloads and behavior apply to all three.",
+    answer:
+      "MCP carries tool calls. A2A 1.0 carries typed automotive DataParts through SendMessage. The PAP 1.0 OpenAPI serves personal agents that send a delegated Session JWT in Poppy-Session with the Poppy-Version header. Signed-out calls need no OAuth token; optional account sign-in is separate. The same automotive payloads and behavior apply to all three.",
     link: "personal-agent-protocol",
     label: "Read the PAP profile",
   },
@@ -62,23 +71,44 @@ const questions = [
     label: "Verify actual behavior",
   },
   {
-    title: "What can an agent do with the five skills?",
+    title: "What can an agent do with the five core skills?",
     answer:
-      "Read dealer locations and hours, discover inventory values, search matching vehicles, inspect a specific listing and send an explicitly consented inquiry. Vehicle interest, trade-in information and an appointment request can share one lead. Payments, financing approval and vehicle reservations are outside the contract.",
+      "Read dealer locations and hours, discover inventory values, search matching vehicles, inspect a specific listing and send an explicitly consented inquiry. Vehicle interest, trade-in details and an appointment request can share one lead. Dealers may add two optional skills: trade-in valuation and credit applications. Payments, checkout, reservations and binding purchase quotes are outside the contract.",
     link: "skills/lead-submit",
     label: "Understand the inquiry lifecycle",
   },
   {
+    title: "Does AAP support trade-in valuations?",
+    answer:
+      "Yes, through the optional trade_in_submit skill. The agent describes the vehicle (year, make, model, condition and mileage) and, when the dealer values instantly, receives an amount or a range, as an estimate or a time-limited offer; otherwise the dealer follows up. It carries the same customer details and consent as a lead, so the dealership receives it like one. Trade-in details inside lead_submit still return no valuation.",
+    link: "skills/trade-in-submit",
+    label: "Read the trade-in skill",
+  },
+  {
+    title: "Can an agent submit a credit application?",
+    answer:
+      "Yes, when the dealer declares the optional credit_application_submit skill. Each applicant grants their own credit consent with the exact text shown and a soft or hard inquiry; a hard inquiry is never made on a soft authorization. The agent reads the dealer’s capabilities first and collects a national identifier only when the dealer accepts one. Identifiers, date of birth and driver’s license data are never echoed in responses, errors, logs or URLs. Sign-in or lead consent never replaces credit consent. Dealers process applications through a secure API, never through ADF or email.",
+    link: "skills/credit-application-submit",
+    label: "Read the credit application skill",
+  },
+  {
+    title: "What are rebates and are they included in the price?",
+    answer:
+      "Rebates are incentive programs listed on new vehicles. An unconditional rebate is available to every buyer and is already included in the price, so it is never subtracted again. A conditional rebate depends on eligibility, such as military service, and is shown separately as a possible saving; it is never deducted from the advertised price. No rebate list means no information, not “no rebates”.",
+    link: "pricing-and-ftc#rebates-on-new-vehicles",
+    label: "Read the rebate rules",
+  },
+  {
     title: "How are prices and equipment kept trustworthy?",
     answer:
-      "A known vehicle price includes mandatory dealer charges. Only government-required consumer charges are excluded. Equipment filters require vehicle-specific source evidence; unknown equipment cannot count as present. Listing status and source update time remain explicit.",
+      "A known vehicle price includes mandatory dealer charges and any unconditional rebate. Only government-required consumer charges are excluded. Equipment filters require vehicle-specific source evidence; unknown equipment cannot count as present. Listing status and source update time remain explicit.",
     link: "pricing-and-ftc",
     label: "Read the pricing rules",
   },
   {
     title: "Does authentication give permission to contact a shopper?",
     answer:
-      "No. Authentication identifies the calling agent. lead.submit separately requires explicit customer contact consent, permitted channels, matching contact details and an idempotency key. The response distinguishes a received inquiry from a confirmed appointment.",
+      "No. Authentication identifies the calling agent. lead_submit separately requires explicit customer contact consent, permitted channels, matching contact details and an idempotency key. A consented trade-in follows the same rule, and a credit application needs separate credit consent from each applicant. The response distinguishes a received inquiry from a confirmed appointment.",
     link: "behavior-rules",
     label: "Read the consent rules",
   },
@@ -128,7 +158,9 @@ export default function Faq(): JSX.Element {
                 </summary>
                 <div>
                   <p>{question.answer}</p>
-                  <Link to={`${docs}/${question.link}`}>
+                  <Link
+                    to={`${docs}/${question.link}`}
+                  >
                     {question.label} <span aria-hidden="true">↗</span>
                   </Link>
                 </div>

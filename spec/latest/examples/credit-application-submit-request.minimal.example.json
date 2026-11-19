@@ -1,0 +1,34 @@
+{
+  "type": "credit_application_submit_request",
+  "application_type": "individual",
+  "applicant": {
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "date_of_birth": "1988-12-10",
+    "email": "ada@example.com",
+    "housing_status": "rent",
+    "monthly_housing_payment": 2850,
+    "months_at_address": 41,
+    "employment_status": "retired",
+    "gross_monthly_income": 9800,
+    "address": {
+      "address_line_1": "1280 Howard Street",
+      "city": "San Francisco",
+      "state": "CA",
+      "zip": "94103"
+    },
+    "consent": {
+      "granted_at": "2026-11-19T10:40:00Z",
+      "consent_text": "I, Ada Lovelace, authorize Demo Toyota and the lenders it works with to obtain my consumer credit report through a soft inquiry and to use the information in this application to evaluate my request for vehicle financing. Demo Toyota may contact me about this application by email.",
+      "authorized_inquiry": "soft",
+      "allowed_channels": [
+        "email"
+      ],
+      "expires_at": "2026-12-19T10:40:00Z"
+    }
+  },
+  "source_agent": {
+    "name": "example-buyer"
+  },
+  "idempotency_key": "01JD9CREDIT0MINIMAL0000003"
+}

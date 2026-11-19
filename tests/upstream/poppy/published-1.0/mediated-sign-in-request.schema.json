@@ -1,0 +1,20 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "mediated-sign-in-request.schema.json",
+    "title": "Mediated Sign-In token request",
+    "description": "The form parameters of the first Mediated Sign-In token request to the issuer's token_endpoint, as an object (Mediated Sign-In 3): the extension grant type, scope, the client assertion (spec 4.1), and a parameter for every field in the extension's fields, keyed by name.",
+    "type": "object",
+    "required": ["grant_type", "scope", "client_id", "client_assertion_type", "client_assertion"],
+    "properties": {
+        "grant_type": { "const": "https://personalagentprotocol.org/grant/mediated-sign-in" },
+        "scope": { "type": "string", "minLength": 1 },
+        "client_id": { "type": "string", "pattern": "^https://[^\\s/?#]+", "format": "uri" },
+        "client_assertion_type": {
+            "const": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+        },
+        "client_assertion": { "type": "string", "minLength": 1 },
+        "sign_in_id": false,
+        "one_time_code": false
+    },
+    "additionalProperties": { "type": "string" }
+}

@@ -1,0 +1,27 @@
+{
+  "excluded_tasks": [
+    {
+      "task": "Finalize a vehicle purchase or pay a deposit online",
+      "alternative": {
+        "instructions": "Send the dealership a consented inquiry; a salesperson completes the purchase.",
+        "references": [
+          {
+            "type": "openapi",
+            "url": "https://demo-toyota.example.com/poppy/openapi.yaml",
+            "operation_id": "lead_submit"
+          },
+          {
+            "type": "web",
+            "url": "https://demo-toyota.example.com/contact"
+          }
+        ]
+      }
+    },
+    {
+      "task": "Get a binding out-the-door quote including taxes and registration"
+    }
+  ],
+  "feedback": {
+    "endpoint": "https://demo-toyota.example.com/poppy/feedback"
+  }
+}

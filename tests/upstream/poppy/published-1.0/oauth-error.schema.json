@@ -1,0 +1,20 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "oauth-error.schema.json",
+    "title": "OAuth error response",
+    "description": "An error from the token endpoint, revocation endpoint, or device authorization endpoint, using the relevant OAuth RFC (spec 4.7). Rate limits are HTTP 429 with Retry-After (5.6). Mediated Sign-In's code_required is mediated-sign-in-response.schema.json. Unknown fields are allowed.",
+    "type": "object",
+    "required": ["error"],
+    "properties": {
+        "error": {
+            "type": "string",
+            "pattern": "^[\\x20\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
+        },
+        "error_description": {
+            "type": "string"
+        },
+        "error_uri": {
+            "type": "string"
+        }
+    }
+}

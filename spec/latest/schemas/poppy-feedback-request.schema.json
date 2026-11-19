@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-feedback-request.schema.json",
   "title": "PoppyFeedbackRequest",
-  "description": "The JSON body a Personal Agent posts to {feedback.endpoint} to report a User's task that can't be done through the protocol. Spec 9.3 (Feedback).",
+  "description": "The JSON body a Personal Agent posts to the feedback.endpoint in the tasks response to report a User's task that can't be done through the protocol. Spec 9.3 (Feedback).",
   "type": "object",
   "required": [
     "task",
@@ -20,5 +20,5 @@
       "maxLength": 2000
     }
   },
-  "$comment": "Adapted from personal-agent-protocol at 6fb46d381ac1b94265795132af13848ec442b6f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-0.3. JSON Schema does not verify cryptography or runtime requirements."
+  "$comment": "Adapted from personal-agent-protocol at 8c02b4282eda53468a7c09412558bc8b060d95f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-1.0. JSON Schema does not verify cryptography or runtime requirements."
 }

@@ -1,0 +1,127 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "event.schema.json",
+    "title": "Conversation event",
+    "description": "One event in a conversation, as returned by GET {endpoint}/{id}/events or streamed. Spec sections 8.5 (Reading events), 8.7 (State), 8.10, and 8.11. Every event has id, type, and created_at, and its type says which other fields it has. Personal Agents skip types they don't recognize, so other types are allowed.",
+    "type": "object",
+    "required": ["id", "type", "created_at"],
+    "properties": {
+        "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,256}$"
+        },
+        "type": {
+            "type": "string",
+            "minLength": 1
+        },
+        "created_at": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?([Zz]|[+-][0-9]{2}:[0-9]{2})$",
+            "format": "date-time"
+        }
+    },
+    "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "message"
+                    }
+                }
+            },
+            "then": {
+                "required": ["message"],
+                "properties": {
+                    "message": {
+                        "allOf": [
+                            {
+                                "$ref": "message.schema.json"
+                            },
+                            {
+                                "required": ["id", "role"]
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "state"
+                    }
+                }
+            },
+            "then": {
+                "required": ["handoff", "responder", "closed"],
+                "properties": {
+                    "handoff": {
+                        "enum": ["none", "pending"]
+                    },
+                    "responder": {
+                        "enum": ["agent", "human"]
+                    },
+                    "closed": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "authorization"
+                    }
+                }
+            },
+            "then": {
+                "required": ["error", "scope"],
+                "properties": {
+                    "error": {
+                        "const": "insufficient_scope"
+                    },
+                    "scope": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "user_requested"
+                    }
+                }
+            },
+            "then": {
+                "required": ["reason"],
+                "properties": {
+                    "reason": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "enum": ["direct_opened", "direct_closed"]
+                    }
+                }
+            },
+            "then": {
+                "required": ["conversation_id"],
+                "properties": {
+                    "conversation_id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_-]{1,256}$"
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-operation.schema.json",
+  "title": "PoppyOperation",
+  "description": "An action the Company performs only once its exact terms are approved, by the User or by the Personal Agent on the User's instruction. Operations extension 3 (The operation). Returned in the body of an approval_required API error, in structuredContent of an MCP tool result, or in a Company message's extensions.operations.operation (Operations 4).",
+  "type": "object",
+  "required": [
+    "operation_id",
+    "revision",
+    "terms",
+    "expires_at"
+  ],
+  "properties": {
+    "operation_id": {
+      "$ref": "#/$defs/id"
+    },
+    "revision": {
+      "$ref": "#/$defs/id"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "terms": {
+      "type": "object"
+    },
+    "expires_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?([Zz]|[+-][0-9]{2}:[0-9]{2})$",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,256}$"
+    }
+  },
+  "$comment": "Adapted from personal-agent-protocol at 8c02b4282eda53468a7c09412558bc8b060d95f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-1.0. JSON Schema does not verify cryptography or runtime requirements."
+}

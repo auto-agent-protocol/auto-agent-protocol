@@ -1,0 +1,163 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "message.schema.json",
+    "title": "Conversation message",
+    "description": "A message in a Personal Agent Protocol conversation, from either side. Spec sections 8.3 (Sending messages) and 8.4 (Message fields). A message has text, data, context, or extensions. extensions holds content that extensions define, keyed by extension name: operations (Operations extension 2, 4, 6), links, and disclosures are checked here, and other extensions' content must be an object. id and role are set by the Company when it records the message as an event: a Personal Agent message's id is its request's ID. The Personal Agent doesn't send them. as_of_request is only on Company Agent messages and as_of_cursor only on messages the Personal Agent wrote; a message with author.type human has neither (8.4). A context field set to null clears it (8.4). Unknown fields are allowed.",
+    "type": "object",
+    "required": ["author"],
+    "properties": {
+        "id": {
+            "$ref": "#/$defs/id"
+        },
+        "role": {
+            "enum": ["user", "company"]
+        },
+        "as_of_request": {
+            "$ref": "#/$defs/id"
+        },
+        "as_of_cursor": {
+            "type": "string",
+            "minLength": 1
+        },
+        "text": {
+            "type": "string"
+        },
+        "data": {
+            "type": "object"
+        },
+        "author": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+                "type": {
+                    "enum": ["agent", "human"]
+                },
+                "id": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "image": {
+                    "type": "string",
+                    "pattern": "^https://",
+                    "format": "uri"
+                }
+            }
+        },
+        "context": {
+            "type": "object",
+            "properties": {
+                "locale": {
+                    "type": ["string", "null"],
+                    "minLength": 1
+                },
+                "time_zone": {
+                    "type": ["string", "null"],
+                    "minLength": 1
+                },
+                "user_available": {
+                    "type": ["boolean", "null"]
+                }
+            }
+        },
+        "extensions": {
+            "type": "object",
+            "properties": {
+                "operations": {
+                    "$ref": "operations-content.schema.json"
+                },
+                "links": {
+                    "$ref": "links-content.schema.json"
+                },
+                "disclosures": {
+                    "$ref": "disclosures-content.schema.json"
+                }
+            },
+            "additionalProperties": {
+                "type": "object"
+            }
+        }
+    },
+    "anyOf": [
+        {
+            "required": ["text"]
+        },
+        {
+            "required": ["data"]
+        },
+        {
+            "required": ["context"]
+        },
+        {
+            "required": ["extensions"]
+        }
+    ],
+    "$defs": {
+        "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,256}$"
+        }
+    },
+    "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "author": {
+                        "properties": {
+                            "type": {
+                                "const": "human"
+                            }
+                        },
+                        "required": ["type"]
+                    }
+                },
+                "required": ["author"]
+            },
+            "then": {
+                "not": {
+                    "anyOf": [
+                        {
+                            "required": ["as_of_request"]
+                        },
+                        {
+                            "required": ["as_of_cursor"]
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "role": {
+                        "const": "user"
+                    }
+                },
+                "required": ["role"]
+            },
+            "then": {
+                "not": {
+                    "required": ["as_of_request"]
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "role": {
+                        "const": "company"
+                    }
+                },
+                "required": ["role"]
+            },
+            "then": {
+                "not": {
+                    "required": ["as_of_cursor"]
+                }
+            }
+        }
+    ]
+}

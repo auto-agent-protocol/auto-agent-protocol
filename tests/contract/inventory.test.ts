@@ -33,7 +33,7 @@ test("feature and radius search requires evidence, distance, freshness and an id
 });
 
 test("search rejects ambiguous pagination, unlocated distance sorts and empty constraints", () => {
-  const request = { type: "inventory.search.request" };
+  const request = { type: "inventory_search_request" };
   for (const extra of [
     { pagination: { cursor: "cursor", skip: 0 } },
     { pagination: { cursor: "" } },
@@ -113,7 +113,7 @@ test("the standardized geographic request rejects deployed short coordinate name
 
 test("both AND and OR equipment constraints require nonempty distinct codes and result evidence", () => {
   for (const key of ["features_all", "features_any"]) {
-    const request = { type: "inventory.search.request", filters: { [key]: ["sunroof", "leather_seats"] } };
+    const request = { type: "inventory_search_request", filters: { [key]: ["sunroof", "leather_seats"] } };
     assert.equal(validate("inventory-search-request", request), true);
     for (const values of [[], ["sunroof", "sunroof"]]) {
       assert.equal(validate("inventory-search-request", { ...request, filters: { [key]: values } }), false);
@@ -125,7 +125,7 @@ test("both AND and OR equipment constraints require nonempty distinct codes and 
     delete response.data.vehicles[0].feature_evidence;
     assert.equal(validate("inventory-search-response", response), false);
   }
-  assert.equal(validate("inventory-search-request", { type: "inventory.search.request", filters: {
+  assert.equal(validate("inventory-search-request", { type: "inventory_search_request", filters: {
     features_all: ["apple_carplay"], features_any: ["sunroof", "leather_seats"],
   } }), true);
 });

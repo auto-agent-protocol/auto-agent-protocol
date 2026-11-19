@@ -1,0 +1,23 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "disclosures-content.schema.json",
+    "title": "Disclosures extension message content",
+    "description": "The value of extensions.disclosures in a Company message (spec 8.4, Disclosures 3).",
+    "type": "object",
+    "required": ["items"],
+    "properties": {
+        "items": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["text"],
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                }
+            }
+        }
+    }
+}

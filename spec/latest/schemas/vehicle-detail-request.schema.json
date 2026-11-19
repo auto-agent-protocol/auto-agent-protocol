@@ -2,16 +2,16 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/vehicle-detail-request.schema.json",
   "title": "VehicleDetailRequest",
-  "description": "Typed AAP request for the `inventory.vehicle` skill. The request MUST identify a specific listing via at least one of `vin`, `stock`, or `vehicle_id`. Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.",
+  "description": "Typed AAP request for the `inventory_vehicle` skill. The request MUST identify a specific listing via at least one of `vin`, `stock`, or `vehicle_id`. Shared by MCP tool arguments, A2A DataParts and native PAP OpenAPI bodies.",
   "type": "object",
   "examples": [
     {
-      "type": "inventory.vehicle.request",
+      "type": "inventory_vehicle_request",
       "vin": "1HGCV1F30NA123456"
     }
   ],
   "properties": {
-    "type": { "const": "inventory.vehicle.request" },
+    "type": { "const": "inventory_vehicle_request" },
     "vin": {
       "type": "string",
       "pattern": "^[A-HJ-NPR-Z0-9]{17}$",

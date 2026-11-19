@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-approval-declined.schema.json",
+  "title": "PoppyApprovalDeclined",
+  "description": "A Company's final refusal of an approval that passed its checks: it performs nothing and returns no new operation. Operations extension 6 (Declining an approval). At an API, and at the extension's endpoint, the body of an HTTP 403 with error approval_declined. In an MCP tool error result's structuredContent, with error approval_declined. In a Company message's extensions.operations.declined, without error. reason and alternative are content from the Company (spec 10.1), and there are no reason codes. Unknown members are allowed.",
+  "type": "object",
+  "required": [
+    "operation_id",
+    "revision"
+  ],
+  "properties": {
+    "error": {
+      "const": "approval_declined"
+    },
+    "operation_id": {
+      "$ref": "#/$defs/id"
+    },
+    "revision": {
+      "$ref": "#/$defs/id"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Why, in short plain language for the User. Nothing the Session couldn't already see."
+    },
+    "alternative": {
+      "$ref": "./poppy-alternative.schema.json"
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,256}$"
+    }
+  },
+  "$comment": "Adapted from personal-agent-protocol at 8c02b4282eda53468a7c09412558bc8b060d95f6 (Apache-2.0); unmodified independent fixtures and hashes in tests/upstream/poppy/published-1.0. JSON Schema does not verify cryptography or runtime requirements."
+}

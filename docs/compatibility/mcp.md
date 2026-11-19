@@ -7,7 +7,7 @@ description: Move from the optional AAP wrapper catalog to the first-class AAP 3
 
 {/* aap-draft-only:start */}
 
-This page describes the unreleased **3.2.0** contract.
+This page describes the unreleased **4.0.0** contract.
 
 {/* aap-draft-only:end */}
 
@@ -24,6 +24,6 @@ MCP is now a [first-class binding](../bindings/mcp.md). Implement it directly ag
 
 Keep the `aap_*` tool names. Arguments still carry the typed AAP request, including `type`; results carry the matching response in `structuredContent` and serialized JSON text. Publish the same actual skill subset and inventory capabilities through every binding.
 
-Update dealer-domain discovery and `/llms.txt` to point to the deployed MCP endpoint. The downloadable catalog is not that endpoint. A PAP `apis` entry for MCP additionally requires native PAP session authorization; an ordinary public MCP endpoint belongs in the AAP discovery extension until that support exists.
+Update dealer-domain discovery and `/llms.txt` to point to the deployed MCP endpoint. The downloadable catalog is not that endpoint. A PAP `apis` entry for MCP additionally requires native PAP 1.0 Session verification; an ordinary public MCP endpoint belongs in the AAP discovery extension until that support exists.
 
 See the [MCP binding](../bindings/mcp.md) for exact envelopes, headers, error handling and authorization, and [inventory search](../skills/inventory-search.md) for the new search contract.

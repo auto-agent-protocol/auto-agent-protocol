@@ -43,9 +43,16 @@ const nativeMcp = existsSync(
   join(ROOT, "spec", contract, "schemas/mcp-endpoint.schema.json"),
 );
 const publishedPap = existsSync(join(ROOT, "spec", contract, "schemas/poppy-session-jwt.schema.json"));
-const papInterface = publishedPap
+const stablePap = existsSync(join(ROOT, "spec", contract, "schemas/poppy-tasks.schema.json"));
+const papInterface = stablePap
+  ? `PAP ${poppyVersion} OpenAPI with delegated Poppy-Session JWTs and the Poppy-Version header`
+  : publishedPap
   ? `Published PAP ${poppyVersion} OpenAPI with delegated Poppy-Session JWTs`
   : `Poppy draft ${poppyVersion} guest OpenAPI with DPoP`;
+// Releases with the optional skills describe them; earlier releases keep their published wording.
+const contractScope = manifest.skills.some((skill) => skill.id === "trade_in_submit" || skill.id === "credit_application_submit")
+  ? "dealership discovery, inventory, pricing with rebates, consented inquiries, and optional trade-in valuations and credit applications"
+  : "dealership discovery, inventory, pricing and consented inquiries";
 const interfaces = `${nativeMcp ? "native MCP Streamable HTTP tools; " : ""}A2A 1.0 SendMessage; ${papInterface}`;
 const sidebar = readJson<{ specSidebar: SidebarItem[] }>(
   join(ROOT, "versioned_sidebars", `version-${contract}-sidebars.json`),
@@ -81,7 +88,7 @@ function artifactLinks(): string[] {
   return [
     `- [MCP reference tool catalog](${artifactBase}/mcp.json): tool definitions, not a running MCP endpoint`,
     `- [A2A JSON-RPC OpenAPI](${artifactBase}/openapi-jsonrpc.yaml): the automotive SendMessage binding`,
-    `- [PAP OpenAPI](${artifactBase}/openapi-poppy.yaml): native automotive operations with ${publishedPap ? "delegated Poppy-Session JWTs; signed-out calls need no OAuth token" : "guest Sessions"}`,
+    `- [PAP OpenAPI](${artifactBase}/openapi-poppy.yaml): native automotive operations with ${stablePap ? "delegated Poppy-Session JWTs and Poppy-Version; signed-out calls need no OAuth token" : publishedPap ? "delegated Poppy-Session JWTs; signed-out calls need no OAuth token" : "guest Sessions"}`,
     `- [Agent Card example](${artifactBase}/examples/agent-card.example.json): replace fictional identity and deployment URLs`,
     `- [Poppy discovery example](${artifactBase}/examples/poppy.example.json): PAP identity, ${publishedPap ? "optional issuer" : "issuer"} and API discovery`,
     ...(nativeMcp
@@ -98,7 +105,7 @@ function indexText(): string {
   const out = [
     "# Auto Agent Protocol",
     "",
-    `> Auto Agent Protocol (AAP) is an open automotive contract for dealership discovery, inventory, pricing and consented inquiries. Current release ${release.version} (contract ${contract}). Interfaces: ${interfaces}.`,
+    `> Auto Agent Protocol (AAP) is an open automotive contract for ${contractScope}. Current release ${release.version} (contract ${contract}). Interfaces: ${interfaces}.`,
     "",
     "This website publishes the specification and examples. It is not a dealer inventory service or a live MCP endpoint. Find working services through a dealership's own discovery documents and use the exact advertised URLs, capabilities and contract version.",
     "",

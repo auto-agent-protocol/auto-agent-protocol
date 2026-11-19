@@ -36,16 +36,16 @@ publication so the live website does not advertise an unavailable contract.
 
 The independent Protobuf error check also runs in CI. Install the pinned Python dependencies and run it as described in [Conformance](docs/conformance.md#run-the-repository-checks).
 
-4. Choose the next `MAJOR.MINOR.0` version. Additive changes use a minor release; validation-affecting or semantic breaks normally require a major release. The approved exceptions are the 2.0.0 → 2.1.0 PAP 0.2 transition and the 3.1.0 → 3.2.0 published PAP 0.3 transition described below. The maintainer has reserved the next AAP major release for PAP 1.0; this does not authorize unrelated breaking minor changes.
+4. Choose the next `MAJOR.MINOR.0` version. Additive changes use a minor release; validation-affecting or semantic breaks require a major release. The only exceptions ever approved are the 2.0.0 → 2.1.0 PAP 0.2 transition and the 3.1.0 → 3.2.0 published PAP 0.3 transition described below. AAP 4.0.0 is the ordinary major release that adopts PAP 1.0; it uses no exception.
 
 Patch releases are not cut because public contract URLs identify major/minor only. Existing public URLs are never replaced.
 
 ## Rehearse first
 
-The examples below prepare the approved 3.2.0 transition from stable 3.1.0. Select the next eligible version from the current registry; never reuse an existing release label.
+The examples below prepare the 4.0.0 major release from stable 3.2.0. Select the next eligible version from the current registry; never reuse an existing release label.
 
 ```bash
-pnpm release:prepare 3.2.0 --dry-run
+pnpm release:prepare 4.0.0 --dry-run
 ```
 
 Dry-run validation creates candidates in an operating-system temporary directory, prints the structural compatibility report, and leaves the repository byte-for-byte unchanged. Review every reported change. The report intentionally does not certify normative behavior, security, privacy, legal compliance, or interoperability.
@@ -59,7 +59,7 @@ A new `dependentSchemas` map is additive only when every triggering property is 
 Commit the approved editable source, confirm the tree is clean, then run:
 
 ```bash
-pnpm release:prepare 3.2.0
+pnpm release:prepare 4.0.0
 ```
 
 The command:
@@ -88,6 +88,10 @@ AAP 2.1.0 retains the AAP 2.0 automotive payloads, A2A v1.0 behavior and bridge 
 AAP 3.2.0 replaces the earlier October 26 PAP 0.3 authentication profile with the published PAP 0.3 contract pinned in [Versions and migration](docs/versioning.md#pap-03-migration). Automotive payloads, MCP, A2A and bridge version `1` retain their meanings. The required authentication and discovery changes still require client migration, even though the maintainer selected a minor release and reserved the next AAP major for PAP 1.0.
 
 `tools/release-prepare.ts` permits this exception only for 3.1.0 → 3.2.0 and the release-ready `spec/latest` SHA-256 `a17f4f06befb0a8a891545b0fd382ac353370a9a8fbc467585518d5fa96c3dcf`. This differs from PR #49's reviewed hash only by removing the stale words `Unreleased next-major` from the Poppy schema description; no validation or authentication requirements change. Any additional specification change invalidates the exception and needs explicit review. The compatibility report retains every detected breaking change and records the exception; it does not declare older PAP clients compatible. Preserve frozen AAP 3.1 endpoints during migration and complete deployment acceptance before changing default discovery.
+
+## PAP 1.0 major release
+
+AAP 4.0.0 adopts PAP 1.0, pinned in [Versions and migration](docs/versioning.md#pap-10-migration), together with vehicle rebates and the optional `trade_in_submit` and `credit_application_submit` skills. It is a normal major release: the compatibility report lists every breaking schema change and no exception hash applies. The frozen 3.2 snapshot keeps its published PAP 0.3 helpers and tests (`tools/lib/poppy-0.3.ts`, `tests/contract/poppy-0.3.test.ts`); PAP 1.0 uses `tools/lib/poppy.ts`. Keep frozen AAP 3.2 endpoints during migration, and complete deployment acceptance before changing default discovery. From PAP 1.0, later 1.x minors are additive, so they can ship in AAP minor releases.
 
 ## Review and publish explicitly
 

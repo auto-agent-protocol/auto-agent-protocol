@@ -1,0 +1,30 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "operations-content.schema.json",
+    "title": "Operations extension message content",
+    "description": "The value of extensions.operations in a conversation message (spec 8.4, Operations 2): operation (Operations 4) or declined (Operations 6) in a Company message, approval in a Personal Agent message (Operations 6).",
+    "type": "object",
+    "properties": {
+        "operation": {
+            "$ref": "operation.schema.json"
+        },
+        "approval": {
+            "$ref": "approval.schema.json"
+        },
+        "declined": {
+            "$ref": "approval-declined.schema.json",
+            "not": { "required": ["error"] }
+        }
+    },
+    "oneOf": [
+        {
+            "required": ["operation"]
+        },
+        {
+            "required": ["approval"]
+        },
+        {
+            "required": ["declined"]
+        }
+    ]
+}
