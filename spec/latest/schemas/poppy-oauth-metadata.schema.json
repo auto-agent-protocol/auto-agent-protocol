@@ -36,24 +36,12 @@
       "description": "true when Direct Sign-In needs Pushed Authorization Requests (spec 4.2)."
     },
     "token_endpoint_auth_signing_alg_values_supported": {
-      "description": "RFC 8414 section 2. Accepted client-assertion algorithms, not delegation algorithms. Poppy requires ES256 and PS384.",
+      "description": "RFC 8414 section 2. Client-assertion algorithms the token endpoint accepts for all of its clients, not delegation algorithms. A Company that offers Personal Agents sign-in accepts ES256 and PS384 (spec 4.1); that is checked together with poppy.json, because an issuer whose sign-in is disabled for Personal Agents may list other algorithms.",
       "type": "array",
       "items": {
         "type": "string",
         "minLength": 1
-      },
-      "allOf": [
-        {
-          "contains": {
-            "const": "ES256"
-          }
-        },
-        {
-          "contains": {
-            "const": "PS384"
-          }
-        }
-      ]
+      }
     },
     "grant_types_supported": {
       "description": "Must include refresh_token, which is checked separately.",

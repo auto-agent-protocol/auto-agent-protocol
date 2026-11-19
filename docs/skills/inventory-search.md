@@ -145,6 +145,8 @@ This compact response illustrates a price-only request. The complete [feature-an
 
 `price` includes mandatory dealer charges and excludes government-required consumer charges. Any `fees` are already included. An omitted price is unknown: do not reconstruct it from `list_price` and fees. See [pricing](../pricing-and-ftc.md).
 
+New listings may carry `rebates`. They never affect price filters, price sorting or `price_range`, which use `price` alone; an unconditional rebate is already inside `price` and a conditional one never is. See [rebates](../pricing-and-ftc.md#rebates-on-new-vehicles).
+
 `available`, `intransit` and `pending` are different states. A result is not a reservation. `updated_at` reflects the source's last relevant update; servers MUST NOT invent a fresh timestamp merely because an agent requested the listing.
 
 ## Continue through the full inventory

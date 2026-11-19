@@ -131,7 +131,29 @@
         "state",
         "zip"
       ],
-      "description": "Current residential address. Street line, city, state or province, and postal code are required."
+      "description": "Current residential address. Street line, city, state or province, and postal code are required.",
+      "properties": {
+        "address_line_1": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "city": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "state": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "zip": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      }
     },
     "housing_status": {
       "type": "string",

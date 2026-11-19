@@ -1,27 +1,83 @@
 ---
 sidebar_position: 9
 title: Versions and migration
-description: AAP 3.2 published PAP 0.3 migration, independent upstream versions, and immutable release artifacts.
+description: AAP 4.0 adopts PAP 1.0 and adds rebates and two optional skills; independent upstream versions and immutable release artifacts.
 ---
 
 # Versions and migration
 
-**AAP 3.2.0 adopts published PAP 0.3.** This approved minor transition requires an authentication migration from the earlier PAP 0.3 profile in frozen AAP 3.1. The next AAP major release is reserved for PAP 1.0. Automotive payloads retain their 3.1 meanings, including explicit currency and odometer units.
+**AAP 4.0.0 adopts PAP 1.0.** It is a major release: PAP 1.0 changes required Session headers, discovery shapes and key acceptance, so AAP 3.2 clients and servers must migrate. Automotive payloads keep their meaning; AAP 4.0 adds vehicle rebates and `horsepower` and two optional skills.
 
 ![Edit and verify the draft, freeze a new release, then publish and switch a verified deployment](./img/versioning-timeline.svg)
 
 ## Four independent version numbers
 
-| Identifier | Meaning in AAP 3.2 |
+| Identifier | Meaning in AAP 4.0 |
 |---|---|
-| AAP `3.2.0` / contract `v3.2` | Target automotive schemas, bindings and behavior; draft authoring still uses `0.0.0-dev` |
+| AAP `4.0.0` / contract `v4.0` | Target automotive schemas, bindings and behavior: five core and two optional skills. Draft authoring still uses `0.0.0-dev` |
 | MCP `2026-07-28` + `2025-11-25` | Current wire protocol and explicit compatibility path |
-| A2A `1.0` | Agent Card, Message and JSON-RPC protocol |
-| PAP `0.3` | Published specification pinned to commit `6fb46d381ac1b94265795132af13848ec442b6f6`; discovery bridge remains `version: "1"` |
+| A2A `1.0` | Agent Card, Message and JSON-RPC protocol. Upstream `1.0.1` is a patch with no contract change |
+| PAP `1.0` | Stable specification pinned to commit `8c02b4282eda53468a7c09412558bc8b060d95f6`; AAP bridge entry stays `version: "1"`; optional Operations extension version `3` |
 
-A server's software version is separate. PAP 0.2 and earlier draft 0.3 clients must migrate their authentication flows; a PAP 0.3 client is not automatically an AAP 3.2 client, and MCP version negotiation does not choose an automotive schema version.
+A server's software version is separate. A PAP 0.3 client is not an AAP 4.0 client, a PAP 1.0 client is not automatically an AAP client, and MCP version negotiation does not choose an automotive schema version.
+
+## AAP 3.2 to 4.0
+
+![PAP 0.3 to 1.0: version header, extension lists, one tasks endpoint, PS384 and Session lookup by User ID](./img/pap-migration.svg)
+
+### PAP 1.0 migration
+
+AAP 4.0 targets [PAP 1.0 at commit `8c02b4282eda53468a7c09412558bc8b060d95f6`](https://github.com/personal-agent-protocol/personal-agent-protocol/blob/8c02b4282eda53468a7c09412558bc8b060d95f6/content/versions/1.0/spec.mdx) (spec SHA-256 `559a191127cb81d4e77360cd1cfae35233178a89b71b39c0534142a2bab918d6`). Frozen AAP 3.2 keeps published PAP 0.3 at commit `6fb46d381ac1b94265795132af13848ec442b6f6`. Full rules are in the [PAP binding](./personal-agent-protocol.md).
+
+| Surface | Frozen AAP 3.2 (PAP 0.3) | AAP 4.0 (PAP 1.0) | Action |
+|---|---|---|---|
+| `protocol_version` | `"0.3"` | `"1.0"`; readers accept every 1.x document and ignore unknown fields | Publish `1.0` |
+| Version selection | One version per document | Optional `supported_versions` on the same host, same domain and issuer; newest compatible version wins | Link the frozen document while both are served |
+| Request headers | `Poppy-Session` | Also `Poppy-Version: 1.0` on every request; `Poppy-Extensions` (RFC 9651, e.g. `"autoagentprotocol.org/aap";v="1"`) when using extensions; same values per Session | Send them; servers verify `Poppy-Version` before every skill |
+| Version errors | None | HTTP 400 `version_unsupported`; the client refetches, starts a new Session and resends once | Implement on both sides; no omission leniency |
+| Extensions | One object per name | A list with one entry per major version; AAP bridge entry `version: "1"` with unchanged fields | Wrap the bridge object in a list |
+| Extension errors | None | HTTP 403 JSON `{"error":"extension_required","extension":…}`; never for the AAP bridge | Handle it; remove `extensions` from client metadata |
+| Task coverage | `excluded_tasks.url`, `skill_index`, `feedback.endpoint` in `poppy.json` | One `tasks.endpoint`; GET with the Session header and no token returns the Session's excluded tasks, skill index and feedback endpoint | Move them to the tasks response (`poppy-tasks`) |
+| Signing algorithms | ES256 required, PS384 recommended | Dealers MUST accept ES256 **and** PS384 for client assertions and delegations; Session JWTs stay ES256 | Accept PS384 |
+| Client assertions | Short-lived | `exp` at most 5 minutes after `iat`; 5 minutes or less is never rejected | Bound replay stores accordingly |
+| Session lookup | `client_id` + `sid` | `client_id` + `sid` + User ID; an unknown combination starts a new signed-out Session | Change the lookup key |
+| `organization.domain` | Host | Host, plus port when not 443 | Keep production on 443 |
+| Website pages | Never carry the Session header | Pages on exactly `organization.domain`, fetched without a browser, SHOULD carry it, never a token | Clients send it; pages may verify it |
+| Sign-in, if advertised | PKCE, device grant | Direct preferred; `iss`; `prompt=consent`; PAR; consent lists every scope; RFC 10027 §2; device link host check; same DPoP key at refresh; one sign-in for every resource; `invalid_target` | Re-test the whole flow |
+| Browser join, if advertised | Three steps | Plus `poppy:browser-sign-in` for signed-in joins, `web.unscoped`, `web.disabled` | Add the scope and flags |
+| Conversations, if advertised | `status` | Required `description`; four state fields; request IDs; handoff cancel; close returns 202; `version_mismatch` | Re-implement to 1.0 |
+| Operations, if advertised | Not covered | Version 3 approvals for the three write skills | Optional |
+| Native PAP MCP, if advertised | Streamable HTTP | PAP accepts MCP 2025-06-18 or later (AAP keeps its two revisions); token `resource` = the MCP `url` | Re-test resource metadata |
+
+The automotive payloads, consent rules, `lead.submit` and idempotency semantics carry over. Bind idempotency to the stable verified caller and User, never to a delegated key or `sid`, and reconcile uncertain writes before switching.
+
+### Contract additions
+
+| Addition | Contract |
+|---|---|
+| Rebates | Optional `rebates[]` on the shared Vehicle, new vehicles only. Unconditional programs are already in `price`; conditional ones never are. Omitted means no information. See [pricing](./pricing-and-ftc.md) |
+| `horsepower` | Optional Vehicle number, peak total output in hp |
+| Newly typed names | `rebates` and `horsepower` were free additional vehicle attributes in 3.2. A feed that used either name with another shape, such as `"horsepower": "203 hp"`, must rename or convert it |
+| `trade_in.submit` | Optional skill: anonymous estimate or consented submission, valuation as an amount, a range or both, `estimate` or `offer`. See [trade-in](./skills/trade-in-submit.md) |
+| `credit_application.submit` | Optional skill: individual or joint application with each applicant's own credit consent (soft or hard inquiry). See [credit application](./skills/credit-application-submit.md) |
+| Consent scope | New `trade_in_submission` for trade-in contact; `lead_submission` is unchanged |
+| Capabilities | Both optional skills require a `capabilities` object in the Agent Card params and the same object in the MCP tool `_meta` |
+| PAP schemas | `poppy-tasks` replaces `poppy-excluded-tasks`; new `poppy-operation`, `poppy-approval`, `poppy-approval-required`, `poppy-approval-declined` |
+| Errors | No new AAP error codes |
+
+A dealer declares only the skills it implements, identically on all three bindings. Clients must not assume the optional skills exist.
+
+### Coexistence
+
+1. Keep frozen AAP 3.2 endpoints, Agent Card and Poppy document unchanged while AAP 4.0 is tested.
+2. Publish AAP 4.0 at separate version-pinned Agent Cards and endpoints. One origin has one default well-known card; distribute other card URLs by configuration or a registry, or use separate origins.
+3. For PAP, serve the AAP 4.0 document at `/.well-known/poppy.json` with `supported_versions: {"0.3": "<URL of the frozen document on the same host>"}`, keeping the same `organization.domain` and issuer. PAP 0.3 clients do not read `supported_versions`; keep them on explicit AAP 3.2 configuration until they migrate.
+4. Never retry an uncertain write through another contract with a new key. Reconcile it with its original key first.
+5. Retire AAP 3.2 by sending `Deprecation` and `Sunset`, then removing it from `supported_versions`, then stopping it.
 
 ## AAP 3.0 to 3.1
+
+History: the additive 3.0 → 3.1 transition. Its rules still hold in AAP 4.0.
 
 | Area | Existing 3.0 meaning | Additive 3.1 behavior |
 |---|---|---|
@@ -39,13 +95,13 @@ This requires schema, generated tool/OpenAPI metadata and runtime changes togeth
 
 ## For implementers
 
-For implementations coming from 2.1, the 3.0 major migration below is also required. It made MCP native, added dealer-domain discovery links and search capabilities, and tightened automotive results and lead outcomes. Migrate the implementation and its clients before switching discovery. Keep each supported automotive contract at its own card and endpoint identity.
+History: the AAP 2.1 → 3.0 major migration. Implementations coming from 2.1 apply it, then the later transitions, ending with [AAP 3.2 to 4.0](#aap-32-to-40). It made MCP native, added dealer-domain discovery links and search capabilities, and tightened automotive results and lead outcomes. Migrate the implementation and its clients before switching discovery. Keep each supported automotive contract at its own card and endpoint identity.
 
 | Area | AAP 2.1 | AAP 3.0 action |
 |---|---|---|
 | MCP | Reference manifest/optional adapter | Implement native Streamable HTTP for both required revisions, actual tools/list and typed success/error results |
 | Request headers | A2A version and extension headers mandatory | Accept omitted A2A headers on contract-pinned endpoints and omitted MCP mirror headers when the body or this client's negotiated session supplies the value. Keep supplied-value conflict checks and all authentication requirements; see the binding pages for this AAP compatibility extension |
-| PAP | Draft 0.2 authentication and discovery | AAP 3.0 adopted the earlier draft 0.3 profile. Upgrades to AAP 3.2 use the [published 0.3 migration below](#pap-03-migration); changing the version label is insufficient |
+| PAP | Draft 0.2 authentication and discovery | AAP 3.0 adopted the earlier draft 0.3 profile. Upgrades apply the [published 0.3 migration below](#pap-03-migration), then the [PAP 1.0 migration](#pap-10-migration); changing the version label is insufficient |
 | Discovery | A2A + PAP pair | Add complete AAP params, exact MCP URL, search capabilities, release metadata and dealer `/llms.txt` |
 | Search filters | Empty arrays, repeated values and empty queries can validate | Advertise supported keys/sorts; deduplicate arrays and omit empty optional filters. Reject `make: []`, `make: ["Honda", "Honda"]`, empty/whitespace-only `query`, unknown keys and unsupported constraints; implement explicit query token rules |
 | Features | Free-text attributes | Add `features_all` (AND), `features_any` (OR), advertised feature vocabulary and source-backed `feature_evidence`; unknown is not absent |
@@ -63,7 +119,7 @@ For implementations coming from 2.1, the 3.0 major migration below is also requi
 
 The public `DayHours` and `WeeklyHours` TypeScript exports are retained. `DayHours` remains `{open, close} | null`; consumers keep their existing imports.
 
-Pricing semantics, five canonical skill IDs, A2A 1.0 wire form and discovery bridge `1` remain. PAP upgrades to 0.3, including its breaking Session, metadata and optional-flow changes. Do not weaken authentication to make a client with missing credentials appear compatible.
+In AAP 3.0, pricing semantics, the five canonical skill IDs, A2A 1.0 wire form and discovery bridge `1` remained, and PAP moved to draft 0.3. Do not weaken authentication to make a client with missing credentials appear compatible.
 
 ### Release order and version discovery
 
@@ -76,13 +132,15 @@ One A2A card declares exactly one required AAP extension. Several required versi
 
 For coexistence, retain separate version-specific cards and endpoints. One origin has one default well-known card; distribute other card URLs through explicit configuration or a registry, or use separate origins. For a coordinated cutover, communicate which clients must migrate and when the old endpoint retires. A new URI alone does not make retirement backward compatible.
 
-Do not retry an uncertain lead through an older contract with a new key. Preserve its identity and reconcile the earlier outcome.
+Do not retry an uncertain lead, trade-in or credit application through an older contract with a new key. Preserve its identity and reconcile the earlier outcome.
 
 ### PAP 0.3 migration
 
-AAP 3.2 targets [published 0.3 at commit `6fb46d381ac1b94265795132af13848ec442b6f6`](https://github.com/personal-agent-protocol/personal-agent-protocol/blob/6fb46d381ac1b94265795132af13848ec442b6f6/content/versions/0.3/spec.mdx). Frozen AAP 3.1 pins October 26 commit `86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7`, which used the same upstream `0.3` label but a different authentication model. The maintainer approved **AAP 3.2.0** for this migration and reserved the next major for PAP 1.0. Required authentication fields and meanings change, so older clients still require migration. The release tool permits this minor exception only for the reviewed specification hash and the 3.1.0 → 3.2.0 pair. The approved release snapshot and package versions identify this transition; frozen earlier releases remain unchanged.
+History: the AAP 3.1 → 3.2 transition. AAP 4.0 continues with the [PAP 1.0 migration](#pap-10-migration).
 
-| Surface | Frozen AAP 3.1 profile | AAP 3.2 published PAP 0.3 binding |
+AAP 3.2 targeted [published 0.3 at commit `6fb46d381ac1b94265795132af13848ec442b6f6`](https://github.com/personal-agent-protocol/personal-agent-protocol/blob/6fb46d381ac1b94265795132af13848ec442b6f6/content/versions/0.3/spec.mdx). Frozen AAP 3.1 pins October 26 commit `86f0c8d8db3c95cf06d7e05370ec4bddf7d25bc7`, which used the same upstream `0.3` label but a different authentication model. **AAP 3.2.0** made this migration as a minor-release exception and reserved the next major for PAP 1.0. Required authentication fields and meanings changed, so older clients required migration. The release tool permits this minor exception only for the reviewed specification hash and the 3.1.0 → 3.2.0 pair. The release snapshot and package versions identify this transition; frozen earlier releases remain unchanged.
+
+| Surface | Frozen AAP 3.1 profile | Frozen AAP 3.2 published PAP 0.3 binding |
 |---|---|---|
 | Signed-out access | OAuth guest JWT grant, two assertions, Session Token and DPoP | Fresh delegated `Poppy-Session` JWT on each request; no guest token grant |
 | Company identity | Required `auth.issuer` | Discover domain protected-resource metadata; optional issuer; domain fallback only after explicit absence, never errors |
@@ -104,9 +162,11 @@ Update client constructors and generated schemas together. Preserve automotive p
 
 ### PAP 0.2 migration
 
-This heading remains as a historical link. AAP 2.1 used PAP 0.2; its [frozen migration record](https://autoagentprotocol.org/docs/v2.1/versioning#pap-02-migration) documents the earlier 0.1 → 0.2 transition. AAP 3.2 targets **published 0.3 directly**; frozen AAP 3.1 retains its earlier pinned profile. They do not need an intermediate 0.2 deployment. Both the historical 2.0 → 2.1 and the approved 3.1 → 3.2 minor-release exceptions are pinned to their reviewed specification hashes and do not permit unrelated breaking changes.
+History. This heading remains as a historical link. AAP 2.1 used PAP 0.2; its [frozen migration record](https://autoagentprotocol.org/docs/v2.1/versioning#pap-02-migration) documents the earlier 0.1 → 0.2 transition. AAP 3.2 targeted **published 0.3 directly** and AAP 4.0 targets PAP 1.0; frozen releases retain their pinned profiles. No intermediate 0.2 deployment is needed. Both the historical 2.0 → 2.1 and the 3.1 → 3.2 minor-release exceptions are pinned to their reviewed specification hashes and do not permit unrelated breaking changes.
 
 ### Breaking migration checklist
+
+History: the AAP 1.x → 2.0 checklist.
 
 An upgrade from AAP 1.x must also apply the [frozen 2.0 migration](https://autoagentprotocol.org/docs/v2.1/versioning#breaking-migration-checklist): paired PAP discovery and native API, required response contexts, standard A2A error detail arrays, securityRequirements shape, exact extension activation and truthful media types. Direct upgrades must implement the final contract in full; they need not deploy every intermediate version.
 
@@ -123,7 +183,7 @@ Draft schema/extension URLs use `https://draft.autoagentprotocol.invalid`. Relea
 
 ## SemVer and immutability
 
-AAP normally follows Semantic Versioning. Optional additive behavior can be minor; removed fields, tighter validation, changed required meanings or new mandatory interfaces normally require a major release. The explicitly approved PAP transitions to AAP 2.1 and 3.2 are exceptions, with required client migrations documented above. The next AAP major is reserved for PAP 1.0. These decisions do not waive compatibility checks for other changes; the structural report remains conservative and does not replace semantic review.
+AAP normally follows Semantic Versioning. Optional additive behavior can be minor; removed fields, tighter validation, changed required meanings or new mandatory interfaces normally require a major release. The PAP transitions to AAP 2.1 and 3.2 were minor-release exceptions, with required client migrations documented above. AAP 4.0.0 is a normal major release: PAP 1.0 was the major reserved for it. These decisions do not waive compatibility checks for other changes; the structural report remains conservative and does not replace semantic review.
 
 Contract paths contain major/minor only, so the release tool creates `MAJOR.MINOR.0` snapshots. Published snapshots are never edited, including their diagrams. Editorial corrections enter the editable source for a later release.
 
@@ -134,11 +194,11 @@ A release freezes schemas, examples, skills, docs/sidebar/images, generated Type
 Commit reviewed edits to the working sources, then rehearse:
 
 ```bash
-pnpm release:prepare 3.2.0 --dry-run
+pnpm release:prepare 4.0.0 --dry-run
 ```
 
 After reviewing the compatibility report, run without `--dry-run` from a clean tree. The command validates and freezes the new contract, generates artifacts, records the source commit/hashes and updates registry/package versions. It does not commit, tag, push, publish npm packages or deploy the site. See [RELEASING.md](https://github.com/auto-agent-protocol/auto-agent-protocol/blob/main/RELEASING.md).
 
 ## A2A version handling
 
-Portable A2A clients send `A2A-Version: 1.0` and the exact `A2A-Extensions` URI. AAP 3.0 additionally accepts their omission on a contract-pinned endpoint, using its configured A2A 1.0 interface and AAP contract. Supplied values still take effect: unsupported versions return -32009, and an explicitly empty version means `0.3`, not a request for a default. This compatibility extension does not change strict upstream client requirements or permit automatic contract fallback. See [request headers](./bindings/json-rpc.md#request-headers).
+Portable A2A clients send `A2A-Version: 1.0` and the exact `A2A-Extensions` URI. AAP (since 3.0) additionally accepts their omission on a contract-pinned endpoint, using its configured A2A 1.0 interface and AAP contract. Supplied values still take effect: unsupported versions return -32009, and an explicitly empty version means `0.3`, not a request for a default. This compatibility extension does not change strict upstream client requirements or permit automatic contract fallback. See [request headers](./bindings/json-rpc.md#request-headers).

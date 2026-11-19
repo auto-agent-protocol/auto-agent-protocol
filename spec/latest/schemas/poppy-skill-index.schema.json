@@ -54,7 +54,7 @@
               "minLength": 1
             },
             "url": {
-              "description": "An HTTPS URL or a relative reference resolved against the final poppy.json URL. Clients check the resolved URL and every redirect under spec section 3.",
+              "description": "An HTTPS URL or a relative reference resolved against tasks.endpoint. Clients check the resolved URL and every redirect under spec section 3.",
               "type": "string",
               "minLength": 1,
               "anyOf": [

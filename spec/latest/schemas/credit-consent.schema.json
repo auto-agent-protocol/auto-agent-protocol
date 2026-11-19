@@ -41,7 +41,7 @@
     "expires_at": {
       "type": "string",
       "format": "date-time",
-      "description": "Optional deadline for using this grant. When present it must follow granted_at."
+      "description": "Optional deadline for using this grant. When present it must follow granted_at; JSON Schema cannot compare the timestamps, so receivers check this and answer INVALID_CONSENT."
     }
   },
   "required": [

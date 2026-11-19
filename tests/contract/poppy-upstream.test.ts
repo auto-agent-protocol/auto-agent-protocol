@@ -66,7 +66,7 @@ test("PAP 1.0 examples conform to all unmodified pinned Company-kit schemas", ()
   }
   for (const file of Object.keys(checksums.schemas)) assert.doesNotThrow(() => ajv.getSchema(file), `${file} compiles with its references`);
   const pairs = [
-    ["poppy", "poppy"], ["poppy-document", "poppy"], ["poppy.existing-issuer", "poppy"], ["poppy.native-mcp", "poppy"],
+    ["poppy", "poppy"], ["poppy-document", "poppy"], ["poppy.existing-issuer", "poppy"], ["poppy.native-mcp", "poppy"], ["poppy.optional-surfaces", "poppy"],
     ["poppy-oauth-metadata", "authorization-server-metadata"], ["poppy-oauth-metadata.native-mcp", "authorization-server-metadata"], ["poppy-client-metadata", "client-metadata"],
     ["poppy-session-jwt", "session-jwt"], ["poppy-delegation", "delegation"], ["poppy-access-token-response", "token-response"],
     ["poppy-protected-resource-metadata", "protected-resource-metadata"], ["poppy-protected-resource-metadata.existing-issuer", "protected-resource-metadata"], ["poppy-protected-resource-metadata.native-mcp", "protected-resource-metadata"],

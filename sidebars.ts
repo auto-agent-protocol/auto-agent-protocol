@@ -33,6 +33,11 @@ const sidebars: SidebarsConfig = {
         "skills/inventory-search",
         "skills/inventory-vehicle",
         "skills/lead-submit",
+        {
+          type: "category",
+          label: "Optional",
+          items: ["skills/trade-in-submit", "skills/credit-application-submit"],
+        },
       ],
     },
     {

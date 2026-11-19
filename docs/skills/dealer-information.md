@@ -77,7 +77,7 @@ An ordinary dealer-scoped endpoint needs no additional lookup before consent: it
 | `address`, `geo` | Physical location; latitude/longitude use WGS84 coordinates |
 | `emails`, `phones` | Labeled contact values such as Sales or Service |
 | `schedules`, `timezone` | Named weekly hours such as sales, service or parts in rooftop local time; a day is `{open, close}` or `null` when closed |
-| `capabilities` | Service tags such as sales, service, trade_in, delivery or motorcycle_sales |
+| `capabilities` | Service tags such as sales, service, trade_in, financing, delivery or motorcycle_sales; descriptive only, they do not declare the optional `trade_in.submit` or `credit_application.submit` skills |
 | `fees` | Optional default fee schedule for the publisher; never an extra charge for the buyer to add |
 | `currency` | Currency of that rooftop's fee amounts: `USD` or `CAD`; omitted means USD even when its address is Canadian |
 

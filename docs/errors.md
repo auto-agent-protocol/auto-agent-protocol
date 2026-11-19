@@ -8,7 +8,7 @@ description: One typed automotive error, three protocol envelopes, and explicit 
 
 {/* aap-draft-only:start */}
 
-This is the unreleased **AAP 3.2.0** contract. Draft identifiers are replaced when the release is prepared.
+This is the unreleased **AAP 4.0.0** contract. Draft identifiers are replaced when the release is prepared.
 
 {/* aap-draft-only:end */}
 
@@ -112,7 +112,7 @@ The AAP payload is a separate standard Any detail with `@type: "type.googleapis.
 | `DEALER_NOT_FOUND` | The requested seller is unknown or inaccessible on this endpoint. | -32000 (Server error) | `false` |
 | `VEHICLE_NOT_FOUND` | The supplied `vin` / `stock` / `vehicle_id` does not match any listing. | -32000 (Server error) | `false` |
 | `VEHICLE_UNAVAILABLE` | The vehicle exists but its `status` is no longer one of `available` \| `intransit` \| `pending`. | -32000 (Server error) | `false` |
-| `CONTACT_CONSENT_REQUIRED` | `consent` is missing from a lead submission. | -32000 (Server error) | `false` |
+| `CONTACT_CONSENT_REQUIRED` | `consent` is missing from a lead submission, or a trade-in submission omits contact consent on a dealer with `contact_required: true`. | -32000 (Server error) | `false` |
 | `INVALID_CONSENT` | `consent` is present but malformed, expired, its scope does not cover the called skill, or a contact channel is not authorized. | -32000 (Server error) | `false` |
 | `APPOINTMENT_TIME_UNAVAILABLE` | The submission was rejected because no appointment time could be accepted. | -32000 (Server error) | `false` |
 | `IDEMPOTENCY_CONFLICT` | An `idempotency_key` was reused with a different request payload. | -32000 (Server error) | `false` |
@@ -129,6 +129,38 @@ These are the A2A numeric mappings. MCP keeps them as typed tool errors; PAP map
 - `VEHICLE_NOT_FOUND` means no matching listing; `VEHICLE_UNAVAILABLE` means a previously known listing cannot be offered. Refresh the search and tell the buyer.
 - An accepted lead with a declined appointment returns `lead.submit.response` with both outcomes. `APPOINTMENT_TIME_UNAVAILABLE` must not conceal an accepted lead.
 - `IDEMPOTENCY_CONFLICT` means the same key was reused with different content. Do not rotate the key merely to overcome an uncertain previous write; first reconcile it.
+
+## Optional skills use existing codes
+
+AAP 4.0 adds no error codes. The optional skills use the existing vocabulary:
+
+| Code | [`trade_in.submit`](./skills/trade-in-submit.md) | [`credit_application.submit`](./skills/credit-application-submit.md) |
+|---|---|---|
+| `UNSUPPORTED_SKILL` | The dealer does not declare the skill | The dealer does not declare the skill |
+| `CONTACT_CONSENT_REQUIRED` | Anonymous request to a dealer with `contact_required: true` | — |
+| `INVALID_CONSENT` | Grant malformed, expired, future-dated, wrong scope, or a channel without its contact value | An applicant's credit consent is malformed, expired or inapplicable, or its `authorized_inquiry` is not in `inquiry_types` |
+| `MISSING_REQUIRED_FIELD` | A required field is absent | A required field is absent, including `national_id` when the capability is `required` |
+| `SCHEMA_VALIDATION_FAILED` | Invalid request | Invalid request, including a `national_id` sent to a dealer with `national_id: "not_accepted"` (the value is discarded) |
+| `INVALID_CONDITION` | A sale condition on the trade-in vehicle | A sale condition on `trade_in`, or a wear condition on `vehicle_of_interest` |
+| `IDEMPOTENCY_CONFLICT` | Same key, different payload | Same key, different payload |
+| `RATE_LIMITED`, `INTERNAL_ERROR` | Retry with the same key and payload | Retry with the same key and payload |
+
+Credit errors name field paths only. They never contain `national_id`, `date_of_birth`, `drivers_license` or other applicant values.
+
+## PAP transport errors
+
+PAP 1.0 adds two transport-level errors at the native API. They use PAP's JSON error body, not `aap.error`, and no skill runs:
+
+| Error | HTTP | Cause |
+|---|---|---|
+| `version_unsupported` | 400 | The request with the Session header lacks `Poppy-Version` or names an incompatible version. Refetch `poppy.json`, start a new Session if you choose another version, and retry once. |
+| `extension_required` | 403 | The endpoint requires an extension the request did not declare in `Poppy-Extensions`; the body names it in `extension`. |
+
+```json
+{ "error": "version_unsupported", "error_description": "Send Poppy-Version: 1.0 with the Session header." }
+```
+
+See [PAP](./personal-agent-protocol.md) for `invalid_session`, `session_ended`, OAuth failures and optional Operations approvals.
 
 ## Protocol-level A2A failures
 
@@ -182,4 +214,4 @@ Honor the returned `retryable` value. For a correctable input error, change the 
 
 A typed `RATE_LIMITED` MUST include `details.retry_after_ms`; an HTTP 429 MUST include `Retry-After`. Wait at least the applicable minimum, including when Retry-After is an HTTP date. Do not treat an HTTP 200 containing an MCP tool error as success.
 
-For a lead, preserve the original payload and idempotency key across a timeout, retry, Session renewal or securely correlated binding change. Re-authentication produces fresh proofs, not a new business request. A non-retryable response does not authorize a new submission. See [safe lead retries](./skills/lead-submit.md#safe-retries).
+For a lead, trade-in or credit application, preserve the original payload and idempotency key across a timeout, retry, Session renewal or securely correlated binding change. Re-authentication produces fresh proofs, not a new business request. A non-retryable response does not authorize a new submission. See [safe lead retries](./skills/lead-submit.md#safe-retries).

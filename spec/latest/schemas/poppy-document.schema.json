@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-document.schema.json",
   "title": "PoppyDocument",
-  "description": "The PAP 1.x discovery document a Company publishes at /.well-known/poppy.json. Spec section 3 (Discovery) and 3.1 (Fields). Unknown fields are allowed: Personal Agents ignore fields they don't recognize, including fields a later 1.x minor version adds.",
+  "description": "The PAP 1.x discovery document a Personal Agent uses: the well-known poppy.json when its version is compatible, or the document it links under supported_versions. Spec section 3 (Discovery) and 3.1 (Fields). Unknown fields are allowed: Personal Agents ignore fields they don't recognize, including fields a later 1.x minor version adds. A well-known document of another major version is read only for protocol_version and supported_versions (spec 3.4).",
   "type": "object",
   "required": [
     "protocol_version",
@@ -311,7 +311,10 @@
     "domain": {
       "type": "string",
       "pattern": "^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+(:[1-9][0-9]{0,4})?$",
-      "description": "The host that serves the document, with its port when that is not 443 (spec 3.1)."
+      "description": "The host that serves the document, with its port only when that is not 443 (spec 3.1).",
+      "not": {
+        "pattern": ":443$"
+      }
     },
     "scopes": {
       "type": "array",

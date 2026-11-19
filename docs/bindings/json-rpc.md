@@ -8,7 +8,7 @@ description: Complete A2A 1.0 headers, messages and errors for the shared automo
 
 {/* aap-draft-only:start */}
 
-This is the unreleased **AAP 3.2.0** contract. Do not deploy draft identifiers.
+This is the unreleased **AAP 4.0.0** contract. Do not deploy draft identifiers.
 
 {/* aap-draft-only:end */}
 
@@ -172,7 +172,19 @@ The request below uses only advertised search capabilities. The `type` and `medi
 
 </details>
 
-All five skills use this envelope. The complete [request](https://draft.autoagentprotocol.invalid/latest/examples/inventory-search-request.jsonrpc.example.json) and [response](https://draft.autoagentprotocol.invalid/latest/examples/inventory-search-response.jsonrpc.example.json) fixtures, [skill schemas](../intro.md#five-skills-one-shopping-journey) and generated OpenAPI provide copyable machine-readable forms.
+Every skill uses this envelope, with its own media types:
+
+| Skill | Request `mediaType` | Response `mediaType` |
+|---|---|---|
+| `dealer.information` | `application/vnd.autoagent.dealer-information-request+json` | `application/vnd.autoagent.dealer-information-response+json` |
+| `inventory.facets` | `application/vnd.autoagent.inventory-facets-request+json` | `application/vnd.autoagent.inventory-facets-response+json` |
+| `inventory.search` | `application/vnd.autoagent.inventory-search-request+json` | `application/vnd.autoagent.inventory-search-response+json` |
+| `inventory.vehicle` | `application/vnd.autoagent.vehicle-detail-request+json` | `application/vnd.autoagent.vehicle-detail-response+json` |
+| `lead.submit` | `application/vnd.autoagent.lead-submit-request+json` | `application/vnd.autoagent.lead-submit-response+json` |
+| `trade_in.submit` (optional) | `application/vnd.autoagent.trade-in-submit-request+json` | `application/vnd.autoagent.trade-in-submit-response+json` |
+| `credit_application.submit` (optional) | `application/vnd.autoagent.credit-application-submit-request+json` | `application/vnd.autoagent.credit-application-submit-response+json` |
+
+The complete [request](https://draft.autoagentprotocol.invalid/latest/examples/inventory-search-request.jsonrpc.example.json) and [response](https://draft.autoagentprotocol.invalid/latest/examples/inventory-search-response.jsonrpc.example.json) fixtures, [skill schemas](../intro.md#five-core-skills-two-optional-one-shopping-journey) and generated OpenAPI provide copyable machine-readable forms.
 
 ## Error mapping (A2A Section 9.5)
 

@@ -20,7 +20,7 @@
     },
     "joint_applications": {
       "type": "boolean",
-      "description": "true when application_type joint is accepted."
+      "description": "true when application_type joint is accepted. false: a joint application returns SCHEMA_VALIDATION_FAILED naming /application_type, before any record or credit inquiry."
     },
     "national_id": {
       "type": "string",
@@ -41,7 +41,7 @@
       "default": [
         "USD"
       ],
-      "description": "Currencies this skill accepts and returns. Omitted means only USD."
+      "description": "Currencies this skill accepts and returns. Omitted means only USD. Another currency returns SCHEMA_VALIDATION_FAILED naming /currency."
     }
   },
   "required": [

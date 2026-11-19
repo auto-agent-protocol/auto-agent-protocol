@@ -10,7 +10,7 @@
       "minLength": 1,
       "maxLength": 120,
       "pattern": "\\S",
-      "description": "Stable identifier of the incentive program, unique within one rebates array.",
+      "description": "Stable identifier of the incentive program, unique within one rebates array. JSON Schema cannot compare array members by one field, so publishers and receivers check uniqueness.",
       "examples": [
         "toyota-2026-11-military"
       ]

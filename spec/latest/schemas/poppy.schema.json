@@ -148,22 +148,34 @@
               "items": {
                 "type": "object",
                 "properties": {
-                  "type": {
-                    "const": "poppy"
-                  },
-                  "resource": false,
-                  "access": {
-                    "enum": [
-                      "session",
-                      "signed_in"
-                    ]
-                  }
+                  "resource": false
                 },
                 "required": [
                   "type",
                   "endpoint",
                   "description"
-                ]
+                ],
+                "description": "Any conversation protocol type may be listed; Personal Agents skip types they do not support. A poppy entry's access hint uses a known value.",
+                "if": {
+                  "properties": {
+                    "type": {
+                      "const": "poppy"
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "access": {
+                      "enum": [
+                        "session",
+                        "signed_in"
+                      ]
+                    }
+                  }
+                }
               }
             }
           }
@@ -207,10 +219,22 @@
             "properties": {
               "protocols": {
                 "items": {
-                  "properties": {
-                    "access": {
-                      "not": {
-                        "const": "signed_in"
+                  "if": {
+                    "properties": {
+                      "type": {
+                        "const": "poppy"
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ]
+                  },
+                  "then": {
+                    "properties": {
+                      "access": {
+                        "not": {
+                          "const": "signed_in"
+                        }
                       }
                     }
                   }
@@ -285,6 +309,49 @@
         "supported_versions": {
           "properties": {
             "1.0": false
+          }
+        }
+      }
+    },
+    {
+      "description": "An operations entry that lists an endpoint asks for approvals on the website, which only a browser joined to a Session can receive (Operations extension, section 2).",
+      "if": {
+        "required": [
+          "extensions"
+        ],
+        "properties": {
+          "extensions": {
+            "required": [
+              "operations"
+            ],
+            "properties": {
+              "operations": {
+                "contains": {
+                  "type": "object",
+                  "required": [
+                    "version",
+                    "endpoint"
+                  ],
+                  "properties": {
+                    "version": {
+                      "const": "3"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "web"
+        ],
+        "properties": {
+          "web": {
+            "required": [
+              "browser_session_endpoint"
+            ]
           }
         }
       }

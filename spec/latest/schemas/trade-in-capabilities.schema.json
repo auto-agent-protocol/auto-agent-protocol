@@ -23,7 +23,7 @@
       "default": [
         "USD"
       ],
-      "description": "Currencies this skill accepts and returns. Omitted means only USD."
+      "description": "Currencies this skill accepts and returns. Omitted means only USD. Another vehicle currency returns SCHEMA_VALIDATION_FAILED naming /vehicle/currency."
     }
   },
   "required": [

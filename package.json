@@ -66,6 +66,7 @@
     "glob": "^14.0.6",
     "json-schema-to-typescript": "^16.0.0",
     "sharp": "0.35.5",
+    "structured-headers": "2.1.1",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "yaml": "^2.9.1"

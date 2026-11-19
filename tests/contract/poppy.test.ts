@@ -34,6 +34,22 @@ test("the profile pins PAP 1.0 and its frozen upstream revision", () => {
   }
 });
 
+test("an issuerless dealer can advertise every optional signed-out surface in one valid document", () => {
+  const document = read("poppy.optional-surfaces");
+  assert.equal(validate("poppy", document), true, ajv.errorsText());
+  assert.deepEqual(identity(document), []);
+  assert.deepEqual(Object.keys(document.supported_versions), ["0.3"]);
+  assert.equal(document.agent.protocols[0].description.length > 0, true);
+  assert.equal(poppyExtensionEntry(document, "operations", "3")?.endpoint, undefined, "no website approvals, so no operations endpoint");
+  assert.equal(poppySessionDestination(document, document.tasks.endpoint), "protocol");
+  assert.equal(poppySessionDestination(document, "https://demo-toyota.example.com/poppy/feedback"), "website", "without the tasks response a feedback URL is not a known protocol endpoint");
+  const website = { ...document, extensions: { ...document.extensions, operations: [{ version: "3", endpoint: "https://demo-toyota.example.com/poppy/operations" }] } };
+  assert.equal(validate("poppy", website), true, ajv.errorsText()); assert.deepEqual(identity(website), []);
+  const noJoin = { ...website, web: {} };
+  assert.equal(validate("poppy", noJoin), false, "website approvals need browser join"); assert.ok(identity(noJoin).some(error => error.includes("operations endpoint")));
+  assert.ok(identity({ ...document, agent: { protocols: [{ ...document.agent.protocols[0], access: "signed_in" }] } }).length, "signed_in needs an issuer");
+});
+
 test("version compatibility is major-based from 1.0 and exact-minor before it (spec 3.4)", () => {
   for (const [a, b, expected] of [["1.0", "1.0", true], ["1.0", "1.4", true], ["1.3", "1.0", true], ["1.0", "2.0", false], ["0.3", "0.3", true], ["0.3", "0.4", false], ["0.4", "1.0", false], ["1", "1.0", false], ["1.0.0", "1.0", false]] as const) {
     assert.equal(poppyVersionsCompatible(a, b), expected, `${a} ~ ${b}`);
@@ -64,6 +80,12 @@ test("supported_versions stays on the discovery host and keeps one Company ident
     const other = structuredClone(frozen); change(other);
     assert.ok(checkPoppySupportedVersions(document, discovery, { "0.3": other }).length);
   }
+  const implicit = structuredClone(frozen); delete implicit.auth.issuer;
+  assert.deepEqual(checkPoppySupportedVersions(document, discovery, { "0.3": implicit }), [], "a version document may leave a single issuer implicit");
+  assert.ok(checkPoppySupportedVersions({ ...document, supported_versions: { "0.3": "not a url" } }, discovery).length);
+  const next = { protocol_version: "2.0", organization: document.organization, supported_versions: { "1.0": "https://demo-toyota.example.com/poppy/1.0.json" } };
+  assert.deepEqual(choosePoppyVersion(next, ["1.0"]), { version: "1.0", url: "https://demo-toyota.example.com/poppy/1.0.json" }, "a 1.0 agent finds its version behind a later major");
+  assert.equal(validate("poppy-document", next), false, "the reader schema applies to the chosen 1.x document, not to the 2.0 one");
 });
 
 test("Poppy-Version is required wherever the Session header is verified", () => {
@@ -79,9 +101,16 @@ test("Poppy-Version is required wherever the Session header is verified", () => 
 test("Poppy-Extensions is an RFC 9651 list of names with a version parameter", () => {
   assert.deepEqual([...parsePoppyExtensions('"operations";v="3", "links";v="1"')], [["operations", "3"], ["links", "1"]]);
   assert.deepEqual([...parsePoppyExtensions('"autoagentprotocol.org/aap";v="1"')], [["autoagentprotocol.org/aap", "1"]]);
-  for (const header of [undefined, "", "operations;v=3", '"operations"', '"operations";v=3', '"operations";v="3", "operations";v="2"', '"operations";v="3",,']) {
-    assert.equal(parsePoppyExtensions(header).size, 0, `${header} declares no extensions`);
+  for (const header of [undefined, "", '"operations";v="3",,', '"operations";v="3", "links;v="1"', '"operations";v="3";x=@@', '"operations" v="3"']) {
+    assert.equal(parsePoppyExtensions(header).size, 0, `${header} fails to parse and declares no extensions`);
   }
+  for (const header of ["operations;v=3", '"operations"', '"operations";v=3', '"operations";v="3", "operations";v="2"']) {
+    assert.equal(parsePoppyExtensions(header).size, 0, `${header} parses but declares no usable version`);
+  }
+  assert.deepEqual([...parsePoppyExtensions('"operations";v="3", "example.com/x";v=1')], [["operations", "3"]], "a member without a String version does not discard the others");
+  assert.deepEqual([...parsePoppyExtensions('"operations";v="2";v="3"')], [["operations", "3"]], "RFC 9651 parameters are last-wins");
+  assert.deepEqual([...parsePoppyExtensions('"a,b";v="1", "operations";v="3";future=?1')], [["a,b", "1"], ["operations", "3"]], "commas inside Strings and unknown parameters are fine");
+  assert.deepEqual([...parsePoppyExtensions('"operations";v="3", "operations";v="3"')], [["operations", "3"]]);
   const required = read("poppy-error.extension-required");
   assert.equal(validate("poppy-error", required), true);
   assert.equal(validate("poppy-error", { error: "extension_required" }), false, "the error names the extension");
@@ -128,7 +157,7 @@ test("organization.domain is the final discovery host, with its port when that i
   assert.deepEqual(checkPoppyIdentity(ported, discovery.replace(".com/", ".com:8443/"), undefined, discovery.replace(".com/", ".com:8443/"), { status: 404 }), []);
   assert.equal(poppyCompanyIdentifier(ported, { status: 404 }).identifier, "https://demo-toyota.example.com:8443");
   assert.ok(identity(ported).length, "a document for another port does not speak for the default port");
-  for (const domain of ["demo-toyota.example.com:0", "demo-toyota.example.com:", "https://demo-toyota.example.com", "demo-toyota.example.com/path"]) assert.equal(validate("poppy-document", { ...read("poppy"), organization: { name: "Demo", domain } }), false, domain);
+  for (const domain of ["demo-toyota.example.com:443", "demo-toyota.example.com:0", "demo-toyota.example.com:", "https://demo-toyota.example.com", "demo-toyota.example.com/path"]) assert.equal(validate("poppy-document", { ...read("poppy"), organization: { name: "Demo", domain } }), false, domain);
   for (const url of ["http://dealer.example/api", "https://user:secret@dealer.example/api", "https:///api", "https://dealer.example/has space"]) {
     const document = read("poppy"); document.apis[0].url = url;
     assert.equal(validate("poppy", document), false, url);
@@ -156,6 +185,9 @@ test("conversation entries need a description; web flags and disabled sign-in ar
   const entry = { type: "poppy", endpoint: "https://demo-toyota.example.com/poppy/conversations" };
   assert.equal(validate("poppy", { ...read("poppy"), agent: { protocols: [entry] } }), false, "description is required in 1.0");
   assert.equal(validate("poppy", { ...read("poppy"), agent: { protocols: [{ ...entry, description: "Questions about inventory, pricing and visits." }] } }), true, ajv.errorsText());
+  assert.equal(validate("poppy", { ...read("poppy"), agent: { protocols: [{ type: "ucp", endpoint: "https://demo-toyota.example.com/ucp/ask", description: "Product questions" }] } }), true, "other conversation protocol types may be listed");
+  assert.equal(validate("poppy", { ...read("poppy"), agent: { protocols: [{ ...entry, description: "Help", access: "future" }] } }), false, "a published poppy entry uses a known access hint");
+  assert.equal(validate("poppy-document", { ...read("poppy"), agent: { protocols: [{ ...entry, description: "Help", access: "future" }] } }), true, "readers treat an unknown hint as absent");
   for (const patch of [{ agent: { protocols: [{ ...entry, description: "Account help", access: "signed_in" }] } }, { extensions: { ...read("poppy").extensions, "mediated-sign-in": [{ version: "1", fields: [{ name: "email", label: "Email", secret: false }], scopes: ["read"] }] } }]) {
     const document = { ...read("poppy.existing-issuer"), ...patch };
     assert.equal(validate("poppy", document), false);
@@ -173,9 +205,14 @@ test("issuer metadata accepts ES256 and PS384, supports PAR, and offers the brow
   const metadata = read("poppy-oauth-metadata");
   assert.equal(validate("poppy-oauth-metadata", metadata), true);
   assert.deepEqual(metadata.token_endpoint_auth_signing_alg_values_supported, ["ES256", "PS384"]);
+  const offering = { ...metadata, grant_types_supported: ["refresh_token", "authorization_code"], authorization_endpoint: `${issuer}/oauth/authorize` };
+  const enabled = { ...read("poppy.existing-issuer"), auth: { issuer } };
+  assert.deepEqual(identity(enabled, offering, discovery, resource()), []);
   for (const algorithms of [["ES256"], ["PS384"], ["RS256"]]) {
-    assert.equal(validate("poppy-oauth-metadata", { ...metadata, token_endpoint_auth_signing_alg_values_supported: algorithms }), false, algorithms.join());
-    assert.ok(identity(read("poppy.existing-issuer"), { ...metadata, token_endpoint_auth_signing_alg_values_supported: algorithms }, discovery, resource()).length);
+    const listed = { token_endpoint_auth_signing_alg_values_supported: algorithms };
+    assert.ok(identity(enabled, { ...offering, ...listed }, discovery, resource()).some(error => error.includes("ES256 and with PS384")), `${algorithms} with sign-in offered`);
+    assert.equal(validate("poppy-oauth-metadata", { ...metadata, ...listed }), true, "the list describes every client of the issuer");
+    assert.deepEqual(identity(read("poppy.existing-issuer"), { ...metadata, ...listed }, discovery, resource()), [], "an issuer with Personal Agent sign-in disabled may list other algorithms");
   }
   for (const grants of [[], ["authorization_code"], ["refresh_token", "authorization_code"], ["refresh_token", "urn:ietf:params:oauth:grant-type:device_code"]]) assert.equal(validate("poppy-oauth-metadata", { ...metadata, grant_types_supported: grants }), false);
   assert.equal(validate("poppy-oauth-metadata", { ...metadata, require_pushed_authorization_requests: true }), false);
@@ -225,6 +262,9 @@ test("delegated Session JWTs verify by client_id, sid and User ID; delegations m
     const changed = structuredClone(session); change(changed);
     assert.ok(checkPoppySessionClaims(changed, delegation, context()).length);
   }
+  const ahead = structuredClone(delegation); ahead.payload.iat = context().now + 5;
+  assert.deepEqual(checkPoppySessionClaims({ ...session, header: { ...session.header, poppy_dlg: compact(ahead) } }, ahead, context()), [], "a few seconds of clock skew do not invalidate a delegation");
+  assert.ok(checkPoppySessionClaims({ ...session, payload: { ...session.payload, htu: "not a url" } }, delegation, context()).length);
   const long = structuredClone(delegation); long.payload.exp = long.payload.iat + 86401;
   assert.ok(checkPoppySessionClaims({ ...session, header: { ...session.header, poppy_dlg: compact(long) } }, long, context()).length, "delegations last at most 24 hours");
   const token = "example-access-token", signedIn = structuredClone(session); signedIn.payload.ath = createHash("sha256").update(token).digest("base64url");
@@ -236,13 +276,18 @@ test("delegated Session JWTs verify by client_id, sid and User ID; delegations m
 test("Session JWTs go only to listed APIs, protocol endpoints and pages on exactly organization.domain", () => {
   const document = { ...read("poppy.native-mcp"), tasks: { endpoint: "https://api.provider.example/poppy/tasks" }, web: { browser_session_endpoint: "https://demo-toyota.example.com/poppy/browser-session" },
     agent: { protocols: [{ type: "poppy", endpoint: "https://chat.provider.example/poppy/conversations", description: "Inventory questions" }] }, extensions: { ...read("poppy").extensions, operations: [{ version: "3", endpoint: "https://demo-toyota.example.com/poppy/operations" }] } };
-  const servers = ["https://demo-toyota.example.com/poppy"];
+  const servers = { apiServers: ["https://demo-toyota.example.com/poppy"], feedbackEndpoint: "https://api.provider.example/poppy/feedback", oauthEndpoints: ["https://demo-toyota.example.com/poppy/oauth/token"] };
+  document.supported_versions = { "0.3": "https://demo-toyota.example.com/poppy/0.3.json" };
   for (const [url, expected] of [
     ["https://demo-toyota.example.com/poppy/skills/inventory.search", "api"], ["https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp", "api"],
     ["https://api.provider.example/poppy/tasks", "protocol"], ["https://chat.provider.example/poppy/conversations/cnv_1/messages", "protocol"],
     ["https://demo-toyota.example.com/poppy/browser-session/authorize", "protocol"], ["https://demo-toyota.example.com/poppy/operations", "protocol"],
-    ["https://demo-toyota.example.com/inventory/dt-3107", "website"],
-    ["https://www.demo-toyota.example.com/inventory", undefined], ["https://api.provider.example/other-tenant/mcp", undefined], ["http://demo-toyota.example.com/inventory", undefined], ["https://chat.provider.example/poppy/conversations-admin", undefined],
+    ["https://demo-toyota.example.com/inventory/dt-3107", "website"], ["https://api.provider.example/poppy/feedback", "protocol"],
+    ["https://demo-toyota.example.com/.well-known/poppy.json", undefined], ["https://demo-toyota.example.com/.well-known/oauth-protected-resource", undefined], ["https://demo-toyota.example.com/.well-known/agent-card.json", undefined],
+    ["https://demo-toyota.example.com/poppy/openapi.yaml", undefined], ["https://demo-toyota.example.com/poppy/0.3.json", undefined], ["https://demo-toyota.example.com/poppy/oauth/token", undefined],
+    ["https://demo-toyota.example.com/poppy/browser-session/authorize/x", "api"], ["https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp/other", undefined], ["https://user:secret@demo-toyota.example.com/inventory", undefined], ["not a url", undefined],
+    ["https://www.demo-toyota.example.com/inventory", undefined], ["https://api.provider.example/other-tenant/mcp", undefined], ["http://demo-toyota.example.com/inventory", undefined], ["https://chat.provider.example/poppy/conversations-admin", undefined], ["https://chat.provider.example/poppy/conversations/cnv_1/export", undefined], ["https://api.provider.example/poppy/tasks/other", undefined],
+    ["https://chat.provider.example/poppy/conversations", "protocol"], ["https://chat.provider.example/poppy/conversations/cnv_1/handoff/cancel", "protocol"],
   ] as const) assert.equal(poppySessionDestination(document, url, servers), expected, url);
 });
 
@@ -284,6 +329,18 @@ test("optional Operations approvals carry exact terms and never replace AAP cons
   assert.equal(validate("poppy-approval", { ...approval, approver: "agent" }), false, "input_type comes only with a user approval");
   assert.equal(validate("poppy-approval", { operation_id: approval.operation_id, revision: approval.revision, approver: "agent", approved_at: 1792742455 }), true);
   assert.equal(validate("poppy-approval-declined", { ...declined, operation_id: "not valid!" }), false);
+  const result = read("poppy-operation-result");
+  assert.equal(validate("poppy-operation-result", result), true, ajv.errorsText());
+  assert.deepEqual(result.operation, required.operation, "the MCP result carries the same operation as the HTTP body");
+  assert.equal(validate("poppy-operation-result", { error: "approval_required" }), false);
+  const mcp = read("mcp-manifest").tools;
+  for (const tool of mcp) {
+    const write = ["aap_lead_submit", "aap_trade_in_submit", "aap_credit_application_submit"].includes(tool.name);
+    const output = new Ajv2020({ strict: false, allErrors: true }); addFormats(output);
+    const check = output.compile(tool.outputSchema);
+    assert.equal(check(result), write, `${tool.name}: only write tools can return an operation`);
+    assert.equal(check(declined), write, `${tool.name}: only write tools can decline an approval`);
+  }
   const document = { ...read("poppy"), extensions: { ...read("poppy").extensions, operations: [{ version: "3" }] } };
   assert.equal(validate("poppy", document), true, "operations without website approvals lists no endpoint");
   assert.equal(poppyExtensionEntry(document, "operations", "3")?.version, "3");

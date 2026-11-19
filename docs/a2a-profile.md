@@ -8,7 +8,7 @@ description: Typed automotive DataParts in A2A 1.0 SendMessage, with optional re
 
 {/* aap-draft-only:start */}
 
-This is the unreleased **AAP 3.2.0** contract. Draft extension identifiers are replaced during release preparation.
+This is the unreleased **AAP 4.0.0** contract. Draft extension identifiers are replaced during release preparation.
 
 {/* aap-draft-only:end */}
 
@@ -16,7 +16,7 @@ This is the unreleased **AAP 3.2.0** contract. Draft extension identifiers are r
 
 ![An A2A Message contains a typed automotive payload in DataPart.data](./img/datapart-anatomy.svg)
 
-The baseline is [A2A 1.0](https://a2a-protocol.org/v1.0.0/specification/), with the canonical [protobuf definitions](https://github.com/a2aproject/A2A/blob/v1.0.0/specification/a2a.proto). Cards and headers use major/minor `1.0`; patch numbers do not select the automotive contract.
+The baseline is [A2A 1.0](https://a2a-protocol.org/v1.0.0/specification/), with the canonical [protobuf definitions](https://github.com/a2aproject/A2A/blob/v1.0.0/specification/a2a.proto). Cards and headers use major/minor `1.0`; patch numbers do not select the automotive contract. AAP 4.0 stays on A2A 1.0: upstream 1.0.1 is a patch with no contract change.
 
 ## What AAP adds
 

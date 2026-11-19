@@ -14,7 +14,7 @@ description: One consented inquiry, an explicit appointment outcome, and safe re
 |---|---|
 | MCP | `aap_lead_submit` with the typed request as `arguments` |
 | A2A | `SendMessage` with the typed request in `DataPart.data` |
-| PAP | `POST /skills/lead.submit` with the typed request body and delegated Session JWT authentication |
+| PAP | `POST /skills/lead.submit` with the typed request body, delegated Session JWT authentication and `Poppy-Version: 1.0` |
 
 All three use the same [request schema](https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-request.schema.json), [response schema](https://draft.autoagentprotocol.invalid/latest/schemas/lead-submit-response.schema.json), consent rules and deduplication store. A transport may allow an anonymous caller; a lead still contains identified customer information and explicit consent.
 
@@ -55,6 +55,8 @@ The consent text and timestamp record the actual user's decision; this fictional
 
 Vehicle blocks need no invented identifiers or specifications. An incomplete vehicle or appointment may need staff follow-up; do not pretend it is a confirmed booking. Motorcycle demo rides use `test_drive` with `vehicle_type: "motorcycle"`.
 
+A lead never returns a valuation or a credit decision. A valuation needs the optional [`trade_in.submit`](./trade-in-submit.md) skill and a credit application needs the optional [`credit_application.submit`](./credit-application-submit.md) skill, each on a dealer that declares it with its own consent. A lead's consent `scope` stays `["lead_submission"]`.
+
 See the [vehicle + trade-in example](https://draft.autoagentprotocol.invalid/latest/examples/lead-submit-request.example.json) and [ADF mapping](../compatibility/adf-mapping.md) for CRM delivery.
 
 ## Consent is a separate gate
@@ -86,7 +88,7 @@ OAuth authorization, a PAP Session, an MCP tool hint and caller-supplied `source
 | `received` | Accepted for dealer follow-up; not a sale or a guaranteed response time. |
 | `rejected` | No accepted lead or booking. Explain the reason safely. |
 
-`data.replayed: true` identifies a retry; `data.status` still reports the original `received` or `rejected` outcome. The former `duplicate` status is not valid in AAP 3.0.
+`data.replayed: true` identifies a retry; `data.status` still reports the original `received` or `rejected` outcome. The former `duplicate` status has not been valid since AAP 3.0.
 
 An appointment has its own outcome:
 

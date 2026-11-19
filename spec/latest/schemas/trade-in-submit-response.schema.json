@@ -28,7 +28,7 @@
         },
         "valuation": {
           "type": "object",
-          "description": "Present iff status is valued. Carries amount, the amount_min/amount_max range, or both.",
+          "description": "Present iff status is valued. Carries amount, the amount_min/amount_max range, or both. amount_min never exceeds amount_max, and an amount given with a range lies inside it; JSON Schema cannot compare the numbers, so publishers and receivers check this.",
           "properties": {
             "amount": {
               "type": "integer",

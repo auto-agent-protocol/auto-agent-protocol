@@ -40,6 +40,7 @@ const paths = {
   key: '<circle cx="8" cy="8" r="6"/><path d="m12 12 10 10M17 17l3-3M20 20l3-3"/>',
   unknown: '<circle cx="12" cy="12" r="9"/><path d="M9 8a3 3 0 1 1 4 3l-1 1v2M12 18h.01"/>',
   cross: '<path d="m6 6 12 12M6 18 18 6"/>',
+  person: '<circle cx="12" cy="7" r="4.5"/><path d="M3.5 22a8.5 8.5 0 0 1 17 0"/>',
 } as const;
 type Icon = keyof typeof paths;
 
@@ -55,6 +56,9 @@ function label(value: string, x: number, y: number, width = 1104, size = 24, col
 }
 function lines(values: string[], x: number, y: number, width: number, size = 22, color: string = C.muted, mono = false): string {
   return values.map((value, i) => label(value, x, y + i * (size * 1.45), width, size, color, 400, mono)).join("");
+}
+function centered(values: string[], x: number, y: number, width: number, size = 22, color: string = C.muted, mono = false): string {
+  return lines(values, x, y, width, size, color, mono).replaceAll('text-anchor="start"', 'text-anchor="middle"');
 }
 function rect(x: number, y: number, width: number, height: number, fill: string = C.paper, border: string = C.line, radius = 20): string {
   return `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="${radius}" fill="${fill}" stroke="${border}" stroke-width="2"/>`;
@@ -199,25 +203,29 @@ function renderVisual(name: DiagramName): string {
         + label("Working endpoints", 990, 306, 290, 25, C.ink, 650, false, "middle")
         + ["MCP", "A2A", "PAP OpenAPI"].map((v, i) => pill(v, 856, 334 + i * 62, 268, C.blueDark, C.paper, 24)).join("");
     }
-    case "poppy-discovery": return rect(48, 210, 530, 394)
-      + pill("AAP extension pointer", 76, 238, 474, C.blueDark, C.blueTint, 24)
-      + icon("tools", 278, 312, 70)
-      + label("Public MCP", 313, 431, 474, 33, C.ink, 650, false, "middle")
-      + lines(["Exact endpoint URL", "Its own access policy"], 313, 480, 474, 23).replaceAll('text-anchor="start"', 'text-anchor="middle"')
-      + rect(608, 210, 544, 394, C.tealTint)
-      + pill('Native PAP apis: "mcp"', 636, 238, 488, C.teal, C.paper, 24)
-      + icon("key", 845, 312, 70, C.teal)
-      + label("PAP-authorized MCP", 880, 431, 488, 33, C.ink, 650, false, "middle")
-      + lines(["Delegated Session JWT", "OAuth for account access"], 880, 480, 488, 23).replaceAll('text-anchor="start"', 'text-anchor="middle"');
+    case "poppy-discovery": return rect(48, 192, 1104, 60, C.ink, C.ink)
+      + label('extensions: { "autoagentprotocol.org/aap": [{ "version": "1", … }] }', 600, 230, 1060, 20, C.paper, 500, true, "middle")
+      + rect(48, 272, 530, 276)
+      + pill("AAP extension entry", 76, 296, 474, C.blueDark, C.blueTint, 24)
+      + icon("tools", 285, 350, 56)
+      + label("Public MCP", 313, 448, 474, 31, C.ink, 650, false, "middle")
+      + centered(["Exact endpoint URL", "Its own access policy"], 313, 490, 474, 21)
+      + rect(608, 272, 544, 276, C.tealTint)
+      + pill('Native PAP apis: "mcp"', 636, 296, 488, C.teal, C.paper, 24)
+      + icon("key", 852, 350, 56, C.teal)
+      + label("PAP-authorized MCP", 880, 448, 488, 31, C.ink, 650, false, "middle")
+      + centered(["Session JWT + Poppy-Version", "OAuth for account access"], 880, 490, 488, 21)
+      + rect(48, 568, 1104, 48, C.blueTint, C.blueTint)
+      + label("Optional tasks.endpoint: excluded tasks · skill index · feedback", 600, 600, 1060, 22, C.blueDark, 600, false, "middle");
     case "poppy-session": {
       const xs = [158, 600, 1042];
       return ["Identity key", "Personal agent", "Automotive API"].map((v, i) => pill(v, xs[i] - 110, 198, 220, i === 2 ? C.teal : C.blueDark, i === 2 ? C.tealTint : C.blueTint, 21) + line(xs[i], 252, xs[i], 611, C.line, true)).join("")
-        + label("Sign a short-lived delegation", 193, 293, 407, 23, C.ink, 500)
-        + arrow(158, 315, 600) + label("Fresh delegated Session JWT", 635, 365, 500, 23, C.ink, 500)
-        + arrow(600, 387, 1042) + label("Verify delegation + request binding", 635, 437, 500, 23, C.blueDark, 500)
+        + label("Sign a short-lived ES256 or PS384 delegation", 193, 293, 800, 23, C.ink, 500)
+        + arrow(158, 315, 600) + label("Session JWT + Poppy-Version: 1.0", 635, 365, 500, 23, C.ink, 500)
+        + arrow(600, 387, 1042) + label("Verify delegation, request, version", 635, 437, 390, 22, C.blueDark, 500)
         + label("Typed automotive result", 635, 509, 500, 23, C.teal, 500)
         + arrow(1042, 531, 600, 531, C.teal)
-        + label("client_id + sid identifies the Session; keys may rotate", 193, 582, 900, 23, C.teal, 500);
+        + label("client_id + sid + User ID find the Session; keys may rotate", 193, 582, 900, 23, C.teal, 500);
     }
     case "poppy-mcp-tokens": return rect(48, 192, 1104, 68, C.blueTint, C.blue)
       + label("Use the advertised native PAP MCP endpoint", 600, 235, 1040, 28, C.blueDark, 650, false, "middle")
@@ -225,8 +233,8 @@ function renderVisual(name: DiagramName): string {
       + rect(48, 310, 530, 296) + rect(622, 310, 530, 296, C.tealTint)
       + pill("Signed out", 76, 334, 474, C.blueDark, C.blueTint, 25)
       + pill("Account access", 650, 334, 474, C.teal, C.paper, 25)
-      + lines(["Poppy-Session header", "No access token", "No guest grant"], 80, 414, 466, 23)
-      + lines(["Poppy-Session + OAuth", "ath binds access token", "DPoP if token is bound"], 654, 414, 466, 23)
+      + lines(["Poppy-Session + Poppy-Version", "No access token", "No OAuth sign-in"], 80, 414, 466, 23)
+      + lines(["Token with resource = MCP url", "ath binds access token", "DPoP if token is bound"], 654, 414, 466, 23)
       + arrow(310, 505, 310, 538) + arrow(890, 505, 890, 538, C.teal)
       + label("Verified Session", 313, 576, 474, 26, C.blueDark, 650, false, "middle")
       + label("Account + scopes", 887, 576, 474, 25, C.teal, 650, false, "middle");
@@ -243,8 +251,10 @@ function renderVisual(name: DiagramName): string {
           + label(title, x + 174, 400, 312, 27, C.ink, 650, false, "middle")
           + lines(detail, x + 174, 446, 306, 21).replaceAll('text-anchor="start"', 'text-anchor="middle"')
           + (i < 2 ? arrow(x + 350, 378, x + 372) : "");
-      }).join("") + rect(48, 568, 1104, 48, C.tealTint, C.tealTint)
-        + label("303 + Session cookie only after verification", 600, 600, 1040, 25, C.teal, 650, false, "middle");
+      }).join("") + rect(48, 568, 538, 48, C.tealTint, C.tealTint)
+        + label("303 + Session cookie after verification", 317, 600, 510, 22, C.teal, 650, false, "middle")
+        + rect(614, 568, 538, 48, C.blueTint, C.blueTint)
+        + label("Signed in: poppy:browser-sign-in scope", 883, 600, 510, 22, C.blueDark, 650, false, "middle");
     }
     case "consent-gate": return tile("Browse", "Dealer + inventory skills", "search", 48, 257, 370)
       + tile("Inspect", "Price + equipment evidence", "car", 48, 416, 370)
@@ -352,7 +362,7 @@ function renderVisual(name: DiagramName): string {
           + label(detail, x + 174, 560, 312, 22, C.ink, 500, false, "middle");
       }).join("");
     case "interop-clients": {
-      const rows: [string, string][] = [["MCP current", "Per-request metadata"], ["MCP legacy", "Initialize lifecycle"], ["A2A 1.0", "Activated DataPart"], ["PAP 0.3", "Session key + DPoP"]];
+      const rows: [string, string][] = [["MCP current", "Per-request metadata"], ["MCP legacy", "Initialize lifecycle"], ["A2A 1.0", "Activated DataPart"], ["PAP 1.0", "Session + Poppy-Version"]];
       return rows.map(([title, detail], i) => tile(title, detail, i === 3 ? "key" : "agent", 48, 192 + i * 108, 386) + arrow(440, 240 + i * 108, 592)).join("")
         + rect(598, 192, 554, 420, C.blueTint, C.blue) + icon("shield", 831, 225, 88)
         + label("One AAP contract", 875, 386, 490, 36, C.ink, 650, false, "middle")
@@ -399,9 +409,239 @@ function renderVisual(name: DiagramName): string {
       + icon("document", 944, 270, 68) + label("Readable pages", 979, 397, 302, 30, C.ink, 650, false, "middle")
       + lines(["HTML ↔ Markdown", "Descriptive links", "Working resources"], 979, 454, 302, 23).replaceAll('text-anchor="start"', 'text-anchor="middle"');
     case "capability-parity": {
-      const columns = [696, 880, 1064], rows = ["Implemented skills", "Search capabilities", "Inventory + evidence", "Pricing + availability", "Consent + outcomes"];
+      const columns = [696, 880, 1064], rows = ["Core + optional skills", "Search capabilities", "Inventory + evidence", "Pricing + availability", "Consent + outcomes"];
       return rect(48, 202, 1104, 412) + ["MCP", "A2A", "PAP"].map((v, i) => pill(v, columns[i] - 64, 222, 128, C.blueDark, C.blueTint, 26)).join("")
         + rows.map((v, i) => label(v, 80, 320 + i * 63, 500, 25, C.ink, 500) + columns.map(x => icon("check", x - 18, 292 + i * 63, 36, C.teal)).join("")).join("");
+    }
+    case "pap-migration": {
+      const rows: [string, string, string][] = [
+        ["Version", "Poppy-Session only", "+ Poppy-Version: 1.0"],
+        ["Extensions", "One object per name", "A list, one entry per major"],
+        ["Tasks", "excluded_tasks, skill_index, feedback", "One tasks.endpoint"],
+        ["Keys", "PS384 recommended", "ES256 and PS384 accepted"],
+        ["Session", "Found by client_id + sid", "client_id + sid + User ID"],
+      ];
+      return pill("AAP 3.2 · PAP 0.3", 196, 192, 440, C.muted, C.paper, 20) + pill("AAP 4.0 · PAP 1.0", 712, 192, 440, C.teal, C.tealTint, 20)
+        + rows.map(([area, before, after], i) => {
+          const y = 246 + i * 74;
+          return label(area, 48, y + 38, 140, 21, C.ink, 650)
+            + rect(196, y, 440, 60, C.canvas, C.line, 14) + label(before, 218, y + 38, 400, 19, C.muted)
+            + arrow(646, y + 30, 702)
+            + rect(712, y, 440, 60, C.paper, C.line, 14) + icon("check", 730, y + 16, 28, C.teal)
+            + label(after, 774, y + 38, 360, 21, C.ink, 600);
+        }).join("");
+    }
+    case "poppy-versions": {
+      const cards: [Icon, string, string[]][] = [
+        ["document", "Fetch poppy.json", ["protocol_version: 1.0", "Optional supported_versions"]],
+        ["filter", "Choose the newest", ["Compatible means", "the same major version"]],
+        ["key", "Declare it", ["Poppy-Version: 1.0", "On every Session request"]],
+      ];
+      return cards.map(([glyph, title, detail], i) => {
+        const x = 48 + i * 378;
+        return rect(x, 196, 348, 270, i === 2 ? C.tealTint : C.paper) + pill(`0${i + 1}`, x + 24, 216, 64)
+          + icon(glyph, x + 140, 250, 68, i === 2 ? C.teal : C.blue)
+          + label(title, x + 174, 366, 312, 26, C.ink, 650, false, "middle")
+          + centered(detail, x + 174, 410, 306, 20)
+          + (i < 2 ? arrow(x + 350, 331, x + 372) : "");
+      }).join("")
+        + arrow(600, 498, 600, 472, C.amber)
+        + rect(48, 500, 1104, 110, C.amberTint, C.amberTint)
+        + icon("unknown", 76, 529, 52, C.amber)
+        + label("HTTP 400 version_unsupported", 152, 548, 700, 24, C.amber, 650, true)
+        + label("Refetch poppy.json and choose again; a new version starts a new Session, retried once.", 152, 586, 980, 19, C.ink);
+    }
+    case "poppy-request-headers": {
+      const rows: [string, string, string, boolean][] = [
+        ["Poppy-Session", "eyJ0eXAiOiJwb3BweS1zZXNz…", "Required", true],
+        ["Poppy-Version", "1.0", "Required", true],
+        ["Poppy-Extensions", '"autoagentprotocol.org/aap";v="1"', "With extensions", false],
+        ["Authorization", "Bearer eyJhbGciOi…", "Signed in only", false],
+        ["Poppy-Approval", 'operation_id="…", approver="user"', "With Operations", false],
+      ];
+      return label("POST /skills/inventory.search", 48, 206, 1000, 21, C.ink, 600, true)
+        + rows.map(([name, value, tag, required], i) => {
+          const y = 226 + i * 78;
+          return rect(48, y, 1104, 64, required ? C.tealTint : C.paper, required ? C.tealTint : C.line, 14)
+            + label(name, 76, y + 40, 270, 21, required ? C.teal : C.blueDark, 600, true)
+            + label(value, 360, y + 40, 500, 18, C.muted, 400, true)
+            + pill(tag, 880, y + 14, 248, required ? C.teal : C.blueDark, required ? C.paper : C.blueTint, 17);
+        }).join("");
+    }
+    case "poppy-tasks": {
+      const rows: [string, string][] = [["excluded_tasks", "Tasks not offered, with alternatives"], ["skill_index", "Agent Skills index of SKILL.md files"], ["feedback.endpoint", "Report a task the agent could not do"]];
+      return rect(48, 200, 392, 360) + icon("document", 76, 244, 52)
+        + label("GET tasks.endpoint", 76, 350, 336, 24, C.blueDark, 600, true)
+        + lines(["Poppy-Session header", "Poppy-Version: 1.0"], 76, 404, 336, 21, C.ink)
+        + icon("cross", 76, 476, 26, C.muted) + label("No access token", 112, 496, 300, 21, C.muted)
+        + arrow(446, 380, 508)
+        + rect(514, 200, 638, 360, C.blueTint, C.blue)
+        + rows.map(([key, detail], i) => {
+          const y = 220 + i * 112;
+          return rect(538, y, 590, 96) + label(key, 566, y + 40, 534, 23, C.blueDark, 600, true) + label(detail, 566, y + 74, 534, 19, C.muted);
+        }).join("")
+        + pill("Per Session · Cache-Control: private or no-store when responses differ", 48, 578, 1104, C.teal, C.tealTint, 20);
+    }
+    case "poppy-compliance-map": {
+      const columns: [string, string, string, Icon, [string, string][]][] = [
+        ["Required", C.teal, C.tealTint, "check", [["Discovery", "poppy.json + AAP bridge"], ["Versions", "Poppy-Version check"], ["Sessions", "Verify every request"], ["APIs", "openapi API entry"]]],
+        ["Required when advertised", C.blueDark, C.blueTint, "check", [["Sign-in", "Complete OAuth rules"], ["Browser join", "poppy:browser-sign-in"], ["Conversations", "All upstream rules"], ["Task coverage", "tasks.endpoint"], ["Operations", "Operations v3"]]],
+        ["Client obligations", C.amber, C.amberTint, "shield", [["Keys", "Protect identity keys"], ["Secrets", "Never in model context"], ["Destinations", "Check audience + host"]]],
+      ];
+      return columns.map(([title, color, fill, glyph, items], i) => {
+        const x = 48 + i * 378;
+        return rect(x, 200, 348, 412, i === 0 ? C.tealTint : C.paper)
+          + pill(title, x + 24, 222, 300, color, i === 0 ? C.paper : fill, 18)
+          + items.map(([name, detail], j) => {
+            const y = 300 + j * 62;
+            return icon(glyph, x + 26, y - 22, 26, color === C.blueDark ? C.blue : color)
+              + label(name, x + 66, y, 258, 22, C.ink, 650) + label(detail, x + 66, y + 25, 258, 17, C.muted);
+          }).join("")
+          + (i === 2 ? label("Not a dealer requirement", x + 174, 510, 300, 18, C.amber, 600, false, "middle") : "");
+      }).join("");
+    }
+    case "poppy-operations": {
+      const agent = 210, dealer = 770;
+      return pill("Personal agent", agent - 120, 198, 240, C.blueDark, C.blueTint, 21) + pill("Dealer API", dealer - 120, 198, 240, C.teal, C.tealTint, 21)
+        + line(agent, 252, agent, 611, C.line, true) + line(dealer, 252, dealer, 611, C.line, true)
+        + label("Write skill, declaring Operations v3", agent + 30, 290, 520, 21, C.ink)
+        + arrow(agent, 308, dealer)
+        + label("403 approval_required + exact terms", agent + 30, 360, 520, 21, C.amber, 600)
+        + arrow(dealer, 378, agent, 378, C.amber)
+        + rect(agent - 160, 404, 320, 64, C.paper, C.blue, 14)
+        + label("User or agent approves", agent, 444, 290, 21, C.ink, 650, false, "middle")
+        + label("Same request + Poppy-Approval", agent + 30, 510, 520, 21, C.ink)
+        + arrow(agent, 528, dealer)
+        + label("Performed at most once", agent + 30, 576, 520, 21, C.teal, 600)
+        + arrow(dealer, 594, agent, 594, C.teal)
+        + rect(830, 252, 322, 342, C.tealTint)
+        + icon("shield", 860, 296, 52, C.teal)
+        + label("Still required", 860, 386, 270, 25, C.teal, 650)
+        + lines(["AAP consent grant in", "the request body", "Same idempotency key", "Declined is final"], 860, 432, 270, 20, C.ink);
+    }
+    case "optional-skills": {
+      const core: [Icon, string][] = [["dealer", "dealer.information"], ["filter", "inventory.facets"], ["search", "inventory.search"], ["car", "inventory.vehicle"], ["lead", "lead.submit"]];
+      const optional: [Icon, string, string, string[]][] = [
+        ["car", "trade_in.submit", "Trade-in valuation", ["instant_valuation · contact_required", "currencies"]],
+        ["document", "credit_application.submit", "Credit application", ["inquiry_types · joint_applications", "national_id · currencies"]],
+      ];
+      return label("Five core skills", 48, 200, 600, 18, C.muted, 650)
+        + core.map(([glyph, operation], i) => {
+          const x = 48 + i * 225;
+          return rect(x, 214, 204, 100) + icon(glyph, x + 84, 230, 36) + label(operation, x + 102, 294, 184, 16, C.blueDark, 500, true, "middle");
+        }).join("")
+        + label("Two optional skills, declared with capabilities", 48, 350, 1000, 18, C.muted, 650)
+        + optional.map(([glyph, operation, detail, capabilities], i) => {
+          const x = 48 + i * 562;
+          return rect(x, 364, 542, 248, C.blueTint, C.blue) + icon(glyph, x + 24, 386, 48)
+            + label(operation, x + 90, 414, 428, 24, C.ink, 650, true) + label(detail, x + 90, 444, 428, 18, C.muted)
+            + ["MCP tool", "A2A skill", "PAP path"].map((binding, j) => pill(binding, x + 24 + j * 166, 466, 154, C.blueDark, C.paper, 17)).join("")
+            + label("capabilities", x + 24, 538, 494, 16, C.muted, 600)
+            + lines(capabilities, x + 24, 566, 494, 17, C.blueDark, true);
+        }).join("");
+    }
+    case "rebates-price": {
+      const rows: [string, string, string][] = [["List price", "$35,390", C.ink], ["Mandatory fees", "+ $500", C.ink], ["Customer cash, unconditional", "− $1,000", C.teal]];
+      return rect(48, 200, 652, 410)
+        + rows.map(([name, value, color], i) => label(name, 80, 250 + i * 50, 420, 23, color, 500) + label(value, 668, 250 + i * 50, 170, 24, color, 600, true, "end")).join("")
+        + line(80, 380, 668, 380)
+        + label("price", 80, 420, 300, 21, C.muted, 500, true)
+        + label("$34,890", 80, 494, 560, 64, C.ink, 700)
+        + pill("Unconditional rebate already included", 80, 534, 588, C.teal, C.tealTint, 21)
+        + rect(730, 200, 422, 410, C.amberTint, C.amberTint)
+        + label("Conditional rebates", 760, 250, 360, 25, C.amber, 650)
+        + label("is_conditional: true or omitted", 760, 282, 360, 17, C.muted, 400, true)
+        + [["Military", "$500"], ["College", "$500"]].map(([name, value], i) => rect(760, 310 + i * 66, 362, 54, C.paper, C.paper, 12)
+          + label(name, 784, 344 + i * 66, 220, 22, C.ink, 500) + label(value, 1098, 344 + i * 66, 120, 22, C.amber, 600, true, "end")).join("")
+        + lines(["Possible extra saving,", "subject to eligibility"], 760, 478, 362, 21, C.ink)
+        + pill("Never subtracted from price", 760, 548, 362, C.amber, C.paper, 19);
+    }
+    case "trade-in-valuation": return rect(48, 220, 300, 370) + icon("car", 76, 262, 52)
+      + label("Vehicle facts", 76, 352, 250, 25, C.ink, 650)
+      + lines(["year", "make", "model", "condition", "mileage"], 76, 398, 250, 21, C.blueDark, true)
+      + curve(348, 405, 420, 300, C.blue) + curve(348, 405, 420, 510, C.teal)
+      + rect(420, 210, 384, 180) + icon("lock", 444, 232, 44)
+      + label("Anonymous estimate", 506, 264, 284, 23, C.ink, 650)
+      + lines(["No customer or consent", "Dealer stores no contact data", "No follow-up"], 444, 310, 336, 19)
+      + rect(420, 420, 384, 180, C.tealTint) + icon("shield", 444, 442, 44, C.teal)
+      + label("Contact + consent", 506, 474, 284, 23, C.ink, 650)
+      + lines(["customer + consent together", "scope: trade_in_submission", "Dealer may follow up"], 444, 520, 336, 19)
+      + curve(804, 300, 880, 405, C.blue) + curve(804, 510, 880, 405, C.teal)
+      + rect(880, 290, 272, 230, C.blueTint, C.blue) + icon("check", 990, 312, 52, C.teal)
+      + label("Valuation", 1016, 406, 240, 27, C.ink, 650, false, "middle")
+      + centered(["Amount or range", "Estimate or offer"], 1016, 448, 240, 20)
+      + label("When status is valued", 1016, 500, 240, 17, C.muted, 400, false, "middle");
+    case "trade-in-outcomes": {
+      const columns: [Icon, string, string[], string, string, string][] = [
+        ["check", "valued", ["Amount, range or both", "Estimate or offer", "An offer has expires_at"], C.teal, C.teal, C.tealTint],
+        ["clock", "received", ["No valuation yet", "Dealer follows up later", "Needs consented contact"], C.blue, C.blueDark, C.paper],
+        ["cross", "rejected", ["Not accepted", "Nothing was recorded", "No valuation"], C.muted, C.muted, C.paper],
+      ];
+      return columns.map(([glyph, status, detail, iconColor, color, fill], i) => {
+        const x = 48 + i * 378;
+        return rect(x, 200, 348, 340, fill) + icon(glyph, x + 136, 230, 76, iconColor)
+          + label(status, x + 174, 368, 300, 30, color, 650, true, "middle")
+          + centered(detail, x + 174, 420, 304, 21);
+      }).join("") + pill("Retry with the same idempotency key: original result, replayed: true", 48, 568, 1104, C.blueDark, C.blueTint, 21);
+    }
+    case "credit-application-flow": {
+      const steps: [Icon, string, string][] = [
+        ["document", "Read capabilities", "inquiry_types · joint_applications · national_id"],
+        ["filter", "Collect accepted data", "Ask for an identifier only when the dealer accepts it"],
+        ["shield", "Record each applicant's consent", "Verbatim text · soft or hard inquiry · channels"],
+        ["lead", "Submit once", "credit_application.submit with an idempotency key"],
+        ["check", "Read the result", "Submission status, then any separate decision"],
+      ];
+      return steps.map(([glyph, title, detail], i) => {
+        const y = 210 + i * 78;
+        return rect(48, y, 712, 66, i === 4 ? C.tealTint : C.paper, C.line, 14)
+          + label(String(i + 1).padStart(2, "0"), 70, y + 41, 40, 18, C.muted, 500, true)
+          + icon(glyph, 114, y + 15, 36, i === 4 ? C.teal : C.blue)
+          + label(title, 172, y + 29, 560, 22, C.ink, 650) + label(detail, 172, y + 54, 560, 18, C.muted);
+      }).join("")
+        + rect(790, 210, 362, 378, C.blueTint, C.blue)
+        + label("status", 818, 252, 300, 22, C.blueDark, 600, true)
+        + pill("received", 818, 268, 146, C.teal, C.paper, 18) + pill("rejected", 978, 268, 146, C.muted, C.paper, 18)
+        + line(818, 330, 1124, 330)
+        + label("decision", 818, 368, 300, 22, C.blueDark, 600, true)
+        + label("Optional, may come later", 818, 394, 306, 17, C.muted)
+        + lines(["pending", "prequalified", "approved", "conditionally_approved", "declined"], 818, 430, 306, 18, C.ink, true);
+    }
+    case "credit-application-data": {
+      const groups: [Icon, string, string[]][] = [
+        ["person", "Identity", ["Name, suffix", "Marital status"]],
+        ["lead", "Contact", ["Email or phone", "For each applicant"]],
+        ["pin", "Residence", ["Address, housing", "Months at address"]],
+        ["tools", "Employment", ["Status, employer", "Monthly income"]],
+        ["document", "Financing", ["Finance or lease", "Down payment, term"]],
+        ["car", "Vehicles", ["Vehicle of interest", "Trade-in, payoff"]],
+      ];
+      return groups.map(([glyph, title, detail], i) => {
+        const x = 48 + (i % 3) * 243, y = 206 + Math.floor(i / 3) * 198;
+        return rect(x, y, 226, 180) + icon(glyph, x + 22, y + 22, 36)
+          + label(title, x + 22, y + 96, 186, 22, C.ink, 650) + lines(detail, x + 22, y + 130, 196, 18);
+      }).join("")
+        + rect(790, 206, 362, 378, C.amberTint, C.amber)
+        + icon("lock", 818, 230, 44, C.amber) + label("Sensitive", 878, 262, 250, 25, C.amber, 650)
+        + label("Never echoed", 818, 318, 306, 21, C.ink, 650)
+        + ["national_id", "date_of_birth", "drivers_license"].map((field, i) => rect(818, 340 + i * 52, 306, 40, C.paper, C.paper, 10)
+          + label(field, 838, 367 + i * 52, 270, 20, C.ink, 500, true)).join("")
+        + lines(["Not in responses, errors,", "logs or URLs"], 818, 528, 306, 18);
+    }
+    case "credit-consent": {
+      const fields: [string, string][] = [["consent_text", "Verbatim text they saw"], ["authorized_inquiry", "soft or hard"], ["allowed_channels", "email · phone · sms"], ["granted_at", "When they agreed"], ["expires_at", "Optional deadline"]];
+      return ["Applicant", "Co-applicant"].map((who, i) => {
+        const x = 48 + i * 572;
+        return rect(x, 200, 532, 328) + icon("person", x + 28, 222, 44, C.teal)
+          + label(who, x + 88, 254, 260, 26, C.ink, 650)
+          + (i === 1 ? pill("Joint only", x + 368, 226, 140, C.blueDark, C.blueTint, 17) : "")
+          + line(x + 28, 290, x + 504, 290)
+          + fields.map(([field, detail], j) => label(field, x + 28, 328 + j * 42, 214, 18, C.blueDark, 500, true) + label(detail, x + 256, 328 + j * 42, 252, 19, C.ink)).join("");
+      }).join("")
+        + rect(48, 548, 1104, 64, C.amberTint, C.amberTint)
+        + icon("cross", 74, 562, 36, C.amber)
+        + label("Not lead consent.", 128, 589, 250, 23, C.amber, 650)
+        + label("Lead consent, sign-in or an Operations approval never replaces it.", 380, 589, 750, 20, C.ink);
     }
   }
 }

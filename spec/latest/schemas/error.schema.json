@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/error.schema.json",
   "title": "Error",
-  "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats.",
+  "description": "Shared AAP skill failure. MCP returns this as structuredContent with isError: true; A2A wraps it in a google.protobuf.Struct detail in the error.data Any array; PAP OpenAPI returns it as the HTTP error body. Authentication and protocol errors retain their upstream formats. message and details never repeat request values: not customer contact data, and never a credit applicant's national_id, date_of_birth or drivers_license. Identify a problem by its JSON Pointer in instanceLocation instead.",
   "type": "object",
   "properties": {
     "type": {

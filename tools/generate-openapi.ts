@@ -383,6 +383,7 @@ export async function generateOpenapi(specDir: string, outDir: string, version: 
           "422": response("Invalid AAP payload, unsupported filter/sort, or invalid/expired cursor. Read the typed recovery hint.", "Error"),
           "429": { ...response("Rate limited. Wait at least Retry-After before retrying.", "Error"), headers: { "Retry-After": { schema: { type: "string" } } } },
           "500": response("Internal skill failure.", "Error"),
+          ...(pap1 && writes.includes(skill.id) ? { "503": { description: "Only with the optional Operations extension: the approved operation is still being performed or its effect is not yet known. Send the same request with the same approval again after Retry-After; never approve a new operation for the same action meanwhile.", headers: { "Retry-After": { schema: { type: "string" } } } } } : {}),
         },
       } }];
     }));

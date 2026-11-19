@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://draft.autoagentprotocol.invalid/latest/schemas/poppy-approval.schema.json",
   "title": "PoppyApproval",
-  "description": "An approval of one revision of an operation, user approved or agent approved (the Personal Agent approved on the User's instruction), sent by the Personal Agent. Operations extension 5 and 6. In a conversation message's extensions.operations.approval, or in an MCP tool call's _meta under personalagentprotocol.org/approval. At APIs, the same members go in the Poppy-Approval header as a Dictionary Structured Field. Unknown members are ignored.",
+  "description": "An approval of one revision of an operation, user approved or agent approved (the Personal Agent approved on the User's instruction), sent by the Personal Agent. Operations extension 5 and 6. In a conversation message's extensions.operations.approval, or in an MCP tool call's _meta under personalagentprotocol.org/approval. At APIs, the same members go in the Poppy-Approval header as a Dictionary Structured Field. Unknown members are ignored. A Personal Agent never sends input_type with an agent approval; a Company that receives one ignores it rather than rejecting the approval.",
   "type": "object",
   "required": [
     "operation_id",

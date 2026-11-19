@@ -108,7 +108,9 @@ export function generateMcp(specDir: string, outDir: string, version: string): v
       title: skill.name,
       description: skill.description,
       inputSchema,
-      outputSchema: bundleSchemas(schemasDir, [skill.response_schema, "error.schema.json"]),
+      // A dealer that advertises PAP Operations returns the operation or a decline as structuredContent of a write tool's error result.
+      outputSchema: bundleSchemas(schemasDir, [skill.response_schema, "error.schema.json",
+        ...(!readOnly && existsSync(resolve(schemasDir, "poppy-operation-result.schema.json")) ? ["poppy-operation-result.schema.json", "poppy-approval-declined.schema.json"] : [])]),
       annotations: {
         readOnlyHint: readOnly,
         destructiveHint: false,

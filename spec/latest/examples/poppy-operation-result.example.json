@@ -1,0 +1,18 @@
+{
+  "operation": {
+    "operation_id": "crd_7Hk2Qm",
+    "revision": "1792742400-k3Jd9Qx2mW8v",
+    "summary": "Send one individual credit application to Demo Toyota and authorize a **soft** credit inquiry. Demo Toyota may contact the applicant by email.",
+    "terms": {
+      "skill": "credit_application.submit",
+      "dealer": "Demo Toyota",
+      "application_type": "individual",
+      "authorized_inquiry": "soft",
+      "allowed_channels": [
+        "email"
+      ],
+      "idempotency_key": "4f1c2e8a-9b7d-4c3e-a5f6-0d8b1e2c3a4f"
+    },
+    "expires_at": "2026-10-20T00:20:00Z"
+  }
+}

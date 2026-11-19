@@ -6,6 +6,7 @@ import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { globSync } from "glob";
 import { ROOT } from "../../tools/lib/releases.js";
+import { checkConsentWindow, checkCreditApplicationAgainstCapabilities, checkRebates, checkValuation, rebateSavings } from "../../tools/lib/optional-skills.js";
 
 const ajv = new Ajv2020({ strict: false, allErrors: true }); addFormats(ajv);
 for (const file of globSync("spec/latest/schemas/**/*.json", { cwd: ROOT })) ajv.addSchema(JSON.parse(readFileSync(resolve(ROOT, file), "utf8")));
@@ -44,6 +45,36 @@ test("rebates are allowed only on new vehicles and never change the price contra
   assert.equal(validate("inventory-search-response", search), true, ajv.errorsText());
   assert.equal(validate("trade-in-submit-request", edit(read("trade-in-submit-request"), r => r.vehicle.rebates = [])), false, "a trade-in is never a new-vehicle listing");
   assert.equal(validate("vehicle", { horsepower: 236 }), true); assert.equal(validate("vehicle", { horsepower: -1 }), false);
+});
+
+test("cross-field rules that JSON Schema cannot express are checked by the reference helpers", () => {
+  const vehicle = read("vehicle-detail-response.rebates").data, at = (iso: string) => new Date(iso);
+  assert.deepEqual(checkRebates(vehicle, at("2026-11-19T12:00:00Z")), []);
+  assert.deepEqual(rebateSavings(vehicle), { includedInPrice: 1000, possibleExtra: 1000 });
+  const duplicate = edit(vehicle, v => v.rebates[1].program_id = v.rebates[0].program_id);
+  assert.equal(validate("vehicle", duplicate), true, "the schema alone accepts a duplicate program_id");
+  assert.ok(checkRebates(duplicate).some(error => error.includes("unique")));
+  assert.ok(checkRebates(vehicle, at("2026-12-01T12:00:00Z")).some(error => error.includes("toyota-2026-11-customer-cash")), "an expired program is not presented");
+  assert.ok(checkRebates({ ...vehicle, condition: "used" }).length);
+  const valuation = read("trade-in-submit-response").data.valuation;
+  assert.deepEqual(checkValuation(valuation, at("2026-11-20T00:00:00Z")), []);
+  for (const bad of [{ amount_min: 17600, amount_max: 15900 }, { amount: 20000, amount_min: 15900, amount_max: 17600 }]) {
+    assert.equal(validate("trade-in-submit-response", { type: "trade_in.submit.response", data: { trade_in_id: "t", status: "valued", valuation: bad } }), true);
+    assert.ok(checkValuation(bad).length, JSON.stringify(bad));
+  }
+  assert.ok(checkValuation(valuation, at("2026-12-01T00:00:00Z")).some(error => error.includes("expired")));
+  const consent = read("credit-application-submit-request").applicant.consent;
+  assert.deepEqual(checkConsentWindow(consent, at("2026-11-19T10:41:00Z")), []);
+  assert.ok(checkConsentWindow({ ...consent, expires_at: "2026-11-18T10:40:00Z" }).length, "expiry before the grant");
+  assert.ok(checkConsentWindow(consent, at("2027-01-01T00:00:00Z")).some(error => error === "consent expired"));
+  for (const grant of [read("lead-submit-request").consent, read("trade-in-submit-request.contact").consent]) assert.deepEqual(checkConsentWindow(grant), []);
+  const capabilities = read("credit-application-capabilities"), individual = read("credit-application-submit-request"), joint = read("credit-application-submit-request.joint");
+  assert.deepEqual(checkCreditApplicationAgainstCapabilities(individual, capabilities), []); assert.deepEqual(checkCreditApplicationAgainstCapabilities(joint, capabilities), []);
+  assert.ok(checkCreditApplicationAgainstCapabilities(joint, { ...capabilities, joint_applications: false }).length);
+  assert.ok(checkCreditApplicationAgainstCapabilities(joint, { ...capabilities, inquiry_types: ["soft"] }).length, "a hard authorization where only soft inquiries run");
+  assert.ok(checkCreditApplicationAgainstCapabilities(individual, { ...capabilities, national_id: "required" }).length);
+  assert.ok(checkCreditApplicationAgainstCapabilities(joint, { ...capabilities, national_id: "not_accepted" }).length);
+  assert.ok(checkCreditApplicationAgainstCapabilities({ ...individual, currency: "CAD" }, capabilities).length);
 });
 
 test("trade_in.submit requires year, make, model, wear condition and mileage; everything else is optional", () => {
@@ -99,7 +130,10 @@ test("credit_application.submit requires each applicant's identity, residence, i
     assert.equal(validate("credit-application-submit-request", edit(request, r => delete r.applicant[field])), false, `applicant.${field} is required`);
   }
   for (const field of ["middle_name", "employer_phone", "occupation", "months_at_employer", "phone"]) assert.equal(validate("credit-application-submit-request", edit(request, r => delete r.applicant[field])), true, `applicant.${field} is optional`);
-  for (const field of ["address_line_1", "city", "state", "zip"]) assert.equal(validate("credit-application-submit-request", edit(request, r => delete r.applicant.address[field])), false, `address.${field} is required`);
+  for (const field of ["address_line_1", "city", "state", "zip"]) {
+    assert.equal(validate("credit-application-submit-request", edit(request, r => delete r.applicant.address[field])), false, `address.${field} is required`);
+    assert.equal(validate("credit-application-submit-request", edit(request, r => r.applicant.address[field] = " ")), false, `address.${field} is not blank`);
+  }
   for (const field of ["type", "application_type", "applicant", "source_agent", "idempotency_key"]) assert.equal(validate("credit-application-submit-request", edit(request, r => delete r[field])), false, field);
   for (const field of ["financing", "vehicle_of_interest", "submitted_at"]) assert.equal(validate("credit-application-submit-request", edit(request, r => delete r[field])), true, `${field} is optional`);
   assert.equal(validate("credit-application-submit-request", edit(request, r => { delete r.applicant.email; delete r.applicant.phone; })), false, "one contact point is required");

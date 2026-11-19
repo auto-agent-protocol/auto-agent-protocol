@@ -7,7 +7,7 @@ description: Native automotive tools over MCP Streamable HTTP, with complete sch
 
 {/* aap-draft-only:start */}
 
-This is the unreleased **3.2.0** binding. Draft identifiers are replaced when the release is prepared; do not deploy them.
+This is the unreleased **4.0.0** binding. Draft identifiers are replaced when the release is prepared; do not deploy them.
 
 {/* aap-draft-only:end */}
 
@@ -17,7 +17,7 @@ This is the unreleased **3.2.0** binding. Draft identifiers are replaced when th
 
 ## Protocol baseline
 
-An AAP 3.2 MCP endpoint MUST implement Streamable HTTP for **MCP 2026-07-28** and **2025-11-25**. Advertise both actual revisions in discovery; additional revisions are optional. AAP's `3.2.0` release number is separate from these MCP protocol dates and from a server's software version.
+An AAP 4.0 MCP endpoint MUST implement Streamable HTTP for **MCP 2026-07-28** and **2025-11-25**. Advertise both actual revisions in discovery; additional revisions are optional. AAP's `4.0.0` release number is separate from these MCP protocol dates and from a server's software version.
 
 | | MCP 2026-07-28 | MCP 2025-11-25 compatibility |
 |---|---|---|
@@ -36,7 +36,7 @@ Under the current [per-request metadata rules](https://modelcontextprotocol.io/s
 Publish a public HTTPS MCP URL on the dealership's own discovery surfaces. It may point to a platform-hosted tenant endpoint, for example `https://api.provider.example/aap/0.0.0-dev/demo-toyota/mcp`.
 
 - Agent Card: `capabilities.extensions[]` → the AAP entry's `params.mcp`.
-- Poppy: `extensions["autoagentprotocol.org/aap"].mcp` for a public link; a native `apis` entry only when PAP session support is implemented.
+- Poppy: `mcp` in the version-`"1"` entry of the `extensions["autoagentprotocol.org/aap"]` list for a public link; a native `apis` entry only when PAP 1.0 Session support is implemented.
 - `/llms.txt`: a Markdown link to the exact endpoint, its access requirements and the AAP contract version.
 
 Do not guess `/mcp` or invent a universal well-known MCP path. Discovery files MUST identify the same dealership, AAP contract and implemented skill subset. See [discovery](../discovery.md).
@@ -80,9 +80,29 @@ This minimal discovery request omits optional client software identification. Th
 | `inventory.facets` | `aap_inventory_facets` | Read |
 | `inventory.search` | `aap_inventory_search` | Read |
 | `inventory.vehicle` | `aap_inventory_vehicle` | Read |
-| `lead.submit` | `aap_lead_submit` | Consented dealer contact |
+| `lead.submit` | `aap_lead_submit` | Write: consented dealer contact |
+| `trade_in.submit` (optional) | `aap_trade_in_submit` | Write: stores a trade-in; contact only with consent, otherwise an anonymous estimate |
+| `credit_application.submit` (optional) | `aap_credit_application_submit` | Write: sends a credit application under each applicant's credit consent |
 
 The release's `mcp.json` is a **reference tool catalog**, not a live server or a JSON-RPC response. A deployment MUST expose only implemented tools, in a deterministic order. Its inventory search tool MUST add actual `capabilities` under `_meta["autoagentprotocol.org/aap"]`, following `inventory-capabilities.schema.json`. That object MUST match the linked Agent Card.
+
+The two optional tools appear only when implemented. Each MUST carry its actual `capabilities` under `_meta["autoagentprotocol.org/aap"]` ([trade-in](https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-capabilities.schema.json), [credit application](https://draft.autoagentprotocol.invalid/latest/schemas/credit-application-capabilities.schema.json)), identical to the Agent Card's `params.skills[...].capabilities`. The reference catalog lists the `capabilities_schema`; a deployment adds the object:
+
+```json
+{
+  "autoagentprotocol.org/aap": {
+    "version": "0.0.0-dev",
+    "skill": "trade_in.submit",
+    "request_type": "trade_in.submit.request",
+    "response_type": "trade_in.submit.response",
+    "request_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-submit-request.schema.json",
+    "response_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-submit-response.schema.json",
+    "error_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/error.schema.json",
+    "capabilities_schema": "https://draft.autoagentprotocol.invalid/latest/schemas/trade-in-capabilities.schema.json",
+    "capabilities": { "instant_valuation": true, "contact_required": false, "currencies": ["USD"] }
+  }
+}
+```
 
 If only `inventory.facets` is implemented, omit the search tool and search capabilities. The facets tool follows the [USD/CAD and mi/km fallback](../skills/inventory-facets.md#currency-and-odometer-context), with USD/mi defaults, identically to A2A and PAP.
 
@@ -91,12 +111,12 @@ If only `inventory.facets` is implemented, omit the search tool and search capab
 Every tool MUST expose:
 
 - An object `inputSchema` that validates the complete typed AAP request, including `type`.
-- An object `outputSchema` accepting either the matching typed response or `aap.error`.
+- An object `outputSchema` accepting either the matching typed response or `aap.error`. The three write tools also accept the two PAP Operations results, so a dealer that advertises [Operations](../personal-agent-protocol.md#operations-approvals) stays within its own schema.
 - Self-contained JSON Schema 2020-12: referenced definitions are included under `$defs`; no remote fetch is needed to validate a call.
 - Standard `annotations` for read-only, destructive, idempotent and open-world behavior. AAP metadata belongs in namespaced `_meta`, not custom annotation keys.
 - A meaningful description and AAP metadata containing the release version, skill ID, request/response types and canonical schema URLs.
 
-Read tools use `readOnlyHint: true`. `lead.submit` uses `readOnlyHint: false`, `destructiveHint: false`, and conservatively `idempotentHint: false`: its required key protects retries for at least 24 hours, not indefinitely. Include the actual retention window in the tool description. Every tool uses `openWorldHint: true`. These are descriptive hints; authorization and consent remain enforced by the server.
+Read tools use `readOnlyHint: true`. The three write tools, `aap_lead_submit`, `aap_trade_in_submit` and `aap_credit_application_submit`, use `readOnlyHint: false`, `destructiveHint: false`, and conservatively `idempotentHint: false`: their required key protects retries for at least 24 hours, not indefinitely. Include the actual retention window in the tool description. Every tool uses `openWorldHint: true`. These are descriptive hints; authorization and consent remain enforced by the server.
 
 ## Call the shared contract
 
@@ -181,11 +201,51 @@ These omission rules are an AAP compatibility extension, not the strict upstream
 
 Public inventory reads SHOULD work without customer sign-in or personal information. An operator may require MCP OAuth credentials; it MUST disclose that requirement and publish protected resource metadata rather than an undocumented API-key prerequisite.
 
-A public MCP link in the AAP Poppy extension does **not** claim native PAP authorization. Advertising `apis: [{"type":"mcp", ...}]` additionally requires the [published PAP 0.3 MCP rules](../personal-agent-protocol.md#6-optional-poppy-surfaces): a delegated `Poppy-Session` header, protected-resource/issuer discovery when applicable, and ordinary OAuth token/scope enforcement for account access. Signed-out requests need no guest token. DPoP remains separate when the OAuth token is bound; the earlier mandatory token exchange is not part of this binding.
+A public MCP link in the AAP Poppy bridge entry does **not** claim native PAP support, and PAP clients send it no Session header. Listing `apis: [{"type":"mcp", ...}]` in `poppy.json` additionally requires the [PAP 1.0 MCP rules](../personal-agent-protocol.md#native-pap-mcp):
 
-PAP clients send the Session header only to advertised native APIs. Generic MCP clients use standard MCP authorization. Never forward a Session JWT or access token to another resource, A2A endpoint or tenant. An adapter authenticates to downstream services under their own policy. Frozen AAP 3.1 retains its prior PAP token rules.
+| Rule | Requirement |
+|---|---|
+| MCP revision | PAP 1.0 accepts MCP 2025-06-18 or later. AAP still requires 2026-07-28 and 2025-11-25 |
+| Session | Every call carries a fresh delegated `Poppy-Session` JWT and `Poppy-Version: 1.0`; the server verifies both. The Session `sid` is not an `Mcp-Session-Id` |
+| Signed out | Session header only; no OAuth token |
+| Signed in | The token is requested with `resource` = the MCP `url` from `poppy.json`. The server's protected-resource metadata has exactly that `resource` and lists the Company issuer in `authorization_servers`. The token works only at this server; DPoP is validated when the token is bound |
+| `extension_required` | Only to refuse the agent entirely; a tool that needs an extension returns an ordinary tool error |
 
-`lead.submit` always requires explicit contact consent and a stable idempotency key. MCP tool selection, OAuth consent, a PAP session or an agent's `source_agent` label cannot substitute for the buyer's contact consent.
+With the optional [Operations extension](../personal-agent-protocol.md#operations-approvals) declared, a write tool can answer with an error result that carries the operation to approve:
+
+```json
+{
+  "isError": true,
+  "content": [{ "type": "text", "text": "Not sent yet. This credit application needs approval: one individual application to Demo Toyota with a soft inquiry." }],
+  "structuredContent": {
+    "operation": {
+      "operation_id": "crd_7Hk2Qm",
+      "revision": "1792742400-k3Jd9Qx2mW8v",
+      "summary": "Send one individual credit application to Demo Toyota and authorize a **soft** credit inquiry. Demo Toyota may contact the applicant by email.",
+      "terms": { "skill": "credit_application.submit", "dealer": "Demo Toyota", "application_type": "individual", "authorized_inquiry": "soft", "allowed_channels": ["email"], "idempotency_key": "4f1c2e8a-9b7d-4c3e-a5f6-0d8b1e2c3a4f" },
+      "expires_at": "2026-10-20T00:20:00Z"
+    }
+  }
+}
+```
+
+This is a PAP Operations result, not an AAP response. It validates against the write tool's `outputSchema` through [`poppy-operation-result.schema.json`](https://draft.autoagentprotocol.invalid/latest/schemas/poppy-operation-result.schema.json); a declined approval uses [`poppy-approval-declined.schema.json`](https://draft.autoagentprotocol.invalid/latest/schemas/poppy-approval-declined.schema.json). Read tools never return either. After approval, call the same tool with the same arguments, unchanged consent and `idempotency_key`, and the approval in `_meta["personalagentprotocol.org/approval"]`:
+
+```json
+{
+  "personalagentprotocol.org/approval": {
+    "operation_id": "crd_7Hk2Qm",
+    "revision": "1792742400-k3Jd9Qx2mW8v",
+    "approver": "user",
+    "approved_at": 1792742460,
+    "input_type": "tap"
+  }
+}
+```
+
+Generic MCP clients use standard MCP authorization. Never forward a Session JWT or access token to another resource, A2A endpoint or tenant. An adapter authenticates to downstream services under its own policy. Frozen AAP 3.2 keeps its published PAP 0.3 rules.
+
+`lead.submit` always requires explicit contact consent and a stable idempotency key; `trade_in.submit` requires consent whenever contact data is sent; `credit_application.submit` requires each applicant's credit consent. MCP tool selection, OAuth consent, a PAP Session, an Operations approval or an agent's `source_agent` label never substitutes for them.
 
 ## Implement once; verify each binding
 

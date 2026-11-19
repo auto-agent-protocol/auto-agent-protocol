@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { parseList } from "structured-headers";
 import { oauthMetadataUrl } from "./poppy-legacy.js";
 export { oauthMetadataUrl, poppyRedirectMatches, poppyScopeChanges, poppyAlternativeReferences } from "./poppy-legacy.js";
 export { checkPoppyClientIdentity, checkPoppyTokenResponse, checkPoppyMcpResource, poppyJwkThumbprint } from "./poppy-0.3.js";
@@ -29,15 +30,17 @@ export function choosePoppyVersion(document: Record<string, any>, implemented: s
 export function checkPoppySupportedVersions(document: Record<string, any>, finalDiscoveryUrl: string, linked: Record<string, Record<string, any>> = {}): string[] {
   const errors: string[] = [], host = new URL(finalDiscoveryUrl).host.toLowerCase();
   for (const [version, value] of Object.entries(document.supported_versions ?? {}) as [string, string][]) {
-    const url = new URL(value);
-    if (url.protocol !== "https:" || url.host.toLowerCase() !== host || url.username || url.password) errors.push(`supported_versions ${version} must be an HTTPS URL on the host that served poppy.json`);
+    let url: URL | undefined;
+    try { url = new URL(value); } catch { /* reported below */ }
+    if (!url || url.protocol !== "https:" || url.host.toLowerCase() !== host || url.username || url.password) errors.push(`supported_versions ${version} must be an HTTPS URL on the host that served poppy.json`);
     if (version === document.protocol_version) errors.push("supported_versions lists only versions other than protocol_version");
     const other = linked[version];
     if (!other) continue;
     if (other.protocol_version !== version) errors.push(`The ${version} document must carry the protocol_version it is listed under`);
     if (other.supported_versions !== undefined) errors.push(`The ${version} document must not list supported_versions`);
     if (String(other.organization?.domain).toLowerCase() !== String(document.organization.domain).toLowerCase()) errors.push("Every served version keeps the same organization.domain");
-    if (other.auth?.issuer !== document.auth?.issuer) errors.push("Every served version selects the same issuer");
+    // With one authorization server either document may leave auth.issuer out (spec 3.1), so only two explicit selections can disagree here.
+    if (other.auth?.issuer !== undefined && document.auth?.issuer !== undefined && other.auth.issuer !== document.auth.issuer) errors.push("Every served version selects the same issuer");
   }
   return errors;
 }
@@ -47,19 +50,23 @@ export function checkPoppyVersionHeader(header: string | undefined, served: stri
   return header !== undefined && VERSION.test(header) && served.some(version => poppyVersionsCompatible(header, version)) ? undefined : "version_unsupported";
 }
 
-/** Spec 3.4: an RFC 9651 List of Strings, each with its version in the String parameter v. A header that fails to parse declares no extensions. */
+/**
+ * Spec 3.4: an RFC 9651 List of Strings, each with its version in the String parameter v.
+ * A header that fails to parse declares no extensions. A member that is not a String, or whose v is not a String, declares nothing.
+ * A name declared with two different versions declares nothing, because a Personal Agent uses one version of each extension.
+ */
 export function parsePoppyExtensions(header: string | undefined): Map<string, string> {
-  const declared = new Map<string, string>();
+  const declared = new Map<string, string>(), conflicting = new Set<string>();
   if (header === undefined || header.trim() === "") return declared;
-  const string = '"((?:[\\x20-\\x21\\x23-\\x5B\\x5D-\\x7E]|\\\\["\\\\])*)"';
-  const member = new RegExp(`^${string}((?:;[ ]*[a-z*][a-z0-9_.*-]*(?:=(?:${string}|[^;,\\s]+))?)*)$`);
-  for (const raw of header.split(/[ \t]*,[ \t]*/)) {
-    const match = member.exec(raw.trim());
-    if (!match) return new Map();
-    const version = new RegExp(`;[ ]*v=${string}`).exec(match[2]);
-    if (!version || declared.has(match[1])) return new Map();
-    declared.set(match[1].replace(/\\(["\\])/g, "$1"), version[1].replace(/\\(["\\])/g, "$1"));
+  let members: ReturnType<typeof parseList>;
+  try { members = parseList(header); } catch { return declared; }
+  for (const [name, parameters] of members) {
+    const version = parameters.get("v");
+    if (typeof name !== "string" || typeof version !== "string") continue;
+    if (declared.has(name) && declared.get(name) !== version) conflicting.add(name);
+    declared.set(name, version);
   }
+  for (const name of conflicting) declared.delete(name);
   return declared;
 }
 
@@ -86,6 +93,10 @@ export function poppyCompanyIdentifier(document: Record<string, any>, discovery:
   return { identifier: errors.length ? undefined : selected ?? servers[0], errors };
 }
 
+/**
+ * Checks the document a Personal Agent chose. Run choosePoppyVersion on the well-known document first: a document of another
+ * major version may list a compatible one in supported_versions (spec 3.4), and these checks then apply to that linked document.
+ */
 export function checkPoppyIdentity(
   document: Record<string, any>, discoveryUrl: string, metadata: Record<string, any> | undefined,
   finalDiscoveryUrl: string, resourceDiscovery: PoppyResourceDiscovery | undefined, implemented: string[] = [PAP_PROTOCOL_VERSION],
@@ -101,6 +112,7 @@ export function checkPoppyIdentity(
   if (document.web?.disabled === true && document.web.browser_session_endpoint) errors.push("web.disabled must not list browser_session_endpoint");
   if (document.web?.disabled === true && !document.agent && !document.apis?.length) errors.push("web.disabled requires agent or apis");
   if (document.web?.unscoped === true && !document.web.browser_session_endpoint) errors.push("web.unscoped requires browser_session_endpoint");
+  if (poppyExtensionEntry(document, "operations", "3")?.endpoint && !document.web?.browser_session_endpoint) errors.push("An operations endpoint for website approvals requires web.browser_session_endpoint");
   if (!resourceDiscovery) return [...errors, "Domain protected-resource discovery result is required, including an explicit 404"];
   const company = poppyCompanyIdentifier(document, resourceDiscovery); errors.push(...company.errors);
   const servers = resourceDiscovery.status === 200 ? resourceDiscovery.document.authorization_servers ?? [] : [];
@@ -116,9 +128,10 @@ export function checkPoppyIdentity(
       if (grants.includes("authorization_code") && !metadata.authorization_endpoint) errors.push("Direct Sign-In requires authorization_endpoint");
       if (grants.includes("urn:ietf:params:oauth:grant-type:device_code") && !metadata.device_authorization_endpoint) errors.push("Device Sign-In requires device_authorization_endpoint");
       if (metadata.require_pushed_authorization_requests === true && !metadata.pushed_authorization_request_endpoint) errors.push("Required Pushed Authorization Requests need pushed_authorization_request_endpoint");
-      const algorithms: string[] | undefined = metadata.token_endpoint_auth_signing_alg_values_supported;
-      if (algorithms && !(algorithms.includes("ES256") && algorithms.includes("PS384"))) errors.push("Client assertions signed with ES256 and with PS384 must both be accepted");
       const offersSignIn = document.auth?.disabled !== true && (grants.includes("authorization_code") || grants.includes("urn:ietf:params:oauth:grant-type:device_code"));
+      // The list describes the issuer for all of its clients, so it binds only a Company that offers Personal Agents sign-in (spec 3.2, 4.1).
+      const algorithms: string[] | undefined = metadata.token_endpoint_auth_signing_alg_values_supported;
+      if (offersSignIn && algorithms && !(algorithms.includes("ES256") && algorithms.includes("PS384"))) errors.push("A Company that offers sign-in accepts client assertions signed with ES256 and with PS384");
       const scopes: string[] = [...(metadata.scopes_supported ?? []), ...(resourceDiscovery.status === 200 ? resourceDiscovery.document.scopes_supported ?? [] : [])];
       if (offersSignIn && document.web?.browser_session_endpoint && scopes.length && !scopes.includes("poppy:browser-sign-in")) errors.push("A Company with browser join and sign-in supports the poppy:browser-sign-in scope");
     }
@@ -151,10 +164,13 @@ export function checkPoppySessionClaims(
   if (s.aud !== context.companyIdentifier) errors.push("Session aud must exactly equal the discovered Company identifier");
   if (!["ES256", "PS384"].includes(delegation.header.alg) || delegation.header.typ !== "poppy-delegation+jwt") errors.push("Delegation must be a poppy-delegation+jwt signed with ES256 or PS384");
   if (session.header.alg !== "ES256" || session.header.typ !== "poppy-session+jwt") errors.push("Session JWT must be a poppy-session+jwt signed with ES256");
-  if (d.exp <= d.iat || d.exp - d.iat > 86400 || d.exp <= context.now || d.iat > context.now) errors.push("Delegation must be current with a positive lifetime of at most 24 hours");
+  // Spec 5.2 checks expiry and the 24-hour limit; a delegation issued slightly ahead of this clock is tolerated within the acceptance window.
+  if (d.exp <= d.iat || d.exp - d.iat > 86400 || d.exp <= context.now || d.iat > context.now + context.windowSeconds) errors.push("Delegation must be current with a positive lifetime of at most 24 hours");
   if (s.iat > d.exp || Math.abs(context.now - s.iat) > context.windowSeconds) errors.push("Session iat must be fresh and no later than delegation expiry");
   const url = new URL(context.url); url.search = ""; url.hash = "";
-  if (s.htm !== context.method || new URL(s.htu).href !== url.href) errors.push("Session htm and htu must bind this request, excluding query and fragment");
+  let bound: string | undefined;
+  try { bound = new URL(s.htu).href; } catch { /* reported below */ }
+  if (s.htm !== context.method || bound !== url.href) errors.push("Session htm and htu must bind this request, excluding query and fragment");
   if (session.header.kid !== poppyJwkThumbprint(d.cnf.jwk)) errors.push("Session kid must equal the delegated public-key thumbprint");
   try {
     const [header, payload] = session.header.poppy_dlg.split(".").slice(0, 2).map((part: string) => JSON.parse(Buffer.from(part, "base64url").toString()));
@@ -171,14 +187,33 @@ export function checkPoppySessionClaims(
   return errors;
 }
 
-/** Spec 5.2: Session JWTs go only to listed APIs, protocol endpoints, and website pages on exactly organization.domain. */
-export function poppySessionDestination(document: Record<string, any>, target: string, apiServers: string[] = []): "api" | "protocol" | "website" | undefined {
-  const url = new URL(target);
-  if (url.protocol !== "https:") return undefined;
+export type PoppySessionContext = {
+  /** Base URLs from the servers of each listed OpenAPI description. */
+  apiServers?: string[];
+  /** feedback.endpoint from this Session's tasks response (spec 9.3). */
+  feedbackEndpoint?: string;
+  /** The issuer's OAuth endpoints, which never carry the Session header. */
+  oauthEndpoints?: string[];
+};
+
+/**
+ * Spec 5.2: Session JWTs go only to request URLs of listed APIs, to listed or derived protocol endpoints, and to website pages on
+ * exactly organization.domain. Discovery and description documents and OAuth endpoints never carry the header.
+ */
+export function poppySessionDestination(document: Record<string, any>, target: string, context: PoppySessionContext = {}): "api" | "protocol" | "website" | undefined {
+  let url: URL;
+  try { url = new URL(target); } catch { return undefined; }
+  if (url.protocol !== "https:" || url.username || url.password) return undefined;
+  const same = (value: string) => { try { const other = new URL(value); return other.origin === url.origin && other.pathname === url.pathname; } catch { return false; } };
   const under = (base: string) => { const b = new URL(base); return b.origin === url.origin && (url.pathname === b.pathname || url.pathname.startsWith(b.pathname.endsWith("/") ? b.pathname : `${b.pathname}/`)); };
-  const protocol = [...(document.agent?.protocols ?? []).map((entry: any) => entry.endpoint), document.tasks?.endpoint, document.web?.browser_session_endpoint && `${document.web.browser_session_endpoint}/authorize`,
+  const apis: any[] = document.apis ?? [];
+  const documents = [...apis.filter(api => api.type !== "mcp").map(api => api.url), ...Object.values(document.supported_versions ?? {}) as string[], ...(context.oauthEndpoints ?? [])];
+  if (url.pathname.startsWith("/.well-known/") || documents.some(same)) return undefined;
+  // Conversation routes are the endpoint itself and the routes of spec 8.2 below one Conversation ID.
+  const conversation = (endpoint: string) => { const b = new URL(endpoint); return b.origin === url.origin && (url.pathname === b.pathname || (url.pathname.startsWith(`${b.pathname}/`) && /^[A-Za-z0-9_-]{1,256}\/(messages|events|handoff|handoff\/cancel|close)$/.test(url.pathname.slice(b.pathname.length + 1)))); };
+  const exact = [document.tasks?.endpoint, context.feedbackEndpoint, document.web?.browser_session_endpoint && `${document.web.browser_session_endpoint}/authorize`,
     ...Object.values(document.extensions ?? {}).flatMap((entries: any) => Array.isArray(entries) ? entries.map(entry => entry.endpoint) : [])].filter(Boolean);
-  if (protocol.some(under)) return "protocol";
-  if ([...apiServers, ...(document.apis ?? []).filter((api: any) => api.type === "mcp").map((api: any) => api.url)].some(under)) return "api";
+  if (exact.some(same) || (document.agent?.protocols ?? []).some((entry: any) => conversation(entry.endpoint))) return "protocol";
+  if (apis.filter(api => api.type === "mcp").some(api => same(api.url)) || (context.apiServers ?? []).some(under)) return "api";
   return url.host.toLowerCase() === String(document.organization.domain).toLowerCase() ? "website" : undefined;
 }

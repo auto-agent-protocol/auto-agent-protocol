@@ -13,6 +13,6 @@ Current interfaces:
 |---|---|
 | [MCP](./mcp.md) | Native tools over Streamable HTTP |
 | [A2A](./json-rpc.md) | `SendMessage` over JSON-RPC |
-| [PAP](../personal-agent-protocol.md) | Native OpenAPI operations with delegated PAP Session JWTs |
+| [PAP](../personal-agent-protocol.md) | Native PAP 1.0 OpenAPI operations with delegated Session JWTs and `Poppy-Version` |
 
 PAP's automotive API is separate from the retired A2A HTTP+JSON option.
