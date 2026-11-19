@@ -10,7 +10,7 @@ labels: partners
 **Site** (one https URL; add a second only for another property of the same organization)
 
 
-**What you do with AAP** (one or two sentences: which agent, which of the five skills, which contract version, or which upstream specification you maintain)
+**What you do with AAP** (one or two sentences: which agent, which of the five core or two optional skills, which contract version, or which upstream specification you maintain)
 
 
 **Public evidence** (agent card URL, docs page, release, or announcement — a listing needs a link anyone can check)

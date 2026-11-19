@@ -11,8 +11,8 @@ const release = releases.releases.find(
   (item) => item.contract === releases.stable,
 )!;
 const docs = `/docs/${release.contract}`;
-const [releaseMajor, releaseMinor] = release.version.split(".").map(Number);
-const publishedPap = releaseMajor > 3 || releaseMajor === 3 && releaseMinor >= 2;
+// Pages that exist only in the editable 4.0 documentation. Frozen v3.2 docs do not have them.
+const latestDocs = "/docs/latest";
 const github = "https://github.com/auto-agent-protocol/auto-agent-protocol";
 const icons = {
   arrow: <path d="M5 12h14m-6-6 6 6-6 6" />,
@@ -72,6 +72,13 @@ const icons = {
     </>
   ),
   bolt: <path d="m13 2-9 12h7l-1 8 10-13h-7z" />,
+  tradeIn: <path d="M3 8h15l-4-4M21 16H6l4 4" />,
+  credit: (
+    <>
+      <rect x="2" y="5" width="20" height="14" rx="3" />
+      <path d="M2 10h20M6 15h5" />
+    </>
+  ),
 } as const;
 type IconName = keyof typeof icons;
 function Icon({
@@ -204,8 +211,9 @@ function Hero(): JSX.Element {
               </Link>
             </div>
             <p className={styles.heroNote}>
-              Open source <span>·</span> Five automotive skills <span>·</span>{" "}
-              Three native interfaces
+              Open source <span>·</span> Five core skills{" "}
+              <span>·</span> Two optional skills <span>·</span> Three native
+              interfaces
             </p>
           </div>
           <HeroMap />
@@ -237,7 +245,12 @@ const protocols = [
       "Read structuredContent",
     ],
     codeTitle: "MCP tools/call parameters · request metadata omitted",
-    code: { name: "aap_inventory_search", arguments: searchRequest },
+    codeLanguage: "json",
+    code: JSON.stringify(
+      { name: "aap_inventory_search", arguments: searchRequest },
+      null,
+      2,
+    ),
   },
   {
     name: "A2A",
@@ -253,35 +266,47 @@ const protocols = [
       "SendMessage + DataPart",
     ],
     codeTitle: "A2A request Message · HTTP and JSON-RPC envelope omitted",
-    code: {
-      messageId: "example-search-1",
-      role: "ROLE_USER",
-      parts: [
-        {
-          data: searchRequest,
-          mediaType: "application/vnd.autoagent.inventory-search-request+json",
-        },
-      ],
-    },
+    codeLanguage: "json",
+    code: JSON.stringify(
+      {
+        messageId: "example-search-1",
+        role: "ROLE_USER",
+        parts: [
+          {
+            data: searchRequest,
+            mediaType:
+              "application/vnd.autoagent.inventory-search-request+json",
+          },
+        ],
+      },
+      null,
+      2,
+    ),
   },
   {
     name: "PAP",
     icon: "key" as const,
     subtitle: "Personal agents",
     title: "A native API for a verified personal agent.",
-    description: publishedPap
-      ? "Published PAP 0.3 discovery and delegated Poppy-Session JWTs. Signed-out automotive skills need no OAuth guest token."
-      : "Personal Agent Protocol draft 0.3 discovery, guest Sessions and DPoP. Automotive skills without a shopper account.",
+    description:
+      "PAP 1.0 discovery, a delegated Session JWT in Poppy-Session and the Poppy-Version header on every request. Signed-out automotive skills need no OAuth token.",
     path: "personal-agent-protocol",
     steps: [
       "Read poppy.json",
-      publishedPap ? "Verify Company + sign Session JWT" : "Verify issuer + start Session",
-      "Call the native OpenAPI",
+      "Sign a delegated Session JWT",
+      "Send it with Poppy-Version: 1.0",
     ],
-    codeTitle: publishedPap
-      ? "PAP inventory search JSON body · Poppy-Session header omitted"
-      : "PAP inventory search JSON body · token and DPoP headers omitted",
-    code: searchRequest,
+    codeTitle: "PAP 1.0 HTTP request · signed-out, Session JWT shortened",
+    codeLanguage: "text",
+    code: [
+      "POST /poppy/skills/inventory.search HTTP/1.1",
+      "Host: demo-toyota.example.com",
+      "Poppy-Session: eyJ0eXAiOiJwb3BweS1zZXNzaW9uK2p3dCJ9…",
+      "Poppy-Version: 1.0",
+      "Content-Type: application/json",
+      "",
+      JSON.stringify(searchRequest, null, 2),
+    ].join("\n"),
   },
 ];
 function ProtocolExplorer(): JSX.Element {
@@ -379,9 +404,7 @@ function ProtocolExplorer(): JSX.Element {
               See the request shape <code>inventory.search</code>
             </summary>
             <p>{active.codeTitle}</p>
-            <CodeBlock language="json">
-              {JSON.stringify(active.code, null, 2)}
-            </CodeBlock>
+            <CodeBlock language={active.codeLanguage}>{active.code}</CodeBlock>
             <TextLink to={`${docs}/${active.path}`}>
               Complete headers and exchange
             </TextLink>
@@ -423,15 +446,42 @@ const skills: [IconName, string, string, string][] = [
     "One approved, idempotent inquiry",
   ],
 ];
+const optionalSkills: {
+  icon: IconName;
+  title: string;
+  id: string;
+  description: string;
+  tags: string[];
+}[] = [
+  {
+    icon: "tradeIn",
+    title: "Value a trade-in",
+    id: "trade_in.submit",
+    description: "Instant valuation of the shopper’s current vehicle",
+    tags: ["Estimate or offer", "Amount or range", "Anonymous or consented"],
+  },
+  {
+    icon: "credit",
+    title: "Apply for credit",
+    id: "credit_application.submit",
+    description: "A consented application with its status and decision",
+    tags: [
+      "Consent per applicant",
+      "Soft or hard inquiry",
+      "Identifiers never echoed",
+    ],
+  },
+];
 function Skills(): JSX.Element {
   return (
     <section className={`${styles.section} ${styles.tinted}`}>
       <div className={styles.shell}>
         <div className={styles.sectionHeading}>
           <p className={styles.eyebrow}>THE AUTOMOTIVE JOURNEY</p>
-          <h2>Five skills. A complete handoff.</h2>
+          <h2>Five core skills. A complete handoff.</h2>
           <p>
             From a dealership’s first discovery to a customer-approved inquiry.
+            Two optional skills add trade-ins and credit.
           </p>
         </div>
         <div className={styles.skills}>
@@ -456,6 +506,38 @@ function Skills(): JSX.Element {
             <Icon name="shield" />
             Explicit consent for contact
           </span>
+        </div>
+        <div
+          className={styles.optionalSkills}
+          role="group"
+          aria-labelledby="optional-skills-label"
+        >
+          <p id="optional-skills-label" className={styles.optionalLabel}>
+            <span>Optional</span>
+            Declared only by dealers that offer them, with the same
+            capabilities on MCP, A2A and PAP
+          </p>
+          <div className={styles.optionalGrid}>
+            {optionalSkills.map(({ icon, title, id, description, tags }) => (
+              <Link
+                key={id}
+                to={`${latestDocs}/skills/${id.replaceAll(/[._]/g, "-")}`}
+                className={`${styles.skill} ${styles.optionalSkill}`}
+              >
+                <span className={styles.optionalBadge}>Optional</span>
+                <Icon name={icon} />
+                <h3>{title}</h3>
+                <code>{id}</code>
+                <p>{description}</p>
+                <ul className={styles.skillTags}>
+                  {tags.map((tag) => (
+                    <li key={tag}>{tag}</li>
+                  ))}
+                </ul>
+                <Icon name="arrow" className={styles.skillArrow} />
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -534,6 +616,10 @@ function VehicleFacts(): JSX.Element {
             </li>
             <li>
               <Icon name="check" />
+              <span>Conditional rebates kept apart from the price</span>
+            </li>
+            <li>
+              <Icon name="check" />
               <span>Explicit availability and update time</span>
             </li>
             <li>
@@ -556,12 +642,28 @@ function VehicleFacts(): JSX.Element {
           <VehicleArt />
           <div className={styles.vehicleIdentity}>
             <div>
-              <span>2024 · USED SUV</span>
+              <span>2026 · NEW SUV</span>
               <h3>Example Tourer</h3>
             </div>
             <strong>
-              $32,995<small>Mandatory dealer fees included</small>
+              $34,890
+              <small>Mandatory dealer fees and unconditional rebate included</small>
             </strong>
+          </div>
+          <div className={styles.rebates}>
+            <ul aria-label="Rebates on this vehicle">
+              <li>
+                <span className={styles.rebateIncluded}>In price</span>
+                <strong>Customer Cash</strong>
+                <span className={styles.rebateValue}>−$1,000</span>
+              </li>
+              <li>
+                <span className={styles.rebatePossible}>If eligible</span>
+                <strong>Military · College graduate</strong>
+                <span className={styles.rebateValue}>$500 each</span>
+              </li>
+            </ul>
+            <code>rebates[].is_conditional</code>
           </div>
           <div className={styles.evidence}>
             <div>
@@ -753,11 +855,11 @@ const structuredData = {
   url: `https://autoagentprotocol.org${docs}/intro`,
   version: release.version,
   description:
-    "An open automotive contract for dealer-domain discovery, evidence-based inventory search, transparent pricing and consented leads through MCP, A2A and PAP.",
+    "An open automotive contract for dealer-domain discovery, evidence-based inventory search, transparent pricing with rebates, consented leads and optional trade-in valuation and credit applications through MCP, A2A and PAP.",
   isBasedOn: [
     "https://modelcontextprotocol.io/specification/2026-07-28",
     "https://a2a-protocol.org/v1.0.0/specification/",
-    "https://personalagentprotocol.org/docs/0.3/spec",
+    "https://personalagentprotocol.org/docs/1.0/spec",
   ],
   isPartOf: { "@id": "https://autoagentprotocol.org/#website" },
   publisher: { "@id": "https://autoagentprotocol.org/#organization" },
